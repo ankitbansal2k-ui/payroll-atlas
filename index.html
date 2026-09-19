@@ -104,13 +104,13 @@
       text-align: center;
       margin-bottom: 4rem;
       padding: 3rem 2rem;
-      background: linear-gradient(135deg, rgba(123, 76, 229, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+      background: transparent;
       border-radius: 12px;
-      border: 1px solid var(--border-color);
+      border: none;
     }
 
     .hero h1 {
-      font-size: 2.5rem;
+      font-size: 3.2rem;
       font-weight: 700;
       margin-bottom: 1rem;
       line-height: 1.2;
@@ -119,6 +119,7 @@
     .hero p {
       font-size: 1.1rem;
       color: var(--text-secondary);
+      opacity: 0.7;
       margin-bottom: 2rem;
       max-width: 700px;
       margin-left: auto;
@@ -138,13 +139,14 @@
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      padding: 0.75rem 1.5rem;
+      background: rgba(123, 76, 229, 0.05);
+      border: 1px solid rgba(147, 51, 234, 0.2);
+      padding: 0.65rem 1.3rem;
       border-radius: 20px;
-      font-size: 0.9rem;
+      font-size: 0.8rem;
       color: var(--text-secondary);
       transition: all 0.3s;
+      opacity: 0.8;
     }
 
     .feature-pill:hover {
@@ -206,7 +208,7 @@
     th {
       padding: 1rem;
       text-align: left;
-      font-weight: 600;
+      font-weight: 700;
       color: var(--text-secondary);
     }
 
@@ -220,12 +222,15 @@
     }
 
     .status-badge {
-      display: inline-block;
-      padding: 0.35rem 0.75rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
       background: var(--success);
       color: white;
-      border-radius: 4px;
-      font-size: 0.85rem;
+      border-radius: 50%;
+      font-size: 0.9rem;
       font-weight: 600;
     }
 
@@ -307,7 +312,7 @@
     .section h2 {
       font-size: 1.3rem;
       margin-bottom: 1.5rem;
-      color: var(--blue-accent);
+      color: var(--text-primary);
     }
 
     /* Item cards */
@@ -621,35 +626,35 @@
             </tr>
           </thead>
           <tbody>
-            <tr><td>🇳🇴 Norway</td><td><span class="status-badge">Live</span></td><td>9 items</td></tr>
-            <tr><td>🇫🇮 Finland</td><td><span class="status-badge">Live</span></td><td>8 items</td></tr>
-            <tr><td>🇸🇪 Sweden</td><td><span class="status-badge">Live</span></td><td>6 items</td></tr>
-            <tr><td>🇩🇰 Denmark</td><td><span class="status-badge">Live</span></td><td>5 items</td></tr>
-            <tr><td>🇨🇿 Czech Republic</td><td><span class="status-badge">Live</span></td><td>7 items</td></tr>
-            <tr><td>🇬🇧 United Kingdom</td><td><span class="status-badge">Live</span></td><td>8 items</td></tr>
-            <tr><td>🇧🇪 Belgium</td><td><span class="status-badge">Live</span></td><td>6 items</td></tr>
-            <tr><td>🇩🇪 Germany</td><td><span class="status-badge">Live</span></td><td>6 items</td></tr>
-            <tr><td>🇬🇷 Greece</td><td><span class="status-badge">Live</span></td><td>7 items</td></tr>
-            <tr><td>🇮🇪 Ireland</td><td><span class="status-badge">Live</span></td><td>6 items</td></tr>
-            <tr><td>🇳🇱 Netherlands</td><td><span class="status-badge">Live</span></td><td>5 items</td></tr>
-            <tr><td>🇦🇹 Austria</td><td><span class="status-badge">Live</span></td><td>5 items</td></tr>
-            <tr><td>🇭🇺 Hungary</td><td><span class="status-badge">Live</span></td><td>5 items</td></tr>
-            <tr><td>🇫🇷 France</td><td><span class="status-badge">Live</span></td><td>5 items</td></tr>
-            <tr><td>🇪🇸 Spain</td><td><span class="status-badge">Live</span></td><td>5 items</td></tr>
-            <tr><td>🇵🇹 Portugal</td><td><span class="status-badge">Live</span></td><td>5 items</td></tr>
-            <tr><td>🇵🇱 Poland</td><td><span class="status-badge">Live</span></td><td>7 items</td></tr>
-            <tr><td>🇱🇹 Lithuania</td><td><span class="status-badge">Live</span></td><td>5 items</td></tr>
-            <tr><td>🇪🇪 Estonia</td><td><span class="status-badge">Live</span></td><td>6 items</td></tr>
-            <tr><td>🇮🇹 Italy</td><td><span class="status-badge">Live</span></td><td>3 items</td></tr>
-            <tr><td>🇸🇰 Slovakia</td><td><span class="status-badge">Live</span></td><td>4 items</td></tr>
-            <tr><td>🇸🇮 Slovenia</td><td><span class="status-badge">Live</span></td><td>3 items</td></tr>
-            <tr><td>🇭🇷 Croatia</td><td><span class="status-badge">Live</span></td><td>4 items</td></tr>
-            <tr><td>🇷🇴 Romania</td><td><span class="status-badge">Live</span></td><td>4 items</td></tr>
-            <tr><td>🇧🇬 Bulgaria</td><td><span class="status-badge">Live</span></td><td>4 items</td></tr>
-            <tr><td>🇱🇻 Latvia</td><td><span class="status-badge">Live</span></td><td>3 items</td></tr>
-            <tr><td>🇨🇾 Cyprus</td><td><span class="status-badge">Live</span></td><td>3 items</td></tr>
-            <tr><td>🇲🇹 Malta</td><td><span class="status-badge">Live</span></td><td>4 items</td></tr>
-            <tr><td>🇱🇺 Luxembourg</td><td><span class="status-badge">Live</span></td><td>3 items</td></tr>
+            <tr><td>🇳🇴 Norway</td><td><span class="status-badge">✓</span></td><td>9 items</td></tr>
+            <tr><td>🇫🇮 Finland</td><td><span class="status-badge">✓</span></td><td>8 items</td></tr>
+            <tr><td>🇸🇪 Sweden</td><td><span class="status-badge">✓</span></td><td>6 items</td></tr>
+            <tr><td>🇩🇰 Denmark</td><td><span class="status-badge">✓</span></td><td>5 items</td></tr>
+            <tr><td>🇨🇿 Czech Republic</td><td><span class="status-badge">✓</span></td><td>7 items</td></tr>
+            <tr><td>🇬🇧 United Kingdom</td><td><span class="status-badge">✓</span></td><td>8 items</td></tr>
+            <tr><td>🇧🇪 Belgium</td><td><span class="status-badge">✓</span></td><td>6 items</td></tr>
+            <tr><td>🇩🇪 Germany</td><td><span class="status-badge">✓</span></td><td>6 items</td></tr>
+            <tr><td>🇬🇷 Greece</td><td><span class="status-badge">✓</span></td><td>7 items</td></tr>
+            <tr><td>🇮🇪 Ireland</td><td><span class="status-badge">✓</span></td><td>6 items</td></tr>
+            <tr><td>🇳🇱 Netherlands</td><td><span class="status-badge">✓</span></td><td>5 items</td></tr>
+            <tr><td>🇦🇹 Austria</td><td><span class="status-badge">✓</span></td><td>5 items</td></tr>
+            <tr><td>🇭🇺 Hungary</td><td><span class="status-badge">✓</span></td><td>5 items</td></tr>
+            <tr><td>🇫🇷 France</td><td><span class="status-badge">✓</span></td><td>5 items</td></tr>
+            <tr><td>🇪🇸 Spain</td><td><span class="status-badge">✓</span></td><td>5 items</td></tr>
+            <tr><td>🇵🇹 Portugal</td><td><span class="status-badge">✓</span></td><td>5 items</td></tr>
+            <tr><td>🇵🇱 Poland</td><td><span class="status-badge">✓</span></td><td>7 items</td></tr>
+            <tr><td>🇱🇹 Lithuania</td><td><span class="status-badge">✓</span></td><td>5 items</td></tr>
+            <tr><td>🇪🇪 Estonia</td><td><span class="status-badge">✓</span></td><td>6 items</td></tr>
+            <tr><td>🇮🇹 Italy</td><td><span class="status-badge">✓</span></td><td>3 items</td></tr>
+            <tr><td>🇸🇰 Slovakia</td><td><span class="status-badge">✓</span></td><td>4 items</td></tr>
+            <tr><td>🇸🇮 Slovenia</td><td><span class="status-badge">✓</span></td><td>3 items</td></tr>
+            <tr><td>🇭🇷 Croatia</td><td><span class="status-badge">✓</span></td><td>4 items</td></tr>
+            <tr><td>🇷🇴 Romania</td><td><span class="status-badge">✓</span></td><td>4 items</td></tr>
+            <tr><td>🇧🇬 Bulgaria</td><td><span class="status-badge">✓</span></td><td>4 items</td></tr>
+            <tr><td>🇱🇻 Latvia</td><td><span class="status-badge">✓</span></td><td>3 items</td></tr>
+            <tr><td>🇨🇾 Cyprus</td><td><span class="status-badge">✓</span></td><td>3 items</td></tr>
+            <tr><td>🇲🇹 Malta</td><td><span class="status-badge">✓</span></td><td>4 items</td></tr>
+            <tr><td>🇱🇺 Luxembourg</td><td><span class="status-badge">✓</span></td><td>3 items</td></tr>
           </tbody>
         </table>
       </div>
