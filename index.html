@@ -443,6 +443,276 @@
       color: var(--text-secondary);
     }
 
+    /* Proof line under hero */
+    .proof-line {
+      text-align: center;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      opacity: 0.75;
+      margin-top: 1.5rem;
+      letter-spacing: 0.2px;
+    }
+
+    /* Tagline reveal section */
+    .tagline-section {
+      text-align: center;
+      max-width: 780px;
+      margin: 5rem auto;
+      padding: 0 1rem;
+    }
+
+    .tagline-section p {
+      font-size: 2rem;
+      font-weight: 600;
+      line-height: 1.4;
+      color: var(--text-primary);
+    }
+
+    /* Section heading pattern (What it provides / How it works / Benefits) */
+    .content-section {
+      margin: 5rem 0;
+    }
+
+    .content-section .eyebrow {
+      display: block;
+      text-align: center;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--blue-accent);
+      margin-bottom: 0.75rem;
+    }
+
+    .content-section h2 {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .content-section .section-sub {
+      text-align: center;
+      color: var(--text-secondary);
+      opacity: 0.85;
+      max-width: 620px;
+      margin: 0 auto 3rem;
+      font-size: 1rem;
+    }
+
+    /* What it provides — feature cards */
+    .provides-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .provide-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1.75rem;
+    }
+
+    .provide-card .icon {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .provide-card h3 {
+      font-size: 1.05rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .provide-card p {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      opacity: 0.9;
+      line-height: 1.6;
+    }
+
+    /* How it works — steps */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      counter-reset: step;
+    }
+
+    .step {
+      position: relative;
+      padding-top: 3rem;
+    }
+
+    .step::before {
+      counter-increment: step;
+      content: counter(step);
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 50%;
+      background: rgba(37, 99, 235, 0.15);
+      color: var(--blue-accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .step h3 {
+      font-size: 1.05rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .step p {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      opacity: 0.9;
+      line-height: 1.6;
+    }
+
+    /* Benefits */
+    .benefits-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .benefit-card {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+
+    .benefit-check {
+      flex-shrink: 0;
+      width: 1.75rem;
+      height: 1.75rem;
+      border-radius: 50%;
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--success);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      font-weight: 700;
+      margin-top: 0.15rem;
+    }
+
+    .benefit-card h3 {
+      font-size: 1rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .benefit-card p {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      opacity: 0.9;
+      line-height: 1.6;
+    }
+
+    /* FAQ */
+    .faq-list {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .faq-item {
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .faq-item summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 1.25rem 0;
+      font-weight: 600;
+      font-size: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .faq-item summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .faq-item summary::after {
+      content: '+';
+      font-size: 1.3rem;
+      color: var(--text-secondary);
+      transition: transform 0.3s;
+      margin-left: 1rem;
+    }
+
+    .faq-item[open] summary::after {
+      transform: rotate(45deg);
+    }
+
+    .faq-item p {
+      padding-bottom: 1.25rem;
+      color: var(--text-secondary);
+      opacity: 0.9;
+      font-size: 0.92rem;
+      line-height: 1.65;
+      max-width: 680px;
+    }
+
+    /* Final CTA */
+    .final-cta {
+      text-align: center;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 3.5rem 2rem;
+      margin: 5rem 0 2rem;
+    }
+
+    .final-cta h2 {
+      font-size: 1.8rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .final-cta p {
+      color: var(--text-secondary);
+      opacity: 0.85;
+      margin-bottom: 2rem;
+    }
+
+    .final-cta select {
+      background: var(--navy);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 0.85rem 1.25rem;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+      min-width: 320px;
+    }
+
+    .final-cta select:focus {
+      outline: none;
+      border-color: var(--blue-accent);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    @media (max-width: 768px) {
+      .steps {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+      }
+
+      .tagline-section p {
+        font-size: 1.4rem;
+      }
+
+      .content-section h2 {
+        font-size: 1.5rem;
+      }
+    }
+
     /* Footer */
     footer {
       text-align: center;
@@ -506,8 +776,8 @@
     <div class="header-container">
       <div class="logo">payroll-atlas</div>
       <nav>
-        <a href="#" onclick="showView('view-home'); return false;" class="nav-link">Home</a>
-        <a href="#" onclick="showView('view-changelog'); return false;" class="nav-link">Changelog</a>
+        <a href="#" onclick="showView('view-home'); return false;" class="nav-link" data-view="view-home">Home</a>
+        <a href="#" onclick="showView('view-changelog'); return false;" class="nav-link" data-view="view-changelog">Changelog</a>
         <select class="country-selector" onchange="goToCountry(this.value); this.value=''">
           <option value="">Select Country</option>
           <option value="norway">🇳🇴 Norway</option>
@@ -549,17 +819,103 @@
     <!-- Home View -->
     <div id="view-home">
       <div class="hero">
-        <h1>European Payroll Compliance, Always Current</h1>
-        <p>Track statutory and legislative changes across 29 European countries in real time. Sourced directly from government tax authorities, labour inspectorates, and social security bodies.</p>
+        <h1>Stay compliant without tracking 29 countries by hand</h1>
+        <p>Payroll Atlas monitors statutory and legislative changes across Europe, sourced directly from government tax authorities and social security bodies — so your team doesn't have to.</p>
 
-        <div class="features">
-          <div class="feature-pill">✓ 29 Countries Covered</div>
-          <div class="feature-pill">✓ Government-Sourced Only</div>
-          <div class="feature-pill">✓ Updated Monthly</div>
-          <div class="feature-pill">✓ Free for Everyone</div>
+        <a href="#" onclick="showView('view-changelog'); return false;" style="display:inline-block; background:var(--blue-accent); color:white; padding:0.85rem 2rem; border-radius:6px; font-weight:600; text-decoration:none; font-size:1rem; margin-bottom:1.5rem;">Find your country →</a>
+
+        <div class="proof-line">159+ tracked changes · 45+ upcoming · Updated monthly · Free, always</div>
+      </div>
+
+      <!-- Tagline reveal -->
+      <div class="tagline-section">
+        <p>One law changes in one country and your payroll team finds out from a client, three weeks late. Payroll Atlas finds it the day it's published.</p>
+      </div>
+
+      <!-- What it provides -->
+      <div class="content-section">
+        <span class="eyebrow">What it provides</span>
+        <h2>Everything you need to stay ahead of payroll law</h2>
+        <p class="section-sub">A single, always-current reference for statutory and legislative changes across every country you run payroll in.</p>
+
+        <div class="provides-grid">
+          <div class="provide-card">
+            <div class="icon">🗂️</div>
+            <h3>Country-by-country coverage</h3>
+            <p>Tax thresholds, employer costs, employment law, benefits, and statutory reporting — organized per country, not buried in a PDF.</p>
+          </div>
+          <div class="provide-card">
+            <div class="icon">🏛️</div>
+            <h3>Government-sourced only</h3>
+            <p>Every entry traces back to a tax authority, labour inspectorate, or social security body. No aggregator rumors, no third-party blogs.</p>
+          </div>
+          <div class="provide-card">
+            <div class="icon">📅</div>
+            <h3>What's changed and what's coming</h3>
+            <p>See confirmed changes already in effect alongside upcoming items still in consultation or drafting, each with its effective date.</p>
+          </div>
         </div>
       </div>
 
+      <!-- How it works -->
+      <div class="content-section">
+        <span class="eyebrow">How it works</span>
+        <h2>Three steps to your country's changes</h2>
+
+        <div class="steps">
+          <div class="step">
+            <h3>Pick your country</h3>
+            <p>Choose from 29 European countries you run payroll in, from the selector in the header or below.</p>
+          </div>
+          <div class="step">
+            <h3>Review what changed</h3>
+            <p>See tax, employer cost, employment law, and reporting updates for that country in one page.</p>
+          </div>
+          <div class="step">
+            <h3>Filter to what's next</h3>
+            <p>Switch to the changelog to see only upcoming changes, or filter by payroll versus statutory reporting.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Benefits -->
+      <div class="content-section">
+        <span class="eyebrow">Why teams use it</span>
+        <h2>Built for payroll and HR teams who can't afford to miss a deadline</h2>
+
+        <div class="benefits-grid">
+          <div class="benefit-card">
+            <div class="benefit-check">✓</div>
+            <div>
+              <h3>Stay ahead of deadlines</h3>
+              <p>Every upcoming change is dated and categorized, so nothing catches your payroll run off guard.</p>
+            </div>
+          </div>
+          <div class="benefit-card">
+            <div class="benefit-check">✓</div>
+            <div>
+              <h3>Skip the manual research</h3>
+              <p>We monitor 29 countries' tax authorities and social security bodies so you don't read every government bulletin yourself.</p>
+            </div>
+          </div>
+          <div class="benefit-card">
+            <div class="benefit-check">✓</div>
+            <div>
+              <h3>Cut through the noise</h3>
+              <p>Filter payroll changes from statutory reporting changes, or view only what's upcoming, in two clicks.</p>
+            </div>
+          </div>
+          <div class="benefit-card">
+            <div class="benefit-check">✓</div>
+            <div>
+              <h3>No subscription, no catch</h3>
+              <p>Payroll Atlas is free for everyone. No account, no paywall, no trial that expires.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Proof stats -->
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-value">29</div>
@@ -574,13 +930,52 @@
           <div class="stat-label">Upcoming Items</div>
         </div>
         <div class="stat-card">
-          <div class="stat-value">Real-Time</div>
-          <div class="stat-label">Monthly Audits</div>
+          <div class="stat-value">Monthly</div>
+          <div class="stat-label">Compliance Audits</div>
         </div>
       </div>
 
-      <div class="country-picker">
-        <label>Select a country to explore payroll changes:</label>
+      <!-- FAQ -->
+      <div class="content-section">
+        <span class="eyebrow">FAQ</span>
+        <h2>Common questions</h2>
+
+        <div class="faq-list">
+          <details class="faq-item">
+            <summary>Is Payroll Atlas really free?</summary>
+            <p>Yes. There's no account, no paywall, and no trial period. Every country page and the full changelog are open to anyone.</p>
+          </details>
+          <details class="faq-item">
+            <summary>How often is the data updated?</summary>
+            <p>We run a compliance sweep monthly, checking each country's government sources for new or amended statutory and legislative changes.</p>
+          </details>
+          <details class="faq-item">
+            <summary>Where does the information come from?</summary>
+            <p>Directly from government tax authorities, labour inspectorates, and social security bodies in each country. We don't rely on secondary sources or aggregators.</p>
+          </details>
+          <details class="faq-item">
+            <summary>Which countries are covered?</summary>
+            <p>29 European countries today, spanning Western, Northern, Southern, and Eastern Europe. Use the country selector in the header to see the full list.</p>
+          </details>
+          <details class="faq-item">
+            <summary>Is this legal or tax advice?</summary>
+            <p>No. Payroll Atlas is a reference tool to help you track when and where changes happen. Always confirm details with a qualified advisor before acting on them.</p>
+          </details>
+          <details class="faq-item">
+            <summary>I found an error or an outdated entry. How do I report it?</summary>
+            <p>Open an issue on our GitHub repository, linked in the footer. We review and correct entries as part of the monthly sweep.</p>
+          </details>
+          <details class="faq-item">
+            <summary>Do you plan to expand beyond Europe?</summary>
+            <p>Not currently. Scope is Europe only for now, so we can keep every entry accurate rather than spreading coverage thin.</p>
+          </details>
+        </div>
+      </div>
+
+      <!-- Final CTA -->
+      <div class="final-cta">
+        <h2>Find your country's changes</h2>
+        <p>Select a country to see everything tracked for it, or jump straight to the full changelog.</p>
         <select class="country-selector" onchange="goToCountry(this.value); this.value=''">
           <option value="">Choose a country</option>
           <option value="norway">🇳🇴 Norway</option>
@@ -613,50 +1008,6 @@
           <option value="malta">🇲🇹 Malta</option>
           <option value="luxembourg">🇱🇺 Luxembourg</option>
         </select>
-      </div>
-
-      <div class="status-table">
-        <h2>Country Coverage</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Country</th>
-              <th>Status</th>
-              <th>Changes Tracked</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td>🇳🇴 Norway</td><td><span class="status-badge">✓</span></td><td>9 items</td></tr>
-            <tr><td>🇫🇮 Finland</td><td><span class="status-badge">✓</span></td><td>8 items</td></tr>
-            <tr><td>🇸🇪 Sweden</td><td><span class="status-badge">✓</span></td><td>6 items</td></tr>
-            <tr><td>🇩🇰 Denmark</td><td><span class="status-badge">✓</span></td><td>5 items</td></tr>
-            <tr><td>🇨🇿 Czech Republic</td><td><span class="status-badge">✓</span></td><td>7 items</td></tr>
-            <tr><td>🇬🇧 United Kingdom</td><td><span class="status-badge">✓</span></td><td>8 items</td></tr>
-            <tr><td>🇧🇪 Belgium</td><td><span class="status-badge">✓</span></td><td>6 items</td></tr>
-            <tr><td>🇩🇪 Germany</td><td><span class="status-badge">✓</span></td><td>6 items</td></tr>
-            <tr><td>🇬🇷 Greece</td><td><span class="status-badge">✓</span></td><td>7 items</td></tr>
-            <tr><td>🇮🇪 Ireland</td><td><span class="status-badge">✓</span></td><td>6 items</td></tr>
-            <tr><td>🇳🇱 Netherlands</td><td><span class="status-badge">✓</span></td><td>5 items</td></tr>
-            <tr><td>🇦🇹 Austria</td><td><span class="status-badge">✓</span></td><td>5 items</td></tr>
-            <tr><td>🇭🇺 Hungary</td><td><span class="status-badge">✓</span></td><td>5 items</td></tr>
-            <tr><td>🇫🇷 France</td><td><span class="status-badge">✓</span></td><td>5 items</td></tr>
-            <tr><td>🇪🇸 Spain</td><td><span class="status-badge">✓</span></td><td>5 items</td></tr>
-            <tr><td>🇵🇹 Portugal</td><td><span class="status-badge">✓</span></td><td>5 items</td></tr>
-            <tr><td>🇵🇱 Poland</td><td><span class="status-badge">✓</span></td><td>7 items</td></tr>
-            <tr><td>🇱🇹 Lithuania</td><td><span class="status-badge">✓</span></td><td>5 items</td></tr>
-            <tr><td>🇪🇪 Estonia</td><td><span class="status-badge">✓</span></td><td>6 items</td></tr>
-            <tr><td>🇮🇹 Italy</td><td><span class="status-badge">✓</span></td><td>3 items</td></tr>
-            <tr><td>🇸🇰 Slovakia</td><td><span class="status-badge">✓</span></td><td>4 items</td></tr>
-            <tr><td>🇸🇮 Slovenia</td><td><span class="status-badge">✓</span></td><td>3 items</td></tr>
-            <tr><td>🇭🇷 Croatia</td><td><span class="status-badge">✓</span></td><td>4 items</td></tr>
-            <tr><td>🇷🇴 Romania</td><td><span class="status-badge">✓</span></td><td>4 items</td></tr>
-            <tr><td>🇧🇬 Bulgaria</td><td><span class="status-badge">✓</span></td><td>4 items</td></tr>
-            <tr><td>🇱🇻 Latvia</td><td><span class="status-badge">✓</span></td><td>3 items</td></tr>
-            <tr><td>🇨🇾 Cyprus</td><td><span class="status-badge">✓</span></td><td>3 items</td></tr>
-            <tr><td>🇲🇹 Malta</td><td><span class="status-badge">✓</span></td><td>4 items</td></tr>
-            <tr><td>🇱🇺 Luxembourg</td><td><span class="status-badge">✓</span></td><td>3 items</td></tr>
-          </tbody>
-        </table>
       </div>
     </div>
 
@@ -849,27 +1200,32 @@
 
     function goToCountry(country){
       if(!country) return;
-      const countryMap = {
-        'norway': 'no', 'finland': 'fi', 'sweden': 'se', 'denmark': 'dk',
-        'czechia': 'cz', 'uk': 'uk', 'belgium': 'be', 'germany': 'de',
-        'greece': 'gr', 'ireland': 'ie', 'netherlands': 'nl', 'austria': 'at',
-        'hungary': 'hu', 'france': 'fr', 'spain': 'es', 'portugal': 'pt',
-        'poland': 'pl', 'lithuania': 'lt', 'estonia': 'ee', 'italy': 'it',
-        'slovakia': 'sk', 'slovenia': 'si', 'croatia': 'hr', 'romania': 'ro',
-        'bulgaria': 'bg', 'latvia': 'lv', 'cyprus': 'cy', 'malta': 'mt',
-        'luxembourg': 'lu'
-      };
-      alert('Country pages coming soon. Featured items for ' + country + ' are in the changelog.');
+      document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
+      document.getElementById('view-changelog').classList.remove('hidden');
+      document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+      const changelogLink = document.querySelector('.nav-link[data-view="view-changelog"]');
+      if(changelogLink) changelogLink.classList.add('active');
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+      renderChangelog('all', country);
+      window.scrollTo({top: 0, behavior: 'smooth'});
     }
 
-    function renderChangelog(filter){
+    function renderChangelog(filter, country){
       const list = document.getElementById('changelog-list');
       let filtered = CHANGES;
-      if(filter === 'payroll') filtered = CHANGES.filter(c => c.category === 'payroll');
-      if(filter === 'reporting') filtered = CHANGES.filter(c => c.category === 'reporting');
-      if(filter === 'upcoming') filtered = CHANGES.filter(c => c.upcoming);
+      if(filter === 'payroll') filtered = filtered.filter(c => c.category === 'payroll');
+      if(filter === 'reporting') filtered = filtered.filter(c => c.category === 'reporting');
+      if(filter === 'upcoming') filtered = filtered.filter(c => c.upcoming);
+      if(country) filtered = filtered.filter(c => c.country === country);
 
-      list.innerHTML = filtered.map(item => `
+      const banner = country
+        ? `<div style="margin-bottom:1.5rem; padding:0.85rem 1.25rem; background:rgba(37,99,235,0.1); border:1px solid var(--border-color); border-radius:6px; display:flex; justify-content:space-between; align-items:center; font-size:0.9rem;">
+             <span>Showing changes for <strong>${filtered[0] ? filtered[0].flag + ' ' + filtered[0].name : country}</strong></span>
+             <a href="#" onclick="renderChangelog('all'); this.parentElement.remove(); return false;" style="color:var(--blue-accent); text-decoration:none;">Clear ✕</a>
+           </div>`
+        : '';
+
+      list.innerHTML = banner + filtered.map(item => `
         <div class="item-card">
           <div class="item-header">
             <div>
