@@ -180,6 +180,29 @@
   .country-picker .btn-primary{ align-self:flex-end; }
   .picker-note{ font-size:.82rem; color:var(--ink-soft); margin-top:14px; }
 
+  .region-block{ margin-top:22px; }
+  .region-block h4{ font-size:.78rem; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft); margin:0 0 10px; }
+  .country-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:8px; }
+  .country-chip{
+    display:flex; align-items:center; gap:8px; padding:9px 12px; border-radius:9px;
+    border:1px solid var(--line); background:var(--paper-raised); color:var(--ink);
+    font-size:.86rem; text-decoration:none; transition:border-color .15s, transform .15s;
+  }
+  .country-chip:hover{ border-color:var(--line-strong); transform:translateY(-1px); }
+  .country-chip .flag{ font-size:1.05rem; }
+
+  .benefits{ display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:20px; }
+  .benefit-card{
+    background:var(--paper-raised); border:1px solid var(--line); border-radius:12px; padding:22px;
+    border-top:3px solid var(--benefit-c, var(--navy));
+  }
+  .benefit-card:nth-child(1){ --benefit-c:var(--blue); }
+  .benefit-card:nth-child(2){ --benefit-c:var(--brick-soft); }
+  .benefit-card:nth-child(3){ --benefit-c:var(--gold); }
+  .benefit-card .eyebrow-sm{ font-size:.72rem; text-transform:uppercase; letter-spacing:.06em; color:var(--benefit-c, var(--navy)); font-weight:600; margin:0 0 8px; }
+  .benefit-card h3{ font-size:1.05rem; margin:0 0 8px; }
+  .benefit-card ul{ margin:0; padding-left:18px; font-size:.89rem; color:var(--ink-soft); display:grid; gap:5px; }
+
   .method-list{ display:grid; gap:14px; max-width:60ch; }
   .method-item{ display:flex; gap:12px; align-items:flex-start; }
   .method-item .dot{
@@ -490,7 +513,98 @@
         </div>
         <a class="btn btn-primary" id="home-country-go" href="#" aria-disabled="true">View country page →</a>
       </div>
-      <p class="picker-note">Live now: Norway, Finland, Sweden, Denmark, Czech Republic, United Kingdom, Belgium, Germany, Greece, Ireland, Netherlands, Austria, Hungary, France, Spain, Portugal, Poland, Lithuania, Estonia, Italy, Slovakia, Slovenia, Croatia, Romania, Bulgaria, Latvia, Cyprus, Malta, Luxembourg. Payroll Atlas adds one verified European country at a time — tell us which one payroll teams need next.</p>
+
+      <div class="region-block">
+        <h4>Nordics &amp; Baltics</h4>
+        <div class="country-grid">
+          <a class="country-chip" href="#norway"><span class="flag">🇳🇴</span> Norway</a>
+          <a class="country-chip" href="#finland"><span class="flag">🇫🇮</span> Finland</a>
+          <a class="country-chip" href="#sweden"><span class="flag">🇸🇪</span> Sweden</a>
+          <a class="country-chip" href="#denmark"><span class="flag">🇩🇰</span> Denmark</a>
+          <a class="country-chip" href="#lithuania"><span class="flag">🇱🇹</span> Lithuania</a>
+          <a class="country-chip" href="#estonia"><span class="flag">🇪🇪</span> Estonia</a>
+          <a class="country-chip" href="#latvia"><span class="flag">🇱🇻</span> Latvia</a>
+        </div>
+      </div>
+      <div class="region-block">
+        <h4>Western Europe</h4>
+        <div class="country-grid">
+          <a class="country-chip" href="#uk"><span class="flag">🇬🇧</span> United Kingdom</a>
+          <a class="country-chip" href="#belgium"><span class="flag">🇧🇪</span> Belgium</a>
+          <a class="country-chip" href="#ireland"><span class="flag">🇮🇪</span> Ireland</a>
+          <a class="country-chip" href="#netherlands"><span class="flag">🇳🇱</span> Netherlands</a>
+          <a class="country-chip" href="#france"><span class="flag">🇫🇷</span> France</a>
+          <a class="country-chip" href="#luxembourg"><span class="flag">🇱🇺</span> Luxembourg</a>
+        </div>
+      </div>
+      <div class="region-block">
+        <h4>Central Europe</h4>
+        <div class="country-grid">
+          <a class="country-chip" href="#czechia"><span class="flag">🇨🇿</span> Czech Republic</a>
+          <a class="country-chip" href="#germany"><span class="flag">🇩🇪</span> Germany</a>
+          <a class="country-chip" href="#austria"><span class="flag">🇦🇹</span> Austria</a>
+          <a class="country-chip" href="#hungary"><span class="flag">🇭🇺</span> Hungary</a>
+          <a class="country-chip" href="#poland"><span class="flag">🇵🇱</span> Poland</a>
+          <a class="country-chip" href="#slovakia"><span class="flag">🇸🇰</span> Slovakia</a>
+          <a class="country-chip" href="#slovenia"><span class="flag">🇸🇮</span> Slovenia</a>
+        </div>
+      </div>
+      <div class="region-block">
+        <h4>Southern Europe</h4>
+        <div class="country-grid">
+          <a class="country-chip" href="#greece"><span class="flag">🇬🇷</span> Greece</a>
+          <a class="country-chip" href="#spain"><span class="flag">🇪🇸</span> Spain</a>
+          <a class="country-chip" href="#portugal"><span class="flag">🇵🇹</span> Portugal</a>
+          <a class="country-chip" href="#italy"><span class="flag">🇮🇹</span> Italy</a>
+          <a class="country-chip" href="#malta"><span class="flag">🇲🇹</span> Malta</a>
+          <a class="country-chip" href="#cyprus"><span class="flag">🇨🇾</span> Cyprus</a>
+        </div>
+      </div>
+      <div class="region-block">
+        <h4>Southeast Europe</h4>
+        <div class="country-grid">
+          <a class="country-chip" href="#croatia"><span class="flag">🇭🇷</span> Croatia</a>
+          <a class="country-chip" href="#romania"><span class="flag">🇷🇴</span> Romania</a>
+          <a class="country-chip" href="#bulgaria"><span class="flag">🇧🇬</span> Bulgaria</a>
+        </div>
+      </div>
+      <p class="picker-note">Payroll Atlas adds one verified European country at a time — tell us which one payroll teams need next.</p>
+    </section>
+
+    <section class="home-section" id="who-its-for">
+      <div class="section-head">
+        <h2>Who it's for</h2>
+        <p class="section-intro">Built for the three teams that need to know about a statutory change before it hits a pay run — not after.</p>
+      </div>
+      <div class="benefits">
+        <div class="benefit-card">
+          <div class="eyebrow-sm">In-house payroll &amp; HR</div>
+          <h3>Never miss a budget-cycle change</h3>
+          <ul>
+            <li>One page per country instead of 29 government sites to monitor.</li>
+            <li>Confirmed changes separated from proposals, so nothing gets actioned early.</li>
+            <li>Worked examples with real numbers, not just a rate table.</li>
+          </ul>
+        </div>
+        <div class="benefit-card">
+          <div class="eyebrow-sm">Payroll providers &amp; EORs</div>
+          <h3>One reference across every market you run</h3>
+          <ul>
+            <li>Consistent structure across all 29 countries — tax, contributions, employment law, and reporting always in the same order.</li>
+            <li>Employer and employee actions split out on every item, ready to hand to a client or candidate.</li>
+            <li>EU Pay Transparency Directive transposition status tracked per country in one place.</li>
+          </ul>
+        </div>
+        <div class="benefit-card">
+          <div class="eyebrow-sm">Compliance &amp; legal teams</div>
+          <h3>Every figure traces to a primary source</h3>
+          <ul>
+            <li>Direct links to the tax authority, labour inspectorate, or social security body behind every item.</li>
+            <li>A dated "last verified" line on every country page, so staleness is never hidden.</li>
+            <li>Statutory reporting and filing-system changes tracked separately from payroll rate changes.</li>
+          </ul>
+        </div>
+      </div>
     </section>
 
     <section class="home-section" id="how-it-works">
