@@ -1622,6 +1622,7 @@
 
     function goToCountry(country){
       if(!country) return;
+      currentCountry = country;
       document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
       document.getElementById('view-changelog').classList.remove('hidden');
       document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
@@ -1633,6 +1634,7 @@
     }
 
     let currentChangelogItems = [];
+    let currentCountry = null;
 
     function escapeHtml(s){
       return String(s == null ? '' : s)
@@ -1677,6 +1679,7 @@
       if(filter === 'reporting') filtered = filtered.filter(c => c.category === 'reporting');
       if(filter === 'upcoming') filtered = filtered.filter(c => c.upcoming);
       if(country) filtered = filtered.filter(c => c.country === country);
+      if(country) currentCountry = country;
       currentChangelogItems = filtered;
 
       const banner = country
@@ -1706,7 +1709,7 @@
     function filterChanges(type){
       document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
       event.target.classList.add('active');
-      renderChangelog(type);
+      renderChangelog(type, currentCountry);
     }
   </script>
 
