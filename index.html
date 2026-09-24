@@ -1636,6 +1636,22 @@
     let currentChangelogItems = [];
     let currentCountry = null;
 
+    // Initialize currentCountry from URL on page load
+    function initializeFromURL(){
+      const params = new URLSearchParams(window.location.search);
+      const countryParam = params.get('country');
+      if(countryParam){
+        currentCountry = countryParam;
+        renderChangelog('all', countryParam);
+      }
+    }
+
+    if(document.readyState === 'loading'){
+      document.addEventListener('DOMContentLoaded', initializeFromURL);
+    } else {
+      initializeFromURL();
+    }
+
     function escapeHtml(s){
       return String(s == null ? '' : s)
         .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
