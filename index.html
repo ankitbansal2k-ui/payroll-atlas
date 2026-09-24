@@ -3,22 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Payroll Atlas — European Payroll & Compliance Tracker</title>
+  <title>Payroll Atlas</title>
+  <meta name="description" content="A free, government-sourced tracker for statutory and legislative payroll changes across 29 European countries. Updated monthly.">
+  <link rel="icon" type="image/svg+xml" href="design/assets/favicons/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
-    /* Personio-inspired professional palette - lighter, more refined */
+    /* Style lock: .tastemaker/style-lock.md — technical/premium mood, navy + teal-emerald,
+       verified contrast pairings recorded there. CSS var names kept from the prior
+       palette for implementation continuity; values updated to the new contract. */
     :root {
-      --navy: #1e293b;
-      --dark-bg: #0f172a;
-      --card-bg: #1e293b;
-      --purple-accent: #9333ea;
-      --blue-accent: #2563eb;
-      --teal-accent: #0891b2;
-      --text-primary: #f8fafc;
-      --text-secondary: #cbd5e1;
-      --border-color: #334155;
-      --success: #10b981;
-      --warning: #f59e0b;
-      --error: #ef4444;
+      --navy: #182338;          /* surface-raised */
+      --dark-bg: #0B1220;       /* bg */
+      --card-bg: #121B2E;       /* surface */
+      --purple-accent: #21B893; /* gradient second stop */
+      --blue-accent: #2DD4A3;   /* primary accent (teal-emerald) */
+      --teal-accent: #2DD4A3;
+      --text-primary: #EDF1F7;
+      --text-secondary: #9FB0C7;
+      --border-color: #26334A;
+      --success: #2DD4A3;
+      --warning: #F0A93B;
+      --error: #F0576B;
+      --on-primary: #04140F;
     }
 
     * {
@@ -28,11 +36,24 @@
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      background: linear-gradient(135deg, var(--dark-bg) 0%, var(--navy) 100%);
+      font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--dark-bg);
       color: var(--text-primary);
       line-height: 1.6;
       min-height: 100vh;
+    }
+
+    .mono {
+      font-family: 'Geist Mono', 'SF Mono', Consolas, monospace;
+      font-variant-numeric: tabular-nums;
+    }
+
+    h1, h2, h3 {
+      text-wrap: balance;
+    }
+
+    p {
+      text-wrap: pretty;
     }
 
     /* Header */
@@ -101,58 +122,198 @@
 
     /* Hero section */
     .hero {
-      text-align: center;
-      margin-bottom: 4rem;
-      padding: 3rem 2rem;
-      background: transparent;
-      border-radius: 12px;
-      border: none;
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 3.5rem;
+      align-items: center;
+      padding: 6rem 0 7rem;
+    }
+
+    .hero-copy {
+      max-width: 560px;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--blue-accent);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 1.25rem;
     }
 
     .hero h1 {
-      font-size: 3.2rem;
+      font-size: 3rem;
       font-weight: 700;
-      margin-bottom: 1rem;
-      line-height: 1.2;
+      margin-bottom: 1.25rem;
+      line-height: 1.15;
+      max-width: 560px;
     }
 
     .hero p {
       font-size: 1.1rem;
       color: var(--text-secondary);
-      opacity: 0.7;
       margin-bottom: 2rem;
-      max-width: 700px;
-      margin-left: auto;
-      margin-right: auto;
+      max-width: 480px;
+    }
+
+    .hero-cta-row {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--blue-accent);
+      color: var(--on-primary);
+      padding: 0.85rem 1.75rem;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 1rem;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.25s cubic-bezier(0.32,0.72,0,1), background 0.25s;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      background: #26c194;
+    }
+
+    .btn-primary:active {
+      transform: scale(0.98);
+    }
+
+    .proof-line {
+      font-family: 'Geist Mono', monospace;
+      font-variant-numeric: tabular-nums;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-top: 1.5rem;
+      letter-spacing: 0.2px;
+    }
+
+    /* Hero mockup card — real data, not a stock photo */
+    .hero-visual {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 24px 60px -20px rgba(0,0,0,0.5);
+    }
+
+    .hero-visual-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.85rem 1.1rem;
+      border-bottom: 1px solid var(--border-color);
+      background: var(--navy);
+    }
+
+    .hero-visual-bar span {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--border-color);
+    }
+
+    .hero-visual-bar .label {
+      margin-left: 0.5rem;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      font-family: 'Geist Mono', monospace;
+    }
+
+    .hero-visual-body {
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .hero-mock-item {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.9rem 1rem;
+      background: var(--navy);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+    }
+
+    .hero-mock-item .mock-title {
+      font-size: 0.85rem;
+      line-height: 1.45;
+    }
+
+    .hero-mock-item .mock-country {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.3rem;
+    }
+
+    .hero-mock-badge {
+      flex-shrink: 0;
+      font-family: 'Geist Mono', monospace;
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 0.25rem 0.55rem;
+      border-radius: 4px;
+      white-space: nowrap;
+      background: rgba(45, 212, 163, 0.14);
+      color: var(--blue-accent);
+    }
+
+    .hero-mock-badge.upcoming {
+      background: rgba(240, 169, 59, 0.16);
+      color: var(--warning);
+    }
+
+    @media (max-width: 900px) {
+      .hero {
+        grid-template-columns: 1fr;
+        padding: 3.5rem 0 3rem;
+      }
+      .hero-copy, .hero p {
+        max-width: 100%;
+      }
     }
 
     /* Feature pills */
     .features {
       display: flex;
       flex-wrap: wrap;
-      gap: 1rem;
-      justify-content: center;
-      margin-top: 2rem;
+      gap: 0.75rem;
+      margin-top: 2.25rem;
     }
 
     .feature-pill {
       display: inline-flex;
       align-items: center;
-      gap: 0.5rem;
-      background: rgba(123, 76, 229, 0.05);
-      border: 1px solid rgba(147, 51, 234, 0.2);
-      padding: 0.65rem 1.3rem;
+      gap: 0.45rem;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      padding: 0.5rem 1rem;
       border-radius: 20px;
       font-size: 0.8rem;
       color: var(--text-secondary);
-      transition: all 0.3s;
-      opacity: 0.8;
+      transition: all 0.3s cubic-bezier(0.32,0.72,0,1);
     }
 
     .feature-pill:hover {
       border-color: var(--blue-accent);
       color: var(--blue-accent);
-      background: rgba(59, 130, 246, 0.05);
     }
 
     /* Country picker */
@@ -182,7 +343,7 @@
     .country-picker select:focus {
       outline: none;
       border-color: var(--blue-accent);
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      box-shadow: 0 0 0 3px rgba(45, 212, 163, 0.1);
     }
 
     /* Status table */
@@ -218,7 +379,7 @@
     }
 
     tbody tr:hover {
-      background: rgba(59, 130, 246, 0.05);
+      background: rgba(45, 212, 163, 0.05);
     }
 
     .status-badge {
@@ -275,13 +436,13 @@
     }
 
     .nav-item:hover {
-      background: rgba(59, 130, 246, 0.1);
+      background: rgba(45, 212, 163, 0.1);
       color: var(--blue-accent);
     }
 
     .nav-item.active {
       color: var(--blue-accent);
-      background: rgba(59, 130, 246, 0.15);
+      background: rgba(45, 212, 163, 0.15);
       border-left: 3px solid var(--blue-accent);
       padding-left: calc(0.75rem - 3px);
     }
@@ -327,7 +488,7 @@
 
     .item-card:hover {
       border-color: var(--blue-accent);
-      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+      box-shadow: 0 4px 12px rgba(45, 212, 163, 0.2);
     }
 
     .item-header {
@@ -347,7 +508,7 @@
     .badge {
       display: inline-block;
       padding: 0.35rem 0.75rem;
-      background: rgba(123, 76, 229, 0.2);
+      background: rgba(45, 212, 163, 0.2);
       color: var(--purple-accent);
       border-radius: 4px;
       font-size: 0.8rem;
@@ -356,12 +517,12 @@
     }
 
     .badge.upcoming {
-      background: rgba(245, 158, 11, 0.2);
+      background: rgba(240, 169, 59, 0.2);
       color: var(--warning);
     }
 
     .badge.active {
-      background: rgba(16, 185, 129, 0.2);
+      background: rgba(45, 212, 163, 0.2);
       color: var(--success);
     }
 
@@ -412,7 +573,7 @@
     .filter-btn.active {
       border-color: var(--blue-accent);
       color: var(--blue-accent);
-      background: rgba(59, 130, 246, 0.1);
+      background: rgba(45, 212, 163, 0.1);
     }
 
     /* Stats grid */
@@ -424,7 +585,7 @@
     }
 
     .stat-card {
-      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(123, 76, 229, 0.1) 100%);
+      background: var(--card-bg);
       border: 1px solid var(--border-color);
       border-radius: 8px;
       padding: 1.5rem;
@@ -432,8 +593,10 @@
     }
 
     .stat-value {
-      font-size: 2rem;
-      font-weight: 700;
+      font-family: 'Geist Mono', 'SF Mono', Consolas, monospace;
+      font-variant-numeric: tabular-nums;
+      font-size: 2.25rem;
+      font-weight: 600;
       color: var(--blue-accent);
       margin-bottom: 0.5rem;
     }
@@ -441,16 +604,6 @@
     .stat-label {
       font-size: 0.9rem;
       color: var(--text-secondary);
-    }
-
-    /* Proof line under hero */
-    .proof-line {
-      text-align: center;
-      font-size: 0.9rem;
-      color: var(--text-secondary);
-      opacity: 0.75;
-      margin-top: 1.5rem;
-      letter-spacing: 0.2px;
     }
 
     /* Tagline reveal section */
@@ -462,10 +615,19 @@
     }
 
     .tagline-section p {
-      font-size: 2rem;
+      font-size: 2.25rem;
       font-weight: 600;
       line-height: 1.4;
       color: var(--text-primary);
+    }
+
+    .tagline-section .word {
+      opacity: 0.28;
+      transition: opacity 0.5s cubic-bezier(0.32,0.72,0,1);
+    }
+
+    .tagline-section .word.lit {
+      opacity: 1;
     }
 
     /* Section heading pattern (What it provides / How it works / Benefits) */
@@ -553,7 +715,7 @@
       width: 2.25rem;
       height: 2.25rem;
       border-radius: 50%;
-      background: rgba(37, 99, 235, 0.15);
+      background: rgba(45, 212, 163, 0.15);
       color: var(--blue-accent);
       display: flex;
       align-items: center;
@@ -592,7 +754,7 @@
       width: 1.75rem;
       height: 1.75rem;
       border-radius: 50%;
-      background: rgba(16, 185, 129, 0.15);
+      background: rgba(45, 212, 163, 0.15);
       color: var(--success);
       display: flex;
       align-items: center;
@@ -695,7 +857,7 @@
     .final-cta select:focus {
       outline: none;
       border-color: var(--blue-accent);
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+      box-shadow: 0 0 0 3px rgba(45, 212, 163, 0.15);
     }
 
     @media (max-width: 768px) {
@@ -819,59 +981,100 @@
     <!-- Home View -->
     <div id="view-home">
       <div class="hero">
-        <h1>Stay compliant without tracking 29 countries by hand</h1>
-        <p>Payroll Atlas monitors statutory and legislative changes across Europe, sourced directly from government tax authorities and social security bodies — so your team doesn't have to.</p>
+        <div class="hero-copy" data-reveal>
+          <span class="hero-eyebrow">
+            <img src="design/assets/icons/shield-check-bold.svg" width="16" height="16" alt="">
+            29 countries, government-sourced
+          </span>
+          <h1>Stay compliant without tracking 29 countries by hand</h1>
+          <p>Payroll Atlas monitors statutory and legislative changes across Europe, sourced directly from government tax authorities and social security bodies. Your team reads a page, not a bulletin.</p>
 
-        <a href="#" onclick="showView('view-changelog'); return false;" style="display:inline-block; background:var(--blue-accent); color:white; padding:0.85rem 2rem; border-radius:6px; font-weight:600; text-decoration:none; font-size:1rem; margin-bottom:1.5rem;">Find your country →</a>
+          <div class="hero-cta-row">
+            <a href="#" onclick="showView('view-changelog'); return false;" class="btn-primary">
+              Find your country
+              <img src="design/assets/icons/arrow-right-bold.svg" width="16" height="16" alt="">
+            </a>
+          </div>
 
-        <div class="proof-line">159+ tracked changes · 45+ upcoming · Updated monthly · Free, always</div>
+          <div class="proof-line">159+ tracked changes · 45+ upcoming · updated monthly · free, always</div>
+        </div>
+
+        <div class="hero-visual" data-reveal data-reveal-delay="0.15">
+          <div class="hero-visual-bar">
+            <span></span><span></span><span></span>
+            <span class="label">payroll-atlas / changelog</span>
+          </div>
+          <div class="hero-visual-body">
+            <div class="hero-mock-item">
+              <div>
+                <span class="mock-country">🇩🇪 Germany</span>
+                <span class="mock-title">Mindestlohn rises to €13.90; Minijob threshold rises to €603</span>
+              </div>
+              <span class="hero-mock-badge">1 Jan 2026</span>
+            </div>
+            <div class="hero-mock-item">
+              <div>
+                <span class="mock-country">🇬🇧 United Kingdom</span>
+                <span class="mock-title">National Living Wage rises to £12.71 an hour</span>
+              </div>
+              <span class="hero-mock-badge">1 Apr 2026</span>
+            </div>
+            <div class="hero-mock-item">
+              <div>
+                <span class="mock-country">🇫🇷 France</span>
+                <span class="mock-title">EU Pay Transparency Directive, timeline slipping</span>
+              </div>
+              <span class="hero-mock-badge upcoming">Not before 2027</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Tagline reveal -->
       <div class="tagline-section">
-        <p>One law changes in one country and your payroll team finds out from a client, three weeks late. Payroll Atlas finds it the day it's published.</p>
+        <p data-word-reveal>One law changes in one country and your payroll team finds out from a client three weeks late. Payroll Atlas finds it the day it is published.</p>
       </div>
 
       <!-- What it provides -->
-      <div class="content-section">
+      <div class="content-section" data-reveal>
         <span class="eyebrow">What it provides</span>
         <h2>Everything you need to stay ahead of payroll law</h2>
         <p class="section-sub">A single, always-current reference for statutory and legislative changes across every country you run payroll in.</p>
 
-        <div class="provides-grid">
-          <div class="provide-card">
-            <div class="icon">🗂️</div>
+        <div class="provides-grid" data-reveal-group>
+          <div class="provide-card" data-reveal-item>
+            <div class="icon"><img src="design/assets/icons/folder-open-bold.svg" width="24" height="24" alt=""></div>
             <h3>Country-by-country coverage</h3>
-            <p>Tax thresholds, employer costs, employment law, benefits, and statutory reporting — organized per country, not buried in a PDF.</p>
+            <p>Tax thresholds, employer costs, employment law, benefits, and statutory reporting, organized per country instead of buried in a PDF.</p>
           </div>
-          <div class="provide-card">
-            <div class="icon">🏛️</div>
+          <div class="provide-card" data-reveal-item>
+            <div class="icon"><img src="design/assets/icons/bank-bold.svg" width="24" height="24" alt=""></div>
             <h3>Government-sourced only</h3>
             <p>Every entry traces back to a tax authority, labour inspectorate, or social security body. No aggregator rumors, no third-party blogs.</p>
           </div>
-          <div class="provide-card">
-            <div class="icon">📅</div>
+          <div class="provide-card" data-reveal-item>
+            <div class="icon"><img src="design/assets/icons/calendar-check-bold.svg" width="24" height="24" alt=""></div>
             <h3>What's changed and what's coming</h3>
-            <p>See confirmed changes already in effect alongside upcoming items still in consultation or drafting, each with its effective date.</p>
+            <p>See confirmed changes already in effect alongside upcoming items still in consultation, each with its own effective date.</p>
           </div>
         </div>
       </div>
 
       <!-- How it works -->
-      <div class="content-section">
+      <div class="content-section" data-reveal>
         <span class="eyebrow">How it works</span>
         <h2>Three steps to your country's changes</h2>
 
-        <div class="steps">
-          <div class="step">
+        <div class="steps" data-reveal-group>
+          <div class="step" data-reveal-item>
             <h3>Pick your country</h3>
             <p>Choose from 29 European countries you run payroll in, from the selector in the header or below.</p>
           </div>
-          <div class="step">
+          <div class="step" data-reveal-item>
             <h3>Review what changed</h3>
             <p>See tax, employer cost, employment law, and reporting updates for that country in one page.</p>
           </div>
-          <div class="step">
+          <div class="step" data-reveal-item>
             <h3>Filter to what's next</h3>
             <p>Switch to the changelog to see only upcoming changes, or filter by payroll versus statutory reporting.</p>
           </div>
@@ -879,34 +1082,34 @@
       </div>
 
       <!-- Benefits -->
-      <div class="content-section">
+      <div class="content-section" data-reveal>
         <span class="eyebrow">Why teams use it</span>
         <h2>Built for payroll and HR teams who can't afford to miss a deadline</h2>
 
-        <div class="benefits-grid">
-          <div class="benefit-card">
-            <div class="benefit-check">✓</div>
+        <div class="benefits-grid" data-reveal-group>
+          <div class="benefit-card" data-reveal-item>
+            <div class="benefit-check"><img src="design/assets/icons/check-circle-bold.svg" width="16" height="16" alt=""></div>
             <div>
               <h3>Stay ahead of deadlines</h3>
               <p>Every upcoming change is dated and categorized, so nothing catches your payroll run off guard.</p>
             </div>
           </div>
-          <div class="benefit-card">
-            <div class="benefit-check">✓</div>
+          <div class="benefit-card" data-reveal-item>
+            <div class="benefit-check"><img src="design/assets/icons/check-circle-bold.svg" width="16" height="16" alt=""></div>
             <div>
               <h3>Skip the manual research</h3>
               <p>We monitor 29 countries' tax authorities and social security bodies so you don't read every government bulletin yourself.</p>
             </div>
           </div>
-          <div class="benefit-card">
-            <div class="benefit-check">✓</div>
+          <div class="benefit-card" data-reveal-item>
+            <div class="benefit-check"><img src="design/assets/icons/check-circle-bold.svg" width="16" height="16" alt=""></div>
             <div>
               <h3>Cut through the noise</h3>
               <p>Filter payroll changes from statutory reporting changes, or view only what's upcoming, in two clicks.</p>
             </div>
           </div>
-          <div class="benefit-card">
-            <div class="benefit-check">✓</div>
+          <div class="benefit-card" data-reveal-item>
+            <div class="benefit-check"><img src="design/assets/icons/check-circle-bold.svg" width="16" height="16" alt=""></div>
             <div>
               <h3>No subscription, no catch</h3>
               <p>Payroll Atlas is free for everyone. No account, no paywall, no trial that expires.</p>
@@ -916,27 +1119,27 @@
       </div>
 
       <!-- Proof stats -->
-      <div class="stats-grid">
-        <div class="stat-card">
+      <div class="stats-grid" data-reveal-group>
+        <div class="stat-card" data-reveal-item>
           <div class="stat-value">29</div>
           <div class="stat-label">European Countries</div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card" data-reveal-item>
           <div class="stat-value">159+</div>
           <div class="stat-label">Tracked Changes</div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card" data-reveal-item>
           <div class="stat-value">45+</div>
           <div class="stat-label">Upcoming Items</div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card" data-reveal-item>
           <div class="stat-value">Monthly</div>
           <div class="stat-label">Compliance Audits</div>
         </div>
       </div>
 
       <!-- FAQ -->
-      <div class="content-section">
+      <div class="content-section" data-reveal>
         <span class="eyebrow">FAQ</span>
         <h2>Common questions</h2>
 
@@ -973,7 +1176,7 @@
       </div>
 
       <!-- Final CTA -->
-      <div class="final-cta">
+      <div class="final-cta" data-reveal>
         <h2>Find your country's changes</h2>
         <p>Select a country to see everything tracked for it, or jump straight to the full changelog.</p>
         <select class="country-selector" onchange="goToCountry(this.value); this.value=''">
@@ -1026,9 +1229,73 @@
   </div>
 
   <footer>
-    <p>Payroll Atlas — European payroll compliance tracking. Updated monthly. All sources are government-verified.</p>
-    <p style="margin-top: 1rem; font-size: 0.85rem;">Maintained by the payroll community. <a href="#">View on GitHub</a></p>
+    <p>Payroll Atlas. European payroll compliance tracking, updated monthly. All sources are government-verified.</p>
+    <p style="margin-top: 1rem; font-size: 0.85rem;">Not legal or tax advice. <a href="https://github.com/ankitbansal2k-ui/payroll-atlas" target="_blank" rel="noopener">View source on GitHub</a></p>
   </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script>
+    // Motion: scroll reveals + tagline word-by-word reveal, reduced-motion aware.
+    if (window.gsap && window.ScrollTrigger) {
+      gsap.registerPlugin(ScrollTrigger);
+      const mm = gsap.matchMedia();
+
+      mm.add('(prefers-reduced-motion: no-preference)', () => {
+        document.querySelectorAll('[data-reveal]').forEach((el, i) => {
+          const delay = parseFloat(el.getAttribute('data-reveal-delay')) || 0;
+          gsap.fromTo(el,
+            { opacity: 0, y: 28, filter: 'blur(6px)' },
+            {
+              opacity: 1, y: 0, filter: 'blur(0px)',
+              duration: 0.9, delay,
+              ease: 'cubic-bezier(0.32,0.72,0,1)',
+              scrollTrigger: { trigger: el, start: 'top 85%', once: true }
+            }
+          );
+        });
+
+        document.querySelectorAll('[data-reveal-group]').forEach(group => {
+          const items = group.querySelectorAll(':scope > [data-reveal-item]');
+          gsap.fromTo(items,
+            { opacity: 0, y: 20 },
+            {
+              opacity: 1, y: 0, duration: 0.7, stagger: 0.12,
+              ease: 'cubic-bezier(0.32,0.72,0,1)',
+              scrollTrigger: { trigger: group, start: 'top 85%', once: true }
+            }
+          );
+        });
+      });
+
+      // Tagline reveal: words light up one at a time as the section crosses the trigger line.
+      const taglineEl = document.querySelector('[data-word-reveal]');
+      if (taglineEl) {
+        const words = taglineEl.textContent.trim().split(/\s+/);
+        taglineEl.innerHTML = words.map(w => `<span class="word">${w}</span>`).join(' ');
+        const wordEls = taglineEl.querySelectorAll('.word');
+        mm.add('(prefers-reduced-motion: no-preference)', () => {
+          ScrollTrigger.create({
+            trigger: taglineEl,
+            start: 'top 75%',
+            end: 'bottom 45%',
+            scrub: 0.5,
+            onUpdate: self => {
+              const lit = Math.floor(self.progress * wordEls.length);
+              wordEls.forEach((w, i) => w.classList.toggle('lit', i <= lit));
+            }
+          });
+        });
+        mm.add('(prefers-reduced-motion: reduce)', () => {
+          wordEls.forEach(w => w.classList.add('lit'));
+        });
+      }
+    } else {
+      // GSAP failed to load (offline/CDN blocked) — reveal everything immediately rather than
+      // leaving content stuck at opacity:0.
+      document.querySelectorAll('[data-reveal]').forEach(el => el.style.opacity = 1);
+    }
+  </script>
 
   <script>
     // DATA: CHANGES array (all countries)
