@@ -1886,7 +1886,7 @@
       document.querySelectorAll('.region-tab').forEach(btn => btn.classList.remove('active'));
       const regionBtn = document.querySelector(`.region-tab[onclick="selectRegion('${currentRegion}')"]`);
       if(regionBtn) regionBtn.classList.add('active');
-      renderChangelog('all', country);
+      renderChangelog('all', country, currentRegion);
       window.scrollTo({top: 0, behavior: 'smooth'});
     }
 
@@ -1968,14 +1968,14 @@
       if(filter === 'upcoming') filtered = filtered.filter(c => c.upcoming);
       if(region) filtered = filtered.filter(c => countryToRegion[c.country] === region);
       if(country) filtered = filtered.filter(c => c.country === country);
-      if(country) currentCountry = country;
-      if(region) currentRegion = region;
+      currentCountry = country || null;
+      currentRegion = region || null;
       currentChangelogItems = filtered;
 
       const banner = country
         ? `<div style="margin-bottom:1.5rem; padding:0.85rem 1.25rem; background:rgba(45,212,163,0.1); border:1px solid var(--border-color); border-radius:6px; display:flex; justify-content:space-between; align-items:center; font-size:0.9rem;">
              <span>Showing changes for <strong>${filtered[0] ? filtered[0].flag + ' ' + filtered[0].name : country}</strong></span>
-             <a href="#" onclick="renderChangelog('all'); this.parentElement.remove(); return false;" style="color:var(--blue-accent); text-decoration:none;">Clear ✕</a>
+             <a href="#" onclick="clearFilter(); return false;" style="color:var(--blue-accent); text-decoration:none;">Clear ✕</a>
            </div>`
         : '';
 
@@ -2000,6 +2000,11 @@
       document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
       event.target.classList.add('active');
       renderChangelog(type, currentCountry, currentRegion);
+    }
+
+    function clearFilter(){
+      document.querySelectorAll('.region-tab').forEach(btn => btn.classList.remove('active'));
+      renderChangelog('all');
     }
 
     function selectRegion(region){
