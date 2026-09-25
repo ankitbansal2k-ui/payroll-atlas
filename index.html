@@ -113,6 +113,45 @@
       font-size: 0.95rem;
     }
 
+    .search-form {
+      display: flex;
+      align-items: stretch;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      overflow: hidden;
+      background: var(--card-bg);
+    }
+
+    .search-input {
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      padding: 0.5rem 0.75rem;
+      font-size: 0.95rem;
+      width: 180px;
+      outline: none;
+    }
+
+    .search-input::placeholder {
+      color: var(--text-secondary);
+    }
+
+    .search-btn {
+      background: transparent;
+      border: none;
+      border-left: 1px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 0.5rem 0.75rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .search-btn img {
+      opacity: 0.85;
+    }
+
     /* Main container */
     .container {
       max-width: 1400px;
@@ -1047,6 +1086,21 @@
 
     /* Responsive */
     @media (max-width: 768px) {
+      .header-container {
+        flex-wrap: wrap;
+        gap: 0.75rem;
+      }
+
+      nav {
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        width: 100%;
+      }
+
+      .search-input {
+        width: 140px;
+      }
+
       .country-view {
         grid-template-columns: 1fr;
         gap: 1.5rem;
@@ -1161,6 +1215,12 @@
             <option value="cr">🇨🇷 Costa Rica</option>
           </optgroup>
         </select>
+        <form class="search-form" onsubmit="performSearch(document.getElementById('search-input').value); return false;">
+          <input type="text" id="search-input" class="search-input" placeholder="Search country or change...">
+          <button type="submit" class="search-btn" aria-label="Search">
+            <img src="design/assets/icons/magnifying-glass-bold.svg" width="16" height="16" alt="">
+          </button>
+        </form>
       </nav>
     </div>
   </header>
@@ -1874,21 +1934,34 @@
       if(viewId === 'view-changelog') renderChangelog('all');
     }
 
-    function goToCountry(country){
-      if(!country) return;
-      const region = countryToRegion[country] || 'europe';
+    function showChangelogNav(){
       document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
       document.getElementById('view-changelog').classList.remove('hidden');
       document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
       const changelogLink = document.querySelector('.nav-link[data-view="view-changelog"]');
       if(changelogLink) changelogLink.classList.add('active');
+    }
+
+    function goToCountry(country){
+      if(!country) return;
+      const region = countryToRegion[country] || 'europe';
+      showChangelogNav();
       renderChangelog('all', country, region);
+      window.scrollTo({top: 0, behavior: 'smooth'});
+    }
+
+    function performSearch(term){
+      const q = (term || '').trim();
+      if(!q) return;
+      showChangelogNav();
+      renderChangelog('all', null, null, q.toLowerCase());
       window.scrollTo({top: 0, behavior: 'smooth'});
     }
 
     let currentChangelogItems = [];
     let currentCountry = null;
     let currentRegion = 'europe';
+    let currentSearch = null;
 
     // Country to region mapping
     const countryToRegion = {
@@ -1909,11 +1982,7 @@
       const countryParam = params.get('country');
       if(countryParam){
         const region = countryToRegion[countryParam] || 'europe';
-        document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
-        document.getElementById('view-changelog').classList.remove('hidden');
-        document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
-        const changelogLink = document.querySelector('.nav-link[data-view="view-changelog"]');
-        if(changelogLink) changelogLink.classList.add('active');
+        showChangelogNav();
         renderChangelog('all', countryParam, region);
       }
     }
@@ -1960,7 +2029,7 @@
       }
     }
 
-    function renderChangelog(filter, country, region){
+    function renderChangelog(filter, country, region, search){
       const list = document.getElementById('changelog-list');
       let filtered = CHANGES;
       if(filter === 'payroll') filtered = filtered.filter(c => c.category === 'payroll');
@@ -1969,8 +2038,10 @@
       if(filter === 'upcoming') filtered = filtered.filter(c => c.upcoming);
       if(region) filtered = filtered.filter(c => countryToRegion[c.country] === region);
       if(country) filtered = filtered.filter(c => c.country === country);
+      if(search) filtered = filtered.filter(c => c.name.toLowerCase().includes(search) || c.title.toLowerCase().includes(search));
       currentCountry = country || null;
       currentRegion = region || null;
+      currentSearch = search || null;
       currentChangelogItems = filtered;
 
       document.querySelectorAll('.region-tab').forEach(btn => btn.classList.remove('active'));
@@ -1983,14 +2054,26 @@
       const filterBtn = document.querySelector(`.filter-btn[onclick="filterChanges('${filter || 'all'}')"]`);
       if(filterBtn) filterBtn.classList.add('active');
 
-      const banner = country
+      const searchInput = document.getElementById('search-input');
+      if(searchInput) searchInput.value = search || '';
+
+      const banner = search
+        ? `<div style="margin-bottom:1.5rem; padding:0.85rem 1.25rem; background:rgba(45,212,163,0.1); border:1px solid var(--border-color); border-radius:6px; display:flex; justify-content:space-between; align-items:center; font-size:0.9rem;">
+             <span>Showing results for "<strong>${escapeHtml(search)}</strong>" (${filtered.length} match${filtered.length === 1 ? '' : 'es'})</span>
+             <a href="#" onclick="clearFilter(); return false;" style="color:var(--blue-accent); text-decoration:none;">Clear ✕</a>
+           </div>`
+        : country
         ? `<div style="margin-bottom:1.5rem; padding:0.85rem 1.25rem; background:rgba(45,212,163,0.1); border:1px solid var(--border-color); border-radius:6px; display:flex; justify-content:space-between; align-items:center; font-size:0.9rem;">
              <span>Showing changes for <strong>${filtered[0] ? filtered[0].flag + ' ' + filtered[0].name : country}</strong></span>
              <a href="#" onclick="clearFilter(); return false;" style="color:var(--blue-accent); text-decoration:none;">Clear ✕</a>
            </div>`
         : '';
 
-      list.innerHTML = banner + filtered.map((item, i) => `
+      const emptyState = filtered.length === 0
+        ? `<p class="detail-empty">No changes match${search ? ` "${escapeHtml(search)}"` : ' this filter'}. Try a different term or clear the filter.</p>`
+        : '';
+
+      list.innerHTML = banner + emptyState + filtered.map((item, i) => `
         <div class="item-card" data-index="${i}">
           <button type="button" class="item-header" onclick="toggleDetail(${i})" aria-expanded="false">
             <div>
@@ -2008,7 +2091,7 @@
     }
 
     function filterChanges(type){
-      renderChangelog(type, currentCountry, currentRegion);
+      renderChangelog(type, currentCountry, currentRegion, currentSearch);
     }
 
     function clearFilter(){
