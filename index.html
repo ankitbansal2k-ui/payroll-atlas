@@ -1868,25 +1868,21 @@
       document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
       document.getElementById(viewId).classList.remove('hidden');
       document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
-      event.target.classList.add('active');
+      const navLink = document.querySelector(`.nav-link[data-view="${viewId}"]`);
+      if(navLink) navLink.classList.add('active');
 
       if(viewId === 'view-changelog') renderChangelog('all');
     }
 
     function goToCountry(country){
       if(!country) return;
-      currentCountry = country;
-      currentRegion = countryToRegion[country] || 'europe';
+      const region = countryToRegion[country] || 'europe';
       document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
       document.getElementById('view-changelog').classList.remove('hidden');
       document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
       const changelogLink = document.querySelector('.nav-link[data-view="view-changelog"]');
       if(changelogLink) changelogLink.classList.add('active');
-      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-      document.querySelectorAll('.region-tab').forEach(btn => btn.classList.remove('active'));
-      const regionBtn = document.querySelector(`.region-tab[onclick="selectRegion('${currentRegion}')"]`);
-      if(regionBtn) regionBtn.classList.add('active');
-      renderChangelog('all', country, currentRegion);
+      renderChangelog('all', country, region);
       window.scrollTo({top: 0, behavior: 'smooth'});
     }
 
@@ -1912,8 +1908,13 @@
       const params = new URLSearchParams(window.location.search);
       const countryParam = params.get('country');
       if(countryParam){
-        currentCountry = countryParam;
-        renderChangelog('all', countryParam);
+        const region = countryToRegion[countryParam] || 'europe';
+        document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
+        document.getElementById('view-changelog').classList.remove('hidden');
+        document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+        const changelogLink = document.querySelector('.nav-link[data-view="view-changelog"]');
+        if(changelogLink) changelogLink.classList.add('active');
+        renderChangelog('all', countryParam, region);
       }
     }
 
@@ -1972,6 +1973,16 @@
       currentRegion = region || null;
       currentChangelogItems = filtered;
 
+      document.querySelectorAll('.region-tab').forEach(btn => btn.classList.remove('active'));
+      if(region){
+        const regionBtn = document.querySelector(`.region-tab[onclick="selectRegion('${region}')"]`);
+        if(regionBtn) regionBtn.classList.add('active');
+      }
+
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+      const filterBtn = document.querySelector(`.filter-btn[onclick="filterChanges('${filter || 'all'}')"]`);
+      if(filterBtn) filterBtn.classList.add('active');
+
       const banner = country
         ? `<div style="margin-bottom:1.5rem; padding:0.85rem 1.25rem; background:rgba(45,212,163,0.1); border:1px solid var(--border-color); border-radius:6px; display:flex; justify-content:space-between; align-items:center; font-size:0.9rem;">
              <span>Showing changes for <strong>${filtered[0] ? filtered[0].flag + ' ' + filtered[0].name : country}</strong></span>
@@ -1997,25 +2008,14 @@
     }
 
     function filterChanges(type){
-      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-      event.target.classList.add('active');
       renderChangelog(type, currentCountry, currentRegion);
     }
 
     function clearFilter(){
-      document.querySelectorAll('.region-tab').forEach(btn => btn.classList.remove('active'));
       renderChangelog('all');
     }
 
     function selectRegion(region){
-      currentRegion = region;
-      const tabs = document.querySelectorAll('.region-tab');
-      tabs.forEach(btn => btn.classList.remove('active'));
-      tabs.forEach(btn => {
-        if(btn.textContent.toLowerCase() === (region === 'apac' ? 'apac' : region === 'menat' ? 'menat' : region === 'latam' ? 'latam' : 'europe')) {
-          btn.classList.add('active');
-        }
-      });
       renderChangelog('all', null, region);
     }
   </script>
