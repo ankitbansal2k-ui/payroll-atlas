@@ -1873,8 +1873,13 @@
 
     function selectRegion(region){
       currentRegion = region;
-      document.querySelectorAll('.region-tab').forEach(btn => btn.classList.remove('active'));
-      document.querySelector(`.region-tab[onclick="selectRegion('${region}')"]`).classList.add('active');
+      const tabs = document.querySelectorAll('.region-tab');
+      tabs.forEach(btn => btn.classList.remove('active'));
+      tabs.forEach(btn => {
+        if(btn.textContent.toLowerCase() === (region === 'apac' ? 'apac' : region === 'menat' ? 'menat' : region === 'latam' ? 'latam' : 'europe')) {
+          btn.classList.add('active');
+        }
+      });
       renderChangelog('all', null, region);
     }
   </script>
