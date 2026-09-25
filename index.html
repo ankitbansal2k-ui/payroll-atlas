@@ -674,6 +674,34 @@
     }
 
     /* Changelog view */
+    .region-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .region-tab {
+      padding: 0.75rem 1rem;
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s ease;
+    }
+
+    .region-tab:hover {
+      color: var(--text-primary);
+    }
+
+    .region-tab.active {
+      color: var(--blue-accent);
+      border-bottom-color: var(--blue-accent);
+    }
+
     .changelog-filters {
       display: flex;
       gap: 1rem;
@@ -1340,6 +1368,12 @@
     <!-- Changelog View -->
     <div id="view-changelog" class="hidden">
       <h2>Changelog</h2>
+      <div class="region-tabs">
+        <button class="region-tab active" onclick="selectRegion('europe')">Europe</button>
+        <button class="region-tab" onclick="selectRegion('apac')">APAC</button>
+        <button class="region-tab" onclick="selectRegion('menat')">MENAT</button>
+        <button class="region-tab" onclick="selectRegion('latam')">LATAM</button>
+      </div>
       <div class="changelog-filters">
         <button class="filter-btn active" onclick="filterChanges('all')">All Changes</button>
         <button class="filter-btn" onclick="filterChanges('payroll')">Payroll</button>
@@ -1646,18 +1680,33 @@
     function goToCountry(country){
       if(!country) return;
       currentCountry = country;
+      currentRegion = countryToRegion[country] || 'europe';
       document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
       document.getElementById('view-changelog').classList.remove('hidden');
       document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
       const changelogLink = document.querySelector('.nav-link[data-view="view-changelog"]');
       if(changelogLink) changelogLink.classList.add('active');
       document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.region-tab').forEach(btn => btn.classList.remove('active'));
+      const regionBtn = document.querySelector(`.region-tab[onclick="selectRegion('${currentRegion}')"]`);
+      if(regionBtn) regionBtn.classList.add('active');
       renderChangelog('all', country);
       window.scrollTo({top: 0, behavior: 'smooth'});
     }
 
     let currentChangelogItems = [];
     let currentCountry = null;
+    let currentRegion = 'europe';
+
+    // Country to region mapping
+    const countryToRegion = {
+      'norway': 'europe', 'finland': 'europe', 'sweden': 'europe', 'denmark': 'europe', 'czechia': 'europe',
+      'uk': 'europe', 'belgium': 'europe', 'germany': 'europe', 'greece': 'europe', 'ireland': 'europe',
+      'netherlands': 'europe', 'austria': 'europe', 'hungary': 'europe', 'france': 'europe', 'spain': 'europe',
+      'portugal': 'europe', 'poland': 'europe', 'lithuania': 'europe', 'estonia': 'europe', 'slovenia': 'europe',
+      'slovakia': 'europe', 'romania': 'europe', 'bulgaria': 'europe', 'latvia': 'europe', 'cyprus': 'europe',
+      'malta': 'europe', 'luxembourg': 'europe', 'italy': 'europe', 'croatia': 'europe'
+    };
 
     // Initialize currentCountry from URL on page load
     function initializeFromURL(){
@@ -1711,15 +1760,17 @@
       }
     }
 
-    function renderChangelog(filter, country){
+    function renderChangelog(filter, country, region){
       const list = document.getElementById('changelog-list');
       let filtered = CHANGES;
       if(filter === 'payroll') filtered = filtered.filter(c => c.category === 'payroll');
       if(filter === 'reporting') filtered = filtered.filter(c => c.category === 'reporting');
       if(filter === 'infrastructure') filtered = filtered.filter(c => c.category === 'infrastructure');
       if(filter === 'upcoming') filtered = filtered.filter(c => c.upcoming);
+      if(region) filtered = filtered.filter(c => countryToRegion[c.country] === region);
       if(country) filtered = filtered.filter(c => c.country === country);
       if(country) currentCountry = country;
+      if(region) currentRegion = region;
       currentChangelogItems = filtered;
 
       const banner = country
@@ -1749,7 +1800,14 @@
     function filterChanges(type){
       document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
       event.target.classList.add('active');
-      renderChangelog(type, currentCountry);
+      renderChangelog(type, currentCountry, currentRegion);
+    }
+
+    function selectRegion(region){
+      currentRegion = region;
+      document.querySelectorAll('.region-tab').forEach(btn => btn.classList.remove('active'));
+      document.querySelector(`.region-tab[onclick="selectRegion('${region}')"]`).classList.add('active');
+      renderChangelog('all', null, region);
     }
   </script>
 
