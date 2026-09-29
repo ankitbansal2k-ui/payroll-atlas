@@ -883,6 +883,48 @@
       line-height: 1.6;
     }
 
+    /* Region coverage panel */
+    .region-coverage-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .region-coverage-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1.75rem;
+      text-align: center;
+    }
+
+    .region-coverage-card .icon {
+      margin-bottom: 0.75rem;
+      opacity: 0.85;
+    }
+
+    .region-coverage-count {
+      display: block;
+      font-size: 2.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--blue-accent), var(--purple-accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .region-coverage-card h3 {
+      font-size: 1rem;
+      margin: 0.5rem 0 0.4rem;
+    }
+
+    .region-coverage-card p {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      opacity: 0.9;
+      line-height: 1.5;
+    }
+
     /* How it works - steps  */
     .steps {
       display: grid;
@@ -1286,6 +1328,15 @@
       <!-- Tagline reveal -->
       <div class="tagline-section">
         <p data-word-reveal>One law changes in one country and your payroll team finds out from a client three weeks late. Payroll Atlas finds it the day it is published.</p>
+      </div>
+
+      <!-- Region coverage -->
+      <div class="content-section" data-reveal>
+        <span class="eyebrow">Where we cover</span>
+        <h2>Coverage across four regions</h2>
+        <p class="section-sub">Every country is tracked the same way: tax authorities, labour ministries, and social security bodies, checked directly.</p>
+
+        <div class="region-coverage-grid" id="region-coverage" data-reveal-group></div>
       </div>
 
       <!-- What it provides -->
@@ -1981,7 +2032,29 @@
     };
 
     // Initialize currentCountry from URL on page load
+    function renderRegionCoverage(){
+      const el = document.getElementById('region-coverage');
+      if(!el) return;
+      const counts = {europe: 0, apac: 0, menat: 0, latam: 0};
+      Object.values(countryToRegion).forEach(r => { if(counts[r] !== undefined) counts[r]++; });
+      const regions = [
+        {key: 'europe', label: 'Europe', blurb: 'Western, Northern, Southern, and Eastern Europe.'},
+        {key: 'apac', label: 'APAC', blurb: 'Asia-Pacific, from India to Australia.'},
+        {key: 'menat', label: 'MENAT', blurb: 'Middle East, North Africa, and Turkey.'},
+        {key: 'latam', label: 'LATAM', blurb: 'Latin America, from Mexico to the Southern Cone.'}
+      ];
+      el.innerHTML = regions.map(r => `
+        <div class="region-coverage-card" data-reveal-item>
+          <div class="icon"><img src="design/assets/icons/globe-bold.svg" width="24" height="24" alt=""></div>
+          <span class="region-coverage-count">${counts[r.key]}</span>
+          <h3>${r.label}</h3>
+          <p>${escapeHtml(r.blurb)}</p>
+        </div>
+      `).join('');
+    }
+
     function initializeFromURL(){
+      renderRegionCoverage();
       const params = new URLSearchParams(window.location.search);
       const countryParam = params.get('country');
       if(countryParam){
