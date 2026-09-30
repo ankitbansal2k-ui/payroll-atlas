@@ -104,6 +104,8 @@
     }
 
     .country-selector {
+      max-width: 100%;
+      min-width: 0;
       background: var(--card-bg);
       border: 1px solid var(--border-color);
       color: var(--text-primary);
@@ -913,6 +915,23 @@
     .coverage-map .covered:hover, .coverage-map .covered:focus-visible,
     .coverage-map .dot:hover, .coverage-map .dot:focus-visible { opacity: 0.7; outline: none; }
     .coverage-map .dot { stroke: var(--dark-bg); stroke-width: 1; cursor: pointer; }
+    .coverage-map path, .coverage-map .dot { vector-effect: non-scaling-stroke; }
+    .coverage-map .hit { fill: transparent; cursor: pointer; }
+    .coverage-map [tabindex]:focus:not(:focus-visible) { outline: none; }
+    .coverage-map .hit:focus-visible { outline: none; stroke: var(--text-primary); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+    .coverage-map-back {
+      position: absolute;
+      top: 0.5rem;
+      left: 0.5rem;
+      background: var(--navy);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.35rem 0.7rem;
+      font: inherit;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
     .coverage-map-tip {
       position: absolute;
       pointer-events: none;
@@ -923,6 +942,9 @@
       padding: 0.35rem 0.6rem;
       border-radius: 6px;
       white-space: nowrap;
+      max-width: calc(100% - 12px);
+      overflow: hidden;
+      text-overflow: ellipsis;
       transform: translate(-50%, calc(-100% - 10px));
     }
     .region-coverage-card .swatch {
@@ -1134,7 +1156,7 @@
       border-radius: 6px;
       font-size: 1rem;
       cursor: pointer;
-      min-width: 320px;
+      min-width: min(320px, 100%);
     }
 
     .final-cta select:focus {
@@ -1396,10 +1418,11 @@
       <div class="content-section" data-reveal>
         <span class="eyebrow">Where we cover</span>
         <h2>Coverage across four regions</h2>
-        <p class="section-sub">Hover a country to see how many changes we track there, or click it to open its changelog.</p>
+        <p class="section-sub">Hover or tap a country to see how many changes we track there, then click it (or tap again) to open its changelog.</p>
 
         <div class="coverage-map" id="coverage-map" role="group" aria-label="World map of covered countries, shaded by region">
           <div class="coverage-map-tip" id="coverage-map-tip" hidden></div>
+          <button type="button" class="coverage-map-back" id="coverage-map-back" hidden>&larr; World</button>
         </div>
 
         <div class="region-coverage-grid" id="region-coverage" data-reveal-group></div>
@@ -2019,6 +2042,7 @@
         world = await d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json');
       } catch(e){ box.hidden = true; return; }
       const tip = document.getElementById('coverage-map-tip');
+      const back = document.getElementById('coverage-map-back');
       const names = {};
       document.querySelectorAll('select.country-selector option').forEach(o => {
         if(o.value) names[o.value] = o.textContent.replace(/^\S+\s/, '').trim();
@@ -2035,43 +2059,112 @@
         .filter(f => f.properties.name !== 'Antarctica');
       const svg = d3.select(box).insert('svg', ':first-child')
         .attr('viewBox', `0 0 ${width} ${height}`).attr('preserveAspectRatio', 'xMidYMid meet');
+      const layer = svg.append('g');
+
+      let lastPointer = 'mouse';
+      box.addEventListener('pointerdown', e => { lastPointer = e.pointerType; }, true);
+      const touch = () => lastPointer === 'touch' || lastPointer === 'pen' || window.matchMedia('(hover: none)').matches;
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const narrow = () => box.clientWidth < 700;
+      let k = 1, focusedRegion = null, tipCode = null;
 
       const label = code => `${names[code] || code}: ${counts[code] || 0} change${counts[code] === 1 ? '' : 's'} tracked`;
-      const showTip = (x, y, code) => {
+      const placeTip = (x, y, code) => {
         const r = box.getBoundingClientRect();
-        tip.textContent = label(code);
-        tip.style.left = (x - r.left) + 'px';
-        tip.style.top = (y - r.top) + 'px';
+        tip.textContent = touch() ? label(code) + ' · tap again to open' : label(code);
         tip.hidden = false;
+        const half = tip.offsetWidth / 2 + 6;
+        tip.style.left = Math.min(Math.max(x - r.left, half), r.width - half) + 'px';
+        tip.style.top = Math.max(y - r.top, 34) + 'px';
+        tip.hidden = false;
+        tipCode = code;
       };
-      const hideTip = () => { tip.hidden = true; };
+      const tipAtEl = (el, code) => { const b = el.getBoundingClientRect(); placeTip(b.left + b.width / 2, b.top + b.height / 2, code); };
+      const hideTip = () => { tip.hidden = true; tipCode = null; };
+
+      const covered = features.filter(f => byIso[f.id]).map(f => ({f, code: byIso[f.id]}));
+      const drawn = new Set(covered.map(d => d.code));
+      const points = Object.entries(SMALL_COUNTRY_POINTS)
+        .filter(([code]) => countryToRegion[code] && !drawn.has(code))
+        .map(([code, lonlat]) => ({code, xy: projection(lonlat)}));
+      // Tiny countries get an invisible, constant-size tap target at their centroid.
+      const tiny = covered.filter(d => { const [[x0, y0], [x1, y1]] = path.bounds(d.f); return Math.max(x1 - x0, y1 - y0) < 14; })
+        .map(d => ({code: d.code, xy: path.centroid(d.f)}));
+
+      // Overseas territories (e.g. French Guiana) would stretch a region's box; use each country's largest polygon.
+      const mainlandBounds = f => {
+        if(f.geometry.type !== 'MultiPolygon') return path.bounds(f);
+        const polys = f.geometry.coordinates.map(c => ({type: 'Polygon', coordinates: c}));
+        return path.bounds(polys.reduce((a, b) => path.area(b) > path.area(a) ? b : a));
+      };
+
+      function zoomTo(region){
+        focusedRegion = region;
+        let t = d3.zoomIdentity;
+        if(region){
+          const xs = [], ys = [];
+          covered.filter(d => countryToRegion[d.code] === region).forEach(d => { const b = mainlandBounds(d.f); xs.push(b[0][0], b[1][0]); ys.push(b[0][1], b[1][1]); });
+          points.filter(d => countryToRegion[d.code] === region).forEach(d => { xs.push(d.xy[0]); ys.push(d.xy[1]); });
+          const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+          const kk = Math.min(10, 0.9 / Math.max((x1 - x0) / width, (y1 - y0) / height));
+          t = d3.zoomIdentity.translate(width / 2, height / 2).scale(kk).translate(-(x0 + x1) / 2, -(y0 + y1) / 2);
+        }
+        k = t.k;
+        back.hidden = !region;
+        hideTip();
+        (reduceMotion ? layer : layer.transition().duration(600)).attr('transform', t.toString());
+        sizeMarkers();
+      }
+
+      function sizeMarkers(){
+        const unit = width / Math.max(box.clientWidth, 1) / k;
+        layer.selectAll('.dot').attr('r', Math.max(4 / k, 5 * unit));
+        layer.selectAll('.hit').attr('r', 11 * unit);
+      }
+
+      function activate(el, code){
+        if(!touch()){ goToCountry(code); return; }
+        const region = countryToRegion[code];
+        if(narrow() && focusedRegion !== region){ zoomTo(region); return; }
+        if(tipCode === code){ goToCountry(code); return; }
+        tipAtEl(el, code);
+      }
+
       const wire = sel => sel
         .attr('tabindex', 0).attr('role', 'link')
         .attr('aria-label', d => label(d.code))
-        .on('mousemove', (e, d) => showTip(e.clientX, e.clientY, d.code))
-        .on('mouseleave', hideTip)
-        .on('focus', (e, d) => { const b = e.currentTarget.getBoundingClientRect(); showTip(b.left + b.width / 2, b.top, d.code); })
-        .on('blur', hideTip)
-        .on('click', (e, d) => goToCountry(d.code))
+        .on('mousemove', (e, d) => { if(!touch()) placeTip(e.clientX, e.clientY, d.code); })
+        .on('mouseleave', () => { if(!touch()) hideTip(); })
+        .on('focus', (e, d) => { if(!touch()) tipAtEl(e.currentTarget, d.code); })
+        .on('blur', () => { if(!touch()) hideTip(); })
+        .on('click', (e, d) => { e.stopPropagation(); activate(e.currentTarget, d.code); })
         .on('keydown', (e, d) => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); goToCountry(d.code); } });
 
-      svg.append('g').selectAll('path')
+      layer.append('g').selectAll('path')
         .data(features.filter(f => !byIso[f.id]))
         .join('path').attr('class', 'land').attr('d', path);
 
-      wire(svg.append('g').selectAll('path')
-        .data(features.filter(f => byIso[f.id]).map(f => ({f, code: byIso[f.id]})))
+      wire(layer.append('g').selectAll('path')
+        .data(covered)
         .join('path').attr('class', 'covered').attr('d', d => path(d.f))
         .attr('fill', d => `var(--region-${countryToRegion[d.code]})`));
 
-      const drawn = new Set(features.map(f => byIso[f.id]).filter(Boolean));
-      wire(svg.append('g').selectAll('circle')
-        .data(Object.entries(SMALL_COUNTRY_POINTS)
-          .filter(([code]) => countryToRegion[code] && !drawn.has(code))
-          .map(([code, lonlat]) => ({code, xy: projection(lonlat)})))
-        .join('circle').attr('class', 'dot').attr('r', 4)
+      wire(layer.append('g').selectAll('circle')
+        .data(points)
+        .join('circle').attr('class', 'dot')
         .attr('cx', d => d.xy[0]).attr('cy', d => d.xy[1])
         .attr('fill', d => `var(--region-${countryToRegion[d.code]})`));
+
+      wire(layer.append('g').selectAll('circle')
+        .data(tiny.concat(points))
+        .join('circle').attr('class', 'hit')
+        .attr('cx', d => d.xy[0]).attr('cy', d => d.xy[1]));
+
+      svg.on('click', () => hideTip());
+      back.addEventListener('click', () => zoomTo(null));
+      let resizeTimer;
+      window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(sizeMarkers, 150); });
+      sizeMarkers();
     }
 
     function initializeFromURL(){
