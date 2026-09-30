@@ -883,6 +883,50 @@
       line-height: 1.6;
     }
 
+    /* Coverage map */
+    :root {
+      --region-europe: #2DD4A3;
+      --region-apac: #6EA8FE;
+      --region-menat: #F0A93B;
+      --region-latam: #C084FC;
+      --map-land: #1B2640;
+    }
+    .coverage-map {
+      position: relative;
+      width: 100%;
+      margin: 0 0 2rem;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background: var(--card-bg);
+      overflow: hidden;
+    }
+    .coverage-map svg { display: block; width: 100%; height: auto; }
+    .coverage-map .land { fill: var(--map-land); stroke: var(--dark-bg); stroke-width: 0.4; }
+    .coverage-map .covered { stroke: var(--dark-bg); stroke-width: 0.4; cursor: pointer; transition: opacity .15s; }
+    .coverage-map .covered:hover, .coverage-map .covered:focus-visible,
+    .coverage-map .dot:hover, .coverage-map .dot:focus-visible { opacity: 0.7; outline: none; }
+    .coverage-map .dot { stroke: var(--dark-bg); stroke-width: 1; cursor: pointer; }
+    .coverage-map-tip {
+      position: absolute;
+      pointer-events: none;
+      background: var(--navy);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      font-size: 0.8rem;
+      padding: 0.35rem 0.6rem;
+      border-radius: 6px;
+      white-space: nowrap;
+      transform: translate(-50%, calc(-100% - 10px));
+    }
+    .region-coverage-card .swatch {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 0.4rem;
+      vertical-align: middle;
+    }
+
     /* Region coverage panel */
     .region-coverage-grid {
       display: grid;
@@ -1345,7 +1389,11 @@
       <div class="content-section" data-reveal>
         <span class="eyebrow">Where we cover</span>
         <h2>Coverage across four regions</h2>
-        <p class="section-sub">Every country is tracked the same way: tax authorities, labour ministries, and social security bodies, checked directly.</p>
+        <p class="section-sub">Hover a country to see how many changes we track there, or click it to open its changelog.</p>
+
+        <div class="coverage-map" id="coverage-map" role="group" aria-label="World map of covered countries, shaded by region">
+          <div class="coverage-map-tip" id="coverage-map-tip" hidden></div>
+        </div>
 
         <div class="region-coverage-grid" id="region-coverage" data-reveal-group></div>
       </div>
@@ -1605,6 +1653,8 @@
   </footer>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
   <script>
     // Motion: IntersectionObserver drives visibility (robust, no dependency on scroll-position
     // math at load time); GSAP performs the tween itself. A hard safety timeout guarantees
@@ -1931,14 +1981,93 @@
         <div class="region-coverage-card" data-reveal-item>
           <div class="icon"><img src="design/assets/icons/globe-bold.svg" width="24" height="24" alt=""></div>
           <span class="region-coverage-count">${counts[r.key]}</span>
-          <h3>${r.label}</h3>
+          <h3><span class="swatch" style="background:var(--region-${r.key})"></span>${r.label}</h3>
           <p>${escapeHtml(r.blurb)}</p>
         </div>
       `).join('');
     }
 
+    const COUNTRY_ISO = {
+      austria:'040', belgium:'056', bulgaria:'100', croatia:'191', cyprus:'196', czechia:'203', denmark:'208', estonia:'233',
+      finland:'246', france:'250', germany:'276', greece:'300', hungary:'348', ireland:'372', italy:'380', latvia:'428',
+      lithuania:'440', luxembourg:'442', malta:'470', netherlands:'528', norway:'578', poland:'616', portugal:'620',
+      romania:'642', slovakia:'703', slovenia:'705', spain:'724', sweden:'752', uk:'826',
+      au:'036', id:'360', in:'356', jp:'392', kr:'410', my:'458', ph:'608', sg:'702', th:'764', vn:'704',
+      cn:'156', tw:'158', nz:'554', hk:'344', bd:'050',
+      sa:'682', eg:'818', il:'376', tr:'792', ma:'504', tn:'788', lb:'422', pk:'586', qa:'634', kw:'414', bh:'048', om:'512',
+      br:'076', mx:'484', ar:'032', co:'170', cl:'152', pe:'604', ec:'218', uy:'858', cr:'188', pa:'591', do:'214',
+      gt:'320', bo:'068', sv:'222'
+    };
+    // Too small for the 110m outline data; drawn as dots instead.
+    const SMALL_COUNTRY_POINTS = { malta:[14.4,35.9], sg:[103.82,1.35], hk:[114.17,22.32], bh:[50.55,26.07] };
+
+    async function renderCoverageMap(){
+      const box = document.getElementById('coverage-map');
+      if(!box) return;
+      if(!window.d3 || !window.topojson){ box.hidden = true; return; }
+      let world;
+      try {
+        world = await d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json');
+      } catch(e){ box.hidden = true; return; }
+      const tip = document.getElementById('coverage-map-tip');
+      const names = {};
+      document.querySelectorAll('select.country-selector option').forEach(o => {
+        if(o.value) names[o.value] = o.textContent.replace(/^\S+\s/, '').trim();
+      });
+      const counts = {};
+      CHANGES.forEach(c => { counts[c.country] = (counts[c.country] || 0) + 1; });
+      const byIso = {};
+      Object.entries(COUNTRY_ISO).forEach(([code, iso]) => { if(countryToRegion[code]) byIso[iso] = code; });
+
+      const width = 960, height = 470;
+      const projection = d3.geoNaturalEarth1().fitExtent([[8, 8], [width - 8, height - 8]], {type: 'Sphere'});
+      const path = d3.geoPath(projection);
+      const features = topojson.feature(world, world.objects.countries).features
+        .filter(f => f.properties.name !== 'Antarctica');
+      const svg = d3.select(box).insert('svg', ':first-child')
+        .attr('viewBox', `0 0 ${width} ${height}`).attr('preserveAspectRatio', 'xMidYMid meet');
+
+      const label = code => `${names[code] || code}: ${counts[code] || 0} change${counts[code] === 1 ? '' : 's'} tracked`;
+      const showTip = (x, y, code) => {
+        const r = box.getBoundingClientRect();
+        tip.textContent = label(code);
+        tip.style.left = (x - r.left) + 'px';
+        tip.style.top = (y - r.top) + 'px';
+        tip.hidden = false;
+      };
+      const hideTip = () => { tip.hidden = true; };
+      const wire = sel => sel
+        .attr('tabindex', 0).attr('role', 'link')
+        .attr('aria-label', d => label(d.code))
+        .on('mousemove', (e, d) => showTip(e.clientX, e.clientY, d.code))
+        .on('mouseleave', hideTip)
+        .on('focus', (e, d) => { const b = e.currentTarget.getBoundingClientRect(); showTip(b.left + b.width / 2, b.top, d.code); })
+        .on('blur', hideTip)
+        .on('click', (e, d) => goToCountry(d.code))
+        .on('keydown', (e, d) => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); goToCountry(d.code); } });
+
+      svg.append('g').selectAll('path')
+        .data(features.filter(f => !byIso[f.id]))
+        .join('path').attr('class', 'land').attr('d', path);
+
+      wire(svg.append('g').selectAll('path')
+        .data(features.filter(f => byIso[f.id]).map(f => ({f, code: byIso[f.id]})))
+        .join('path').attr('class', 'covered').attr('d', d => path(d.f))
+        .attr('fill', d => `var(--region-${countryToRegion[d.code]})`));
+
+      const drawn = new Set(features.map(f => byIso[f.id]).filter(Boolean));
+      wire(svg.append('g').selectAll('circle')
+        .data(Object.entries(SMALL_COUNTRY_POINTS)
+          .filter(([code]) => countryToRegion[code] && !drawn.has(code))
+          .map(([code, lonlat]) => ({code, xy: projection(lonlat)})))
+        .join('circle').attr('class', 'dot').attr('r', 4)
+        .attr('cx', d => d.xy[0]).attr('cy', d => d.xy[1])
+        .attr('fill', d => `var(--region-${countryToRegion[d.code]})`));
+    }
+
     function initializeFromURL(){
       renderRegionCoverage();
+      renderCoverageMap();
       const params = new URLSearchParams(window.location.search);
       const countryParam = params.get('country');
       if(countryParam){
