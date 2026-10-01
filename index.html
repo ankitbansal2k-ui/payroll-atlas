@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Payroll Atlas</title>
-  <meta name="description" content="A free, source-linked tracker for statutory and legislative payroll changes across 70 countries in Europe, APAC, MENAT, and LATAM. Updated monthly.">
+  <meta name="description" content="A free, source-linked tracker for statutory and legislative payroll changes across 75 countries in Europe, APAC, MENAT, LATAM, and Africa. Updated monthly.">
   <link rel="icon" type="image/svg+xml" href="design/assets/favicons/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -898,6 +898,7 @@
       --region-apac: #6EA8FE;
       --region-menat: #F0A93B;
       --region-latam: #C084FC;
+      --region-africa: #F472B6;
       --map-land: #1B2640;
     }
     .coverage-map {
@@ -1290,6 +1291,7 @@
             <option value="slovakia">🇸🇰 Slovakia</option>
             <option value="slovenia">🇸🇮 Slovenia</option>
             <option value="croatia">🇭🇷 Croatia</option>
+            <option value="switzerland">🇨🇭 Switzerland</option>
             <option value="romania">🇷🇴 Romania</option>
             <option value="bulgaria">🇧🇬 Bulgaria</option>
             <option value="latvia">🇱🇻 Latvia</option>
@@ -1327,6 +1329,7 @@
             <option value="kw">🇰🇼 Kuwait</option>
             <option value="bh">🇧🇭 Bahrain</option>
             <option value="om">🇴🇲 Oman</option>
+            <option value="ae">🇦🇪 United Arab Emirates</option>
           </optgroup>
           <optgroup label="LATAM">
             <option value="br">🇧🇷 Brazil</option>
@@ -1343,6 +1346,11 @@
             <option value="gt">🇬🇹 Guatemala</option>
             <option value="bo">🇧🇴 Bolivia</option>
             <option value="sv">🇸🇻 El Salvador</option>
+          </optgroup>
+          <optgroup label="Africa">
+            <option value="za">🇿🇦 South Africa</option>
+            <option value="ng">🇳🇬 Nigeria</option>
+            <option value="ke">🇰🇪 Kenya</option>
           </optgroup>
         </select>
         <form class="search-form" onsubmit="performSearch(document.getElementById('search-input').value); return false;">
@@ -1363,10 +1371,10 @@
         <div class="hero-copy" data-reveal>
           <span class="hero-eyebrow">
             <img src="design/assets/icons/shield-check-bold.svg" width="16" height="16" alt="">
-            70 countries, every entry sourced
+            75 countries, every entry sourced
           </span>
-          <h1>Stay compliant without tracking 70 countries by hand</h1>
-          <p>Payroll Atlas monitors statutory and legislative changes across Europe, APAC, MENAT, and LATAM, sourced directly from government tax authorities and social security bodies. Your team reads a page, not a bulletin.</p>
+          <h1>Stay compliant without tracking 75 countries by hand</h1>
+          <p>Payroll Atlas monitors statutory and legislative changes across Europe, APAC, MENAT, LATAM, and Africa, sourced directly from government tax authorities and social security bodies. Your team reads a page, not a bulletin.</p>
 
           <div class="hero-cta-row">
             <a href="#" onclick="document.querySelector('.final-cta').scrollIntoView({behavior:'smooth'}); return false;" class="btn-primary">
@@ -1417,7 +1425,7 @@
       <!-- Region coverage -->
       <div class="content-section" data-reveal>
         <span class="eyebrow">Where we cover</span>
-        <h2>Coverage across four regions</h2>
+        <h2>Coverage across five regions</h2>
         <p class="section-sub">Hover or tap a country to see how many changes we track there, then click it (or tap again) to open its changelog.</p>
 
         <div class="coverage-map" id="coverage-map" role="group" aria-label="World map of covered countries, shaded by region">
@@ -1461,7 +1469,7 @@
         <div class="steps" data-reveal-group>
           <div class="step" data-reveal-item>
             <h3>Pick your country</h3>
-            <p>Choose from 70 countries across Europe, APAC, MENAT, and LATAM you run payroll in, from the selector in the header or below.</p>
+            <p>Choose from 75 countries across Europe, APAC, MENAT, LATAM, and Africa you run payroll in, from the selector in the header or below.</p>
           </div>
           <div class="step" data-reveal-item>
             <h3>Review what changed</h3>
@@ -1491,7 +1499,7 @@
             <div class="benefit-check"><img src="design/assets/icons/check-circle-bold.svg" width="16" height="16" alt=""></div>
             <div>
               <h3>Skip the manual research</h3>
-              <p>We monitor 70 countries' tax authorities and social security bodies so you don't read every government bulletin yourself.</p>
+              <p>We monitor 75 countries' tax authorities and social security bodies so you don't read every government bulletin yourself.</p>
             </div>
           </div>
           <div class="benefit-card" data-reveal-item>
@@ -1551,7 +1559,7 @@
           </details>
           <details class="faq-item">
             <summary>Which countries are covered?</summary>
-            <p>70 countries today, across Europe (29), APAC (15), MENAT (12), and LATAM (14). Use the country selector in the header to see the full list.</p>
+            <p>75 countries today, across Europe (30), APAC (15), MENAT (13), LATAM (14), and Africa (3). Use the country selector in the header to see the full list.</p>
           </details>
           <details class="faq-item">
             <summary>Is this legal or tax advice?</summary>
@@ -1598,6 +1606,7 @@
             <option value="slovakia">🇸🇰 Slovakia</option>
             <option value="slovenia">🇸🇮 Slovenia</option>
             <option value="croatia">🇭🇷 Croatia</option>
+            <option value="switzerland">🇨🇭 Switzerland</option>
             <option value="romania">🇷🇴 Romania</option>
             <option value="bulgaria">🇧🇬 Bulgaria</option>
             <option value="latvia">🇱🇻 Latvia</option>
@@ -1635,6 +1644,7 @@
             <option value="kw">🇰🇼 Kuwait</option>
             <option value="bh">🇧🇭 Bahrain</option>
             <option value="om">🇴🇲 Oman</option>
+            <option value="ae">🇦🇪 United Arab Emirates</option>
           </optgroup>
           <optgroup label="LATAM">
             <option value="br">🇧🇷 Brazil</option>
@@ -1652,6 +1662,11 @@
             <option value="bo">🇧🇴 Bolivia</option>
             <option value="sv">🇸🇻 El Salvador</option>
           </optgroup>
+          <optgroup label="Africa">
+            <option value="za">🇿🇦 South Africa</option>
+            <option value="ng">🇳🇬 Nigeria</option>
+            <option value="ke">🇰🇪 Kenya</option>
+          </optgroup>
         </select>
       </div>
     </div>
@@ -1664,6 +1679,7 @@
         <button class="region-tab" onclick="selectRegion('apac')">APAC</button>
         <button class="region-tab" onclick="selectRegion('menat')">MENAT</button>
         <button class="region-tab" onclick="selectRegion('latam')">LATAM</button>
+        <button class="region-tab" onclick="selectRegion('africa')">Africa</button>
       </div>
       <div class="changelog-filters">
         <button class="filter-btn active" onclick="filterChanges('all')">All Changes</button>
@@ -1939,6 +1955,15 @@
       {country:'pe',flag:'🇵🇪',name:'Peru',section:'pe-uit-2026',title:'UIT set at S/ 5,500 for 2026',badge:'Effective 1 Jan 2026',category:'payroll',upcoming:false,detail:{lead:'Decreto Supremo N.º 301-2025-EF sets the 2026 UIT at S/ 5,500, up S/ 150 from S/ 5,350, affecting fifth-category (employment) income tax thresholds.',employer:['Fifth-category withholding threshold of 7 UIT = S/ 38,500.','Minimum for integral annual remuneration (RIA) agreements: S/ 11,000 (2 UIT).'],employee:['Additional personal deductible expenses up to S/ 16,500 (3 UIT).'],note:'',example:'7 x S/ 5,500 = S/ 38,500.',sourceUrl:'https://www.ey.com/es_pe/insights/tax/nuevo-valor-uit-como-impacta',sourceLabel:'Source: EY Perú - Nuevo valor de la UIT 2026: ¿cómo impacta este aumento a las empresas?'}},
       {country:'uy',flag:'🇺🇾',name:'Uruguay',section:'uy-smn',title:'National minimum wage $24.572, then $25.383 from July 2026',badge:'Effective 1 Jul 2026',category:'payroll',upcoming:false,detail:{lead:'Under the decree of 26 December 2025, the Salario Mínimo Nacional rose in two steps during 2026.',employer:['From 1 January 2026: $24.572 per month (4.1% increase).','From 1 July 2026: $25.383 per month (additional 3.3%).','Daily wage = monthly amount / 25; hourly wage = monthly amount / 200.'],employee:['Minimum monthly wage from July 2026: $25.383.'],note:'',example:'Hourly from July 2026: 25.383 / 200 = $126,92.',sourceUrl:'https://www.gub.uy/ministerio-trabajo-seguridad-social/comunicacion/noticias/salario-minimo-nacional-24572-desde-1o-enero-2026',sourceLabel:'Source: MTSS (gub.uy) - Salario Mínimo Nacional: $ 24.572 desde el 1.º de enero de 2026'}},
       {country:'uy',flag:'🇺🇾',name:'Uruguay',section:'uy-irpf-2026',title:'IRPF 2026 monthly withholding scale with BPC $6.864',badge:'Effective Jan 2026',category:'payroll',upcoming:false,detail:{lead:'BPS Comunicado R 5/2026 sets the 2026 monthly IRPF values using a BPC of $6.864, effective January 2026.',employer:['Monthly scale: 0% up to $48.048 (7 BPC); 10% to $68.640; 15% to $102.960; 24% to $205.920; 25% to $343.200; 27% to $514.800; 31% to $789.360; 36% above.','Deduction rate: 14% for nominal income up to $102.960, 8% above.'],employee:['Monthly deduction per minor child: $11.440.'],note:'',example:'7 BPC = 7 x 6.864 = $48.048.',sourceUrl:'https://www.bps.gub.uy/23860/2026---comunicado-r-5---valores-escalas-irpf-2026.html',sourceLabel:'Source: BPS - Comunicado R 5/2026, Valores y escalas IRPF 2026'}},
+      {country:'switzerland',flag:'🇨🇭',name:'Switzerland',section:'ch-geneva-minwage',title:'Geneva minimum wage rises to CHF 24.59/hour',badge:'Effective 1 January 2026',category:'payroll',upcoming:false,detail:{lead:'From 1 January 2026 the Geneva cantonal gross minimum hourly wage is CHF 24.59, up from CHF 24.48, indexed to the Geneva consumer price index.',employer:['Pay at least CHF 24.59 gross per hour to employees working in Geneva from 1 January 2026.','Agriculture and floriculture: separate minimum of CHF 18.07 per hour from 2026.'],employee:['Gross hourly minimum increases from CHF 24.48 to CHF 24.59.'],note:'The amount is adjusted annually to the cost of living based on the Geneva consumer price index.',example:'Increase per hour: CHF 24.59 - CHF 24.48 = CHF 0.11.',sourceUrl:'https://www.ge.ch/actualite/salaire-minimum-genevois-2026-etablira-2459-fr-heure-1-10-2025',sourceLabel:'Source: République et canton de Genève - Le salaire minimum genevois 2026 s\'établira à 24.59 fr. de l\'heure'}},
+      {country:'switzerland',flag:'🇨🇭',name:'Switzerland',section:'ch-13th-ahv',title:'First 13th AHV old-age pension paid in December 2026',badge:'December 2026',category:'payroll',upcoming:false,detail:{lead:'The 13th AHV pension is paid for the first time in December 2026 to around 2.6 million pensioners, equal to one-twelfth of the old-age pensions paid during the year.',employer:['No change to AHV wage contribution rates is set out for its financing; Parliament approved a 0.4 percentage-point VAT increase from 2028, subject to a popular vote on 29 November 2026 (not yet enacted).'],employee:['Old-age pension recipients receive a supplement in December equal to one-twelfth of annual old-age pensions.'],note:'VAT financing still requires approval in the 29 November 2026 vote.',example:'',sourceUrl:'https://www.bsv.admin.ch/de/umsetzung-13-ahv-rente',sourceLabel:'Source: Federal Social Insurance Office (BSV) - Umsetzung 13. AHV-Rente'}},
+      {country:'switzerland',flag:'🇨🇭',name:'Switzerland',section:'ch-socsec-2026',title:'2026 social insurance rates: AHV/IV/EO 10.6%, ALV 2.2% up to CHF 148,200',badge:'Effective 1 January 2026',category:'payroll',upcoming:false,detail:{lead:'For 2026 the AHV/IV/EO contribution totals 10.60% (5.30% each for employer and employee), and ALV is 1.10% each on income up to CHF 148,200.',employer:['AHV/IV/EO: 5.30% of salary (AHV 4.35%, IV 0.7%, EO 0.25%).','ALV: 1.10% on income up to CHF 148,200.','BVG: age-credit rates apply to the coordinated salary between CHF 26,460 and CHF 90,720.'],employee:['AHV/IV/EO: 5.30% (AHV 4.35%, IV 0.7%, EO 0.25%); ALV: 1.10% up to CHF 148,200.'],note:'',example:'Monthly salary CHF 8,000: AHV/IV/EO employee share 5.30% = CHF 424; ALV 1.10% = CHF 88.',sourceUrl:'https://sozialversicherungen.admin.ch/de/d/6877/download',sourceLabel:'Source: Federal Social Insurance Office (BSV) - Synoptische Tabelle 2026, Beitrags- und Prämiensätze'}},
+      {country:'ae',flag:'🇦🇪',name:'United Arab Emirates',section:'ae-emirati-minwage',title:'AED 6,000 minimum monthly wage for Emiratis in the private sector',badge:'Effective 1 January 2026',category:'payroll',upcoming:false,detail:{lead:'MoHRE requires a minimum monthly wage of AED 6,000 for Emiratis employed in the private sector from 1 January 2026, with salaries of existing Emirati staff to be adjusted by 30 June 2026.',employer:['Apply the AED 6,000 monthly wage to Emirati work permits issued, renewed or amended from 1 January 2026.','Adjust salaries of Emiratis hired before 2026 to at least AED 6,000 by 30 June 2026.','From 1 July 2026, underpaid Emiratis are excluded from Emiratisation quota counts and new work permits may be suspended.'],employee:['Emirati private-sector employees are entitled to a minimum monthly wage of AED 6,000.'],note:'',example:'',sourceUrl:'https://kpmg.com/xx/en/our-insights/gms-flash-alert/2026/flash-alert-2026-006.html',sourceLabel:'Source: KPMG GMS Flash Alert 2026-006 - United Arab Emirates'}},
+      {country:'ae',flag:'🇦🇪',name:'United Arab Emirates',section:'ae-emiratisation-2026',title:'Emiratisation H1 2026 target and AED 10,000 monthly contribution',badge:'Deadline 30 June 2026',category:'payroll',upcoming:false,detail:{lead:'Private-sector companies with 50 or more employees had to add 1% Emiratis in skilled roles by 30 June 2026 (2% annual target); financial contributions apply from 1 July 2026.',employer:['Financial contribution from 1 July 2026: AED 10,000 per month (AED 120,000 per year) for each unfilled Emirati position.','Companies with outstanding Emiratisation results can join the Emiratisation Partners Club (discounts of up to 80% on MoHRE service fees).'],employee:[],note:'MoHRE directs employers to the Nafis platform for recruiting Emirati jobseekers.',example:'Two unfilled positions: 2 x AED 120,000 = AED 240,000 per year.',sourceUrl:'https://www.wam.ae/en/article/c0uqocb-mohre-reaffirms-june-deadline-for-private-sector',sourceLabel:'Source: WAM (Emirates News Agency) - MoHRE reaffirms June 30 deadline for H1 private sector Emiratisation targets'}},
+      {country:'za',flag:'🇿🇦',name:'South Africa',section:'za-nmw-2026',title:'National Minimum Wage rises to R30.23 per hour',badge:'Effective 1 March 2026',category:'payroll',upcoming:false,detail:{lead:'Employment and Labour Minister Nomakhosazana Meth raised the National Minimum Wage from R28.79 to R30.23 for each ordinary hour worked, binding from 1 March 2026.',employer:['Pay at least R30.23 per ordinary hour from 1 March 2026.','EPWP workers: minimum rises from R15.16 to R16.62 per hour.'],employee:['Hourly minimum increases by R1.44.'],note:'',example:'8 ordinary hours x R30.23 = R241.84 per day.',sourceUrl:'https://www.sanews.gov.za/node/79404',sourceLabel:'Source: SAnews (GCIS) - National Minimum Wage to rise to R30.23 per hour from March'}},
+      {country:'za',flag:'🇿🇦',name:'South Africa',section:'za-paye-2027',title:'PAYE brackets and rebates adjusted for 2027 tax year',badge:'Effective 1 March 2026',category:'payroll',upcoming:false,detail:{lead:'SARS rates for the 2027 tax year (1 March 2026 - 28 February 2027) start at 18% on taxable income up to R245 100 and reach 45% above R1 878 600.',employer:['Apply updated withholding tables from 1 March 2026.'],employee:['Primary rebate R17 820; secondary (65+) R9 765; tertiary (75+) R3 249.','Tax threshold under 65: R99 000.'],note:'',example:'',sourceUrl:'https://www.sars.gov.za/tax-rates/income-tax/rates-of-tax-for-individuals/',sourceLabel:'Source: SARS - Rates of Tax for Individuals'}},
+      {country:'ng',flag:'🇳🇬',name:'Nigeria',section:'ng-paye-nta',title:'Nigeria Tax Act: new PAYE bands and rent relief',badge:'Effective 1 January 2026',category:'payroll',upcoming:false,detail:{lead:'The Nigeria Tax Act takes effect on 1 January 2026 with six bands: first N800,000 at 0%, then 15%, 18%, 21%, 23% and 25% above N50,000,000.',employer:['Recompute PAYE: next N2,200,000 at 15%, next N9,000,000 at 18%, next N13,000,000 at 21%, next N25,000,000 at 23%, above N50,000,000 at 25%.'],employee:['Consolidated relief allowance replaced by rent relief of 20% of annual rent, capped at N500,000.'],note:'',example:'Taxable income N3,000,000: N800,000 x 0% + N2,200,000 x 15% = N330,000.',sourceUrl:'https://taxsummaries.pwc.com/nigeria/individual/significant-developments',sourceLabel:'Source: PwC Worldwide Tax Summaries - Nigeria, Individual, Significant developments'}},
+      {country:'ke',flag:'🇰🇪',name:'Kenya',section:'ke-nssf-2026',title:'NSSF maximum monthly contribution set at KES 6,480',badge:'Effective 1 February 2026',category:'payroll',upcoming:false,detail:{lead:'From 1 February 2026 employers deduct a maximum monthly NSSF contribution of KES 6,480 from employees and match the same amount.',employer:['Match employee NSSF deduction up to KES 6,480 per month.'],employee:['Maximum monthly NSSF deduction KES 6,480.'],note:'',example:'Maximum combined monthly contribution: KES 6,480 x 2 = KES 12,960.',sourceUrl:'https://taxsummaries.pwc.com/kenya/individual/other-taxes',sourceLabel:'Source: PwC Worldwide Tax Summaries - Kenya, Individual, Other taxes'}},
     ];
 
     // UI Functions
@@ -1988,26 +2013,28 @@
       'netherlands': 'europe', 'austria': 'europe', 'hungary': 'europe', 'france': 'europe', 'spain': 'europe',
       'portugal': 'europe', 'poland': 'europe', 'lithuania': 'europe', 'estonia': 'europe', 'slovenia': 'europe',
       'slovakia': 'europe', 'romania': 'europe', 'bulgaria': 'europe', 'latvia': 'europe', 'cyprus': 'europe',
-      'malta': 'europe', 'luxembourg': 'europe', 'italy': 'europe', 'croatia': 'europe',
+      'malta': 'europe', 'luxembourg': 'europe', 'italy': 'europe', 'croatia': 'europe', 'switzerland': 'europe',
       'in': 'apac', 'jp': 'apac', 'sg': 'apac', 'au': 'apac', 'kr': 'apac', 'th': 'apac', 'id': 'apac', 'ph': 'apac', 'my': 'apac', 'vn': 'apac',
       'cn': 'apac', 'tw': 'apac', 'nz': 'apac', 'hk': 'apac', 'bd': 'apac',
       'sa': 'menat', 'eg': 'menat', 'il': 'menat', 'tr': 'menat', 'ma': 'menat', 'tn': 'menat', 'lb': 'menat', 'pk': 'menat',
-      'qa': 'menat', 'kw': 'menat', 'bh': 'menat', 'om': 'menat',
+      'qa': 'menat', 'kw': 'menat', 'bh': 'menat', 'om': 'menat', 'ae': 'menat',
       'br': 'latam', 'mx': 'latam', 'ar': 'latam', 'co': 'latam', 'cl': 'latam', 'pe': 'latam', 'ec': 'latam', 'uy': 'latam', 'cr': 'latam',
-      'pa': 'latam', 'do': 'latam', 'gt': 'latam', 'bo': 'latam', 'sv': 'latam'
+      'pa': 'latam', 'do': 'latam', 'gt': 'latam', 'bo': 'latam', 'sv': 'latam',
+      'za': 'africa', 'ng': 'africa', 'ke': 'africa'
     };
 
     // Initialize currentCountry from URL on page load
     function renderRegionCoverage(){
       const el = document.getElementById('region-coverage');
       if(!el) return;
-      const counts = {europe: 0, apac: 0, menat: 0, latam: 0};
+      const counts = {europe: 0, apac: 0, menat: 0, latam: 0, africa: 0};
       Object.values(countryToRegion).forEach(r => { if(counts[r] !== undefined) counts[r]++; });
       const regions = [
         {key: 'europe', label: 'Europe', blurb: 'Western, Northern, Southern, and Eastern Europe.'},
         {key: 'apac', label: 'APAC', blurb: 'Asia-Pacific, from India to Australia.'},
         {key: 'menat', label: 'MENAT', blurb: 'Middle East, North Africa, and Turkey.'},
-        {key: 'latam', label: 'LATAM', blurb: 'Latin America, from Mexico to the Southern Cone.'}
+        {key: 'latam', label: 'LATAM', blurb: 'Latin America, from Mexico to the Southern Cone.'},
+        {key: 'africa', label: 'Africa', blurb: 'Sub-Saharan Africa, from Nigeria to South Africa.'}
       ];
       el.innerHTML = regions.map(r => `
         <div class="region-coverage-card" data-reveal-item>
@@ -2028,7 +2055,8 @@
       cn:'156', tw:'158', nz:'554', hk:'344', bd:'050',
       sa:'682', eg:'818', il:'376', tr:'792', ma:'504', tn:'788', lb:'422', pk:'586', qa:'634', kw:'414', bh:'048', om:'512',
       br:'076', mx:'484', ar:'032', co:'170', cl:'152', pe:'604', ec:'218', uy:'858', cr:'188', pa:'591', do:'214',
-      gt:'320', bo:'068', sv:'222'
+      gt:'320', bo:'068', sv:'222',
+      switzerland:'756', ae:'784', za:'710', ng:'566', ke:'404'
     };
     // Too small for the 110m outline data; drawn as dots instead.
     const SMALL_COUNTRY_POINTS = { malta:[14.4,35.9], sg:[103.82,1.35], hk:[114.17,22.32], bh:[50.55,26.07] };
