@@ -3,13 +3,44 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Payroll Atlas</title>
+  <title>Payroll Atlas: payroll law changes by country</title>
   <meta name="description" content="A free, source-linked tracker for statutory and legislative payroll changes across 75 countries in Europe, APAC, MENAT, LATAM, and Africa. Updated monthly.">
+  <link rel="canonical" href="https://ankitbansal2k-ui.github.io/payroll-atlas/">
+  <meta name="theme-color" content="#0B1220">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Payroll Atlas">
+  <meta property="og:title" content="Payroll Atlas: payroll law changes by country">
+  <meta property="og:description" content="A free, source-linked tracker for statutory and legislative payroll changes across 75 countries in Europe, APAC, MENAT, LATAM, and Africa. Updated monthly.">
+  <meta property="og:url" content="https://ankitbansal2k-ui.github.io/payroll-atlas/">
+  <meta property="og:image" content="https://ankitbansal2k-ui.github.io/payroll-atlas/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Payroll Atlas: payroll law changes by country, 75 countries">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Payroll Atlas: payroll law changes by country">
+  <meta name="twitter:description" content="A free, source-linked tracker for statutory and legislative payroll changes across 75 countries in Europe, APAC, MENAT, LATAM, and Africa. Updated monthly.">
+  <meta name="twitter:image" content="https://ankitbansal2k-ui.github.io/payroll-atlas/og-image.png">
   <link rel="icon" type="image/svg+xml" href="design/assets/favicons/favicon.svg">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="preload" href="fonts/manrope-latin-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/manrope-latin-700.woff2" as="font" type="font/woff2" crossorigin>
   <style>
+    @font-face { font-family: 'Manrope'; font-style: normal; font-weight: 400; font-display: swap; src: url('fonts/manrope-latin-ext-400.woff2') format('woff2'); unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+    @font-face { font-family: 'Manrope'; font-style: normal; font-weight: 400; font-display: swap; src: url('fonts/manrope-latin-400.woff2') format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+    @font-face { font-family: 'Manrope'; font-style: normal; font-weight: 500; font-display: swap; src: url('fonts/manrope-latin-ext-500.woff2') format('woff2'); unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+    @font-face { font-family: 'Manrope'; font-style: normal; font-weight: 500; font-display: swap; src: url('fonts/manrope-latin-500.woff2') format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+    @font-face { font-family: 'Manrope'; font-style: normal; font-weight: 600; font-display: swap; src: url('fonts/manrope-latin-ext-600.woff2') format('woff2'); unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+    @font-face { font-family: 'Manrope'; font-style: normal; font-weight: 600; font-display: swap; src: url('fonts/manrope-latin-600.woff2') format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+    @font-face { font-family: 'Manrope'; font-style: normal; font-weight: 700; font-display: swap; src: url('fonts/manrope-latin-ext-700.woff2') format('woff2'); unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+    @font-face { font-family: 'Manrope'; font-style: normal; font-weight: 700; font-display: swap; src: url('fonts/manrope-latin-700.woff2') format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+    @font-face { font-family: 'Geist Mono'; font-style: normal; font-weight: 400; font-display: swap; src: url('fonts/geist-mono-latin-ext-400.woff2') format('woff2'); unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+    @font-face { font-family: 'Geist Mono'; font-style: normal; font-weight: 400; font-display: swap; src: url('fonts/geist-mono-latin-400.woff2') format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+    @font-face { font-family: 'Geist Mono'; font-style: normal; font-weight: 500; font-display: swap; src: url('fonts/geist-mono-latin-ext-500.woff2') format('woff2'); unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+    @font-face { font-family: 'Geist Mono'; font-style: normal; font-weight: 500; font-display: swap; src: url('fonts/geist-mono-latin-500.woff2') format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+    @font-face { font-family: 'Geist Mono'; font-style: normal; font-weight: 600; font-display: swap; src: url('fonts/geist-mono-latin-ext-600.woff2') format('woff2'); unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+    @font-face { font-family: 'Geist Mono'; font-style: normal; font-weight: 600; font-display: swap; src: url('fonts/geist-mono-latin-600.woff2') format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+
     /* Style lock: .tastemaker/style-lock.md - technical/premium mood, navy + teal-emerald,
        verified contrast pairings recorded there. CSS var names kept from the prior
        palette for implementation continuity; values updated to the new contract.  */
@@ -595,6 +626,38 @@
     .badge.upcoming {
       background: rgba(240, 169, 59, 0.2);
       color: var(--warning);
+    }
+
+    .detail-verified {
+      margin-top: 0.75rem;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    .site-notice {
+      margin: 0 0 1.25rem;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .site-notice a, .partial-notice a { color: var(--blue-accent); }
+
+    .partial-notice {
+      margin-bottom: 1.25rem;
+      padding: 0.75rem 1.25rem;
+      border: 1px dashed var(--border-color);
+      border-radius: 6px;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .footer-links {
+      margin-top: 1rem;
+      font-size: 0.85rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem 1.25rem;
     }
 
     .badge.draft {
@@ -1374,7 +1437,7 @@
             75 countries, every entry sourced
           </span>
           <h1>Stay compliant without tracking 75 countries by hand</h1>
-          <p>Payroll Atlas monitors statutory and legislative changes across Europe, APAC, MENAT, LATAM, and Africa, sourced directly from government tax authorities and social security bodies. Your team reads a page, not a bulletin.</p>
+          <p>Payroll Atlas monitors statutory and legislative changes across Europe, APAC, MENAT, LATAM, and Africa, with every entry linked to its official or professional source. Your team reads a page, not a bulletin.</p>
 
           <div class="hero-cta-row">
             <a href="#" onclick="document.querySelector('.final-cta').scrollIntoView({behavior:'smooth'}); return false;" class="btn-primary">
@@ -1383,7 +1446,7 @@
             </a>
           </div>
 
-          <div class="proof-line">295 tracked changes · 34 upcoming · updated monthly · free, always</div>
+          <div class="proof-line" id="proof-line">Tracked changes · updated monthly · free, always</div>
         </div>
 
         <div class="hero-visual" data-reveal data-reveal-delay="0.15">
@@ -1499,7 +1562,7 @@
             <div class="benefit-check"><img src="design/assets/icons/check-circle-bold.svg" width="16" height="16" alt=""></div>
             <div>
               <h3>Skip the manual research</h3>
-              <p>We monitor 75 countries' tax authorities and social security bodies so you don't read every government bulletin yourself.</p>
+              <p>We follow 75 countries' tax authorities, labour ministries and social security bodies so you don't read every bulletin yourself.</p>
             </div>
           </div>
           <div class="benefit-card" data-reveal-item>
@@ -1555,7 +1618,7 @@
           </details>
           <details class="faq-item">
             <summary>Where does the information come from?</summary>
-            <p>Directly from government tax authorities, labour inspectorates, and social security bodies in each country. We don't rely on secondary sources or aggregators.</p>
+            <p>Government authorities where we can retrieve them, and major tax advisory publications where we cannot. Every entry shows which. We don't rely on rumours or unsourced summaries.</p>
           </details>
           <details class="faq-item">
             <summary>Which countries are covered?</summary>
@@ -1570,8 +1633,8 @@
             <p>Open an issue on our GitHub repository, linked in the footer. We review and correct entries as part of the monthly sweep.</p>
           </details>
           <details class="faq-item">
-            <summary>Do you plan to expand beyond Europe?</summary>
-            <p>Not currently. Scope is Europe only for now, so we can keep every entry accurate rather than spreading coverage thin.</p>
+            <summary>Is coverage complete for every country?</summary>
+            <p>No. Coverage is partial and grows each month. Some countries have only one or two entries, and an absence of entries does not mean nothing has changed. We add only changes we can tie to a source page, so we would rather show less than guess.</p>
           </details>
         </div>
       </div>
@@ -1674,6 +1737,7 @@
     <!-- Changelog View -->
     <div id="view-changelog" class="hidden">
       <h2>Changelog</h2>
+      <p class="site-notice">For information only, not legal or tax advice. Always confirm details with the linked source before acting. See the <a href="terms.html">terms</a>.</p>
       <div class="region-tabs">
         <button class="region-tab active" onclick="selectRegion('europe')">Europe</button>
         <button class="region-tab" onclick="selectRegion('apac')">APAC</button>
@@ -1694,13 +1758,19 @@
   </div>
 
   <footer>
-    <p>Payroll Atlas. Global payroll compliance tracking, updated monthly. Every entry links to its source, from government authorities or major tax advisory firms.</p>
-    <p style="margin-top: 1rem; font-size: 0.85rem;">Not legal or tax advice. <a href="https://github.com/ankitbansal2k-ui/payroll-atlas" target="_blank" rel="noopener">View source on GitHub</a></p>
+    <p>Payroll Atlas. Payroll compliance tracking across 75 countries, updated monthly. Every entry links to its source, from government authorities or major tax advisory firms.</p>
+    <p style="margin-top: 1rem; font-size: 0.85rem;">Not legal or tax advice. Sources last checked <span id="footer-verified"></span>.</p>
+    <nav class="footer-links" aria-label="Footer">
+      <a href="privacy.html">Privacy</a>
+      <a href="terms.html">Terms and disclaimer</a>
+      <a href="https://github.com/ankitbansal2k-ui/payroll-atlas/issues" target="_blank" rel="noopener">Report an error or contact us</a>
+      <a href="https://github.com/ankitbansal2k-ui/payroll-atlas" target="_blank" rel="noopener">View source on GitHub</a>
+    </nav>
   </footer>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+  <script src="vendor/gsap.min.js"></script>
+  <script src="vendor/d3.min.js"></script>
+  <script src="vendor/topojson.min.js"></script>
   <script>
     // Motion: IntersectionObserver drives visibility (robust, no dependency on scroll-position
     // math at load time); GSAP performs the tween itself. A hard safety timeout guarantees
@@ -2070,7 +2140,7 @@
       if(!window.d3 || !window.topojson){ box.hidden = true; return; }
       let world;
       try {
-        world = await d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json');
+        world = await d3.json('vendor/countries-110m.json');
       } catch(e){ box.hidden = true; return; }
       const tip = document.getElementById('coverage-map-tip');
       const back = document.getElementById('coverage-map-back');
@@ -2198,7 +2268,15 @@
       sizeMarkers();
     }
 
+    function renderProofLine(){
+      const el = document.getElementById('proof-line');
+      if(!el) return;
+      const upcoming = CHANGES.filter(c => c.upcoming).length;
+      el.textContent = `${CHANGES.length} tracked changes · ${upcoming} upcoming · updated monthly · free, always`;
+    }
+
     function initializeFromURL(){
+      renderProofLine();
       renderRegionCoverage();
       renderCoverageMap();
       const params = new URLSearchParams(window.location.search);
@@ -2221,6 +2299,11 @@
         .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
 
+    const LAST_VERIFIED = new Date('2026-10-01T00:00:00Z');
+    const LAST_VERIFIED_LABEL = LAST_VERIFIED.toLocaleDateString('en-GB', {day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC'});
+    const footerVerified = document.getElementById('footer-verified');
+    if(footerVerified) footerVerified.textContent = LAST_VERIFIED_LABEL;
+
     function renderDetail(item){
       const d = item.detail;
       if(!d) return '<p class="detail-empty">No further detail recorded for this item yet.</p>';
@@ -2237,6 +2320,7 @@
         ${(employerList || employeeList) ? `<div class="detail-actions">${employerList}${employeeList}</div>` : ''}
         ${d.example ? `<div class="detail-example"><span class="detail-example-label">In practice</span>${escapeHtml(d.example)}</div>` : ''}
         ${d.note ? `<p class="detail-note">${escapeHtml(d.note)}</p>` : ''}
+        <p class="detail-verified">Last verified ${LAST_VERIFIED_LABEL}</p>
         ${d.sourceUrl ? `<a class="detail-source" href="${escapeHtml(d.sourceUrl)}" target="_blank" rel="noopener">${escapeHtml(d.sourceLabel || 'Source')} ↗</a>` : ''}
       `;
     }
@@ -2292,11 +2376,16 @@
            </div>`
         : '';
 
+      const countryTotal = country ? CHANGES.filter(c => c.country === country).length : 0;
+      const partial = (country && !search && countryTotal > 0 && countryTotal < 2)
+        ? `<div class="partial-notice">Partial coverage: we currently track ${countryTotal} change for this country. Know of another? <a href="https://github.com/ankitbansal2k-ui/payroll-atlas/issues" target="_blank" rel="noopener">Tell us</a>.</div>`
+        : '';
+
       const emptyState = filtered.length === 0
         ? `<p class="detail-empty">No changes match${search ? ` "${escapeHtml(search)}"` : ' this filter'}. Try a different term or clear the filter.</p>`
         : '';
 
-      list.innerHTML = banner + emptyState + filtered.map((item, i) => `
+      list.innerHTML = banner + partial + emptyState + filtered.map((item, i) => `
         <div class="item-card" data-index="${i}">
           <button type="button" class="item-header" onclick="toggleDetail(${i})" aria-expanded="false">
             <div>
