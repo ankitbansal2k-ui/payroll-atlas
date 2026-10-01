@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Privacy notice | Payroll Atlas</title>
   <meta name="description" content="How Payroll Atlas handles visitor data: no accounts, no cookies, no analytics and no third-party requests. Who is responsible, what is processed, and your rights.">
-  <link rel="canonical" href="https://ankitbansal2k-ui.github.io/payroll-atlas/privacy.html">
+  <link rel="canonical" href="{{SITE}}privacy.html">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
   <meta name="theme-color" content="#0B1220">
   <link rel="icon" type="image/svg+xml" href="design/assets/favicons/favicon.svg">
@@ -15,7 +15,7 @@
   <header><a href="./">Payroll Atlas</a> <a class="nav" href="countries.html">All countries</a></header>
   <main>
     <h1>Privacy notice</h1>
-    <p class="meta">Effective 1 October 2026</p>
+    <p class="meta">Effective {{UPDATED}}</p>
 
     <div class="summary">
       <p><strong>In short:</strong> Payroll Atlas has no accounts, forms, cookies, analytics, advertising or third-party scripts. The only personal data involved is the technical request data that any web host records when you load a page, and anything you choose to send us when you report an error.</p>
@@ -23,8 +23,7 @@
 
     <h2>1. Who is responsible</h2>
     <p>The controller of personal data processed through this website is:</p>
-        <p class="operator">The maintainer of the public GitHub repository <a href="https://github.com/ankitbansal2k-ui/payroll-atlas" rel="noopener">ankitbansal2k-ui/payroll-atlas</a> (the &quot;Operator&quot;).<br>
-    Contact: <a href="https://github.com/ankitbansal2k-ui/payroll-atlas/issues" rel="noopener">GitHub Issues</a></p>
+    {{OPERATOR_BLOCK}}
     <p>This notice applies to this website and its pages. It is written to meet the transparency requirements of the EU General Data Protection Regulation (GDPR, Regulation (EU) 2016/679).</p>
 
     <h2>2. What we process, why, and on what basis</h2>
@@ -53,7 +52,7 @@
     </ul>
 
     <h2>3. Who receives data</h2>
-    <p>Vercel Inc. serves this site. The older address on GitHub Pages (github.io) is served by GitHub, Inc. while it remains active. GitHub also hosts the source code and the public issue tracker. These providers handle request data on our behalf as hosting providers and, for GitHub accounts and issues, as controllers under their own notices:</p>
+    <p>{{HOSTING_SENTENCE}} GitHub also hosts the source code and the public issue tracker. These providers handle request data on our behalf as hosting providers and, for GitHub accounts and issues, as controllers under their own notices:</p>
     <ul>
       <li>Vercel: <a href="https://vercel.com/legal/privacy-policy" rel="noopener">vercel.com/legal/privacy-policy</a></li>
       <li>GitHub: <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" rel="noopener">GitHub General Privacy Statement</a></li>
@@ -73,8 +72,8 @@
       <li>object at any time to processing based on our legitimate interests, on grounds relating to your situation (Article 21);</li>
       <li>receive data you provided in a structured, commonly used format where Article 20 applies.</li>
     </ul>
-    <p>To use these rights, open an issue on <a href="https://github.com/ankitbansal2k-ui/payroll-atlas/issues" rel="noopener">GitHub Issues</a> that says only that you wish to make a privacy request (without personal details), and we will arrange a private way to continue. We will answer within one month, as the law requires, and we may need to verify who you are first. Because we hold almost no data about visitors, we will often be unable to identify a particular visit; we will tell you if that is the case.</p>
-    <p>You also have the right to complain to a data protection authority, in particular in the EU/EEA country where you live or work or where you think the problem happened. The authority for the controller named above is Prezes Urzędu Ochrony Danych Osobowych (UODO) (<a href="https://uodo.gov.pl/en" rel="noopener">uodo.gov.pl/en</a>). You are not required to give us personal data to read this site, although your IP address is necessarily visible to the host when you connect.</p>
+    <p>{{RIGHTS_REQUEST}} We will answer within one month, as the law requires, and we may need to verify who you are first. Because we hold almost no data about visitors, we will often be unable to identify a particular visit; we will tell you if that is the case.</p>
+    <p>You also have the right to complain to a data protection authority, in particular in the EU/EEA country where you live or work or where you think the problem happened. The authority for the controller named above is {{AUTHORITY}}. You are not required to give us personal data to read this site, although your IP address is necessarily visible to the host when you connect.</p>
 
     <h2>6. Security</h2>
     <p>The site is served over HTTPS, loads no third-party code, and sets a strict content security policy. No system is perfectly secure, but the site holds no accounts or stored visitor data for an attacker to take.</p>
@@ -89,7 +88,7 @@
     <p>If our practices change (for example, if analytics were ever added), we will update this notice before the change goes live and show the new effective date above. Earlier versions are available in the public change history of the <a href="https://github.com/ankitbansal2k-ui/payroll-atlas" rel="noopener">source repository</a>.</p>
 
     <h2>10. Contact</h2>
-    <p>Questions and corrections: open an issue on <a href="https://github.com/ankitbansal2k-ui/payroll-atlas/issues" rel="noopener">GitHub Issues</a>. Issues are public, so do not include personal or confidential information.</p>
+    <p>{{CONTACT_LINE}}</p>
   </main>
   <footer><a href="./">Home</a> &middot; <a href="countries.html">All countries</a> &middot; <a href="terms.html">Terms of use</a></footer>
 </body>

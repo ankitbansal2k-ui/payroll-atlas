@@ -1,6 +1,6 @@
 // Generates the static, crawlable pages from the CHANGES data in index.html:
 //   countries.html, countries/<slug>.html, sitemap.xml, robots.txt, and the canonical links
-//   in privacy.html / terms.html.
+//   and privacy.html / terms.html (rendered from scripts/templates using scripts/operator.json).
 // Run: node scripts/build-pages.mjs          (write files)
 //      node scripts/build-pages.mjs --check  (fail if generated files are out of date; used in CI)
 // The site's public address is read from <link rel="canonical"> in index.html, so changing
@@ -147,10 +147,40 @@ ${urls.map(u => `  <url><loc>${SITE}${u}</loc><lastmod>${VERIFIED_ISO}</lastmod>
 </urlset>
 `);
 out.set('robots.txt', `User-agent: *\nAllow: /\n\nSitemap: ${SITE}sitemap.xml\n`);
+
+// ---- legal pages: templates in scripts/templates, facts in scripts/operator.json ----
+const op = JSON.parse(fs.readFileSync(path.join(ROOT, 'scripts/operator.json'), 'utf8'));
+const GH = 'https://github.com/ankitbansal2k-ui/payroll-atlas';
+const UPDATED = new Date(op.legalUpdated + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+const named = Boolean(op.name && op.name.trim());
+const issuesLink = `<a href="${ISSUES}" rel="noopener">GitHub Issues</a>`;
+const operatorBlock = named
+  ? `    <p class="operator"><strong>${esc(op.name)}</strong>${op.registration ? ` (${esc(op.registration)})` : ''}<br>
+    ${op.address ? esc(op.address) + '<br>\n    ' : ''}${op.email ? `Email: <a href="mailto:${esc(op.email)}">${esc(op.email)}</a><br>\n    ` : ''}Public contact: ${issuesLink}</p>`
+  : `    <p class="operator">The maintainer of the public GitHub repository <a href="${GH}" rel="noopener">ankitbansal2k-ui/payroll-atlas</a> (the &quot;Operator&quot;).<br>
+    Contact: ${issuesLink}${op.email ? `, or <a href="mailto:${esc(op.email)}">${esc(op.email)}</a>` : ''}</p>`;
+const contactLine = op.email
+  ? `Questions, privacy requests and corrections: <a href="mailto:${esc(op.email)}">${esc(op.email)}</a>, or ${issuesLink} (public: do not include personal or confidential information).`
+  : `Questions and corrections: open an issue on ${issuesLink}. Issues are public, so do not include personal or confidential information.`;
+const rightsRequest = op.email
+  ? `To use these rights, email <a href="mailto:${esc(op.email)}">${esc(op.email)}</a>.`
+  : `To use these rights, open an issue on ${issuesLink} that says only that you wish to make a privacy request (without personal details), and we will arrange a private way to continue.`;
+const hostingSentence = op.githubPagesActive
+  ? 'Vercel Inc. serves this site. The older address on GitHub Pages (github.io) is served by GitHub, Inc. while it remains active.'
+  : 'Vercel Inc. serves this site.';
+const authority = `${esc(op.supervisoryAuthority.name)} (<a href="${esc(op.supervisoryAuthority.url)}" rel="noopener">${esc(op.supervisoryAuthority.url.replace(/^https?:\/\//, ''))}</a>)`;
+const fill = tpl => tpl
+  .replaceAll('{{SITE}}', SITE).replaceAll('{{UPDATED}}', UPDATED)
+  .replaceAll('{{OPERATOR_BLOCK}}', operatorBlock).replaceAll('{{CONTACT_LINE}}', contactLine)
+  .replaceAll('{{RIGHTS_REQUEST}}', rightsRequest).replaceAll('{{HOSTING_SENTENCE}}', hostingSentence)
+  .replaceAll('{{AUTHORITY}}', authority).replaceAll('{{GOVERNING_LAW}}', esc(op.governingLaw));
 for (const f of ['privacy.html', 'terms.html']) {
-  const cur = fs.readFileSync(path.join(ROOT, f), 'utf8');
-  out.set(f, cur.replace(/<link rel="canonical" href="[^"]*">/, `<link rel="canonical" href="${SITE}${f}">`));
+  const rendered = fill(fs.readFileSync(path.join(ROOT, 'scripts/templates', f), 'utf8'));
+  const left = rendered.match(/\{\{[A-Z_]+\}\}/g);
+  if (left) throw new Error(`${f}: unfilled template tokens ${left.join(', ')}`);
+  out.set(f, rendered);
 }
+out.set('sitemap.xml', out.get('sitemap.xml').replace(/(privacy|terms)\.html<\/loc><lastmod>[^<]+/g, `$1.html</loc><lastmod>${op.legalUpdated}`));
 
 // ---- verify index.html social URLs match the canonical host ----
 const problems = [];

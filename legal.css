@@ -37,3 +37,10 @@ header .nav { font-weight: 400; font-size: 0.9rem; color: var(--muted); }
 .chips a { display: inline-block; margin: 0 0.5rem 0.5rem 0; padding: 0.25rem 0.7rem; border: 1px solid var(--border); border-radius: 999px; text-decoration: none; font-size: 0.9rem; }
 .countries { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.4rem 1.5rem; }
 .count { color: var(--muted); font-size: 0.85rem; font-weight: 400; }
+
+/* Legal notices */
+h3 { font-size: 1rem; margin: 1.25rem 0 0.4rem; }
+.summary { padding: 0.9rem 1.25rem; margin: 1rem 0 0.5rem; border-left: 3px solid var(--accent); background: rgba(45, 212, 163, 0.06); border-radius: 0 6px 6px 0; }
+.summary p { margin: 0; }
+.operator { padding: 0.75rem 1rem; border: 1px solid var(--border); border-radius: 6px; background: var(--card); }
+code { font-family: 'Geist Mono', ui-monospace, Consolas, monospace; font-size: 0.9em; background: var(--card); padding: 0.1rem 0.35rem; border-radius: 4px; }

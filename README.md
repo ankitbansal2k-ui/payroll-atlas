@@ -11,7 +11,8 @@ It is a static site with no build step and no backend. Everything the page needs
 | Path | What it is |
 |---|---|
 | `index.html` | The whole app: markup, styles, script and the `CHANGES` data |
-| `privacy.html`, `terms.html`, `404.html`, `legal.css` | Legal pages, error page and the shared stylesheet |
+| `privacy.html`, `terms.html` | **Generated** from `scripts/templates/` and `scripts/operator.json`. Edit those, not the HTML |
+| `404.html`, `legal.css` | Error page and the shared stylesheet for legal and generated pages |
 | `countries.html`, `countries/*.html` | **Generated.** One static, text-only page per country (and an index) so search engines can read the entries. Do not edit by hand |
 | `fonts/`, `vendor/`, `design/` | Self-hosted fonts, libraries and map data, icons and favicon |
 | `og-image.png`, `robots.txt`, `sitemap.xml` | Sharing image and search files (`robots.txt` and `sitemap.xml` are generated) |
@@ -54,6 +55,17 @@ All content is the `CHANGES` array in `index.html`, one object per line:
 3. Prefer government pages. Use PwC Worldwide Tax Summaries, KPMG, EY, Deloitte or BDO only when a government page cannot be retrieved, and never news sites, blogs or HR vendors.
 4. Examples must be arithmetic that follows from the sourced numbers.
 5. If a country has nothing verifiable, leave it with fewer entries rather than guessing.
+
+## Legal pages
+
+The privacy notice and terms are written in `scripts/templates/privacy.html` and `terms.html`. Facts that change live in `scripts/operator.json`:
+
+- `name`, `address`, `email`, `registration`: who operates the site. **Fill these in.** While `name` is empty the pages identify the operator only as the maintainer of the GitHub repository, with GitHub Issues as the contact, which is thin for a controller under the GDPR. A named controller with an email address is better, and is expected if the site is run as a business.
+- `country`, `governingLaw`, `supervisoryAuthority`: jurisdiction and the data protection authority named in the notice.
+- `githubPagesActive`: set to `false` once the old github.io address is unpublished, so the notice stops mentioning GitHub Pages as a host.
+- `legalUpdated`: the effective date shown on both pages. Change it whenever the text changes.
+
+After editing, run `node scripts/build-pages.mjs`. Have a lawyer in your country review the texts before relying on them.
 
 ## Checks
 
