@@ -45,14 +45,17 @@ for (const [n, opts] of selects.entries()) {
 }
 
 // Guard against scratch files (downloads, PDFs, archives) being committed by accident.
+const root = new URL('../', import.meta.url);
+let tracked = [];
 try {
-  const root = new URL('../', import.meta.url);
-  const tracked = execFileSync('git', ['ls-files'], { cwd: root, encoding: 'utf8' }).split('\n').map(f => f.trim()).filter(Boolean);
-  for (const f of tracked) {
-    if (/\.(pdf|zip|gz|tgz|7z|rar|mp4|mov)$/i.test(f)) err(`tracked file type not allowed: ${f}`);
-    else if (fs.statSync(new URL(f, root)).size > 1024 * 1024) err(`tracked file over 1 MB: ${f}`);
-  }
+  tracked = execFileSync('git', ['ls-files'], { cwd: root, encoding: 'utf8' }).split('\n').map(f => f.trim()).filter(Boolean);
 } catch { /* not a git checkout: skip */ }
+for (const f of tracked) {
+  if (/\.(pdf|zip|gz|tgz|7z|rar|mp4|mov)$/i.test(f)) { err(`tracked file type not allowed: ${f}`); continue; }
+  let size = 0;
+  try { size = fs.statSync(new URL(f, root)).size; } catch { continue; /* staged for deletion */ }
+  if (size > 1024 * 1024) err(`tracked file over 1 MB: ${f}`);
+}
 
 const perRegion = {};
 for (const r of Object.values(countryToRegion)) perRegion[r] = (perRegion[r] || 0) + 1;

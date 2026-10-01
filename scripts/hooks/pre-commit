@@ -1,0 +1,22 @@
+#!/bin/sh
+# Blocks a commit if the data is invalid, a scratch file (PDF, archive, file over 1 MB) is tracked,
+# or the generated pages are stale. Install with: sh scripts/hooks/install.sh
+
+cd "$(git rev-parse --show-toplevel)" || exit 1
+
+if ! command -v node >/dev/null 2>&1; then
+  echo "pre-commit: node not found, skipping checks (install Node 18+ to enable them)"
+  exit 0
+fi
+
+if ! node scripts/validate.mjs; then
+  echo ""
+  echo "pre-commit: commit blocked. Fix the problems above (unstage stray files with: git rm --cached <file>)."
+  exit 1
+fi
+
+if ! node scripts/build-pages.mjs --check; then
+  echo ""
+  echo "pre-commit: commit blocked. Run: node scripts/build-pages.mjs  then stage the regenerated files."
+  exit 1
+fi

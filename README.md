@@ -64,6 +64,16 @@ node scripts/build-pages.mjs --check   # fail if generated files are stale (runs
 node scripts/check-links.mjs   # fetches every sourceUrl (about a minute)
 ```
 
+### Git hook (once per clone)
+
+Git hooks are not part of the repository, so install the pre-commit hook after cloning:
+
+```bash
+sh scripts/hooks/install.sh
+```
+
+It runs `validate.mjs` and `build-pages.mjs --check` before every commit and blocks the commit if the data is invalid, a PDF, archive or file over 1 MB is tracked, or the generated pages are stale. Do not bypass it with `--no-verify`. Keep research downloads outside the repository.
+
 `check-links.mjs` fails on broken links, and lists links that redirect to a homepage (the page has probably moved) or are blocked by bot protection (check those by hand). A GitHub Action runs it on the 1st of every month and `validate.mjs` on every push.
 
 ## Monthly update routine
