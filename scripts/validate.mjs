@@ -1,4 +1,6 @@
 // Fast integrity checks for index.html. Run: node scripts/validate.mjs
+import { execFileSync } from 'node:child_process';
+import fs from 'node:fs';
 import { loadSite } from './load.mjs';
 
 const { CHANGES, countryToRegion, selects } = loadSite();
@@ -41,6 +43,16 @@ for (const [n, opts] of selects.entries()) {
   for (const o of opts) if (!codes.has(o)) err(`selector ${n + 1}: option ${o} not in countryToRegion`);
   for (const c of codes) if (!opts.includes(c)) err(`selector ${n + 1}: missing option for ${c}`);
 }
+
+// Guard against scratch files (downloads, PDFs, archives) being committed by accident.
+try {
+  const root = new URL('../', import.meta.url);
+  const tracked = execFileSync('git', ['ls-files'], { cwd: root, encoding: 'utf8' }).split('\n').map(f => f.trim()).filter(Boolean);
+  for (const f of tracked) {
+    if (/\.(pdf|zip|gz|tgz|7z|rar|mp4|mov)$/i.test(f)) err(`tracked file type not allowed: ${f}`);
+    else if (fs.statSync(new URL(f, root)).size > 1024 * 1024) err(`tracked file over 1 MB: ${f}`);
+  }
+} catch { /* not a git checkout: skip */ }
 
 const perRegion = {};
 for (const r of Object.values(countryToRegion)) perRegion[r] = (perRegion[r] || 0) + 1;
