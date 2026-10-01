@@ -15,3 +15,25 @@ ul { padding-left: 1.25rem; }
 li { margin-bottom: 0.4rem; }
 .meta { color: var(--muted); font-size: 0.9rem; }
 footer { padding-top: 1.5rem; padding-bottom: 2.5rem; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.9rem; }
+
+/* Generated country pages */
+header { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
+header .nav { font-weight: 400; font-size: 0.9rem; color: var(--muted); }
+.crumbs { font-size: 0.85rem; color: var(--muted); margin-bottom: 0.75rem; }
+.crumbs a { color: var(--muted); }
+.cta { display: inline-block; padding: 0.55rem 1rem; border-radius: 6px; background: var(--accent); color: #04140F; font-weight: 700; text-decoration: none; }
+.partial { padding: 0.75rem 1rem; border: 1px dashed var(--border); border-radius: 6px; color: var(--muted); font-size: 0.9rem; }
+.entry { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem 1.5rem; margin: 1.5rem 0; }
+.entry h2 { margin-top: 0; font-size: 1.1rem; line-height: 1.4; }
+.badges { margin-bottom: 0.75rem; }
+.badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.8rem; font-weight: 700; background: rgba(45, 212, 163, 0.2); color: var(--accent); }
+.badge.upcoming { background: rgba(240, 169, 59, 0.2); color: #F0A93B; }
+.badge.draft { background: transparent; color: var(--muted); border: 1px dashed var(--muted); }
+.who h3 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 0.25rem; }
+.example { padding: 0.6rem 0.9rem; border-left: 3px solid var(--accent); background: rgba(45, 212, 163, 0.06); }
+.note { color: var(--muted); font-size: 0.9rem; }
+.source { font-size: 0.9rem; color: var(--muted); margin-bottom: 0; }
+.more { margin-top: 2.5rem; }
+.chips a { display: inline-block; margin: 0 0.5rem 0.5rem 0; padding: 0.25rem 0.7rem; border: 1px solid var(--border); border-radius: 999px; text-decoration: none; font-size: 0.9rem; }
+.countries { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.4rem 1.5rem; }
+.count { color: var(--muted); font-size: 0.85rem; font-weight: 400; }

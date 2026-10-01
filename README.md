@@ -11,10 +11,11 @@ It is a static site with no build step and no backend. Everything the page needs
 | Path | What it is |
 |---|---|
 | `index.html` | The whole app: markup, styles, script and the `CHANGES` data |
-| `privacy.html`, `terms.html`, `404.html`, `legal.css` | Legal pages and error page |
+| `privacy.html`, `terms.html`, `404.html`, `legal.css` | Legal pages, error page and the shared stylesheet |
+| `countries.html`, `countries/*.html` | **Generated.** One static, text-only page per country (and an index) so search engines can read the entries. Do not edit by hand |
 | `fonts/`, `vendor/`, `design/` | Self-hosted fonts, libraries and map data, icons and favicon |
-| `og-image.png`, `robots.txt`, `sitemap.xml` | Sharing image and search files |
-| `scripts/` | `validate.mjs` (data checks) and `check-links.mjs` (source URL checks) |
+| `og-image.png`, `robots.txt`, `sitemap.xml` | Sharing image and search files (`robots.txt` and `sitemap.xml` are generated) |
+| `scripts/` | `validate.mjs` (data checks), `check-links.mjs` (source URL checks), `build-pages.mjs` (generates the static pages) |
 | `.github/workflows/` | CI: validate on every push, link check monthly |
 | `vercel.json` | Security and cache headers if deployed on Vercel |
 | `.tastemaker/` | Design style lock (colours, type, contrast rules) |
@@ -58,6 +59,8 @@ All content is the `CHANGES` array in `index.html`, one object per line:
 
 ```bash
 node scripts/validate.mjs      # schema, duplicates, selectors vs regions (fast; also runs in CI)
+node scripts/build-pages.mjs   # regenerate country pages, sitemap and robots.txt from the data
+node scripts/build-pages.mjs --check   # fail if generated files are stale (runs in CI)
 node scripts/check-links.mjs   # fetches every sourceUrl (about a minute)
 ```
 
@@ -68,6 +71,7 @@ node scripts/check-links.mjs   # fetches every sourceUrl (about a minute)
 1. Run `node scripts/check-links.mjs` and fix or replace anything it flags.
 2. Re-check countries with scheduled changes (new tax year, minimum wage updates, contribution ceilings) against their source pages.
 3. Add new entries following the rules above, then run `node scripts/validate.mjs`.
+   After any change to `CHANGES`, run `node scripts/build-pages.mjs` and commit the regenerated files. CI fails if you forget.
 4. Update `LAST_VERIFIED` in `index.html` (and the dates in `sitemap.xml`, `privacy.html`, `terms.html` if they changed).
 5. Commit and push.
 
@@ -79,7 +83,7 @@ The site is plain static files in the repository root, so any static host works.
 - **Vercel:** import the repository, framework preset **Other**, leave the build command and output directory empty. `vercel.json` adds security and cache headers. Note that Vercel's free Hobby plan is for non-commercial use.
 - **Cloudflare Pages / Netlify:** connect the repository, no build command, publish directory `/`.
 
-When a custom domain is added, update the URLs in `index.html` (`canonical`, `og:url`, `og:image`, `twitter:image`), `robots.txt` and `sitemap.xml`, and the canonical links in `privacy.html` and `terms.html`.
+When a custom domain is added, change the address in `index.html` (`canonical`, `og:url`, `og:image`, `twitter:image`) and run `node scripts/build-pages.mjs`. It reads the canonical tag and rewrites every generated page, `sitemap.xml`, `robots.txt` and the canonical links in `privacy.html` and `terms.html`; `--check` flags any `index.html` social URL still on the old host.
 
 ## Reporting errors
 
