@@ -1301,3 +1301,13 @@
 .swatch-latam { background: var(--region-latam); }
 .swatch-africa { background: var(--region-africa); }
 
+
+/* Phone widths: five region tabs and long badge labels must not push the page wider than the screen */
+@media (max-width: 640px) {
+  .region-tabs { flex-wrap: wrap; gap: 0.25rem; }
+  .region-tab { padding: 0.6rem 0.75rem; }
+  .item-header { flex-direction: column; align-items: flex-start; }
+  .item-header-right { flex-shrink: 1; flex-wrap: wrap; width: 100%; }
+  .item-header-right .item-chevron { margin-left: auto; }
+  .badge { white-space: normal; }
+}
