@@ -101,7 +101,7 @@ It runs `validate.mjs` and `build-pages.mjs --check` before every commit and blo
 
 `check-links.mjs` fails on broken links, and lists links that redirect to a homepage (the page has probably moved) or are blocked by bot protection (check those by hand). A GitHub Action runs it on the 1st of every month and `validate.mjs` on every push.
 
-## Monthly update routine
+## Fortnightly update routine (every other Sunday evening, Central European Time)
 
 1. Run `node scripts/check-links.mjs` and fix or replace anything it flags.
 2. Re-check countries with scheduled changes (new tax year, minimum wage updates, contribution ceilings) against their source pages.

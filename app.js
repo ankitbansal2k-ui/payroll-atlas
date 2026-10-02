@@ -409,10 +409,12 @@
     }
 
     function renderProofLine(){
-      const el = document.getElementById('proof-line');
-      if(!el) return;
       const upcoming = CHANGES.filter(c => c.upcoming).length;
-      el.textContent = `${CHANGES.length} tracked changes · ${upcoming} upcoming · updated monthly · free, always`;
+      const setText = (id, value) => { const el = document.getElementById(id); if(el) el.textContent = value; };
+      setText('proof-line', `${CHANGES.length} tracked changes · ${upcoming} upcoming · updated every two weeks · free, always`);
+      setText('stat-countries', Object.keys(countryToRegion).length);
+      setText('stat-changes', CHANGES.length);
+      setText('stat-upcoming', upcoming);
     }
 
     function isKnownCountry(code){
