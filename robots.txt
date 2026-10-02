@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://ankitbansal2k-ui.github.io/payroll-atlas/sitemap.xml
+Sitemap: https://www.intelligentpayroll.eu/sitemap.xml

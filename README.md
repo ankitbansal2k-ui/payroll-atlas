@@ -2,7 +2,7 @@
 
 A free, source-linked tracker for statutory and legislative payroll changes across 75 countries in Europe, APAC, MENAT, LATAM and Africa. Every entry links to the page it was checked against: a government authority where one could be retrieved, otherwise a published summary from a major tax advisory firm.
 
-**Live site:** https://ankitbansal2k-ui.github.io/payroll-atlas/
+**Live site:** https://www.intelligentpayroll.eu/
 
 It is a static site with no build step and no backend. Everything the page needs (fonts, d3, topojson, gsap, world map data) is served from this repository, so visitors make no requests to third parties.
 
