@@ -1,0 +1,27 @@
+Copyright (c) 2026 ankitbansal2k-ui. All rights reserved.
+
+This repository is published so that the Intelligent Payroll website can be
+viewed and so that errors can be reported. It is not open source.
+
+No licence is granted to copy, modify, distribute, sell, sublicense or
+otherwise reuse the source code, the written content (including the payroll
+change summaries and the data behind them), the design, or any other original
+material in this repository, except where the law allows it or the copyright
+holder has given prior written permission. To ask for permission, open an
+issue at https://github.com/ankitbansal2k-ui/payroll-atlas/issues.
+
+This notice does not limit the rights that GitHub's Terms of Service give
+other users to view and fork public repositories on GitHub.
+
+Third-party components in this repository (in the "fonts" and "vendor"
+folders) are not covered by this notice. They remain under their own
+licences, which are listed in THIRD-PARTY-NOTICES.md and included alongside
+the files.
+
+THE MATERIAL IN THIS REPOSITORY IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. THE
+INFORMATION ABOUT PAYROLL LAW IS GENERAL INFORMATION, NOT LEGAL OR TAX
+ADVICE. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM,
+DAMAGES OR OTHER LIABILITY ARISING FROM ITS USE, TO THE FULLEST EXTENT
+PERMITTED BY LAW.

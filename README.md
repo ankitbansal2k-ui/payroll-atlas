@@ -120,6 +120,12 @@ The site is plain static files in the repository root, so any static host works.
 
 When a custom domain is added, change the address in `index.html` (`canonical`, `og:url`, `og:image`, `twitter:image`) and run `node scripts/build-pages.mjs`. It reads the canonical tag and rewrites every generated page, `sitemap.xml`, `robots.txt` and the canonical links in `privacy.html` and `terms.html`; `--check` flags any `index.html` social URL still on the old host.
 
+## Licence
+
+All rights reserved (see [LICENSE](LICENSE)). The repository is public so the site can be viewed and errors reported, but it is not open source: the code, written content and design may not be copied or reused without permission. The fonts and libraries in `fonts/` and `vendor/` keep their own licences, listed in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md), with the full texts alongside the files.
+
+If this ever changes (for example to an open licence for the code), change `LICENSE`, the "source code" bullet in `scripts/templates/terms.html`, and this section together, then run `node scripts/build-pages.mjs`.
+
 ## Reporting errors
 
 Open an issue with a link to the official source: https://github.com/ankitbansal2k-ui/payroll-atlas/issues
