@@ -12,10 +12,10 @@ import { loadSite } from './load.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const check = process.argv.includes('--check');
-const { html, CHANGES, countryToRegion } = loadSite();
+const { html, js, CHANGES, countryToRegion } = loadSite();
 
 const SITE = html.match(/<link rel="canonical" href="([^"]+)"/)[1].replace(/\/?$/, '/');
-const VERIFIED_ISO = html.match(/new Date\('(\d{4}-\d{2}-\d{2})T/)[1];
+const VERIFIED_ISO = js.match(/new Date\('(\d{4}-\d{2}-\d{2})T/)[1];
 const VERIFIED = new Date(VERIFIED_ISO + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
 const REGIONS = { europe: 'Europe', apac: 'APAC', menat: 'MENAT', latam: 'LATAM', africa: 'Africa' };
 const ISSUES = 'https://github.com/ankitbansal2k-ui/payroll-atlas/issues';

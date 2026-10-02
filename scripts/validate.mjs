@@ -3,7 +3,7 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import { loadSite } from './load.mjs';
 
-const { html, CHANGES, countryToRegion, selects } = loadSite();
+const { html, js, CHANGES, countryToRegion, selects } = loadSite();
 const errors = [];
 const err = (m) => errors.push(m);
 const CATEGORIES = new Set(['payroll', 'reporting', 'infrastructure']);
@@ -48,7 +48,7 @@ for (const [n, opts] of selects.entries()) {
 // wherever they are interpolated into a template string that ends up in innerHTML.
 {
   const RISKY = /\b(country|countryParam|search|query|term|param|params)\b/;
-  const lines = html.split('\n');
+  const lines = js.split('\n');
   lines.forEach((line, i) => {
     if (/^\s*\{country:/.test(line)) return; // data rows
     for (const m of line.matchAll(/\$\{([^}]*)\}/g)) {
@@ -56,9 +56,27 @@ for (const [n, opts] of selects.entries()) {
       const rest = m[1]
         .replace(/escapeHtml\((?:[^()]|\([^()]*\))*\)?/g, '')
         .replace(/\b(country|countryParam|search|query|term|param|params)\s*(\?|&&)/g, '');
-      if (RISKY.test(rest)) err(`index.html:${i + 1}: unescaped user-controlled value in template: ${m[1].trim()}`);
+      if (RISKY.test(rest)) err(`app.js:${i + 1}: unescaped user-controlled value in template: ${m[1].trim()}`);
     }
   });
+}
+
+// CSP guard: the page's content security policy forbids inline code, so the markup and the strings
+// that app.js turns into markup must not contain any, and the policy itself must stay strict.
+{
+  const scan = (name, text) => {
+    if (/\son[a-z]+\s*=\s*["']/i.test(text.replace(/\{country:[^\n]*/g, ''))) err(`${name}: inline event handler attribute (use data-* attributes and the delegated listeners in app.js)`);
+    if (/\sstyle\s*=\s*["']/i.test(text.replace(/\{country:[^\n]*/g, ''))) err(`${name}: inline style attribute (use a CSS class in styles.css)`);
+    if (/javascript:/i.test(text.replace(/\{country:[^\n]*/g, ''))) err(`${name}: javascript: URL`);
+  };
+  scan('index.html', html);
+  scan('app.js', js);
+  if (/<style[\s>]/i.test(html)) err('index.html: inline <style> block (use styles.css)');
+  if (/<script(?![^>]*\ssrc=)[^>]*>/i.test(html)) err('index.html: inline <script> block (use a script file)');
+  const csp = (html.match(/http-equiv="Content-Security-Policy" content="([^"]*)"/) || [])[1] || '';
+  if (!csp) err('index.html: Content-Security-Policy meta tag is missing');
+  if (/unsafe-inline|unsafe-eval/.test(csp)) err('index.html: CSP must not allow unsafe-inline or unsafe-eval');
+  if (!/script-src 'self'(;|$)/.test(csp)) err("index.html: CSP script-src must be exactly 'self'");
 }
 
 // Guard against scratch files (downloads, PDFs, archives) being committed by accident.

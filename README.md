@@ -10,7 +10,9 @@ It is a static site with no build step and no backend. Everything the page needs
 
 | Path | What it is |
 |---|---|
-| `index.html` | The whole app: markup, styles, script and the `CHANGES` data |
+| `index.html` | The page markup. No inline scripts, styles or event handlers (see Security) |
+| `app.js` | The app logic **and the `CHANGES` data** |
+| `reveal.js`, `styles.css` | Scroll animations and all styles |
 | `privacy.html`, `terms.html` | **Generated** from `scripts/templates/` and `scripts/operator.json`. Edit those, not the HTML |
 | `404.html`, `legal.css` | Error page and the shared stylesheet for legal and generated pages |
 | `countries.html`, `countries/*.html` | **Generated.** One static, text-only page per country (and an index) so search engines can read the entries. Do not edit by hand |
@@ -34,7 +36,7 @@ Then visit http://localhost:8000/. Node 18 or later is needed only for the scrip
 
 ## The data
 
-All content is the `CHANGES` array in `index.html`, one object per line:
+All content is the `CHANGES` array in `app.js`, one object per line:
 
 ```js
 {country:'hk',flag:'🇭🇰',name:'Hong Kong',section:'hk-mpf',title:'...',badge:'Effective 1 May 2025',
@@ -67,6 +69,14 @@ The privacy notice and terms are written in `scripts/templates/privacy.html` and
 
 After editing, run `node scripts/build-pages.mjs`. Have a lawyer in your country review the texts before relying on them.
 
+## Security
+
+The site is static: no accounts, no cookies, no storage, no third-party requests. It is served with a strict Content Security Policy (`script-src 'self'`, `style-src 'self'`) both as a header in `vercel.json` and as a `<meta>` tag in `index.html`, so injected code cannot run. To keep it that way:
+
+- Do not add inline `<script>`, `<style>`, `style=""` or `onclick=""`-style attributes anywhere. Put code in `app.js`, styles in `styles.css`, and use `data-*` attributes plus the delegated listeners at the bottom of `app.js`.
+- Anything that can come from the address bar or the search box must go through `escapeHtml()` before it is put into markup, and the `?country=` value is only accepted if it is a known country code.
+- `node scripts/validate.mjs` enforces all of this and fails the commit if it is broken.
+
 ## Checks
 
 ```bash
@@ -94,7 +104,7 @@ It runs `validate.mjs` and `build-pages.mjs --check` before every commit and blo
 2. Re-check countries with scheduled changes (new tax year, minimum wage updates, contribution ceilings) against their source pages.
 3. Add new entries following the rules above, then run `node scripts/validate.mjs`.
    After any change to `CHANGES`, run `node scripts/build-pages.mjs` and commit the regenerated files. CI fails if you forget.
-4. Update `LAST_VERIFIED` in `index.html` (and the dates in `sitemap.xml`, `privacy.html`, `terms.html` if they changed).
+4. Update `LAST_VERIFIED` in `app.js` (and the dates in `sitemap.xml`, `privacy.html`, `terms.html` if they changed).
 5. Commit and push.
 
 ## Deploying
