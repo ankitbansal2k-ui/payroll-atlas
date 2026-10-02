@@ -109,6 +109,24 @@ for (const f of tracked) {
   if (size > 1024 * 1024) err(`tracked file over 1 MB: ${f}`);
 }
 
+// Visitor requests list: reviewed entries only, no personal data.
+try {
+  const reqs = JSON.parse(fs.readFileSync(new URL('../data/requests.json', import.meta.url), 'utf8'));
+  if (!Array.isArray(reqs)) err('data/requests.json: must be an array');
+  else reqs.forEach((r, i) => {
+    const at = `data/requests.json[${i}]`;
+    const keys = Object.keys(r).sort().join(',');
+    if (keys !== 'country,label,requests,since,status,type') err(`${at}: fields must be exactly type, country, label, requests, status, since`);
+    if (!['country', 'rule', 'feature'].includes(r.type)) err(`${at}: bad type`);
+    if (r.country !== null && !Object.prototype.hasOwnProperty.call(countryToRegion, r.country)) err(`${at}: country must be a known code or null`);
+    if (typeof r.label !== 'string' || !r.label.trim() || r.label.length > 80) err(`${at}: label must be 1-80 characters`);
+    if (/@|https?:/i.test(String(r.label))) err(`${at}: label must not contain emails or links`);
+    if (!Number.isInteger(r.requests) || r.requests < 1) err(`${at}: requests must be a positive integer`);
+    if (!['requested', 'researching', 'added'].includes(r.status)) err(`${at}: bad status`);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(r.since))) err(`${at}: since must be YYYY-MM-DD`);
+  });
+} catch (e) { err('data/requests.json: ' + e.message); }
+
 const perRegion = {};
 for (const r of Object.values(countryToRegion)) perRegion[r] = (perRegion[r] || 0) + 1;
 console.log(`${CHANGES.length} entries, ${codes.size} countries`, perRegion);

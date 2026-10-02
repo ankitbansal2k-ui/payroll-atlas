@@ -35,6 +35,22 @@ const slugs = new Set();
 for (const c of countries.values()) { if (slugs.has(c.slug)) throw new Error(`duplicate slug ${c.slug}`); slugs.add(c.slug); }
 const list = [...countries.values()].sort((a, b) => a.name.localeCompare(b.name));
 
+// Visitor requests (data/requests.json), reviewed by hand before they are listed. Schema checked in validate.mjs.
+const REQUESTS = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/requests.json'), 'utf8'));
+const REQ_TYPES = { country: 'New country', rule: 'Missing rule', feature: 'Feature idea' };
+const REQ_STATUS = { requested: 'Requested', researching: 'Researching', added: 'Added' };
+function requestsSection() {
+  const rows = [...REQUESTS].sort((a, b) => b.requests - a.requests || a.label.localeCompare(b.label));
+  const body = rows.length
+    ? `    <ul class="requests">
+${rows.map(r => `      <li><strong>${esc(r.label)}</strong> <span class="count">${REQ_TYPES[r.type]} &middot; ${r.requests} ${r.requests === 1 ? 'request' : 'requests'} &middot; ${REQ_STATUS[r.status]}</span></li>`).join('\n')}
+    </ul>`
+    : '    <p class="partial">No visitor requests listed yet.</p>';
+  return `    <h2 id="requested">Requested by visitors</h2>
+    <p>Countries, rules and features visitors have asked for, after review. Contact details are never shown. Want something added? <a href="${ISSUES}" rel="noopener">Tell us</a>.</p>
+${body}`;
+}
+
 // ---- templates ----
 const head = ({ title, desc, url, depth, noindex }) => `<!DOCTYPE html>
 <html lang="en">
@@ -128,6 +144,8 @@ ${header('')}
     <p>Pick a country to read its payroll changes with links to the official or professional source for each. Prefer filters and search? <a href="./">Use the interactive changelog</a>.</p>
 
 ${sections}
+
+${requestsSection()}
   </main>
 ${footer('')}
 </body>
