@@ -1839,7 +1839,14 @@
     const taglineEl = document.querySelector('[data-word-reveal]');
     if (taglineEl) {
       const words = taglineEl.textContent.trim().split(/\s+/);
-      taglineEl.innerHTML = words.map(w => `<span class="word">${w}</span>`).join(' ');
+      taglineEl.textContent = '';
+      words.forEach((w, i) => {
+        if (i) taglineEl.append(' ');
+        const span = document.createElement('span');
+        span.className = 'word';
+        span.textContent = w;
+        taglineEl.append(span);
+      });
       const wordEls = taglineEl.querySelectorAll('.word');
 
       if (reduceMotion) {
@@ -2069,7 +2076,7 @@
     }
 
     function goToCountry(country){
-      if(!country) return;
+      if(!isKnownCountry(country)) return;
       const region = countryToRegion[country] || 'europe';
       showChangelogNav();
       renderChangelog('all', country, region);
@@ -2285,13 +2292,17 @@
       el.textContent = `${CHANGES.length} tracked changes · ${upcoming} upcoming · updated monthly · free, always`;
     }
 
+    function isKnownCountry(code){
+      return typeof code === 'string' && Object.prototype.hasOwnProperty.call(countryToRegion, code);
+    }
+
     function initializeFromURL(){
       renderProofLine();
       renderRegionCoverage();
       renderCoverageMap();
       const params = new URLSearchParams(window.location.search);
       const countryParam = params.get('country');
-      if(countryParam){
+      if(countryParam && isKnownCountry(countryParam)){
         const region = countryToRegion[countryParam] || 'europe';
         showChangelogNav();
         renderChangelog('all', countryParam, region);
@@ -2306,7 +2317,7 @@
 
     function escapeHtml(s){
       return String(s == null ? '' : s)
-        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     }
 
     const LAST_VERIFIED = new Date('2026-10-01T00:00:00Z');
@@ -2381,7 +2392,7 @@
            </div>`
         : country
         ? `<div style="margin-bottom:1.5rem; padding:0.85rem 1.25rem; background:rgba(45,212,163,0.1); border:1px solid var(--border-color); border-radius:6px; display:flex; justify-content:space-between; align-items:center; font-size:0.9rem;">
-             <span>Showing changes for <strong>${filtered[0] ? filtered[0].flag + ' ' + filtered[0].name : country}</strong></span>
+             <span>Showing changes for <strong>${filtered[0] ? escapeHtml(filtered[0].flag + ' ' + filtered[0].name) : escapeHtml(country)}</strong></span>
              <a href="#" onclick="clearFilter(); return false;" style="color:var(--blue-accent); text-decoration:none;">Clear ✕</a>
            </div>`
         : '';

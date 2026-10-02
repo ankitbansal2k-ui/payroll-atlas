@@ -3,7 +3,7 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import { loadSite } from './load.mjs';
 
-const { CHANGES, countryToRegion, selects } = loadSite();
+const { html, CHANGES, countryToRegion, selects } = loadSite();
 const errors = [];
 const err = (m) => errors.push(m);
 const CATEGORIES = new Set(['payroll', 'reporting', 'infrastructure']);
@@ -42,6 +42,23 @@ const codes = new Set(Object.keys(countryToRegion));
 for (const [n, opts] of selects.entries()) {
   for (const o of opts) if (!codes.has(o)) err(`selector ${n + 1}: option ${o} not in countryToRegion`);
   for (const c of codes) if (!opts.includes(c)) err(`selector ${n + 1}: missing option for ${c}`);
+}
+
+// XSS guard: values that can come from the address bar or the search box must be escaped
+// wherever they are interpolated into a template string that ends up in innerHTML.
+{
+  const RISKY = /\b(country|countryParam|search|query|term|param|params)\b/;
+  const lines = html.split('\n');
+  lines.forEach((line, i) => {
+    if (/^\s*\{country:/.test(line)) return; // data rows
+    for (const m of line.matchAll(/\$\{([^}]*)\}/g)) {
+      // Drop the parts that are properly escaped, and plain truthiness tests such as `search ? ...`.
+      const rest = m[1]
+        .replace(/escapeHtml\((?:[^()]|\([^()]*\))*\)?/g, '')
+        .replace(/\b(country|countryParam|search|query|term|param|params)\s*(\?|&&)/g, '');
+      if (RISKY.test(rest)) err(`index.html:${i + 1}: unescaped user-controlled value in template: ${m[1].trim()}`);
+    }
+  });
 }
 
 // Guard against scratch files (downloads, PDFs, archives) being committed by accident.
