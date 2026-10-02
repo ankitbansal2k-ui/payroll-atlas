@@ -76,6 +76,9 @@ The site is static: no accounts, no cookies, no storage, no third-party requests
 - Do not add inline `<script>`, `<style>`, `style=""` or `onclick=""`-style attributes anywhere. Put code in `app.js`, styles in `styles.css`, and use `data-*` attributes plus the delegated listeners at the bottom of `app.js`.
 - Anything that can come from the address bar or the search box must go through `escapeHtml()` before it is put into markup, and the `?country=` value is only accepted if it is a known country code.
 - `node scripts/validate.mjs` enforces all of this and fails the commit if it is broken.
+- `.well-known/security.txt` tells researchers how to report problems (see `SECURITY.md`). Its `Expires` date must be renewed **once a year**; the validator fails when it has expired and warns 60 days before.
+- `.github/dependabot.yml` opens monthly pull requests to update the pinned GitHub Actions versions. Review and merge them.
+- Protect the `main` branch with a ruleset that blocks deletion and force-pushes. To rewrite history on purpose, disable the ruleset temporarily and turn it back on afterwards.
 
 ## Checks
 

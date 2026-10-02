@@ -79,6 +79,23 @@ for (const [n, opts] of selects.entries()) {
   if (!/script-src 'self'(;|$)/.test(csp)) err("index.html: CSP script-src must be exactly 'self'");
 }
 
+// security.txt must exist and must not expire silently (RFC 9116 requires an Expires date).
+{
+  let txt = '';
+  try { txt = fs.readFileSync(new URL('../.well-known/security.txt', import.meta.url), 'utf8'); } catch { err('.well-known/security.txt is missing'); }
+  if (txt) {
+    const exp = (txt.match(/^Expires:\s*(\S+)/m) || [])[1];
+    const when = exp && new Date(exp);
+    if (!when || Number.isNaN(+when)) err('.well-known/security.txt: missing or invalid Expires date');
+    else {
+      const days = Math.floor((when - Date.now()) / 86400000);
+      if (days < 0) err(`.well-known/security.txt expired on ${exp}: renew the Expires date (and read SECURITY.md again)`);
+      else if (days < 60) console.warn(`WARNING: .well-known/security.txt expires in ${days} days (${exp}); renew it soon.`);
+    }
+    if (!/^Contact:\s*\S+/m.test(txt)) err('.well-known/security.txt: missing Contact');
+  }
+}
+
 // Guard against scratch files (downloads, PDFs, archives) being committed by accident.
 const root = new URL('../', import.meta.url);
 let tracked = [];
