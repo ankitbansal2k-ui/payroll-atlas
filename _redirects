@@ -1,0 +1,2 @@
+# Cloudflare static assets: serve the home page at / (html_handling is "none" so .html addresses stay unchanged)
+/ /index.html 200
