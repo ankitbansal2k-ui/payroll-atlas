@@ -1,4 +1,4 @@
-# Style lock — Payroll Atlas
+# Style lock — Intelligent Payroll
 
 ## Direction contract
 - **Thesis:** a free, government-sourced compliance reference reads as trustworthy through restraint and precision, not through SaaS gradient flourish. Lead with what it protects the team from (missed deadlines), not a generic value prop.

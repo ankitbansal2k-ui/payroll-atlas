@@ -47,7 +47,7 @@ const head = ({ title, desc, url, depth, noindex }) => `<!DOCTYPE html>
   ${CSP}
   <meta name="theme-color" content="#0B1220">
   ${noindex ? '<meta name="robots" content="noindex">\n  ' : ''}<meta property="og:type" content="website">
-  <meta property="og:site_name" content="Payroll Atlas">
+  <meta property="og:site_name" content="Intelligent Payroll">
   <meta property="og:title" content="${esc(title)}">
   <meta property="og:description" content="${esc(desc)}">
   <meta property="og:url" content="${esc(url)}">
@@ -57,7 +57,7 @@ const head = ({ title, desc, url, depth, noindex }) => `<!DOCTYPE html>
   <link rel="stylesheet" href="${depth}legal.css">
 </head>`;
 
-const header = depth => `  <header><a href="${depth || './'}">Payroll Atlas</a> <a class="nav" href="${depth}countries.html">All countries</a></header>`;
+const header = depth => `  <header><a href="${depth || './'}">Intelligent Payroll</a> <a class="nav" href="${depth}countries.html">All countries</a></header>`;
 const footer = depth => `  <footer>
     <p>For information only, not legal or tax advice. Sources last checked ${VERIFIED}. Found an error? <a href="${ISSUES}" rel="noopener">Tell us</a>.</p>
     <p><a href="${depth || './'}">Home</a> &middot; <a href="${depth}countries.html">All countries</a> &middot; <a href="${depth}privacy.html">Privacy</a> &middot; <a href="${depth}terms.html">Terms and disclaimer</a></p>
@@ -88,7 +88,7 @@ function countryPage(c) {
   const region = REGIONS[c.region];
   const siblings = list.filter(x => x.region === c.region && x.code !== c.code);
   const partial = n < 2 ? `    <p class="partial">Partial coverage: we currently track ${n} change for this country. Know of another? <a href="${ISSUES}" rel="noopener">Tell us</a>.</p>\n` : '';
-  return `${head({ title: `${c.name}: payroll law changes | Payroll Atlas`, desc, url, depth: '../' })}
+  return `${head({ title: `${c.name}: payroll law changes | Intelligent Payroll`, desc, url, depth: '../' })}
 <body>
 ${header('../')}
   <main>
@@ -119,7 +119,7 @@ function indexPage() {
 ${cs.map(c => `      <li><a href="countries/${c.slug}.html">${c.flag} ${esc(c.name)}</a> <span class="count">${c.entries.length} ${c.entries.length === 1 ? 'change' : 'changes'}</span></li>`).join('\n')}
     </ul>`;
   }).join('\n\n');
-  return `${head({ title: 'All countries | Payroll Atlas', desc, url, depth: '' })}
+  return `${head({ title: 'All countries | Intelligent Payroll', desc, url, depth: '' })}
 <body>
 ${header('')}
   <main>
