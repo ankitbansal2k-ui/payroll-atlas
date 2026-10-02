@@ -524,7 +524,7 @@
 
       const countryTotal = country ? CHANGES.filter(c => c.country === country).length : 0;
       const partial = (country && !search && countryTotal > 0 && countryTotal < 2)
-        ? `<div class="partial-notice">Partial coverage: we currently track ${countryTotal} change for this country. Know of another? <a href="https://github.com/ankitbansal2k-ui/payroll-atlas/issues" target="_blank" rel="noopener">Tell us</a>.</div>`
+        ? `<div class="partial-notice">Partial coverage: we currently track ${countryTotal} change for this country. Know of another? <a href="suggest.html">Tell us</a>.</div>`
         : '';
 
       const emptyState = filtered.length === 0

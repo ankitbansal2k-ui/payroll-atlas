@@ -47,7 +47,7 @@ ${rows.map(r => `      <li><strong>${esc(r.label)}</strong> <span class="count">
     </ul>`
     : '    <p class="partial">No visitor requests listed yet.</p>';
   return `    <h2 id="requested">Requested by visitors</h2>
-    <p>Countries, rules and features visitors have asked for, after review. Contact details are never shown. Want something added? <a href="${ISSUES}" rel="noopener">Tell us</a>.</p>
+    <p>Countries, rules and features visitors have asked for, after review. Contact details are never shown. Want something added? <a href="suggest.html">Suggest it</a>.</p>
 ${body}`;
 }
 
@@ -76,7 +76,7 @@ const head = ({ title, desc, url, depth, noindex }) => `<!DOCTYPE html>
 const header = depth => `  <header><a href="${depth || './'}">Intelligent Payroll</a> <a class="nav" href="${depth}countries.html">All countries</a></header>`;
 const footer = depth => `  <footer>
     <p>For information only, not legal or tax advice. Sources last checked ${VERIFIED}. Found an error? <a href="${ISSUES}" rel="noopener">Tell us</a>.</p>
-    <p><a href="${depth || './'}">Home</a> &middot; <a href="${depth}countries.html">All countries</a> &middot; <a href="${depth}privacy.html">Privacy</a> &middot; <a href="${depth}terms.html">Terms and disclaimer</a></p>
+    <p><a href="${depth || './'}">Home</a> &middot; <a href="${depth}countries.html">All countries</a> &middot; <a href="${depth}suggest.html">Suggest a change</a> &middot; <a href="${depth}privacy.html">Privacy</a> &middot; <a href="${depth}terms.html">Terms and disclaimer</a></p>
   </footer>`;
 
 const list2 = (label, items) => items && items.length
@@ -103,7 +103,7 @@ function countryPage(c) {
   const desc = clip(`${n} payroll ${n === 1 ? 'change' : 'changes'} tracked in ${c.name}: ${ordered[0].title}. Sources linked, last verified ${VERIFIED}.`, 158);
   const region = REGIONS[c.region];
   const siblings = list.filter(x => x.region === c.region && x.code !== c.code);
-  const partial = n < 2 ? `    <p class="partial">Partial coverage: we currently track ${n} change for this country. Know of another? <a href="${ISSUES}" rel="noopener">Tell us</a>.</p>\n` : '';
+  const partial = n < 2 ? `    <p class="partial">Partial coverage: we currently track ${n} change for this country. Know of another? <a href="../suggest.html">Tell us</a>.</p>\n` : '';
   return `${head({ title: `${c.name}: payroll law changes | Intelligent Payroll`, desc, url, depth: '../' })}
 <body>
 ${header('../')}
@@ -117,6 +117,8 @@ ${partial}
 ${ordered.map(entryHtml).join('\n\n')}
 
     <h2 class="more">More ${region} countries</h2>
+    <p>Missing a rule for ${esc(c.name)}? <a href="../suggest.html">Suggest a change</a>.</p>
+
     <p class="chips">${siblings.map(s => `<a href="${s.slug}.html">${s.flag} ${esc(s.name)}</a>`).join(' ')}</p>
   </main>
 ${footer('../')}
@@ -158,7 +160,7 @@ function suggestPage() {
   const url = `${SITE}suggest.html`;
   const options = Object.entries(REGIONS).map(([key, label]) =>
     `          <optgroup label="${label}">\n${list.filter(c => c.region === key).map(c => `            <option value="${c.code}">${esc(c.name)}</option>`).join('\n')}\n          </optgroup>`).join('\n');
-  return `${head({ title: 'Suggest a change | Intelligent Payroll', desc: 'Ask for a country, report a missing or wrong payroll rule, or suggest a feature for Intelligent Payroll.', url, depth: '', noindex: true })
+  return `${head({ title: 'Suggest a change | Intelligent Payroll', desc: 'Ask for a country, report a missing or wrong payroll rule, or suggest a feature for Intelligent Payroll.', url, depth: '' })
     .replace("form-action 'none'", "form-action 'self'; script-src 'self'")
     .replace('</head>', '  <script src="suggest.js" defer></script>\n</head>')}
 <body>
@@ -218,7 +220,7 @@ out.set('suggest.html', suggestPage());
 out.set('worker/countries.json', JSON.stringify(Object.fromEntries(list.map(c => [c.code, c.name])), null, 0) + '\n');
 for (const c of list) out.set(`countries/${c.slug}.html`, countryPage(c));
 
-const urls = ['', 'countries.html', ...list.map(c => `countries/${c.slug}.html`), 'privacy.html', 'terms.html'];
+const urls = ['', 'countries.html', ...list.map(c => `countries/${c.slug}.html`), 'suggest.html', 'privacy.html', 'terms.html'];
 out.set('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.map(u => `  <url><loc>${SITE}${u}</loc><lastmod>${VERIFIED_ISO}</lastmod></url>`).join('\n')}
@@ -244,8 +246,8 @@ const rightsRequest = op.email
   ? `To use these rights, email <a href="mailto:${esc(op.email)}">${esc(op.email)}</a>.`
   : `To use these rights, open an issue on ${issuesLink} that says only that you wish to make a privacy request (without personal details), and we will arrange a private way to continue.`;
 const hostingSentence = op.githubPagesActive
-  ? 'Vercel Inc. serves this site. The older address on GitHub Pages (github.io) is served by GitHub, Inc. while it remains active.'
-  : 'Vercel Inc. serves this site.';
+  ? 'Cloudflare, Inc. serves this site. The older address on GitHub Pages (github.io) is served by GitHub, Inc. while it remains active.'
+  : 'Cloudflare, Inc. serves this site and handles the suggestion form.';
 const authority = `${esc(op.supervisoryAuthority.name)} (<a href="${esc(op.supervisoryAuthority.url)}" rel="noopener">${esc(op.supervisoryAuthority.url.replace(/^https?:\/\//, ''))}</a>)`;
 const fill = tpl => tpl
   .replaceAll('{{SITE}}', SITE).replaceAll('{{UPDATED}}', UPDATED)
