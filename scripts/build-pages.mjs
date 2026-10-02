@@ -153,9 +153,69 @@ ${footer('')}
 `;
 }
 
+// Suggestion form: posts to the Cloudflare Worker (worker/index.js), which emails it to the operator.
+function suggestPage() {
+  const url = `${SITE}suggest.html`;
+  const options = Object.entries(REGIONS).map(([key, label]) =>
+    `          <optgroup label="${label}">\n${list.filter(c => c.region === key).map(c => `            <option value="${c.code}">${esc(c.name)}</option>`).join('\n')}\n          </optgroup>`).join('\n');
+  return `${head({ title: 'Suggest a change | Intelligent Payroll', desc: 'Ask for a country, report a missing or wrong payroll rule, or suggest a feature for Intelligent Payroll.', url, depth: '', noindex: true })
+    .replace("form-action 'none'", "form-action 'self'; script-src 'self'")
+    .replace('</head>', '  <script src="suggest.js" defer></script>\n</head>')}
+<body>
+${header('')}
+  <main>
+    <h1>Suggest a change</h1>
+    <p>Ask for a country, tell us about a rule we are missing or have wrong, or suggest a feature. Suggestions come to us by email and are never published automatically. Popular requests may be listed, without names or contact details, under <a href="countries.html#requested">Requested by visitors</a>.</p>
+    <form class="suggest" method="post" action="/api/suggest">
+      <label for="s-type">What is it about? <span class="req">(required)</span></label>
+      <select id="s-type" name="type" required>
+        <option value="">Choose one</option>
+        <option value="country">Add a country</option>
+        <option value="rule">A missing or wrong rule</option>
+        <option value="feature">A feature idea</option>
+        <option value="other">Something else</option>
+      </select>
+
+      <label for="s-country">Country <span class="opt">(optional)</span></label>
+      <select id="s-country" name="country">
+        <option value="">None or not relevant</option>
+        <option value="other">A country not listed here</option>
+${options}
+      </select>
+
+      <label for="s-other">Country not listed <span class="opt">(optional)</span></label>
+      <input id="s-other" name="otherCountry" type="text" maxlength="100" autocomplete="off">
+
+      <label for="s-details">Your suggestion <span class="req">(required)</span></label>
+      <textarea id="s-details" name="details" rows="7" maxlength="2000" required></textarea>
+      <p class="hint">Up to 2,000 characters. Please do not include personal data about anyone, such as employee details.</p>
+
+      <label for="s-source">Source link <span class="opt">(optional)</span></label>
+      <input id="s-source" name="source" type="url" maxlength="500" placeholder="https://" autocomplete="off">
+      <p class="hint">An official page for the rule, if you have one.</p>
+
+      <label for="s-email">Your email <span class="opt">(optional)</span></label>
+      <input id="s-email" name="email" type="email" maxlength="254" autocomplete="email">
+      <p class="hint">Only if you are happy for us to contact you about this suggestion. We use it for nothing else.</p>
+
+      <div class="hp" aria-hidden="true"><label for="s-website">Leave this empty</label><input id="s-website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+      <input type="hidden" name="t" value="">
+
+      <button type="submit" class="cta">Send suggestion</button>
+      <p class="hint">We keep suggestions for up to 12 months. See the <a href="privacy.html">privacy notice</a>.</p>
+    </form>
+  </main>
+${footer('')}
+</body>
+</html>
+`;
+}
+
 // ---- outputs ----
 const out = new Map();
 out.set('countries.html', indexPage());
+out.set('suggest.html', suggestPage());
+out.set('worker/countries.json', JSON.stringify(Object.fromEntries(list.map(c => [c.code, c.name])), null, 0) + '\n');
 for (const c of list) out.set(`countries/${c.slug}.html`, countryPage(c));
 
 const urls = ['', 'countries.html', ...list.map(c => `countries/${c.slug}.html`), 'privacy.html', 'terms.html'];

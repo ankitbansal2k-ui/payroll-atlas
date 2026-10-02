@@ -46,3 +46,14 @@ h3 { font-size: 1rem; margin: 1.25rem 0 0.4rem; }
 code { font-family: 'Geist Mono', ui-monospace, Consolas, monospace; font-size: 0.9em; background: var(--card); padding: 0.1rem 0.35rem; border-radius: 4px; }
 .requests { list-style: none; padding: 0; }
 .requests li { padding: 0.35rem 0; border-bottom: 1px solid var(--border); }
+
+/* Suggestion form */
+.suggest { display: grid; gap: 0.35rem; max-width: 560px; }
+.suggest label { font-weight: 700; margin-top: 0.9rem; }
+.suggest .req, .suggest .opt { font-weight: 400; color: var(--muted); font-size: 0.85rem; }
+.suggest input, .suggest select, .suggest textarea { width: 100%; font: inherit; color: var(--text); background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 0.55rem 0.7rem; }
+.suggest input:focus, .suggest select:focus, .suggest textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.suggest .hint { color: var(--muted); font-size: 0.85rem; margin: 0; }
+.suggest button { margin-top: 1.25rem; border: 0; cursor: pointer; font: inherit; font-weight: 700; justify-self: start; }
+.suggest [hidden] { display: none; }
+.hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }

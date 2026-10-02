@@ -1,0 +1,16 @@
+# Files Cloudflare must not serve as static assets
+.git
+.github
+.gitignore
+.assetsignore
+node_modules
+scripts
+worker
+data
+design/*.md
+wrangler.jsonc
+vercel.json
+README.md
+SECURITY.md
+*.log
+.env*

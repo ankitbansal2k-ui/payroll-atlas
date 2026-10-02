@@ -109,6 +109,14 @@ for (const f of tracked) {
   if (size > 1024 * 1024) err(`tracked file over 1 MB: ${f}`);
 }
 
+// Cloudflare (_headers) and Vercel (vercel.json) must send the same Content-Security-Policy.
+try {
+  const vercelCsp = JSON.parse(fs.readFileSync(new URL('../vercel.json', import.meta.url), 'utf8'))
+    .headers.flatMap(h => h.headers).find(h => h.key === 'Content-Security-Policy')?.value;
+  const cfCsp = (fs.readFileSync(new URL('../_headers', import.meta.url), 'utf8').match(/^\s*Content-Security-Policy:\s*(.+)$/m) || [])[1]?.trim();
+  if (!cfCsp || cfCsp !== vercelCsp) err('_headers Content-Security-Policy differs from vercel.json');
+} catch (e) { err('_headers / vercel.json: ' + e.message); }
+
 // Visitor requests list: reviewed entries only, no personal data.
 try {
   const reqs = JSON.parse(fs.readFileSync(new URL('../data/requests.json', import.meta.url), 'utf8'));

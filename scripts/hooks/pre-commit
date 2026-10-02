@@ -20,3 +20,10 @@ if ! node scripts/build-pages.mjs --check; then
   echo "pre-commit: commit blocked. Run: node scripts/build-pages.mjs  then stage the regenerated files."
   exit 1
 fi
+
+if ! node scripts/test-worker.mjs >/dev/null; then
+  node scripts/test-worker.mjs
+  echo ""
+  echo "pre-commit: commit blocked. The suggestion handler tests (scripts/test-worker.mjs) failed."
+  exit 1
+fi
