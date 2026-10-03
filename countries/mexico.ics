@@ -10,12 +10,12 @@ DTSTAMP:20261001T000000Z
 DTSTART;VALUE=DATE:20270101
 DTEND;VALUE=DATE:20270102
 SUMMARY:Mexico: Working week cut from 48 to 40 hours\, 2027-2030
-DESCRIPTION:Effective 1 Jan 2027. The reform reduces the maximum working we
- ek gradually: 46 hours in 2027\, 44 in 2028\, 42 in 2029 and 40 in 2030.\n
- \nSource: https://www.gob.mx/stps/documentos/reduccion-de-la-jornada-labor
- al-a-40-horas-preguntas-frecuentes?state=published\nDetails: https://www.i
- ntelligentpayroll.eu/countries/mexico.html#mx-40-hour-week\n\nFor informat
- ion only\, not legal or tax advice. Sources last checked 1 October 2026.
+DESCRIPTION:Upcoming\, 1 Jan 2027. The reform reduces the maximum working w
+ eek gradually: 46 hours in 2027\, 44 in 2028\, 42 in 2029 and 40 in 2030.\
+ n\nSource: https://www.gob.mx/stps/documentos/reduccion-de-la-jornada-labo
+ ral-a-40-horas-preguntas-frecuentes?state=published\nDetails: https://www.
+ intelligentpayroll.eu/countries/mexico.html#mx-40-hour-week\n\nFor informa
+ tion only\, not legal or tax advice. Sources last checked 1 October 2026.
 URL:https://www.intelligentpayroll.eu/countries/mexico.html#mx-40-hour-week
 TRANSP:TRANSPARENT
 END:VEVENT

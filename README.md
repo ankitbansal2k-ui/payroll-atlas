@@ -39,20 +39,22 @@ Then visit http://localhost:8000/. Node 18 or later is needed only for the scrip
 All content is the `CHANGES` array in `app.js`, one object per line:
 
 ```js
-{country:'hk',flag:'🇭🇰',name:'Hong Kong',section:'hk-mpf',title:'...',badge:'Effective 1 May 2025',
+{country:'hk',flag:'🇭🇰',name:'Hong Kong',section:'hk-mpf',title:'...',
  effective:'2025-05-01',added:'2026-10-03',category:'payroll',upcoming:false,
  detail:{lead:'...',employer:['...'],employee:['...'],note:'',example:'',
          sourceUrl:'https://...',sourceLabel:'Source: <Publisher> - <page title>'}},
 ```
 
-- `badge` is the human-readable label shown on the site. `effective` is the same date in machine-readable form: the start of the change, only as precise as the source states it (`'2026-01-01'`, `'2026-04'` or `'2026'`). For a phased change use the first phase. Use `null` only when no single start date applies (for example "current rates", or a draft with no date yet). Tax years count from their known start (UK `2026/27` is `'2026-04-06'`).
+- Every entry shows a **status chip** (In force / Upcoming / Draft — not yet law / Ongoing) followed by the date formatted from `effective` (`1 Jan 2026`, `Sep 2026` or `2026`). Both come from `statusOf()` and `formatEffective()` in `filters.js`, used by the changelog, the generated pages, the feed, the calendar and the CSV Status column. Status: `draft:true` gives Draft, `upcoming:true` gives Upcoming, `effective:null` gives Ongoing, otherwise In force.
+- `badge` (optional) is a short free-text note shown after the date, only when it adds something the date cannot say (for example `Phased from 1 Jan 2026`, `Effective 1 Jan 2026 (retroactive)`, `Confirmed for 2026/27`). Leave it out when it would just repeat the date or status: the validator rejects badges such as `Effective 1 Jan 2026`, `From Sep 2026` or `In force` ("restates the date").
+- `effective` is the start of the change in machine-readable form, only of the change, only as precise as the source states it (`'2026-01-01'`, `'2026-04'` or `'2026'`). For a phased change use the first phase. Use `null` only when no single start date applies (for example "current rates", or a draft with no date yet). Tax years count from their known start (UK `2026/27` is `'2026-04-06'`).
 - `added` is the day the entry was first published (`YYYY-MM-DD`). Do not change it when you edit an entry.
 - `updated` (optional, `YYYY-MM-DD`): set it when you make a change readers should notice (new rate, new date, corrected figure), not for typo fixes. It moves the entry to the top of the RSS feed (`feed.xml`) and the "Latest changes" list on `countries.html`.
 - "New" and "Updated" labels appear on entries whose `added` or `updated` date falls in the 14 days up to and including the last-verified date (never after it) (`FRESH_DAYS` in `app.js`). Entries that were on the site at launch (on or before `FRESH_LABELS_AFTER`) never get a label.
-- The validator checks that `effective` is a real date whose year appears in the badge or lead, and that `upcoming` agrees with it relative to the last-verified date: a change starting after that date must be `upcoming:true`, one that started before it must be `upcoming:false` (unless it is a draft). After moving the last-verified date forward, run the validator and flip the entries it names.
+- The validator checks that `effective` is a real date (and, when a badge is present, that its year appears in the badge or lead), and that `upcoming` agrees with it relative to the last-verified date: a change starting after that date must be `upcoming:true`, one that started before it must be `upcoming:false` (unless it is a draft). After moving the last-verified date forward, run the validator and flip the entries it names.
 - `category` is `payroll` or `reporting`.
 - `impact` is how much payroll work the change causes for an employer it applies to: `high` (a new process, system, filing or calculation method: project work), `medium` (new rates, thresholds or bands to load and check; the usual case) or `low` (little or no payroll configuration, for example rates confirmed unchanged, or a change that is not really a payroll item). High-impact entries get a label and their own filter.
-- `upcoming:true` means not yet in force. Add `draft:true` as well for proposed legislation that is not yet law; the site then shows a "Draft — not yet law" badge.
+- `upcoming:true` means not yet in force. Add `draft:true` as well for proposed legislation that is not yet law; the status chip then reads "Draft — not yet law".
 - `country` is the key used by the country selectors, the region tabs and the map. Two-letter codes for most countries; full lowercase names for the European ones. A new country must also be added to `countryToRegion`, to **both** `<select class="country-selector">` lists, and to `COUNTRY_ISO` (for the map).
 - Section ids must be unique within a country.
 

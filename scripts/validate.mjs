@@ -1,6 +1,7 @@
 // Fast integrity checks for index.html. Run: node scripts/validate.mjs
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
+import { createRequire } from 'node:module';
 import { loadSite } from './load.mjs';
 
 const { html, js, CHANGES, countryToRegion, selects } = loadSite();
@@ -25,9 +26,33 @@ function periodOf(v) {
   return isIsoDay(v) ? { start: v, end: v } : null;
 }
 
+// A badge "restates the date" when, after an optional leading Effective/In force/Confirmed for (day/month dates only)/Applies to/From,
+// it equals the formatted effective date (short or long month), or when it is just a status label.
+// Uses filters.js, the code the site renders with (required, as in build-pages.mjs).
+const { formatEffective, STATUS_LABELS, statusOf } = createRequire(import.meta.url)('../filters.js');
+const LONG_MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+function restatesDate(badge, effective, entry) {
+  const b = badge.trim().toLowerCase();
+  // A bare status label duplicates the chip. With effective null, only the entry's own chip label counts
+  // (e.g. 'In force' on an undated entry whose chip says Ongoing still adds information).
+  const labels = effective === null ? [STATUS_LABELS[statusOf(entry)]] : Object.values(STATUS_LABELS);
+  if (labels.some(l => l.toLowerCase() === b)) return true;
+  const short = formatEffective(effective);
+  if (!short) return false;
+  const long = short.replace(/[A-Z][a-z]{2}/, m => LONG_MONTHS.find(x => x.startsWith(m)));
+  // 'Confirmed for YYYY' on a year-only date is informative (rates confirmed/unchanged), so that prefix
+  // only counts as restating for day/month precision.
+  const prefix = effective.length === 4 ? /^(effective|in force|applies to|from)\s+/ : /^(effective|in force|confirmed for|applies to|from)\s+/;
+  const rest = b.replace(prefix, '').trim();
+  return rest === short.toLowerCase() || rest === long.toLowerCase();
+}
+
 for (const [i, c] of CHANGES.entries()) {
   const id = `${c.country}/${c.section}`;
-  for (const f of ['country', 'flag', 'name', 'section', 'title', 'badge']) if (!c[f] || typeof c[f] !== 'string') err(`${id}: missing ${f}`);
+  for (const f of ['country', 'flag', 'name', 'section', 'title']) if (!c[f] || typeof c[f] !== 'string') err(`${id}: missing ${f}`);
+  // badge is an optional free-text note; it must add something the status chip + formatted date cannot.
+  if ('badge' in c && (typeof c.badge !== 'string' || !c.badge.trim())) err(`${id}: badge, if present, must be a non-empty string`);
+  else if (typeof c.badge === 'string' && restatesDate(c.badge, c.effective, c)) err(`${id}: badge "${c.badge}" restates the date/status; remove it (the status chip and formatted date already show this)`);
   if (!CATEGORIES.has(c.category)) err(`${id}: bad category ${c.category}`);
   if (typeof c.upcoming !== 'boolean') err(`${id}: upcoming must be boolean`);
   if (!['high', 'medium', 'low'].includes(c.impact)) err(`${id}: impact must be high, medium or low`);
@@ -61,7 +86,9 @@ for (const [i, c] of CHANGES.entries()) {
     const span = periodOf(c.effective);
     if (!span) { err(`${id}: effective must be YYYY, YYYY-MM, YYYY-MM-DD or null`); continue; }
     const year = c.effective.slice(0, 4);
-    if (!c.badge.includes(year) && !d.lead.includes(year)) err(`${id}: effective year ${year} appears in neither badge nor lead`);
+    // The year must appear in the free text (badge, title, lead or detail text) so it cannot contradict the date silently.
+    const text = [c.badge || '', c.title, d.lead, ...(d.employer || []), ...(d.employee || []), d.note, d.example].join(' ');
+    if (!text.includes(year)) err(`${id}: effective year ${year} appears in none of badge, title, lead or detail text`);
     // The upcoming flag must agree with the date, relative to the last verification date.
     if (span.start > VERIFIED && !c.upcoming) err(`${id}: starts ${c.effective}, after ${VERIFIED}, so upcoming must be true`);
     if (span.end < VERIFIED && c.upcoming && !c.draft) err(`${id}: started ${c.effective}, before ${VERIFIED}, so upcoming must be false`);

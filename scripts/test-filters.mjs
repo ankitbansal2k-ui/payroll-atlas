@@ -1,7 +1,7 @@
 // CP1 behaviour tests for filters.js (pure helpers). Run: node scripts/test-filters.mjs
 // Decisions (documented):
 // - CSV header follows gates/plan.json: Country,Title,Effective,Status,Impact,Category,Source URL,Page URL
-//   Country = display name, Status = badge text, Source URL = detail.sourceUrl,
+//   Country = display name, Status = status label + formatted date (P2-2; was badge text), Source URL = detail.sourceUrl,
 //   Page URL = `${site}countries/<slugify(name)>.html#<section>`.
 // - Selection order is preserved (serializeCountries joins in given order).
 // - Both ?countries= and legacy ?country= present: merged, countries first (plan test params.both).
@@ -234,7 +234,7 @@ test('p2_1.csv_category_label', () => {
   const pay = F.toCsv(CHANGES.filter(c => c.category === 'payroll').slice(0, 1), '').slice(1).split('\r\n')[1].split(',');
   assert.equal(pay.at(-3), 'Payroll');
   const row = infra[0];
-  assert.ok(F.toCsv([row], '').includes(F.csvCell(row.badge)), 'Status column unchanged (badge)');
+  // P2-2: Status column is now status label + formatted date (see p2_2.csv_status), no longer the badge text.
 });
 
 // ---------- P2-4: infrastructure category removed ----------
@@ -251,6 +251,84 @@ test('p2_4.legacy_url', () => {
   const st = U('?filter=infrastructure&countries=poland&when=upcoming');
   assert.equal(st.filter, 'all'); assert.deepEqual(st.countries, ['poland']); assert.equal(st.when, 'upcoming');
   assert.equal(A({ filter: 'infrastructure' }).length, CHANGES.length, 'unknown category = all');
+});
+
+// ---------- P2-2: status chip + formatted date ----------
+// Contract (filters.js exports):
+//   STATUS_LABELS (frozen) = {draft:'Draft — not yet law', upcoming:'Upcoming', inforce:'In force', ongoing:'Ongoing'}
+//   statusOf(entry, verifiedIso?) -> 'draft' | 'upcoming' | 'inforce' | 'ongoing', first match wins:
+//     draft:true -> draft; upcoming:true -> upcoming; effective null/undefined -> ongoing;
+//     verifiedIso given and the effective period STARTS after verifiedIso -> upcoming (a start ON the
+//     verified day is in force); otherwise inforce. Never throws; ignores malformed effective (flags decide).
+//   formatEffective(effective) -> 'YYYY-MM-DD' -> 'D Mon YYYY' (no leading zero), 'YYYY-MM' -> 'Mon YYYY',
+//     'YYYY' -> 'YYYY', null/undefined/invalid -> ''. en-GB short months (Jan..Dec, 'Sep' not 'Sept').
+//     Formatted from the string, never via Date()/toLocale* (timezone off-by-one risk).
+//   toCsv Status column = STATUS_LABELS[statusOf(c)] + (date ? ', ' + formatEffective(c.effective) : '').
+//   `badge` stays the optional free-text field; it is no longer used for Status.
+const ST = (e, v) => F.statusOf(e, v);
+test('p2_2.labels', () => {
+  assert.deepEqual(plain(F.STATUS_LABELS), { draft: 'Draft — not yet law', upcoming: 'Upcoming', inforce: 'In force', ongoing: 'Ongoing' });
+  assert.ok(Object.isFrozen(F.STATUS_LABELS), 'STATUS_LABELS frozen');
+});
+test('p2_2.statusOf_flags', () => {
+  assert.equal(ST({ draft: true, upcoming: true, effective: '2027-01-01' }), 'draft');
+  assert.equal(ST({ draft: true, upcoming: true, effective: null }), 'draft', 'undated draft is still draft');
+  assert.equal(ST({ upcoming: true, effective: '2027-01-01' }), 'upcoming');
+  assert.equal(ST({ upcoming: true, effective: null }), 'upcoming', 'upcoming flag beats null date');
+  assert.equal(ST({ upcoming: false, effective: null }), 'ongoing');
+  assert.equal(ST({ upcoming: false }), 'ongoing', 'missing effective = ongoing');
+  assert.equal(ST({ upcoming: false, effective: '2026-01-01' }), 'inforce');
+  assert.equal(ST({ upcoming: false, effective: '2026' }), 'inforce');
+  assert.equal(ST({ upcoming: false, effective: 'garbage' }), 'inforce', 'malformed date: flags decide');
+});
+test('p2_2.statusOf_verified_boundary', () => {
+  const v = '2026-10-01';
+  assert.equal(ST({ upcoming: false, effective: '2026-10-01' }, v), 'inforce', 'starts on the verified day = in force');
+  assert.equal(ST({ upcoming: false, effective: '2026-10-02' }, v), 'upcoming', 'day after verified');
+  assert.equal(ST({ upcoming: false, effective: '2026-09-30' }, v), 'inforce');
+  assert.equal(ST({ upcoming: false, effective: '2026-10' }, v), 'inforce', 'month starting on verified day');
+  assert.equal(ST({ upcoming: false, effective: '2026-11' }, v), 'upcoming');
+  assert.equal(ST({ upcoming: false, effective: '2026' }, v), 'inforce');
+  assert.equal(ST({ upcoming: false, effective: '2027' }, v), 'upcoming');
+  assert.equal(ST({ upcoming: false, effective: null }, v), 'ongoing');
+  assert.equal(ST({ upcoming: false, effective: '2027-01-01' }), 'inforce', 'without verifiedIso only flags count');
+  assert.equal(ST({ draft: true, upcoming: true, effective: '2020-01-01' }, v), 'draft');
+});
+test('p2_2.statusOf_real_data', () => {
+  const counts = {};
+  for (const c of CHANGES) {
+    const s = ST(c, '2026-10-01');
+    assert.ok(['draft', 'upcoming', 'inforce', 'ongoing'].includes(s), `${key(c)}: ${s}`);
+    assert.equal(s, ST(c), `${key(c)}: flags and verified date disagree`);
+    counts[s] = (counts[s] || 0) + 1;
+  }
+  for (const k of ['draft', 'upcoming', 'inforce', 'ongoing']) assert.ok(counts[k] > 0, `real data has a ${k} entry`);
+});
+test('p2_2.formatEffective', () => {
+  const cases = { '2026-01-01': '1 Jan 2026', '2026-09-09': '9 Sep 2026', '2026-12-31': '31 Dec 2026', '2024-02-29': '29 Feb 2024',
+    '2027-04-06': '6 Apr 2027', '2026-06': 'Jun 2026', '2026-09': 'Sep 2026', '2026-12': 'Dec 2026', '2026': '2026', '1999': '1999' };
+  for (const [k, v] of Object.entries(cases)) assert.equal(F.formatEffective(k), v, k);
+  for (const bad of [null, undefined, '', '2026-13', '2026-00', '2026-02-30', '2025-02-29', '2026-1-1', '26', ' 2026', '2026-01-01T00:00:00Z',
+    'Jan 2026', 2026, {}, '__proto__']) assert.equal(F.formatEffective(bad), '', `invalid ${JSON.stringify(bad)}`);
+  for (const c of CHANGES) assert.equal(F.formatEffective(c.effective) === '', c.effective === null, `${key(c)}: ${c.effective}`);
+});
+test('p2_2.formatEffective_no_Date', () => {
+  const fn = F.formatEffective.toString();
+  assert.ok(!/new Date|toLocale|Date\.parse/.test(fn), 'format from the string, not via Date()');
+});
+const statusCell = c => F.STATUS_LABELS[F.statusOf(c)] + (F.formatEffective(c.effective) ? ', ' + F.formatEffective(c.effective) : '');
+test('p2_2.csv_status', () => {
+  assert.equal(statusCell({ upcoming: true, effective: '2026-07-01' }), 'Upcoming, 1 Jul 2026');
+  for (const c of CHANGES) {
+    const line = F.toCsv([c], '').slice(1).split('\r\n')[1];
+    assert.ok(line.includes(F.csvCell(statusCell(c))), `${key(c)}: Status cell should be ${statusCell(c)}: ${line.slice(0, 160)}`);
+  }
+  const row = { ...CHANGES[0], effective: null, upcoming: false, draft: false, badge: 'XYZZY note' };
+  const line = F.toCsv([row], '').slice(1).split('\r\n')[1];
+  assert.ok(line.includes(',Ongoing,'), line);
+  assert.ok(!line.includes('XYZZY'), 'badge text is not the Status column');
+  const dr = F.toCsv([{ ...CHANGES[0], draft: true, upcoming: true, effective: '2027-01' }], '').slice(1).split('\r\n')[1];
+  assert.ok(dr.includes('"Draft — not yet law, Jan 2027"'), dr);
 });
 
 console.log(`${n} filter tests passed, ${failed} failed.`);

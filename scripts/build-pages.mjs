@@ -9,6 +9,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadSite } from './load.mjs';
+import { createRequire } from 'node:module';
+
+// Shared status/date helpers (same code the browser uses).
+const { statusOf, formatEffective, STATUS_LABELS } = createRequire(import.meta.url)('../filters.js');
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const check = process.argv.includes('--check');
@@ -38,6 +42,13 @@ const ISSUES = 'https://github.com/ankitbansal2k-ui/payroll-atlas/issues';
 const CSP = `<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">`;
 
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const statusLabel = e => STATUS_LABELS[statusOf(e, VERIFIED_ISO)];
+// Status chip, then the date formatted from `effective` (if any).
+const statusChip = e => {
+  const k = statusOf(e, VERIFIED_ISO), date = formatEffective(e.effective);
+  return `<span class="status-chip status-${k}"><span class="visually-hidden">Status: </span>${esc(STATUS_LABELS[k])}</span>` +
+    (date ? ` <span class="status-date">${esc(date)}</span>` : '');
+};
 const slugify = n => n.toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 const clip = (s, n) => (s.length <= n ? s : s.slice(0, n - 1).replace(/\s+\S*$/, '') + '…');
 
@@ -104,12 +115,11 @@ const list2 = (label, items) => items && items.length
 
 function entryHtml(e) {
   const d = e.detail;
-  const badges = [`<span class="badge">${esc(e.badge)}</span>`];
+  const badges = [statusChip(e)];
+  if (e.badge) badges.push(`<span class="badge-note">${esc(e.badge)}</span>`);
   const fresh = freshness(e);
   if (fresh) badges.unshift(`<span class="badge fresh">${fresh === 'new' ? 'New' : 'Updated'}</span>`);
   if (e.impact === 'high') badges.push('<span class="badge impact-high">High impact</span>');
-  if (e.draft) badges.push('<span class="badge draft">Draft — not yet law</span>');
-  else if (e.upcoming) badges.push('<span class="badge upcoming">Upcoming</span>');
   return `    <article class="entry" id="${esc(e.section)}">
       <h2>${esc(e.title)}</h2>
       <p class="badges">${badges.join(' ')}</p>
@@ -269,7 +279,7 @@ function upcomingPage() {
   }
   const body = [...groups.entries()].sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0)).map(([, g]) => `    <h2>${esc(g.label)}</h2>
     <ul class="timeline">
-${g.items.map(e => { const c = countries.get(e.country); return `      <li><span class="when">${esc(whenLabel(e.effective))}</span> <a href="countries/${c.slug}.html#${esc(e.section)}">${e.flag} ${esc(e.name)}: ${esc(e.title)}</a> <span class="count">${REGIONS[c.region]}${e.impact === 'high' ? ' &middot; <strong>high impact</strong>' : ''}${e.draft ? ' &middot; draft, not yet law' : ''}</span></li>`; }).join('\n')}
+${g.items.map(e => { const c = countries.get(e.country); return `      <li><span class="when">${esc(whenLabel(e.effective))}</span> <a href="countries/${c.slug}.html#${esc(e.section)}">${e.flag} ${esc(e.name)}: ${esc(e.title)}</a> <span class="count">${REGIONS[c.region]}${e.impact === 'high' ? ' &middot; <strong>high impact</strong>' : ''}</span> ${statusChip(e)}</li>`; }).join('\n')}
     </ul>`).join('\n\n');
   const desc = clip(`${upcomingAll.length} upcoming payroll law changes across ${new Set(upcomingAll.map(e => e.country)).size} countries, by month, each linked to its source. Calendar (.ics) download included.`, 158);
   return `${head({ title: "What's coming: upcoming payroll changes | Intelligent Payroll", desc, url, depth: '' })}
@@ -324,7 +334,7 @@ function icsCalendar(name, entries) {
       `DTSTART;VALUE=DATE:${start.replace(/-/g, '')}`,
       `DTEND;VALUE=DATE:${next.replace(/-/g, '')}`,
       `SUMMARY:${icsText(`${e.name}: ${e.title}${e.draft ? ' (draft)' : ''}`)}`,
-      `DESCRIPTION:${icsText(`${note}${e.badge}. ${e.detail.lead}\n\nSource: ${e.detail.sourceUrl}\nDetails: ${pageUrl}\n\nFor information only, not legal or tax advice. Sources last checked ${VERIFIED}.`)}`,
+      `DESCRIPTION:${icsText(`${note}${statusLabel(e)}${formatEffective(e.effective) ? ', ' + formatEffective(e.effective) : ''}${e.badge ? ' (' + e.badge + ')' : ''}. ${e.detail.lead}\n\nSource: ${e.detail.sourceUrl}\nDetails: ${pageUrl}\n\nFor information only, not legal or tax advice. Sources last checked ${VERIFIED}.`)}`,
       `URL:${pageUrl}`,
       'TRANSP:TRANSPARENT',
       'END:VEVENT');
@@ -368,7 +378,7 @@ out.set('feed.xml', `<?xml version="1.0" encoding="utf-8"?>
 ${feedEntries.map(e => {
   const url = `${SITE}countries/${countries.get(e.country).slug}.html#${e.section}`;
   const d = e.detail;
-  const html = `<p><strong>${esc(e.badge)}</strong>${e.draft ? ' (draft, not yet law)' : ''}</p><p>${esc(d.lead)}</p>` +
+  const html = `<p><strong>${esc(statusLabel(e))}${formatEffective(e.effective) ? ', ' + esc(formatEffective(e.effective)) : ''}</strong>${e.badge ? ' &middot; ' + esc(e.badge) : ''}</p><p>${esc(d.lead)}</p>` +
     (d.employer.length ? `<p>For the employer:</p><ul>${d.employer.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : '') +
     `<p><a href="${esc(d.sourceUrl)}">${esc(d.sourceLabel)}</a></p><p>For information only, not legal or tax advice.</p>`;
   return `  <entry>

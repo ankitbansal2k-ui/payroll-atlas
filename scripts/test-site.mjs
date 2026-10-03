@@ -339,7 +339,7 @@ test('p2_4.validate_rejects_infrastructure', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pa-p24-'));
   try {
     fs.mkdirSync(path.join(tmp, 'scripts')); fs.mkdirSync(path.join(tmp, 'data'));
-    for (const f of ['scripts/validate.mjs', 'scripts/load.mjs', 'index.html', 'vercel.json', '_headers', 'data/requests.json']) fs.copyFileSync(path.join(ROOT, f), path.join(tmp, f));
+    for (const f of ['scripts/validate.mjs', 'scripts/load.mjs', 'filters.js', 'index.html', 'vercel.json', '_headers', 'data/requests.json']) fs.copyFileSync(path.join(ROOT, f), path.join(tmp, f));
     if (fs.existsSync(path.join(ROOT, '.well-known'))) fs.cpSync(path.join(ROOT, '.well-known'), path.join(tmp, '.well-known'), { recursive: true });
     const run = () => { try { execFileSync(process.execPath, ['scripts/validate.mjs'], { cwd: tmp, encoding: 'utf8', stdio: 'pipe' }); return ''; } catch (e) { return String(e.stdout) + String(e.stderr); } };
     const base = read('app.js');
@@ -348,6 +348,149 @@ test('p2_4.validate_rejects_infrastructure', () => {
     const m = base.match(/category:'(payroll|reporting)'/);
     fs.writeFileSync(path.join(tmp, 'app.js'), base.replace(m[0], "category:'infrastructure'"));
     assert.match(run(), /bad category infrastructure/, 'validate.mjs must reject category infrastructure');
+  } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+});
+
+// ---------- P2-2: status chip + formatted date on generated pages, CSV, feed, validator ----------
+// Contract: build-pages.mjs uses filters.js statusOf/formatEffective/STATUS_LABELS (one source of truth).
+// Country pages: each <article class="entry"> has exactly one <span class="status-chip status-KEY">LABEL</span>
+// (optional "Status: " inner span allowed), the date as <span class="status-date">DATE</span> when non-empty,
+// and the optional free-text badge only as <span class="badge-note">TEXT</span>. No bare <span class="badge">.
+// upcoming.html: each timeline <li> has exactly one chip (status upcoming or draft) and no duplicate
+// "draft, not yet law" text. feed.xml / *.ics never print "undefined" (badge is optional now); feed entries
+// carry the status label.
+// validate.mjs: `badge` optional (non-empty string if present); a badge that merely restates the date is
+// reported on a line containing "<country>/<section>" and "restates the date": after stripping an optional
+// leading Effective|In force|Confirmed for|Applies to|From (case-insensitive) the rest equals
+// formatEffective(effective) or its long-month form ('1 January 2026', 'January 2026'), case-insensitive;
+// or the whole badge equals a status label. Real data must have none.
+const P2 = (() => { const sb = { module: { exports: {} } }; vm.runInNewContext(read('filters.js'), sb); return sb.module.exports; })();
+const VER22 = js.match(/const LAST_VERIFIED = new Date\('(\d{4}-\d{2}-\d{2})T/)[1];
+const escH = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+const CHIP = /<span class="status-chip status-([a-z]+)">(?:<span class="[^"]+">Status: <\/span>)?([^<]*)<\/span>/g;
+test('p2_2.build_uses_helpers', () => {
+  assert.equal(typeof P2.statusOf, 'function', 'filters.js statusOf'); assert.equal(typeof P2.formatEffective, 'function', 'filters.js formatEffective');
+  const b = read('scripts/build-pages.mjs');
+  for (const n of ['statusOf', 'formatEffective', 'STATUS_LABELS']) assert.match(b, new RegExp(`\\b${n}\\b`), `build-pages.mjs uses ${n}`);
+});
+test('p2_2.country_pages_chip', () => {
+  let total = 0;
+  for (const e of CHANGES) {
+    const h = read(`countries/${P2.slugify(e.name)}.html`);
+    const i = h.indexOf(`<article class="entry" id="${escH(e.section)}">`);
+    assert.ok(i >= 0, `${key(e)}: article missing`);
+    const art = h.slice(i, h.indexOf('</article>', i));
+    const chips = [...art.matchAll(CHIP)];
+    assert.equal((art.match(/status-chip/g) || []).length, 1, `${key(e)}: exactly one chip`);
+    assert.equal(chips.length, 1, `${key(e)}: chip markup`);
+    const k = P2.statusOf(e, VER22);
+    assert.equal(chips[0][1], k, `${key(e)}: status-${k}`);
+    assert.equal(decode(chips[0][2]), P2.STATUS_LABELS[k], `${key(e)}: label`);
+    const date = P2.formatEffective(e.effective);
+    assert.deepEqual([...art.matchAll(/<span class="status-date">([^<]*)<\/span>/g)].map(m => m[1]), date ? [date] : [], `${key(e)}: date`);
+    assert.deepEqual([...art.matchAll(/<span class="badge-note">([^<]*)<\/span>/g)].map(m => decode(m[1])), e.badge ? [e.badge] : [], `${key(e)}: badge note`);
+    assert.ok(!/<span class="badge">|class="badge (draft|upcoming)"/.test(art), `${key(e)}: old badge markup`);
+    total++;
+  }
+  assert.equal(total, CHANGES.length);
+});
+test('p2_2.upcoming_chip', () => {
+  const h = read('upcoming.html');
+  const lis = [...h.matchAll(/<ul class="timeline">([\s\S]*?)<\/ul>/g)].flatMap(m => [...m[1].matchAll(/<li>([\s\S]*?)<\/li>/g)].map(x => x[1]));
+  const up = CHANGES.filter(e => e.upcoming);
+  assert.equal(lis.length, up.length);
+  for (const li of lis) {
+    const href = (li.match(/<a href="countries\/([^"#]+)\.html#([^"]+)"/) || []);
+    const e = up.find(x => P2.slugify(x.name) === href[1] && escH(x.section) === href[2]);
+    assert.ok(e, 'li maps to an upcoming entry: ' + li.slice(0, 120));
+    const chips = [...li.matchAll(CHIP)];
+    assert.equal(chips.length, 1, `${key(e)}: one chip in upcoming.html`);
+    assert.equal(chips[0][1], P2.statusOf(e, VER22));
+    assert.ok(['upcoming', 'draft'].includes(chips[0][1]), `${key(e)}: ${chips[0][1]}`);
+    assert.ok(!/draft, not yet law/.test(li), `${key(e)}: duplicate draft wording next to the chip`);
+  }
+});
+test('p2_2.generated_no_undefined', () => {
+  const files = ['feed.xml', 'calendar.ics', 'upcoming.html', 'countries.html', ...countryFiles.map(f => `countries/${f}`)];
+  for (const f of files) assert.ok(!/\bundefined\b/.test(read(f)), `${f} contains "undefined"`);
+  const feed = read('feed.xml');
+  const ents = feed.split('<entry>').slice(1);
+  assert.ok(ents.length > 0);
+  for (const en of ents) {
+    const id = (en.match(/<id>tag:[^,]+,2026:([^<]+)<\/id>/) || [])[1];
+    const e = CHANGES.find(x => `${x.country}/${x.section}` === id);
+    assert.ok(e, 'feed id maps to an entry: ' + id);
+    const want = P2.STATUS_LABELS[P2.statusOf(e, VER22)];
+    assert.ok(decode(decode(en)).includes(want), `${id}: feed entry lacks "${want}"`);
+  }
+});
+test('p2_2.validate_restating_badge', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pa-p22-'));
+  try {
+    fs.mkdirSync(path.join(tmp, 'scripts')); fs.mkdirSync(path.join(tmp, 'data'));
+    for (const f of ['scripts/validate.mjs', 'scripts/load.mjs', 'filters.js', 'index.html', 'vercel.json', '_headers', 'data/requests.json']) fs.copyFileSync(path.join(ROOT, f), path.join(tmp, f));
+    if (fs.existsSync(path.join(ROOT, '.well-known'))) fs.cpSync(path.join(ROOT, '.well-known'), path.join(tmp, '.well-known'), { recursive: true });
+    const run = () => { try { return execFileSync(process.execPath, ['scripts/validate.mjs'], { cwd: tmp, encoding: 'utf8', stdio: 'pipe' }); } catch (e) { return String(e.stdout) + String(e.stderr); } };
+    const base = read('app.js');
+    fs.writeFileSync(path.join(tmp, 'app.js'), base);
+    const real = run();
+    assert.ok(!/restates the date/.test(real), 'real data has restating badges:\n' + real.split('\n').filter(l => /restates/.test(l)).slice(0, 10).join('\n'));
+    const lines = base.split('\n');
+    const entryLines = lines.map((l, i) => [l, i]).filter(([l]) => /^\s*\{country:'/.test(l) && /upcoming:false/.test(l) && !/draft:true/.test(l));
+    const of = re => entryLines.filter(([l]) => re.test(l));
+    const day = of(/effective:'\d{4}-\d{2}-\d{2}'/), month = of(/effective:'\d{4}-\d{2}'/), year = of(/effective:'\d{4}'/), none = of(/effective:null/);
+    const LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const longOf = v => v.length === 4 ? v : v.length === 7 ? `${LONG[+v.slice(5, 7) - 1]} ${v.slice(0, 4)}` : `${+v.slice(8)} ${LONG[+v.slice(5, 7) - 1]} ${v.slice(0, 4)}`;
+    const S = v => P2.formatEffective(v);
+    const cases = [ // [pool, badge from effective, should be flagged]
+      [day, v => `Effective ${S(v)}`, true], [day, v => S(v), true], [day, v => `Effective ${longOf(v)}`, true],
+      [day, v => `In force ${S(v)}`, true], [day, v => `Confirmed for ${longOf(v)}`, true], [day, v => `Applies to ${S(v)}`, true],
+      [day, v => `effective ${S(v).toLowerCase()}`, true], [day, v => `From ${S(v)}`, true],
+      [day, v => `Effective ${S(v)} (retroactive)`, false], [day, v => `Phased from ${S(v)}`, false], [day, v => `Effective ${v.slice(0, 4)} tax year`, false],
+      [month, v => `Effective ${S(v)}`, true], [month, v => `Effective ${longOf(v)}`, true], [month, v => longOf(v), true],
+      [month, v => `Deadlines ${S(v)} and later`, false],
+      [year, v => `Effective ${v}`, true], [year, v => v, true], [year, v => `In force ${v}`, true], [year, v => `Confirmed for ${v}`, false],
+      [year, v => `Tax year ${v}`, false], [year, v => `Applies to ${v} wages`, false],
+      [day, () => 'In force', true], [none, () => 'Ongoing', true], [none, () => 'Current rates (2026)', false],
+      [none, () => 'In force', false], [none, () => 'Current rates', false]];
+    const used = new Map(), expect = [];
+    const idOf = l => `${l.match(/country:'([^']+)'/)[1]}/${l.match(/section:'([^']+)'/)[1]}`;
+    for (const [pool, mk, flagged] of cases) {
+      const pick = pool.find(([, i]) => !used.has(i));
+      assert.ok(pick, 'not enough entries of this precision to test');
+      const [l, i] = pick;
+      const eff = (l.match(/effective:(?:'([^']*)'|null)/) || [])[1] || null;
+      const b = mk(eff);
+      used.set(i, l.replace(/badge:'(?:[^'\\]|\\.)*',/, '').replace(/(section:'[^']+',)/, `$1badge:'${b}',`));
+      expect.push([idOf(l), b, flagged]);
+    }
+    const drop = entryLines.find(([, i]) => !used.has(i));
+    used.set(drop[1], drop[0].replace(/badge:'(?:[^'\\]|\\.)*',/, ''));
+    fs.writeFileSync(path.join(tmp, 'app.js'), lines.map((l, i) => used.has(i) ? used.get(i) : l).join('\n'));
+    const out = run();
+    const flaggedLines = out.split('\n').filter(l => /restates the date/.test(l));
+    for (const [id, b, flagged] of expect) assert.equal(flaggedLines.some(l => l.includes(id + ':') || l.includes(id + ' ')), flagged, `badge "${b}" (${id}) should ${flagged ? '' : 'NOT '}be flagged:\n${out.slice(0, 1500)}`);
+    assert.ok(!out.includes(`${idOf(drop[0])}: missing badge`), 'badge must be optional');
+  } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+});
+
+test('p2_2.validate_effective_year_in_text', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pa-p22y-'));
+  try {
+    fs.mkdirSync(path.join(tmp, 'scripts')); fs.mkdirSync(path.join(tmp, 'data'));
+    for (const f of ['scripts/validate.mjs', 'scripts/load.mjs', 'filters.js', 'index.html', 'vercel.json', '_headers', 'data/requests.json']) fs.copyFileSync(path.join(ROOT, f), path.join(tmp, f));
+    if (fs.existsSync(path.join(ROOT, '.well-known'))) fs.cpSync(path.join(ROOT, '.well-known'), path.join(tmp, '.well-known'), { recursive: true });
+    const run = () => { try { return execFileSync(process.execPath, ['scripts/validate.mjs'], { cwd: tmp, encoding: 'utf8', stdio: 'pipe' }); } catch (e) { return String(e.stdout) + String(e.stderr); } };
+    // A synthetic entry whose year 2031 appears only in sourceUrl/sourceLabel must be rejected.
+    const base = read('app.js');
+    const lines = base.split('\n');
+    const i = lines.findIndex(l => /^\s*\{country:'/.test(l) && /effective:'2026-01-01'/.test(l) && /upcoming:false/.test(l));
+    assert.ok(i >= 0, 'no entry to mutate');
+    const id = `${lines[i].match(/country:'([^']+)'/)[1]}/${lines[i].match(/section:'([^']+)'/)[1]}`;
+    lines[i] = lines[i].replace(/2026/g, '2019').replace(/effective:'2019-01-01'/, "effective:'2031'").replace(/upcoming:false/, 'upcoming:true')
+      .replace(/sourceLabel:'/, "sourceLabel:'2031 ").replace(/badge:'(?:[^'\\]|\\.)*',/, '');
+    fs.writeFileSync(path.join(tmp, 'app.js'), lines.join('\n'));
+    assert.match(run(), new RegExp(`${id.replace('/', '\\/')}: effective year 2031 appears in none of badge, title, lead or detail text`));
   } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
 });
 

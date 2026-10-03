@@ -12,6 +12,53 @@
   const WHEN_LABELS = Object.freeze({ all: 'All dates', upcoming: 'Upcoming', inforce: 'In force' });
   const CATEGORIES = ['payroll', 'reporting'];
   const has = (obj, k) => Object.prototype.hasOwnProperty.call(obj, k);
+  const STATUS_LABELS = Object.freeze({ draft: 'Draft — not yet law', upcoming: 'Upcoming', inforce: 'In force', ongoing: 'Ongoing' });
+  const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  // Parse 'YYYY', 'YYYY-MM' or 'YYYY-MM-DD' strictly; returns {y, m, d} (m/d may be 0) or null.
+  function parseEffective(v) {
+    if (typeof v !== 'string') return null;
+    const m = /^(\d{4})(?:-(\d{2})(?:-(\d{2}))?)?$/.exec(v);
+    if (!m) return null;
+    const y = +m[1], mo = m[2] ? +m[2] : 0, d = m[3] ? +m[3] : 0;
+    if (m[2] && (mo < 1 || mo > 12)) return null;
+    if (m[3]) {
+      const leap = (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;
+      const dim = [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][mo - 1];
+      if (d < 1 || d > dim) return null;
+    }
+    return { y, m: mo, d };
+  }
+
+  // '2026-01-01' -> '1 Jan 2026', '2026-09' -> 'Sep 2026', '2026' -> '2026'; invalid -> ''.
+  function formatEffective(v) {
+    const p = parseEffective(v);
+    if (!p) return '';
+    if (p.d) return p.d + ' ' + MONTHS[p.m - 1] + ' ' + p.y;
+    if (p.m) return MONTHS[p.m - 1] + ' ' + p.y;
+    return String(p.y);
+  }
+
+  // Status key for an entry: flags first, then the date relative to verifiedIso (if given).
+  function statusOf(entry, verifiedIso) {
+    const e = entry || {};
+    if (e.draft === true) return 'draft';
+    if (e.upcoming === true) return 'upcoming';
+    if (e.effective === null || e.effective === undefined) return 'ongoing';
+    if (typeof verifiedIso === 'string') {
+      const p = parseEffective(e.effective);
+      if (p) {
+        const start = String(p.y).padStart(4, '0') + '-' + String(p.m || 1).padStart(2, '0') + '-' + String(p.d || 1).padStart(2, '0');
+        if (start > verifiedIso.slice(0, 10)) return 'upcoming';
+      }
+    }
+    return 'inforce';
+  }
+
+  function statusText(c, verifiedIso) {
+    const date = formatEffective(c.effective);
+    return STATUS_LABELS[statusOf(c, verifiedIso)] + (date ? ', ' + date : '');
+  }
 
   // Parse "a,b,c" into known country codes: trimmed, lower-cased, de-duplicated, capped.
   // Anything not an own key of countryToRegion is dropped (blocks injection and __proto__ tricks).
@@ -106,11 +153,11 @@
     return s[0] === "'" || /[",\r\n]/.test(s) ?'"' + s.replace(/"/g, '""') + '"' : s;
   }
 
-  // CSV of the given (already filtered) changes, with BOM and CRLF line endings.
-  function toCsv(items, site) {
+  // CSV of the given (already filtered) changes, with BOM and CRLF line endings. verifiedIso (optional) dates the Status column as statusOf does.
+  function toCsv(items, site, verifiedIso) {
     const rows = [['Country', 'Title', 'Effective', 'Status', 'Impact', 'Category', 'Source URL', 'Page URL']];
     for (const c of items) {
-      rows.push([c.name, c.title, c.effective, c.badge, c.impact, has(CATEGORY_LABELS, c.category) ? CATEGORY_LABELS[c.category] : c.category,
+      rows.push([c.name, c.title, c.effective, statusText(c, verifiedIso), c.impact, has(CATEGORY_LABELS, c.category) ? CATEGORY_LABELS[c.category] : c.category,
         c.detail && c.detail.sourceUrl, c.name ? (site || '') + 'countries/' + slugify(String(c.name)) + '.html#' + (c.section || '') : '']);
     }
     return '﻿' + rows.map(r => r.map(csvCell).join(',')).join('\r\n') + '\r\n';
@@ -120,7 +167,7 @@
     return 'intelligent-payroll-changes-' + String(date).slice(0, 10) + '.csv';
   }
 
-  const api = { MAX_COUNTRIES, WHENS, CATEGORY_LABELS, WHEN_LABELS, parseCountries, serializeCountries, readSelection, readUrlState, applyFilters, slugify, csvCell, toCsv, csvFilename };
+  const api = { MAX_COUNTRIES, WHENS, STATUS_LABELS, statusOf, formatEffective, CATEGORY_LABELS, WHEN_LABELS, parseCountries, serializeCountries, readSelection, readUrlState, applyFilters, slugify, csvCell, toCsv, csvFilename };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else if (typeof window !== 'undefined') window.PayrollFilters = api;
 })();

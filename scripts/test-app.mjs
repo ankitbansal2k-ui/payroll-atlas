@@ -315,7 +315,7 @@ test('xss.rule: validate.mjs flags unescaped ${countries}/${state}/${selection};
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pa-validate-'));
   try {
     fs.mkdirSync(path.join(tmp, 'scripts')); fs.mkdirSync(path.join(tmp, 'data'));
-    for (const f of ['scripts/validate.mjs', 'scripts/load.mjs', 'index.html', 'vercel.json', '_headers', 'data/requests.json']) fs.copyFileSync(path.join(ROOT, f), path.join(tmp, f));
+    for (const f of ['scripts/validate.mjs', 'scripts/load.mjs', 'filters.js', 'index.html', 'vercel.json', '_headers', 'data/requests.json']) fs.copyFileSync(path.join(ROOT, f), path.join(tmp, f));
     if (fs.existsSync(path.join(ROOT, '.well-known'))) fs.cpSync(path.join(ROOT, '.well-known'), path.join(tmp, '.well-known'), { recursive: true });
     const run = js => {
       fs.writeFileSync(path.join(tmp, 'app.js'), js);
@@ -1055,6 +1055,70 @@ test('p2_4.legacy: ?filter=infrastructure&countries=poland is rewritten to ?coun
   assert.equal(p.cards(), count({ countries: ['poland'] }));
   assert.equal(p.lastParams().toString(), 'countries=poland');
   assert.ok(p.btn('filter-btn', 'filter', 'all').classList.contains('active'), 'All category active');
+});
+
+
+// ---------- P2-2: status chip + formatted date on cards ----------
+// Contract: each .item-card header contains exactly one
+//   <span class="status-chip status-KEY">[optional <span class="...">Status: </span>]LABEL</span>
+// with KEY = PayrollFilters.statusOf(item, LAST_VERIFIED iso) and LABEL = STATUS_LABELS[KEY]; when
+// formatEffective(item.effective) is non-empty, it follows in <span class="status-date">DATE</span>.
+// The optional free-text `badge` is shown only when present, escaped, as <span class="badge-note">TEXT</span>.
+// The old status badges (class="badge draft|upcoming|active") are gone; New/Updated/High impact stay.
+const escH = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+const VER = read('app.js').match(/const LAST_VERIFIED = new Date\('(\d{4}-\d{2}-\d{2})T/)[1];
+function cardHeaders(p) {
+  return p.list().split('<div class="item-card"').slice(1).map(h => h.slice(0, h.indexOf('<div class="item-detail"')));
+}
+function entryFor(h) {
+  const m = h.match(/<strong>([\s\S]*?)<\/strong><br\/>\s*<span class="item-title">([\s\S]*?)<\/span>/);
+  assert.ok(m, 'card header layout changed: ' + h.slice(0, 200));
+  const hits = CHANGES.filter(c => `${escH(c.flag)} ${escH(c.name)}` === m[1] && escH(c.title) === m[2]);
+  assert.equal(hits.length, 1, 'card maps to one entry: ' + m[1] + ' / ' + m[2]);
+  return hits[0];
+}
+const CHIP_RE = /<span class="status-chip status-([a-z]+)">(?:<span class="[^"]+">Status: <\/span>)?([^<]*)<\/span>/g;
+test('p2_2.cards: every card has exactly one correct status chip and the formatted date', () => {
+  const p = makePage('');
+  p.fire('click', p.btn('nav-link', 'view', 'view-changelog'));
+  const heads = cardHeaders(p);
+  assert.equal(heads.length, CHANGES.length);
+  const seen = new Set();
+  for (const h of heads) {
+    const e = entryFor(h), id = e.country + '/' + e.section;
+    const chips = [...h.matchAll(CHIP_RE)];
+    assert.equal((h.match(/status-chip/g) || []).length, 1, `${id}: exactly one status-chip`);
+    assert.equal(chips.length, 1, `${id}: chip markup ${h.match(/<span class="status-chip[^]*?<\/span>/)}`);
+    const k = PF2.statusOf(e, VER);
+    assert.equal(chips[0][1], k, `${id}: class status-${k}`);
+    assert.equal(chips[0][2], escH(PF2.STATUS_LABELS[k]), `${id}: label`);
+    seen.add(k);
+    const date = PF2.formatEffective(e.effective);
+    const d = [...h.matchAll(/<span class="status-date">([^<]*)<\/span>/g)].map(m => m[1]);
+    assert.deepEqual(d, date ? [date] : [], `${id}: status-date`);
+    if (date) assert.ok(h.indexOf('status-date') > h.indexOf('status-chip'), `${id}: date follows chip`);
+    const notes = [...h.matchAll(/<span class="badge-note">([^<]*)<\/span>/g)].map(m => m[1]);
+    assert.deepEqual(notes, e.badge ? [escH(e.badge)] : [], `${id}: badge note only when badge present`);
+    assert.ok(!/class="badge (draft|upcoming|active)"/.test(h), `${id}: old status badge still rendered`);
+    assert.ok(!/Draft — not yet law[\s\S]*Draft — not yet law/.test(h), `${id}: draft label shown twice`);
+  }
+  for (const k of ['draft', 'upcoming', 'inforce', 'ongoing']) assert.ok(seen.has(k), `some card shows ${k}`);
+});
+test('p2_2.cards_draft: draft cards show the draft chip', () => {
+  const p = makePage('?when=upcoming');
+  const heads = cardHeaders(p).filter(h => entryFor(h).draft);
+  assert.ok(heads.length > 0, 'real data has drafts');
+  for (const h of heads) assert.match(h, /<span class="status-chip status-draft">(?:<span class="[^"]+">Status: <\/span>)?Draft — not yet law<\/span>/);
+});
+test('p2_2.static: app.js uses the shared helpers and escapes the badge note', () => {
+  const js = read('app.js');
+  assert.match(js, /PayrollFilters\.statusOf\(/); assert.match(js, /PayrollFilters\.formatEffective\(/);
+  assert.match(js, /PayrollFilters\.STATUS_LABELS/);
+  for (const m of js.matchAll(/[^\n]{0,20}item\.badge\b[^\n]{0,5}/g)) {
+    if (/\bitem\.badge\s*\?/.test(m[0]) || /&&\s*$|^\s*\(?\s*item\.badge\s*(\)|&&)/.test(m[0])) continue;
+    assert.match(m[0], /escapeHtml\(item\.badge\)/, 'unescaped item.badge: ' + m[0]);
+  }
+  assert.match(read('styles.css'), /\.status-chip\b/); assert.match(read('styles.css'), /\.status-(draft|upcoming|inforce|ongoing)\b/);
 });
 
 console.log(`\n${pass} passed, ${fail} failed`);
