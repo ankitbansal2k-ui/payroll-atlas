@@ -211,7 +211,7 @@
       const navLink = document.querySelector(`.nav-link[data-view="${viewId}"]`);
       if(navLink) navLink.classList.add('active');
 
-      if(viewId === 'view-changelog') renderChangelog('all');
+      if(viewId === 'view-changelog') renderChangelog();
     }
 
     function showChangelogNav(){
@@ -224,24 +224,40 @@
 
     function goToCountry(country){
       if(!isKnownCountry(country)) return;
-      const region = countryToRegion[country] || 'europe';
+      state = {countries: [country], region: countryToRegion[country] || null, filter: 'all', search: ''};
       showChangelogNav();
-      renderChangelog('all', country, region);
+      updateState();
       window.scrollTo({top: 0, behavior: 'smooth'});
     }
 
     function performSearch(term){
       const q = (term || '').trim();
       if(!q) return;
+      state.search = q.toLowerCase();
       showChangelogNav();
-      renderChangelog('all', null, null, q.toLowerCase());
+      updateState();
       window.scrollTo({top: 0, behavior: 'smooth'});
     }
 
     let currentChangelogItems = [];
-    let currentCountry = null;
-    let currentRegion = 'europe';
-    let currentSearch = null;
+    // Changelog filter state. Mirrored in the address bar only (never in browser storage).
+    let state = {countries: [], region: null, filter: 'all', search: ''};
+
+    // Write the state to the address bar: omit empty params; bare path when nothing is set.
+    function writeUrl(){
+      const parts = [];
+      if(state.countries.length) parts.push('countries=' + PayrollFilters.serializeCountries(state.countries));
+      if(state.region) parts.push('region=' + encodeURIComponent(state.region));
+      if(state.filter && state.filter !== 'all') parts.push('filter=' + encodeURIComponent(state.filter));
+      if(state.search) parts.push('q=' + encodeURIComponent(state.search));
+      const url = window.location.pathname + (parts.length ? '?' + parts.join('&') : '') + (window.location.hash || '');
+      try { history.replaceState(null, '', url); } catch(e) { /* ignore (e.g. file://) */ }
+    }
+
+    function updateState(){
+      renderChangelog();
+      writeUrl();
+    }
 
     // Country to region mapping
     const countryToRegion = {
@@ -260,7 +276,6 @@
       'za': 'africa', 'ng': 'africa', 'ke': 'africa'
     };
 
-    // Initialize currentCountry from URL on page load
     function renderRegionCoverage(){
       const el = document.getElementById('region-coverage');
       if(!el) return;
@@ -449,13 +464,15 @@
       renderProofLine();
       renderRegionCoverage();
       renderCoverageMap();
-      const params = new URLSearchParams(window.location.search);
-      const countryParam = params.get('country');
-      if(countryParam && isKnownCountry(countryParam)){
-        const region = countryToRegion[countryParam] || 'europe';
+      const search = window.location.search || '';
+      // Handles ?countries= and legacy ?country= (via readSelection); unknown values are dropped.
+      const initial = PayrollFilters.readUrlState(search, countryToRegion);
+      state = {countries: initial.countries, region: initial.region, filter: initial.filter, search: (initial.search || '').trim().toLowerCase()};
+      if(/[?&](countries|country|filter|region|q)=/.test(search)){
         showChangelogNav();
-        renderChangelog('all', countryParam, region);
+        renderChangelog();
       }
+      if(search) writeUrl(); // rewrites ?country= to ?countries= and strips invalid values
     }
 
     if(document.readyState === 'loading'){
@@ -505,20 +522,24 @@
       }
     }
 
-    function renderChangelog(filter, country, region, search){
+    function regionLabel(r){
+      return ({europe: 'Europe', apac: 'APAC', menat: 'MENAT', latam: 'LATAM', africa: 'Africa'})[r] || '';
+    }
+
+    // Display label for a country code, taken from CHANGES (never from the URL).
+    function countryLabel(code){
+      const item = CHANGES.find(c => c.country === code);
+      return item ? item.flag + ' ' + item.name : code;
+    }
+
+    function renderChangelog(){
       const list = document.getElementById('changelog-list');
-      let filtered = CHANGES;
-      if(filter === 'payroll') filtered = filtered.filter(c => c.category === 'payroll');
-      if(filter === 'reporting') filtered = filtered.filter(c => c.category === 'reporting');
-      if(filter === 'infrastructure') filtered = filtered.filter(c => c.category === 'infrastructure');
-      if(filter === 'upcoming') filtered = filtered.filter(c => c.upcoming);
-      if(filter === 'high-impact') filtered = filtered.filter(c => c.impact === 'high');
-      if(region) filtered = filtered.filter(c => countryToRegion[c.country] === region);
-      if(country) filtered = filtered.filter(c => c.country === country);
-      if(search) filtered = filtered.filter(c => c.name.toLowerCase().includes(search) || c.title.toLowerCase().includes(search));
-      currentCountry = country || null;
-      currentRegion = region || null;
-      currentSearch = search || null;
+      const filtered = PayrollFilters.applyFilters(CHANGES, state, countryToRegion);
+      const filter = state.filter || 'all';
+      const region = state.region;
+      const search = state.search;
+      const picked = state.countries;
+      const country = picked.length === 1 ? picked[0] : null;
       currentChangelogItems = filtered;
 
       document.querySelectorAll('.region-tab').forEach(btn => btn.classList.remove('active'));
@@ -534,14 +555,20 @@
       const searchInput = document.getElementById('search-input');
       if(searchInput) searchInput.value = search || '';
 
-      const banner = search
+      // Banner lists every active constraint so users can see why results are limited.
+      let bannerText = '';
+      if(search || picked.length){
+        bannerText = search
+          ? `Showing results for "<strong>${escapeHtml(search)}</strong>"`
+          : 'Showing changes';
+        if(picked.length) bannerText += `${search ? ' in' : ' for'} <strong>${escapeHtml(picked.map(countryLabel).join(', '))}</strong>`;
+        if(region) bannerText += ` in <strong>${escapeHtml(regionLabel(region))}</strong>`;
+        if(filter !== 'all') bannerText += ` (filter: <strong>${escapeHtml(filter)}</strong>)`;
+        if(search || picked.length > 1) bannerText += ` (${filtered.length} ${search ? 'match' + (filtered.length === 1 ? '' : 'es') : 'change' + (filtered.length === 1 ? '' : 's')})`;
+      }
+      const banner = bannerText
         ? `<div class="filter-banner">
-             <span>Showing results for "<strong>${escapeHtml(search)}</strong>" (${filtered.length} match${filtered.length === 1 ? '' : 'es'})</span>
-             <a href="#" class="filter-clear" data-action="clear-filter">Clear ✕</a>
-           </div>`
-        : country
-        ? `<div class="filter-banner">
-             <span>Showing changes for <strong>${filtered[0] ? escapeHtml(filtered[0].flag + ' ' + filtered[0].name) : escapeHtml(country)}</strong></span>
+             <span>${bannerText}</span>
              <a href="#" class="filter-clear" data-action="clear-filter">Clear ✕</a>
            </div>`
         : '';
@@ -551,7 +578,13 @@
         ? `<div class="partial-notice">Partial coverage: we currently track ${countryTotal} change for this country. Know of another? <a href="suggest.html">Tell us</a>.</div>`
         : '';
 
-      const emptyState = filtered.length === 0
+      const outsideRegion = filtered.length === 0 && region && picked.length > 0 && !picked.some(c => countryToRegion[c] === region);
+      const emptyState = outsideRegion
+        ? `<div class="detail-empty">
+             <p>None of your selected countries (${escapeHtml(picked.map(countryLabel).join(', '))}) are in ${escapeHtml(regionLabel(region))}.</p>
+             <p class="empty-actions"><a href="#" data-action="show-region">Show all of ${escapeHtml(regionLabel(region))}</a> · <a href="#" data-action="show-countries">Show my countries in all regions</a></p>
+           </div>`
+        : filtered.length === 0
         ? `<p class="detail-empty">No changes match${search ? ` "${escapeHtml(search)}"` : ' this filter'}. Try a different term or clear the filter.</p>`
         : '';
 
@@ -573,15 +606,29 @@
     }
 
     function filterChanges(type){
-      renderChangelog(type, currentCountry, currentRegion, currentSearch);
+      state.filter = type || 'all';
+      updateState();
     }
 
     function clearFilter(){
-      renderChangelog('all');
+      state = {countries: [], region: null, filter: 'all', search: ''};
+      updateState();
+    }
+
+    // Empty-state escapes: drop one side of a country/region intersection that matched nothing.
+    function showWholeRegion(){
+      state.countries = [];
+      updateState();
+    }
+
+    function showCountriesAllRegions(){
+      state.region = null;
+      updateState();
     }
 
     function selectRegion(region){
-      renderChangelog('all', null, region);
+      state.region = Object.values(countryToRegion).includes(region) ? region : null;
+      updateState();
     }
 
     // Event handling. The page has no inline handlers because the content security policy forbids them.
@@ -604,6 +651,8 @@
       const action = t.closest('[data-action]');
       if (!action) return;
       if (action.dataset.action === 'clear-filter') { e.preventDefault(); clearFilter(); }
+      else if (action.dataset.action === 'show-region') { e.preventDefault(); showWholeRegion(); }
+      else if (action.dataset.action === 'show-countries') { e.preventDefault(); showCountriesAllRegions(); }
       else if (action.dataset.action === 'toggle-detail') {
         const card = action.closest('.item-card');
         if (card) toggleDetail(Number(card.dataset.index));

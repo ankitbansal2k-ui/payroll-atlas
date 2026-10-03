@@ -612,7 +612,8 @@
       color: var(--text-secondary);
     }
 
-    .site-notice a, .partial-notice a { color: var(--blue-accent); }
+    .site-notice a, .partial-notice a, .empty-actions a { color: var(--blue-accent); }
+    .empty-actions { margin-top: 0.5rem; }
 
     .partial-notice {
       margin-bottom: 1.25rem;

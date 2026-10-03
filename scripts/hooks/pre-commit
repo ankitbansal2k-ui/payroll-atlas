@@ -41,3 +41,10 @@ if ! node scripts/test-filters.mjs >/dev/null; then
   echo "pre-commit: commit blocked. The filter/CSV tests (scripts/test-filters.mjs) failed."
   exit 1
 fi
+
+if ! node scripts/test-app.mjs >/dev/null; then
+  node scripts/test-app.mjs
+  echo ""
+  echo "pre-commit: commit blocked. The app wiring tests (scripts/test-app.mjs) failed."
+  exit 1
+fi

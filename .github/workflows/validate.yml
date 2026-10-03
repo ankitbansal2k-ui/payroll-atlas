@@ -21,3 +21,4 @@ jobs:
       - run: node scripts/test-worker.mjs
       - run: node scripts/test-site.mjs
       - run: node scripts/test-filters.mjs
+      - run: node scripts/test-app.mjs

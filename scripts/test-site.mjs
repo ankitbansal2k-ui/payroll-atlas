@@ -283,12 +283,13 @@ test('ics.webcal', () => {
 test('impact.filter', () => {
   for (const e of CHANGES) assert.ok(['high', 'medium', 'low'].includes(e.impact), `${key(e)}: bad impact ${e.impact}`);
   assert.match(indexHtml, /data-filter="high-impact"/, 'index.html missing high-impact filter button');
-  const m = js.match(/if\(filter === 'high-impact'\) filtered = filtered\.filter\(([^;]+)\);/);
-  assert.ok(m, 'app.js high-impact filter branch not found');
-  const fn = new Function(`return ${m[1]}`)();
-  const got = CHANGES.filter(fn);
-  assert.deepEqual(got, CHANGES.filter(e => e.impact === 'high'));
+  // The filter lives in filters.js (applyFilters); run the real implementation.
+  const sandbox = { module: { exports: {} } };
+  vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'filters.js'), 'utf8'), sandbox);
+  const got = sandbox.module.exports.applyFilters(CHANGES, { filter: 'high-impact', countries: [] }).map(key);
+  assert.equal(JSON.stringify(got), JSON.stringify(CHANGES.filter(e => e.impact === 'high').map(key)));
   assert.ok(got.length > 0, 'no high-impact entries');
+  assert.match(js, /PayrollFilters\.applyFilters\(/, 'app.js does not render through PayrollFilters.applyFilters');
 });
 
 test('worker.tests', () => {
