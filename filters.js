@@ -5,7 +5,11 @@
   'use strict';
 
   const MAX_COUNTRIES = 30;
-  const FILTERS = ['all', 'payroll', 'reporting', 'infrastructure', 'upcoming', 'high-impact'];
+  const FILTERS = ['all', 'payroll', 'reporting', 'infrastructure', 'high-impact'];
+  const WHENS = Object.freeze(['all', 'upcoming', 'inforce']);
+  // Shared user-facing labels (data values stay unchanged in URLs and data).
+  const CATEGORY_LABELS = Object.freeze({ payroll: 'Payroll', reporting: 'Reporting', infrastructure: 'Systems & e-filing' });
+  const WHEN_LABELS = Object.freeze({ all: 'All dates', upcoming: 'Upcoming', inforce: 'In force' });
   const CATEGORIES = ['payroll', 'reporting', 'infrastructure'];
   const has = (obj, k) => Object.prototype.hasOwnProperty.call(obj, k);
 
@@ -56,15 +60,19 @@
     const region = params.get('region');
     const regions = Object.keys(countryToRegion).map(k => countryToRegion[k]);
     const q = params.get('q') || '';
+    const rawWhen = params.get('when');
+    // Legacy ?filter=upcoming maps to the timing toggle; an explicit valid ?when= wins.
+    let when = WHENS.includes(rawWhen) ? rawWhen : (filter === 'upcoming' ? 'upcoming' : 'all');
     return {
       countries: readSelection(params, countryToRegion),
       filter: FILTERS.includes(filter) ? filter : 'all',
+      when,
       region: region && regions.includes(region) ? region : null,
       search: q // URL param is ?q=, exposed as `search` to match applyFilters state (plan CP2 uses `search`).
     };
   }
 
-  // Filter changes by state {filter, countries, region, search}. Keeps original order; never mutates.
+  // Filter changes by state {filter, when, countries, region, search}. Keeps original order; never mutates.
   // Region needs the country->region map (changes carry no region field): pass it as the 3rd argument.
   function applyFilters(changes, state, countryToRegion) {
     const st = state || {};
@@ -73,7 +81,8 @@
     const needle = (st.search || '').toLowerCase();
     return changes.filter(c => {
       if (CATEGORIES.includes(filter) && c.category !== filter) return false;
-      if (filter === 'upcoming' && !c.upcoming) return false;
+      if (st.when === 'upcoming' && !c.upcoming) return false;
+      if (st.when === 'inforce' && c.upcoming) return false;
       if (filter === 'high-impact' && c.impact !== 'high') return false;
       if (picked.length && !picked.includes(c.country)) return false;
       if (st.region && countryToRegion && countryToRegion[c.country] !== st.region) return false;
@@ -101,7 +110,7 @@
   function toCsv(items, site) {
     const rows = [['Country', 'Title', 'Effective', 'Status', 'Impact', 'Category', 'Source URL', 'Page URL']];
     for (const c of items) {
-      rows.push([c.name, c.title, c.effective, c.badge, c.impact, c.category,
+      rows.push([c.name, c.title, c.effective, c.badge, c.impact, has(CATEGORY_LABELS, c.category) ? CATEGORY_LABELS[c.category] : c.category,
         c.detail && c.detail.sourceUrl, c.name ? (site || '') + 'countries/' + slugify(String(c.name)) + '.html#' + (c.section || '') : '']);
     }
     return '﻿' + rows.map(r => r.map(csvCell).join(',')).join('\r\n') + '\r\n';
@@ -111,7 +120,7 @@
     return 'intelligent-payroll-changes-' + String(date).slice(0, 10) + '.csv';
   }
 
-  const api = { MAX_COUNTRIES, parseCountries, serializeCountries, readSelection, readUrlState, applyFilters, slugify, csvCell, toCsv, csvFilename };
+  const api = { MAX_COUNTRIES, WHENS, CATEGORY_LABELS, WHEN_LABELS, parseCountries, serializeCountries, readSelection, readUrlState, applyFilters, slugify, csvCell, toCsv, csvFilename };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else if (typeof window !== 'undefined') window.PayrollFilters = api;
 })();

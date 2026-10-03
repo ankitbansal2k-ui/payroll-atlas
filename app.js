@@ -224,7 +224,7 @@
 
     function goToCountry(country){
       if(!isKnownCountry(country)) return;
-      state = {countries: [country], region: countryToRegion[country] || null, filter: 'all', search: ''};
+      state = {countries: [country], region: countryToRegion[country] || null, filter: 'all', when: 'all', search: ''};
       showChangelogNav();
       updateState();
       window.scrollTo({top: 0, behavior: 'smooth'});
@@ -240,8 +240,10 @@
     }
 
     let currentChangelogItems = [];
+    // Category labels come from the shared map in filters.js; only the non-category filter is added here.
+    const FILTER_LABELS = Object.assign({}, PayrollFilters.CATEGORY_LABELS, {'high-impact': 'High impact'});
     // Changelog filter state. Mirrored in the address bar only (never in browser storage).
-    let state = {countries: [], region: null, filter: 'all', search: ''};
+    let state = {countries: [], region: null, filter: 'all', when: 'all', search: ''};
 
     // Write the state to the address bar: omit empty params; bare path when nothing is set.
     function writeUrl(){
@@ -249,6 +251,7 @@
       if(state.countries.length) parts.push('countries=' + PayrollFilters.serializeCountries(state.countries));
       if(state.region) parts.push('region=' + encodeURIComponent(state.region));
       if(state.filter && state.filter !== 'all') parts.push('filter=' + encodeURIComponent(state.filter));
+      if(state.when && state.when !== 'all') parts.push('when=' + encodeURIComponent(state.when));
       if(state.search) parts.push('q=' + encodeURIComponent(state.search));
       const url = window.location.pathname + (parts.length ? '?' + parts.join('&') : '') + (window.location.hash || '');
       try { history.replaceState(null, '', url); } catch(e) { /* ignore (e.g. file://) */ }
@@ -467,8 +470,8 @@
       const search = window.location.search || '';
       // Handles ?countries= and legacy ?country= (via readSelection); unknown values are dropped.
       const initial = PayrollFilters.readUrlState(search, countryToRegion);
-      state = {countries: initial.countries, region: initial.region, filter: initial.filter, search: (initial.search || '').trim().toLowerCase()};
-      if(/[?&](countries|country|filter|region|q)=/.test(search)){
+      state = {countries: initial.countries, region: initial.region, filter: initial.filter, when: initial.when, search: (initial.search || '').trim().toLowerCase()};
+      if(/[?&](countries|country|filter|region|when|q)=/.test(search)){
         showChangelogNav();
         renderChangelog();
       } else {
@@ -525,7 +528,6 @@
     }
 
     // CP5 print: expand every filtered card before printing, restore afterwards.
-    const FILTER_LABELS = {payroll: 'Payroll', reporting: 'Reporting', infrastructure: 'Infrastructure', upcoming: 'Upcoming only', 'high-impact': 'High impact'};
     let printOpened = [];
     function printSummary(){
       const parts = [];
@@ -533,6 +535,7 @@
       parts.push(picked.length ? picked.join(', ') : 'All countries');
       if(state.region) parts.push(regionLabel(state.region));
       if(state.filter && state.filter !== 'all') parts.push(FILTER_LABELS[state.filter] || state.filter);
+      if(state.when && state.when !== 'all') parts.push(PayrollFilters.WHEN_LABELS[state.when] || state.when);
       if(state.search) parts.push('Search: "' + state.search + '"');
       const date = new Date().toLocaleDateString('en-GB', {day: 'numeric', month: 'long', year: 'numeric'});
       return 'Intelligent Payroll — ' + parts.join(' · ') + ' — printed ' + date;
@@ -631,6 +634,13 @@
       const filterBtn = [...document.querySelectorAll('.filter-btn')].find(b => b.dataset.filter === (filter || 'all'));
       if(filterBtn) filterBtn.classList.add('active');
 
+      const when = state.when || 'all';
+      document.querySelectorAll('.when-btn').forEach(btn => {
+        const on = btn.dataset.when === when;
+        btn.classList.toggle('active', on);
+        btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+
       const searchInput = document.getElementById('search-input');
       if(searchInput) searchInput.value = search || '';
 
@@ -642,7 +652,8 @@
           : 'Showing changes';
         if(picked.length) bannerText += `${search ? ' in' : ' for'} <strong>${escapeHtml(picked.map(countryLabel).join(', '))}</strong>`;
         if(region) bannerText += ` in <strong>${escapeHtml(regionLabel(region))}</strong>`;
-        if(filter !== 'all') bannerText += ` (filter: <strong>${escapeHtml(filter)}</strong>)`;
+        if(filter !== 'all') bannerText += ` (filter: <strong>${escapeHtml(FILTER_LABELS[filter] || filter)}</strong>)`;
+        if(when !== 'all') bannerText += ` (timing: <strong>${escapeHtml(PayrollFilters.WHEN_LABELS[when] || when)}</strong>)`;
         if(search || picked.length > 1) bannerText += ` (${filtered.length} ${search ? 'match' + (filtered.length === 1 ? '' : 'es') : 'change' + (filtered.length === 1 ? '' : 's')})`;
       }
       const banner = bannerText
@@ -780,8 +791,13 @@
       updateState();
     }
 
+    function setWhen(when){
+      state.when = PayrollFilters.WHENS.includes(when) ? when : 'all';
+      updateState();
+    }
+
     function clearFilter(){
-      state = {countries: [], region: null, filter: 'all', search: ''};
+      state = {countries: [], region: null, filter: 'all', when: 'all', search: ''};
       updateState();
     }
 
@@ -811,6 +827,8 @@
       if (tab) { selectRegion(tab.dataset.region); return; }
       const filterBtn = t.closest('.filter-btn[data-filter]');
       if (filterBtn) { filterChanges(filterBtn.dataset.filter); return; }
+      const whenBtn = t.closest('.when-btn[data-when]');
+      if (whenBtn) { setWhen(whenBtn.dataset.when); return; }
       const scroll = t.closest('[data-scroll-to]');
       if (scroll) {
         e.preventDefault();

@@ -85,7 +85,9 @@ function makePage(search = '', hash = '') {
   add('input', { id: 'search-input' });
   add('a', { classes: ['nav-link'], dataset: { view: 'view-changelog' } });
   for (const r of ['europe', 'apac', 'menat', 'latam', 'africa']) add('button', { classes: ['region-tab'], dataset: { region: r } });
-  for (const f of ['all', 'payroll', 'reporting', 'infrastructure', 'upcoming', 'high-impact']) add('button', { classes: ['filter-btn'], dataset: { filter: f } });
+  for (const f of ['all', 'payroll', 'reporting', 'infrastructure', 'high-impact']) add('button', { classes: ['filter-btn'], dataset: { filter: f } });
+  // P2-1 timing toggle (index.html): <button type="button" class="when-btn" data-when="all|upcoming|inforce" aria-pressed>.
+  for (const w of ['all', 'upcoming', 'inforce']) { const b = add('button', { classes: ['when-btn'].concat(w === 'all' ? ['active'] : []), dataset: { when: w } }); b.setAttribute('aria-pressed', w === 'all' ? 'true' : 'false'); }
   const select = add('select', { classes: ['country-selector'], ctor: HTMLSelectElement });
   const form = add('form', { classes: ['search-form'], ctor: HTMLFormElement });
   const clear = add('a', { classes: ['filter-clear'], dataset: { action: 'clear-filter' } });
@@ -181,7 +183,8 @@ function makePage(search = '', hash = '') {
 const count = st => CHANGES.filter(c =>
   (!st.countries || st.countries.includes(c.country)) &&
   (!st.region || C2R[c.country] === st.region) &&
-  (!st.filter || st.filter === 'all' || (st.filter === 'high-impact' ? c.impact === 'high' : st.filter === 'upcoming' ? c.upcoming : c.category === st.filter)) &&
+  (!st.filter || st.filter === 'all' || (st.filter === 'high-impact' ? c.impact === 'high' : c.category === st.filter)) &&
+  (!st.when || st.when === 'all' || (st.when === 'upcoming' ? !!c.upcoming : !c.upcoming)) &&
   (!st.search || [c.title, c.name, c.detail && c.detail.lead].some(t => (t || '').toLowerCase().includes(st.search)))).length;
 
 // ---------- tests ----------
@@ -260,9 +263,11 @@ test('filter buttons keep countries and update the URL', () => {
   const q = p.lastParams();
   assert.equal(q.get('countries'), 'poland,germany');
   assert.equal(q.get('filter'), 'high-impact');
-  p.fire('click', p.btn('filter-btn', 'filter', 'upcoming'));
-  assert.equal(p.lastParams().get('filter'), 'upcoming');
-  assert.equal(p.cards(), count({ countries: ['poland', 'germany'], filter: 'upcoming' }));
+  // P2-1: 'upcoming' moved from the category buttons to the timing toggle (see p2_1.* tests).
+  p.fire('click', p.btn('when-btn', 'when', 'upcoming'));
+  assert.equal(p.lastParams().get('when'), 'upcoming');
+  assert.equal(p.lastParams().get('filter'), 'high-impact');
+  assert.equal(p.cards(), count({ countries: ['poland', 'germany'], filter: 'high-impact', when: 'upcoming' }));
 });
 
 test('region tab intersects with picked countries and updates the URL', () => {
@@ -889,6 +894,152 @@ test('cp6.css.align_row: panel-align-row makes the picker static inside the (rel
   assert.equal(cssVal('.country-picker.panel-align-row .country-picker-panel', 'left'), '0');
   assert.equal(cssVal('.country-picker.panel-align-row .country-picker-panel', 'right'), 'auto');
   assert.equal(cssVal('.country-picker-panel', 'position', isMobile), 'static', 'phones stay in flow');
+});
+
+// ---------- P2-1: "Systems & e-filing" label + separate timing toggle ----------
+// Contract: index.html .changelog-filters contains <div class="when-toggle" role="group" aria-label="..."> with
+// three <button type="button" class="when-btn" data-when="all|upcoming|inforce" aria-pressed="true|false">
+// labelled "All dates" / "Upcoming" / "In force" (initially all = true). No data-filter="upcoming" button.
+// app.js state gains `when` (all|upcoming|inforce), URL ?when= (omitted when all); legacy ?filter=upcoming is
+// rewritten to ?when=upcoming. Active timing button gets class "active" + aria-pressed="true", others "false".
+// Banner and print header use PayrollFilters.CATEGORY_LABELS / WHEN_LABELS (no raw 'infrastructure').
+const PF2 = createRequire(import.meta.url)(path.join(ROOT, 'filters.js'));
+const visible = h => h.replace(/<script[\s\S]*?<\/script>/g, '').replace(/<[^>]*>/g, ' ');
+const pressed = p => ['all', 'upcoming', 'inforce'].filter(w => p.btn('when-btn', 'when', w).getAttribute('aria-pressed') === 'true');
+const activeWhen = p => ['all', 'upcoming', 'inforce'].filter(w => p.btn('when-btn', 'when', w).classList.contains('active'));
+const headerText = p => { const h = p.ctx.document.getElementById('print-header'); return (h.textContent || '') + ' ' + (h.innerHTML || '').replace(/<[^>]*>/g, ''); };
+
+test('p2_1.static: index.html timing toggle markup, no "Upcoming Only" filter button, label text', () => {
+  const html = read('index.html');
+  const fs0 = html.indexOf('class="changelog-filters"'), picker = html.indexOf('id="country-picker"');
+  const bar = html.slice(fs0, picker);
+  assert.ok(!/data-filter="upcoming"/.test(html), 'data-filter="upcoming" button must be gone');
+  assert.ok(!/Upcoming Only/i.test(html), '"Upcoming Only" text must be gone');
+  assert.match(bar, /<button\b[^>]*data-filter="infrastructure"[^>]*>\s*Systems &amp; e-filing\s*<\/button>/, 'infrastructure button label');
+  assert.match(bar, /<button\b[^>]*data-filter="high-impact"[^>]*>/, 'high-impact stays among category buttons');
+  const group = bar.match(/<div\b(?=[^>]*class="when-toggle")(?=[^>]*role="group")(?=[^>]*aria-label="[^"]+")[^>]*>([\s\S]*?)<\/div>/);
+  assert.ok(group, '.changelog-filters must contain <div class="when-toggle" role="group" aria-label="..."> before #country-picker');
+  const btns = [...group[1].matchAll(/<button\b([^>]*)>([^<]*)<\/button>/g)].map(m => ({ a: m[1], text: m[2].trim() }));
+  assert.deepEqual(btns.map(b => (b.a.match(/data-when="([^"]*)"/) || [])[1]), ['all', 'upcoming', 'inforce']);
+  assert.deepEqual(btns.map(b => b.text), ['All dates', 'Upcoming', 'In force']);
+  for (const b of btns) {
+    assert.match(b.a, /type="button"/); assert.match(b.a, /class="[^"]*\bwhen-btn\b/);
+    assert.match(b.a, /aria-pressed="(true|false)"/); assert.ok(!/\son\w+=|style=/.test(b.a), 'no inline handler/style');
+    assert.ok(!/\bfilter-btn\b/.test(b.a), 'timing buttons are not .filter-btn');
+  }
+  assert.deepEqual(btns.map(b => /aria-pressed="true"/.test(b.a)), [true, false, false]);
+  assert.ok(!/\bInfrastructure\b/.test(visible(html)), 'no visible "Infrastructure" in index.html');
+});
+
+test('p2_1.css: .when-toggle and .when-btn styled, visible focus on .when-btn', () => {
+  const css = read('styles.css');
+  assert.match(css, /\.when-toggle\s*[,{]/, 'styles.css has .when-toggle');
+  assert.match(css, /\.when-btn[^{]*\{/, 'styles.css has .when-btn');
+  assert.match(css, /\.when-btn[^{,]*:focus-visible/, '.when-btn:focus-visible rule');
+});
+
+test('p2_1.click: timing toggle updates state, URL, cards and pressed state; combines with category', () => {
+  const p = makePage('?countries=poland,germany&filter=payroll');
+  p.fire('click', p.btn('when-btn', 'when', 'upcoming'));
+  let q = p.lastParams();
+  assert.equal(q.get('when'), 'upcoming'); assert.equal(q.get('filter'), 'payroll'); assert.equal(q.get('countries'), 'poland,germany');
+  assert.equal(p.cards(), count({ countries: ['poland', 'germany'], filter: 'payroll', when: 'upcoming' }));
+  assert.deepEqual(pressed(p), ['upcoming']); assert.deepEqual(activeWhen(p), ['upcoming']);
+  p.fire('click', p.btn('when-btn', 'when', 'inforce'));
+  q = p.lastParams();
+  assert.equal(q.get('when'), 'inforce');
+  assert.equal(p.cards(), count({ countries: ['poland', 'germany'], filter: 'payroll', when: 'inforce' }));
+  assert.deepEqual(pressed(p), ['inforce']);
+  p.fire('click', p.btn('filter-btn', 'filter', 'all'));
+  assert.equal(p.lastParams().get('when'), 'inforce', 'category click keeps timing');
+  p.fire('click', p.btn('when-btn', 'when', 'all'));
+  assert.equal(p.lastParams().get('when'), null, 'when=all omitted from URL');
+  assert.equal(p.cards(), count({ countries: ['poland', 'germany'] }));
+  assert.deepEqual(pressed(p), ['all']);
+});
+
+test('p2_1.click_from_home: timing click with no query renders the upcoming list', () => {
+  const p = makePage('');
+  p.fire('click', p.btn('nav-link', 'view', 'view-changelog'));
+  p.fire('click', p.btn('when-btn', 'when', 'upcoming'));
+  assert.equal(p.cards(), count({ when: 'upcoming' }));
+  assert.ok(p.cards() > 0 && p.cards() < CHANGES.length);
+  assert.equal(p.lastParams().toString(), 'when=upcoming');
+});
+
+test('p2_1.url_load: ?when=inforce&filter=reporting shows the changelog with both applied', () => {
+  const p = makePage('?when=inforce&filter=reporting');
+  assert.equal(p.ctx.document.getElementById('view-changelog').classList.contains('hidden'), false, '?when= opens the changelog');
+  assert.equal(p.cards(), count({ filter: 'reporting', when: 'inforce' }));
+  assert.deepEqual(pressed(p), ['inforce']);
+  assert.ok(p.btn('filter-btn', 'filter', 'reporting').classList.contains('active'));
+  const w = makePage('?when=upcoming');
+  assert.equal(w.ctx.document.getElementById('view-changelog').classList.contains('hidden'), false, '?when= alone opens the changelog');
+  assert.equal(w.cards(), count({ when: 'upcoming' }));
+});
+
+test('p2_1.legacy: ?filter=upcoming loads as when=upcoming and the URL is rewritten', () => {
+  const p = makePage('?countries=poland&filter=upcoming');
+  assert.equal(p.cards(), count({ countries: ['poland'], when: 'upcoming' }));
+  const q = p.lastParams();
+  assert.equal(q.get('when'), 'upcoming'); assert.equal(q.get('filter'), null, 'legacy filter=upcoming removed');
+  assert.equal(q.get('countries'), 'poland');
+  assert.deepEqual(pressed(p), ['upcoming']);
+  assert.ok(p.btn('filter-btn', 'filter', 'all').classList.contains('active'), 'category resets to All');
+  const h = makePage('?filter=high-impact');
+  assert.equal(h.cards(), count({ filter: 'high-impact' }), 'high-impact keeps working');
+  assert.equal(h.lastParams().get('filter'), 'high-impact');
+});
+
+test('p2_1.invalid_when: ?when=junk falls back to all and is stripped', () => {
+  const p = makePage('?countries=poland&when=junk');
+  assert.equal(p.cards(), count({ countries: ['poland'] }));
+  assert.equal(p.lastParams().get('when'), null);
+  assert.deepEqual(pressed(p), ['all']);
+});
+
+test('p2_1.clear: Clear resets timing too', () => {
+  const p = makePage('?countries=poland&when=upcoming');
+  p.fire('click', p.clear);
+  assert.equal(new URL(p.calls.at(-1), 'https://example.test/').search, '');
+  assert.deepEqual(pressed(p), ['all']);
+  assert.equal(p.cards(), CHANGES.length);
+});
+
+test('p2_1.banner: banner names category by label and the timing choice', () => {
+  const p = makePage('?countries=poland&filter=infrastructure&when=upcoming');
+  const banner = (p.list().match(/<div class="filter-banner">([\s\S]*?)<\/div>/) || [])[1] || '';
+  assert.ok(banner, 'banner rendered');
+  const text = banner.replace(/<[^>]*>/g, '').replace(/&amp;/g, '&');
+  assert.match(text, /Systems & e-filing/, 'category label in banner: ' + text.trim());
+  assert.ok(!/infrastructure/i.test(text), 'raw value / old label not shown: ' + text.trim());
+  assert.match(text, /Upcoming/, 'timing shown in banner');
+});
+
+test('p2_1.print_header: uses the shared labels', () => {
+  const p = makePage('?countries=poland&filter=infrastructure&when=inforce');
+  p.fireWin('beforeprint');
+  const t = headerText(p).replace(/&amp;/g, '&');
+  assert.match(t, /Systems & e-filing/, t); assert.ok(!/infrastructure/i.test(t), t);
+  assert.match(t, /In force/);
+  const p2 = makePage('?countries=poland&filter=upcoming');
+  p2.fireWin('beforeprint');
+  assert.match(headerText(p2), /Upcoming/);
+});
+
+test('p2_1.export: export honours when; CSV matches filters.js toCsv (label in Category)', () => {
+  const p = makePage('?when=upcoming&filter=payroll');
+  const want = PF2.toCsv(PF2.applyFilters(CHANGES, { countries: [], region: null, filter: 'payroll', when: 'upcoming', search: '' }, C2R), SITE);
+  const got = doExport(p)._text;
+  assert.equal(got, want);
+  assert.equal(got.slice(1).split('\r\n').length - 2, count({ filter: 'payroll', when: 'upcoming' }));
+});
+
+test('p2_1.single_map: app.js uses the shared label map, no own "Infrastructure"/"Upcoming only"', () => {
+  const js = read('app.js');
+  assert.ok(!/['"]Infrastructure['"]/.test(js), 'app.js must not hard-code "Infrastructure"');
+  assert.ok(!/Upcoming only/i.test(js), 'old "Upcoming only" label gone');
+  assert.match(js, /PayrollFilters\.CATEGORY_LABELS/, 'app.js uses PayrollFilters.CATEGORY_LABELS');
 });
 
 console.log(`\n${pass} passed, ${fail} failed`);

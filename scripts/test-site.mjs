@@ -298,4 +298,17 @@ test('worker.tests', () => {
   assert.ok(m && Number(m[1]) >= 18, `expected at least 18 worker tests to pass: ${out.slice(-200)}`);
 });
 
+// P2-1: user-facing category label is "Systems & e-filing"; data value 'infrastructure' (ids, URLs) unchanged.
+test('p2_1.no_infrastructure_label', () => {
+  const visibleText = h => h.replace(/<script[\s\S]*?<\/script>/g, '').replace(/<style[\s\S]*?<\/style>/g, '').replace(/<[^>]*>/g, ' ');
+  const files = ['index.html', 'countries.html', 'upcoming.html', '404.html', ...countryFiles.filter(f => f.endsWith('.html')).map(f => `countries/${f}`)];
+  const bad = files.filter(f => /\bInfrastructure\b/.test(visibleText(read(f))));
+  for (const f of ['feed.xml', 'calendar.ics', ...countryFiles.filter(f => f.endsWith('.ics')).map(f => `countries/${f}`)])
+    if (/\bInfrastructure\b/.test(read(f))) bad.push(f);
+  assert.deepEqual(bad, [], 'visible "Infrastructure" label in: ' + bad.join(', '));
+  assert.match(indexHtml, /data-filter="infrastructure"[^>]*>\s*Systems &amp; e-filing\s*</, 'index.html category button reads "Systems & e-filing"');
+  assert.ok(!/data-filter="upcoming"/.test(indexHtml), 'Upcoming moved out of the category buttons');
+  assert.match(indexHtml, /data-filter="high-impact"/, 'high impact stays a category button');
+});
+
 console.log(`${passed} site tests passed.`);

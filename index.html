@@ -277,7 +277,7 @@
             <div class="benefit-check"><img src="design/assets/icons/check-circle-bold.svg" width="16" height="16" alt=""></div>
             <div>
               <h3>Cut through the noise</h3>
-              <p>Filter payroll changes from statutory reporting changes, or view only what's upcoming, in two clicks.</p>
+              <p>Filter by topic (payroll, reporting, systems and e-filing) and by timing (upcoming or already in force), for one country or several.</p>
             </div>
           </div>
           <div class="benefit-card" data-reveal-item>
@@ -457,9 +457,13 @@
         <button class="filter-btn active" data-filter="all">All Changes</button>
         <button class="filter-btn" data-filter="payroll">Payroll</button>
         <button class="filter-btn" data-filter="reporting">Reporting</button>
-        <button class="filter-btn" data-filter="infrastructure">Infrastructure</button>
-        <button class="filter-btn" data-filter="upcoming">Upcoming Only</button>
+        <button class="filter-btn" data-filter="infrastructure">Systems &amp; e-filing</button>
         <button class="filter-btn" data-filter="high-impact">High impact</button>
+        <div class="when-toggle" role="group" aria-label="Timing">
+          <button type="button" class="when-btn active" data-when="all" aria-pressed="true">All dates</button>
+          <button type="button" class="when-btn" data-when="upcoming" aria-pressed="false">Upcoming</button>
+          <button type="button" class="when-btn" data-when="inforce" aria-pressed="false">In force</button>
+        </div>
         <details id="country-picker" class="country-picker">
           <summary id="country-picker-summary">Countries</summary>
           <div class="country-picker-panel">

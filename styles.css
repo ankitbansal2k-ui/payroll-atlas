@@ -825,6 +825,41 @@
       background: rgba(45, 212, 163, 0.1);
     }
 
+    .when-toggle {
+      display: inline-flex;
+      flex-wrap: wrap;
+      gap: 0.25rem;
+      padding: 0.25rem;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background: var(--card-bg);
+      max-width: 100%;
+    }
+
+    .when-btn {
+      padding: 0.25rem 0.75rem;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-secondary);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 0.9rem;
+      font-family: inherit;
+    }
+
+    .when-btn:hover,
+    .when-btn.active {
+      border-color: var(--blue-accent);
+      color: var(--blue-accent);
+      background: rgba(45, 212, 163, 0.1);
+    }
+
+    .when-btn:focus-visible {
+      outline: 2px solid var(--blue-accent);
+      outline-offset: 2px;
+    }
+
     .list-actions { display: flex; gap: 1rem; margin-left: auto; flex-wrap: wrap; }
 
     .export-btn {
