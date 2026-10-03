@@ -803,6 +803,8 @@
       gap: 1rem;
       margin-bottom: 2rem;
       flex-wrap: wrap;
+      align-items: flex-start;
+      position: relative;
     }
 
     .filter-btn {
@@ -1324,3 +1326,69 @@
   .item-header-right .item-chevron { margin-left: auto; }
   .badge { white-space: normal; }
 }
+
+    /* CP3: multi-country picker */
+    .country-picker { position: static; flex: none; }
+    .country-picker > summary {
+      list-style: none; cursor: pointer; min-height: 44px; display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.5rem 1rem; border: 1px solid var(--border-color); border-radius: 8px;
+      background: var(--card-bg); color: var(--text-primary); font-weight: 600;
+    }
+    .country-picker > summary::-webkit-details-marker { display: none; }
+    .country-picker > summary::after { content: "\25BE"; color: var(--text-secondary); }
+    .country-picker[open] > summary { border-color: var(--blue-accent); }
+    .country-picker > summary:focus-visible,
+    .country-check:focus-visible,
+    .country-filter:focus-visible,
+    #country-filter:focus-visible,
+    .chip-remove:focus-visible,
+    .chip-clear:focus-visible { outline: 2px solid var(--blue-accent); outline-offset: 2px; }
+    .country-picker-panel {
+      position: absolute; z-index: 20; top: calc(100% + 6px); left: 0; width: min(320px, 100%);
+      background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 0.75rem;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45); box-sizing: border-box;
+    }
+    #country-filter {
+      width: 100%; box-sizing: border-box; min-height: 40px; padding: 0.5rem 0.75rem; margin-bottom: 0.5rem;
+      background: var(--dark-bg); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 6px; font: inherit;
+    }
+    #country-filter::placeholder { color: var(--text-secondary); }
+    .country-picker-list { max-height: 50vh; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; }
+    .country-group { border: 0; margin: 0 0 0.5rem; padding: 0; min-width: 0; }
+    .country-group legend {
+      padding: 0.25rem 0; color: var(--text-secondary); font-size: 0.75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .country-group label {
+      display: flex; align-items: center; gap: 0.5rem; min-height: 44px; padding: 0 0.25rem;
+      color: var(--text-primary); cursor: pointer; border-radius: 6px; overflow-wrap: anywhere;
+    }
+    .country-group label:hover { background: var(--navy); }
+    .country-check { width: 18px; height: 18px; flex: none; accent-color: var(--blue-accent); }
+    .country-group label:has(.country-check:disabled) { color: var(--text-secondary); cursor: not-allowed; }
+    .country-group.is-hidden, .country-group label.is-hidden { display: none; }
+    .country-cap-hint { margin: 0 0 0.5rem; color: var(--text-secondary); font-size: 0.85rem; }
+    .country-cap-hint[hidden] { display: none; }
+    .country-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; max-width: 100%; min-width: 0; margin: -1rem 0 1.5rem; }
+    .country-chips:empty { display: none; }
+    .chip {
+      display: inline-flex; align-items: center; gap: 4px; padding: 2px 2px 2px 10px; border-radius: 999px;
+      border: 1px solid var(--blue-accent); color: var(--blue-accent); font-size: 0.85rem; max-width: 100%;
+      min-width: 0; box-sizing: border-box; overflow-wrap: anywhere;
+    }
+    .chip-remove {
+      background: none; border: 0; color: inherit; font-size: 1.1rem; line-height: 1; min-width: 32px; min-height: 32px;
+      border-radius: 999px; cursor: pointer;
+    }
+    .chip-remove:hover { background: rgba(45, 212, 163, 0.15); }
+    .chip-clear {
+      background: none; border: 0; color: var(--text-secondary); text-decoration: underline; font: inherit; font-size: 0.85rem;
+      min-height: 32px; padding: 0 0.5rem; cursor: pointer;
+    }
+    .chip-clear:hover { color: var(--text-primary); }
+    @media (max-width: 480px) {
+      .country-picker { width: 100%; }
+      .country-picker > summary { width: 100%; box-sizing: border-box; justify-content: space-between; }
+      .country-picker-panel { position: static; width: 100%; margin-top: 6px; }
+      .chip-remove { min-width: 44px; min-height: 44px; }
+    }

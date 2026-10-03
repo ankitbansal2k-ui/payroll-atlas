@@ -471,6 +471,8 @@
       if(/[?&](countries|country|filter|region|q)=/.test(search)){
         showChangelogNav();
         renderChangelog();
+      } else {
+        renderCountryPicker();
       }
       if(search) writeUrl(); // rewrites ?country= to ?countries= and strips invalid values
     }
@@ -603,6 +605,97 @@
           <div class="item-detail"></div>
         </div>
       `).join('');
+      renderCountryPicker();
+    }
+
+    // Multi-country picker: checkbox list grouped by region, chips and summary count.
+    // Codes and labels come from countryToRegion/CHANGES only, never from the URL.
+    function renderCountryPicker(){
+      const listEl = document.getElementById('country-picker-list');
+      const chipsEl = document.getElementById('country-chips');
+      const summaryEl = document.getElementById('country-picker-summary');
+      const picked = state.countries;
+      const atCap = picked.length >= PayrollFilters.MAX_COUNTRIES;
+      const capAttrs = ' disabled aria-describedby="country-cap-hint"';
+      if(listEl){
+        // Preserve scroll position and keyboard focus (by value) across the re-render.
+        const scrollTop = listEl.scrollTop || 0;
+        const active = document.activeElement;
+        const focusValue = active && active.classList && active.classList.contains('country-check') ? active.value : null;
+        listEl.innerHTML = ['europe', 'apac', 'menat', 'latam', 'africa'].map(r => {
+          const codes = Object.keys(countryToRegion).filter(c => countryToRegion[c] === r)
+            .sort((a, b) => countryName(a).localeCompare(countryName(b)));
+          return `<fieldset class="country-group"><legend>${escapeHtml(regionLabel(r))}</legend>${codes.map(c => {
+            const on = picked.includes(c);
+            return `<label class="country-option"><input type="checkbox" class="country-check" name="countries" value="${escapeHtml(c)}"${on ? ' checked' : ''}${!on && atCap ? capAttrs : ''}> ${escapeHtml(countryLabel(c))}</label>`;
+          }).join('')}</fieldset>`;
+        }).join('');
+        listEl.scrollTop = scrollTop;
+        applyCountryFilter();
+        if(focusValue && typeof listEl.querySelectorAll === 'function'){
+          const box = [...listEl.querySelectorAll('input.country-check')].find(b => b.value === focusValue);
+          if(box && typeof box.focus === 'function') box.focus();
+        }
+      }
+      const capHint = document.getElementById('country-cap-hint');
+      if(capHint){
+        const capText = `Maximum ${PayrollFilters.MAX_COUNTRIES} countries selected`;
+        if(capHint.textContent !== capText) capHint.textContent = capText; // avoid re-announcing (role=status)
+        capHint.hidden = !atCap;
+      }
+      if(chipsEl){
+        // Only rewrite when the markup changed, so the aria-live region is not re-announced on unrelated filter clicks.
+        const chipsHtml = picked.length
+          ? picked.filter(isKnownCountry).map(c => `<span class="chip">${escapeHtml(countryLabel(c))} <button type="button" class="chip-remove" data-action="remove-country" data-country="${escapeHtml(c)}" aria-label="Remove ${escapeHtml(countryName(c))}">×</button></span>`).join('')
+            + '<button type="button" class="chip-clear" data-action="clear-countries">Clear countries</button>'
+          : '';
+        // The last rendered markup is cached on the element itself, so it does not depend on script order.
+        if(chipsHtml !== chipsEl.renderedChipsHtml){ chipsEl.innerHTML = chipsHtml; chipsEl.renderedChipsHtml = chipsHtml; }
+      }
+      if(summaryEl) summaryEl.textContent = picked.length ? `Countries (${picked.length})` : 'Countries';
+    }
+
+    function focusAfterChipChange(code){
+      const chipsEl = document.getElementById('country-chips');
+      let target = null;
+      if(code && chipsEl && typeof chipsEl.querySelectorAll === 'function')
+        target = [...chipsEl.querySelectorAll('button.chip-remove')].find(b => b.dataset && b.dataset.country === code) || null;
+      if(!target) target = document.getElementById('country-picker-summary');
+      if(target && typeof target.focus === 'function') target.focus();
+    }
+
+    function countryName(code){
+      const item = CHANGES.find(c => c.country === code);
+      return item ? item.name : code;
+    }
+
+    // Type-to-filter: hide non-matching options with a class (no inline styles under the CSP).
+    function applyCountryFilter(){
+      const input = document.getElementById('country-filter');
+      const listEl = document.getElementById('country-picker-list');
+      if(!input || !listEl || typeof listEl.querySelectorAll !== 'function') return;
+      const term = String(input.value || '').trim().toLowerCase();
+      listEl.querySelectorAll('.country-group').forEach(group => {
+        let shown = 0;
+        group.querySelectorAll('label').forEach(label => {
+          const match = !term || label.textContent.toLowerCase().includes(term);
+          label.classList.toggle('is-hidden', !match);
+          if(match) shown++;
+        });
+        group.classList.toggle('is-hidden', shown === 0);
+      });
+    }
+
+    function setCountryPicked(code, on){
+      if(!isKnownCountry(code)) return;
+      const has = state.countries.includes(code);
+      if(on && !has){
+        if(state.countries.length >= PayrollFilters.MAX_COUNTRIES){ renderCountryPicker(); return; }
+        state.countries = [...state.countries, code];
+      } else if(!on && has){
+        state.countries = state.countries.filter(c => c !== code);
+      } else return;
+      updateState();
     }
 
     function filterChanges(type){
@@ -653,6 +746,16 @@
       if (action.dataset.action === 'clear-filter') { e.preventDefault(); clearFilter(); }
       else if (action.dataset.action === 'show-region') { e.preventDefault(); showWholeRegion(); }
       else if (action.dataset.action === 'show-countries') { e.preventDefault(); showCountriesAllRegions(); }
+      else if (action.dataset.action === 'remove-country') {
+        // Focus the next chip, else the previous one, else the picker summary (the chip is re-rendered away).
+        const code = action.dataset.country;
+        const shown = state.countries.filter(isKnownCountry);
+        const i = shown.indexOf(code);
+        const next = i < 0 ? null : (shown[i + 1] || shown[i - 1] || null);
+        setCountryPicked(code, false);
+        focusAfterChipChange(next);
+      }
+      else if (action.dataset.action === 'clear-countries') { state.countries = []; updateState(); focusAfterChipChange(null); }
       else if (action.dataset.action === 'toggle-detail') {
         const card = action.closest('.item-card');
         if (card) toggleDetail(Number(card.dataset.index));
@@ -664,6 +767,26 @@
       if (t instanceof HTMLSelectElement && t.classList.contains('country-selector')) {
         goToCountry(t.value);
         t.value = '';
+      } else if (t instanceof HTMLInputElement && t.classList.contains('country-check') && t.closest('#country-picker-list')) {
+        setCountryPicked(t.value, t.checked);
+      }
+    });
+
+    document.addEventListener('input', e => {
+      const t = e.target;
+      if (t instanceof HTMLInputElement && t.id === 'country-filter') applyCountryFilter();
+    });
+
+    // Escape inside the open country picker closes it and returns focus to its summary.
+    document.addEventListener('keydown', e => {
+      if (e.key !== 'Escape') return;
+      const picker = document.getElementById('country-picker');
+      const t = e.target;
+      if (picker && picker.open && t instanceof Element && t.closest('#country-picker')) {
+        e.preventDefault();
+        picker.open = false;
+        const summary = document.getElementById('country-picker-summary');
+        if (summary) summary.focus();
       }
     });
 

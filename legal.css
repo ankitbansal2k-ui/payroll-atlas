@@ -61,12 +61,12 @@ code { font-family: 'Geist Mono', ui-monospace, Consolas, monospace; font-size: 
 .latest { list-style: none; padding: 0; }
 .latest li { padding: 0.45rem 0; border-bottom: 1px solid var(--border); }
 .latest .when { color: var(--muted); font-size: 0.85rem; }
-.cta.secondary { background: transparent; color: var(--accent); border: 1px solid var(--accent); margin-left: 0.5rem; }
+.cta.secondary { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+.cta { margin: 0 0.5rem 0.5rem 0; }
 .timeline { list-style: none; padding: 0; }
 .timeline li { padding: 0.5rem 0; border-bottom: 1px solid var(--border); }
 .timeline .when { display: block; color: var(--muted); font-size: 0.85rem; }
 .hint { color: var(--muted); font-size: 0.85rem; }
-@media (max-width: 480px) { .cta.secondary { margin: 0.5rem 0 0; } }
 .sub { font-size: 1rem; }
 code { font-size: 0.85em; word-break: break-all; }
 .badge.impact-high { background: rgba(255, 107, 107, 0.16); color: #FF9B9B; }

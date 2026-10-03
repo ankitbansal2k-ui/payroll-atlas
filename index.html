@@ -460,7 +460,16 @@
         <button class="filter-btn" data-filter="infrastructure">Infrastructure</button>
         <button class="filter-btn" data-filter="upcoming">Upcoming Only</button>
         <button class="filter-btn" data-filter="high-impact">High impact</button>
+        <details id="country-picker" class="country-picker">
+          <summary id="country-picker-summary">Countries</summary>
+          <div class="country-picker-panel">
+            <input type="search" id="country-filter" class="country-filter" placeholder="Type to filter countries" aria-label="Filter countries by name" autocomplete="off">
+            <p id="country-cap-hint" class="country-cap-hint" role="status" hidden>Maximum 30 countries selected</p>
+            <div id="country-picker-list" class="country-picker-list" aria-describedby="country-cap-hint"></div>
+          </div>
+        </details>
       </div>
+      <div id="country-chips" class="country-chips" aria-live="polite"></div>
       <div id="changelog-list"></div>
     </div>
 
