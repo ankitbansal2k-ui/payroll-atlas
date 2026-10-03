@@ -534,9 +534,52 @@
       return item ? item.flag + ' ' + item.name : code;
     }
 
+    function currentFilteredChanges(){
+      return PayrollFilters.applyFilters(CHANGES, state, countryToRegion);
+    }
+
+    function updateExportButton(n){
+      const btn = document.getElementById('export-csv');
+      if(!btn) return;
+      btn.disabled = n === 0;
+      btn.setAttribute('aria-label', 'Export ' + n + ' change' + (n === 1 ? '' : 's') + ' as CSV');
+    }
+
+    // Object URL of the last export. Revoked late (FileSaver.js practice): revoking immediately can cancel
+    // the download in Firefox/Safari. A new export revokes any URL still pending.
+    const CSV_URL_TTL_MS = 40000;
+    const csvExport = {url: null, timer: null};
+    function revokeCsvUrl(){
+      if(csvExport.timer) clearTimeout(csvExport.timer);
+      if(csvExport.url) URL.revokeObjectURL(csvExport.url);
+      csvExport.url = null; csvExport.timer = null;
+    }
+
+    function exportCsv(){
+      const items = currentFilteredChanges();
+      if(items.length === 0) return;
+      revokeCsvUrl();
+      const link = document.querySelector('link[rel="canonical"]');
+      const site = link ? link.href : '';
+      const csv = PayrollFilters.toCsv(items, site);
+      const blob = new Blob([csv], {type: 'text/csv;charset=utf-8'});
+      const url = URL.createObjectURL(blob);
+      const d = new Date();
+      const pad = v => String(v).padStart(2, '0');
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = PayrollFilters.csvFilename(d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()));
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      csvExport.url = url;
+      csvExport.timer = setTimeout(revokeCsvUrl, CSV_URL_TTL_MS);
+    }
+
     function renderChangelog(){
       const list = document.getElementById('changelog-list');
-      const filtered = PayrollFilters.applyFilters(CHANGES, state, countryToRegion);
+      const filtered = currentFilteredChanges();
+      updateExportButton(filtered.length);
       const filter = state.filter || 'all';
       const region = state.region;
       const search = state.search;
@@ -743,7 +786,8 @@
       }
       const action = t.closest('[data-action]');
       if (!action) return;
-      if (action.dataset.action === 'clear-filter') { e.preventDefault(); clearFilter(); }
+      if (action.dataset.action === 'export-csv') { e.preventDefault(); exportCsv(); }
+      else if (action.dataset.action === 'clear-filter') { e.preventDefault(); clearFilter(); }
       else if (action.dataset.action === 'show-region') { e.preventDefault(); showWholeRegion(); }
       else if (action.dataset.action === 'show-countries') { e.preventDefault(); showCountriesAllRegions(); }
       else if (action.dataset.action === 'remove-country') {

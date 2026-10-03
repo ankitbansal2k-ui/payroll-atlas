@@ -10,6 +10,7 @@ import path from 'node:path';
 import vm from 'node:vm';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
 import { loadSite } from './load.mjs';
 
 const ROOT = fileURLToPath(new URL('../', import.meta.url));
@@ -37,6 +38,19 @@ class Element {
   addEventListener() {}
   scrollIntoView() {}
   getBoundingClientRect() { return { left: 0, top: 0, width: 0, height: 0 }; }
+  // CP4: attributes (disabled / aria-label are attribute-backed), click spy, detach.
+  setAttribute(n, v) { (this._attrs ||= {})[n] = String(v); if (n === 'disabled') this._disabled = true; }
+  getAttribute(n) { if (n === 'disabled') return this._disabled ? '' : null; const a = this._attrs || {}; return n in a ? a[n] : null; }
+  hasAttribute(n) { return this.getAttribute(n) !== null; }
+  removeAttribute(n) { if (this._attrs) delete this._attrs[n]; if (n === 'disabled') this._disabled = false; }
+  get disabled() { return !!this._disabled; }
+  set disabled(v) { this._disabled = !!v; }
+  get ariaLabel() { return this.getAttribute('aria-label'); }
+  set ariaLabel(v) { this.setAttribute('aria-label', v); }
+  click() { (this._onclickSpy || (() => {}))(this); }
+  appendChild(c) { c.parentElement = this; return c; }
+  removeChild(c) { c.parentElement = null; return c; }
+  remove() { this.parentElement = null; }
 }
 class HTMLSelectElement extends Element {}
 class HTMLFormElement extends Element {}
@@ -54,6 +68,7 @@ function matchOne(el, sel) {
   for (const a of (m[3].match(/\[[^\]]+\]/g) || [])) {
     const [, name, val] = a.match(/^\[([\w-]+)(?:\^?="?([^"\]]*)"?)?\]$/) || [];
     if (!name) return false;
+    if (name === 'rel') { if (el.rel !== val) return false; continue; }
     if (name === 'id') { if (!el.id.startsWith(val || '')) return false; continue; }
     if (!name.startsWith('data-')) return false;
     const v = el.dataset[camel(name)];
@@ -80,6 +95,23 @@ function makePage(search = '', hash = '') {
   add('p', { id: 'country-cap-hint', classes: ['country-cap-hint'], parent: picker });
   const pickerList = add('div', { id: 'country-picker-list', classes: ['country-picker-list'], parent: picker });
   add('div', { id: 'country-chips', classes: ['country-chips'] });
+  // CP4 static button (index.html): <button type="button" id="export-csv" data-action="export-csv">
+  const exportBtn = add('button', { id: 'export-csv', classes: ['export-csv'], dataset: { action: 'export-csv' } });
+  exportBtn.type = 'button';
+  const canon = add('link'); canon.rel = 'canonical'; canon.href = 'https://www.intelligentpayroll.eu/'; canon.setAttribute('href', canon.href);
+  // CP4 download spies.
+  const dl = { blobs: [], created: [], revoked: [], anchors: [], clicks: [] };
+  class Blob { constructor(parts = [], opts = {}) { this.parts = parts; this.type = opts.type || ''; dl.blobs.push(this); } get _text() { return this.parts.map(String).join(''); } }
+  let urlN = 0;
+  class FakeURL extends URL {
+    static createObjectURL(b) { const u = 'blob:https://example.test/fake-' + (++urlN); dl.created.push({ url: u, blob: b }); return u; }
+    static revokeObjectURL(u) { dl.revoked.push(u); }
+  }
+  const timers = [];
+  const fakeSetTimeout = (fn, ms, ...a) => { const t = { fn: () => fn(...a), done: false, ms }; timers.push(t); const real = setTimeout(() => { if (!t.done) { t.done = true; t.fn(); } }, ms); if (real.unref) real.unref(); return timers.length; };
+  const fakeClearTimeout = id => { const t = timers[id - 1]; if (t) t.done = true; };
+  const flushTimers = () => { for (const t of timers) if (!t.done) { t.done = true; t.fn(); } };
+  const net = name => () => { throw new Error(name + ' must not be used (nothing is sent to any server)'); };
 
   const listeners = {};
   const calls = [];
@@ -89,7 +121,8 @@ function makePage(search = '', hash = '') {
     querySelector: sel => all.find(e => e.matches(sel)) || null,
     querySelectorAll: sel => all.filter(e => e.matches(sel)),
     addEventListener: (t, fn) => (listeners[t] ||= []).push(fn),
-    createElement: t => new Element(t)
+    createElement: t => { const e = new Element(t); if (e.tagName === 'A') { dl.anchors.push(e); e._onclickSpy = a => dl.clicks.push({ href: a.href, download: a.download }); } return e; },
+    body: new Element('body'), documentElement: new Element('html')
   };
   const location = { search, pathname: '/', hash, href: 'https://example.test/' + search, origin: 'https://example.test' };
   const history = {
@@ -103,8 +136,10 @@ function makePage(search = '', hash = '') {
   const forbidden = () => { throw new Error('browser storage must not be used'); };
   const storage = { getItem: forbidden, setItem: forbidden, removeItem: forbidden };
   const ctx = {
-    document, location, history, URLSearchParams, URL, console, Element, HTMLSelectElement, HTMLFormElement, HTMLInputElement, HTMLDetailsElement,
-    setTimeout, clearTimeout, localStorage: storage, sessionStorage: storage,
+    document, location, history, URLSearchParams, URL: FakeURL, console, Element, HTMLSelectElement, HTMLFormElement, HTMLInputElement, HTMLDetailsElement,
+    setTimeout: fakeSetTimeout, clearTimeout: fakeClearTimeout, localStorage: storage, sessionStorage: storage, Blob,
+    fetch: net('fetch'), XMLHttpRequest: net('XMLHttpRequest'), WebSocket: net('WebSocket'), EventSource: net('EventSource'),
+    navigator: { userAgent: 'node', sendBeacon: net('navigator.sendBeacon') },
     scrollTo() {}, addEventListener() {}, matchMedia: () => ({ matches: false, addEventListener() {} })
   };
   ctx.window = ctx; ctx.self = ctx;
@@ -115,8 +150,10 @@ function makePage(search = '', hash = '') {
   const fireRaw = (type, ev) => (listeners[type] || []).forEach(fn => fn(ev));
   const fire = (type, target) => { const ev = { type, target, defaultPrevented: false, preventDefault() { this.defaultPrevented = true; } }; (listeners[type] || []).forEach(fn => fn(ev)); };
   const list = () => document.getElementById('changelog-list').innerHTML;
+  const p_fire = (...a) => fire(...a);
   return {
-    ctx, calls, list, fire, fireRaw, summary, select, form, clear, srcs, picker, pickerList,
+    ctx, calls, list, fire, fireRaw, exportBtn, dl, flushTimers, timers,
+    exportClick: () => { p_fire('click', exportBtn); }, summary, select, form, clear, srcs, picker, pickerList,
     pickerHtml: () => pickerList.innerHTML,
     chipsHtml: () => document.getElementById('country-chips').innerHTML,
     summaryText: () => { const e = document.getElementById('country-picker-summary'); return (e.textContent || '') + ' ' + (e.innerHTML || '').replace(/<[^>]*>/g, ''); },
@@ -538,6 +575,104 @@ test('picker.escape: closes only when the open picker contains the target, with 
   assert.equal(p.picker.open, false);
   assert.ok(focused, 'summary focused');
   assert.ok(ev.prevented, 'preventDefault called');
+});
+
+// ---------- CP4: Export CSV ----------
+const PF = createRequire(import.meta.url)(path.join(ROOT, 'filters.js'));
+const SITE = 'https://www.intelligentpayroll.eu/';
+const pad = n => String(n).padStart(2, '0');
+const localToday = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
+const expectedCsv = st => PF.toCsv(PF.applyFilters(CHANGES, { countries: [], region: null, filter: 'all', search: '', ...st }, C2R), SITE);
+const label = p => p.exportBtn.getAttribute('aria-label');
+function doExport(p) {
+  assert.equal(p.exportBtn.disabled, false, 'export button must be enabled');
+  p.exportClick(); p.flushTimers();
+  assert.equal(p.dl.blobs.length, 1, 'exactly one Blob created per click');
+  return p.dl.blobs[0];
+}
+
+test('export.revoke: object URL revoked after >=40s, or at the start of the next export', () => {
+  const p = makePage();
+  p.exportClick();
+  assert.deepEqual(p.dl.revoked, [], 'not revoked synchronously');
+  const t = p.timers.find(x => !x.done);
+  assert.ok(t && t.ms >= 40000, 'revoke delayed by at least 40000 ms');
+  p.exportClick();
+  assert.deepEqual(p.dl.revoked, [p.dl.created[0].url], 'previous pending URL revoked by the next export');
+  assert.ok(t.done, 'previous revoke timer cleared');
+  p.flushTimers();
+  assert.deepEqual(p.dl.revoked, [p.dl.created[0].url, p.dl.created[1].url]);
+  const html = read('index.html');
+  assert.match(html, /<\/details>\s*<button\b(?=[^>]*id="export-csv")(?=[^>]*aria-label="Export changes as CSV")[^>]*>[^<]*<\/button>\s*<\/div>/, 'export is the last item in the filter row with a default aria-label');
+});
+
+test('export.static: index.html has the Export CSV button, no inline handler, canonical SITE', () => {
+  const html = read('index.html');
+  const m = html.match(/<button\b[^>]*\bid="export-csv"[^>]*>([^<]*)<\/button>/);
+  assert.ok(m, 'no <button id="export-csv"> in index.html');
+  assert.match(m[0], /\btype="button"/); assert.match(m[0], /\bdata-action="export-csv"/);
+  assert.ok(!/\son\w+=|\sstyle=/i.test(m[0]), 'no inline handler/style');
+  assert.equal(m[1].trim(), 'Export CSV');
+  assert.ok(html.indexOf('id="export-csv"') > html.indexOf('data-filter="all"'), 'button lives in the changelog filter bar');
+  assert.match(html, /<link rel="canonical" href="https:\/\/www\.intelligentpayroll\.eu\/">/);
+});
+
+test('export.click: ?countries=poland,germany&filter=payroll downloads exactly the rendered list', () => {
+  const p = makePage('?countries=poland,germany&filter=payroll');
+  const want = expectedCsv({ countries: ['poland', 'germany'], filter: 'payroll' });
+  assert.equal(want.split('\r\n').length - 2, p.cards(), 'sanity: expected rows == rendered cards');
+  const b = doExport(p);
+  assert.equal(b.type, 'text/csv;charset=utf-8');
+  assert.equal(b._text, want);
+  assert.equal(p.dl.created.length, 1); assert.equal(p.dl.created[0].blob, b);
+  assert.equal(p.dl.clicks.length, 1, 'one temporary <a> clicked');
+  const c = p.dl.clicks[0];
+  assert.equal(c.href, p.dl.created[0].url);
+  assert.match(c.download, /^intelligent-payroll-changes-\d{4}-\d{2}-\d{2}\.csv$/);
+  assert.equal(c.download, PF.csvFilename(localToday()), 'filename uses today\'s LOCAL date');
+  assert.deepEqual(p.dl.revoked, [p.dl.created[0].url], 'object URL revoked afterwards');
+  assert.equal(p.dl.anchors[0].parentElement, null, 'temporary anchor removed');
+});
+
+test('export.bom_header: CSV starts with BOM + header; Page URL uses canonical SITE', () => {
+  const b = doExport(makePage('?countries=poland'));
+  assert.ok(b._text.startsWith('\uFEFFCountry,Title,Effective,Status,Impact,Category,Source URL,Page URL\r\n'));
+  assert.ok(b._text.includes(SITE + 'countries/poland.html'), 'page URL on canonical host');
+  assert.ok(!b._text.includes('example.test'), 'must not use location.origin');
+});
+
+test('export.search: export reflects search text', () => {
+  const p = makePage('?q=tax');
+  const b = doExport(p);
+  assert.equal(b._text, expectedCsv({ search: 'tax' }));
+  assert.equal(b._text.split('\r\n').length - 2, count({ search: 'tax' }));
+});
+
+test('export.disabled: empty list disables button with count label; re-enabled after state change', () => {
+  const p = makePage('?countries=poland&region=apac');
+  assert.equal(p.cards(), 0);
+  assert.equal(p.exportBtn.disabled, true, 'disabled when empty');
+  assert.equal(p.exportBtn.hasAttribute('disabled'), true);
+  assert.equal(label(p), 'Export 0 changes as CSV');
+  p.exportClick(); p.flushTimers();
+  assert.equal(p.dl.blobs.length, 0, 'no export when empty');
+  p.fire('click', p.btn('region-tab', 'region', 'europe'));
+  const n = count({ countries: ['poland'], region: 'europe' });
+  assert.ok(n > 0);
+  assert.equal(p.exportBtn.disabled, false, 're-enabled');
+  assert.equal(label(p), `Export ${n} change${n === 1 ? '' : 's'} as CSV`);
+  const p2 = makePage('?countries=poland,germany&filter=payroll');
+  const n2 = count({ countries: ['poland', 'germany'], filter: 'payroll' });
+  assert.equal(label(p2), `Export ${n2} changes as CSV`);
+});
+
+test('export.no_network / static checks in app.js', () => {
+  const p = makePage('?countries=poland,germany');
+  doExport(p); // fetch / XMLHttpRequest / sendBeacon throw in the harness
+  const js = read('app.js');
+  assert.ok(!/\b(fetch|XMLHttpRequest|sendBeacon)\b/.test(js), 'no network APIs in app.js');
+  assert.match(js, /PayrollFilters\.toCsv\s*\(/); assert.match(js, /PayrollFilters\.csvFilename\s*\(/);
+  assert.match(js, /revokeObjectURL/);
 });
 
 console.log(`\n${pass} passed, ${fail} failed`);

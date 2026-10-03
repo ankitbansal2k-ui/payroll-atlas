@@ -825,6 +825,31 @@
       background: rgba(45, 212, 163, 0.1);
     }
 
+    .export-btn {
+      margin-left: auto;
+      padding: 0.5rem 1rem;
+      background: var(--card-bg);
+      border: 1px solid var(--blue-accent);
+      color: var(--blue-accent);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .export-btn:hover:not(:disabled) { background: rgba(45, 212, 163, 0.1); }
+
+    .export-btn:disabled {
+      border-color: var(--border-color);
+      color: var(--text-secondary);
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    @media (max-width: 600px) {
+      .export-btn { margin-left: 0; }
+    }
+
     /* Stats grid */
     .stats-grid {
       display: grid;
