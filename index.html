@@ -199,10 +199,20 @@
         <h2>Coverage across five regions</h2>
         <p class="section-sub">Hover or tap a country to see how many changes we track there, then click it (or tap again) to open its changelog.</p>
 
-        <div class="coverage-map" id="coverage-map" role="group" aria-label="World map of covered countries, shaded by region">
+        <div class="coverage-map" id="coverage-map" role="group" aria-label="World map of covered countries, shaded by number of tracked changes">
           <div class="coverage-map-tip" id="coverage-map-tip" hidden></div>
           <button type="button" class="coverage-map-back" id="coverage-map-back" hidden>&larr; World</button>
         </div>
+        <div class="coverage-legend" id="coverage-legend" role="group" aria-label="Map shading: number of tracked changes">
+          <span class="coverage-legend-item"><span class="coverage-swatch depth-1" aria-hidden="true"></span>1 entry</span>
+          <span class="coverage-legend-item"><span class="coverage-swatch depth-2" aria-hidden="true"></span>2 entries</span>
+          <span class="coverage-legend-item"><span class="coverage-swatch depth-3" aria-hidden="true"></span>3 entries</span>
+          <span class="coverage-legend-item"><span class="coverage-swatch depth-4" aria-hidden="true"></span>4+ entries</span>
+        </div>
+        <details class="coverage-list-details" id="coverage-list-details">
+          <summary>Coverage by country</summary>
+          <ol class="coverage-list" id="coverage-list"></ol>
+        </details>
 
         <div class="region-coverage-grid" id="region-coverage" data-reveal-group></div>
       </div>

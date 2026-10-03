@@ -81,7 +81,7 @@ function makePage(search = '', hash = '') {
   const all = [];
   const add = (tag, opts) => { const e = new (opts && opts.ctor || Element)(tag, opts); all.push(e); return e; };
   for (const v of ['view-home', 'view-changelog']) add('section', { id: v, classes: v === 'view-home' ? [] : ['hidden'] });
-  for (const id of ['changelog-list', 'proof-line', 'stat-countries', 'stat-changes', 'stat-upcoming', 'region-coverage', 'coverage-map', 'footer-verified']) add('div', { id });
+  for (const id of ['changelog-list', 'proof-line', 'stat-countries', 'stat-changes', 'stat-upcoming', 'region-coverage', 'coverage-map', 'footer-verified', 'coverage-legend', 'coverage-list']) add('div', { id });
   add('input', { id: 'search-input' });
   add('a', { classes: ['nav-link'], dataset: { view: 'view-changelog' } });
   for (const r of ['europe', 'apac', 'menat', 'latam', 'africa']) add('button', { classes: ['region-tab'], dataset: { region: r } });
@@ -1119,6 +1119,84 @@ test('p2_2.static: app.js uses the shared helpers and escapes the badge note', (
     assert.match(m[0], /escapeHtml\(item\.badge\)/, 'unescaped item.badge: ' + m[0]);
   }
   assert.match(read('styles.css'), /\.status-chip\b/); assert.match(read('styles.css'), /\.status-(draft|upcoming|inforce|ongoing)\b/);
+});
+
+// ---------- P2-3: coverage depth on the map ----------
+// Contract: index.html #coverage-legend (static text legend, swatches .depth-1..4), <details id="coverage-list-details">
+// with <summary>Coverage by country</summary> and #coverage-list filled by app.js at load (independent of d3).
+// app.js shades covered paths/dots with class depth-<PayrollFilters.depthBucket(count)>, counts from PayrollFilters.coverageDepth(CHANGES).
+const entriesText = n => `${n} ${n === 1 ? 'entry' : 'entries'}`;
+test('p2_3.legend_static', () => {
+  const html = read('index.html');
+  const m = html.match(/<([a-z]+)[^>]*\bid="coverage-legend"[^>]*>([\s\S]*?)<\/\1>/);
+  assert.ok(m, 'index.html has no #coverage-legend');
+  const txt = m[2].replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ');
+  for (const t of ['1 entry', '2 entries', '3 entries', '4+ entries']) assert.ok(txt.includes(t), `legend text lacks "${t}": ${txt}`);
+  for (let b = 1; b <= 4; b++) assert.match(m[2], new RegExp(`class="[^"]*\\bdepth-${b}\\b`), `legend swatch depth-${b}`);
+  assert.ok(!/\sstyle=/.test(m[0]), 'no inline style (CSP)');
+  assert.ok(!/shaded by region/.test(html), 'map aria-label should describe shading by number of entries');
+});
+test('p2_3.list_alternative_static', () => {
+  const html = read('index.html');
+  const d = html.match(/<details[^>]*\bid="coverage-list-details"[^>]*>([\s\S]*?)<\/details>/);
+  assert.ok(d, 'index.html has no <details id="coverage-list-details">');
+  assert.match(d[1], /<summary[^>]*>[^<]*Coverage by country/i);
+  assert.match(d[1], /\bid="coverage-list"/);
+});
+test('p2_3.styles_depth_classes', () => {
+  const css = read('styles.css');
+  const fills = [];
+  for (let b = 1; b <= 4; b++) {
+    const m = css.match(new RegExp(`\\.depth-${b}\\b[^{]*\\{([^}]*)\\}`));
+    assert.ok(m, `styles.css has no .depth-${b} rule`);
+    const f = (m[1].match(/(?:^|;)\s*(?:fill|background(?:-color)?)\s*:\s*([^;]+)/) || [])[1];
+    assert.ok(f, `.depth-${b} sets no fill/background`);
+    fills.push(f.trim());
+  }
+  assert.equal(new Set(fills).size, 4, 'depth fills must be distinct: ' + fills.join(' | '));
+});
+test('p2_3.app_uses_pure_functions', () => {
+  const js = read('app.js');
+  assert.match(js, /PayrollFilters\.coverageDepth\s*\(\s*CHANGES\s*\)/);
+  assert.match(js, /PayrollFilters\.depthClass\s*\(/, 'map classes come from PayrollFilters.depthClass');
+  assert.match(read('filters.js'), /depth-\$\{depthBucket\(/, 'depthClass builds depth-${bucket}');
+  assert.ok(!/attr\('fill',\s*d\s*=>\s*`var\(--region-/.test(js), 'map fill must come from depth classes, not region colour');
+});
+test('p2_3.single_accessible_name', () => {
+  // One accessible name per map shape: aria-label "<Country>, N entries"; no SVG <title> (avoids double tooltip/announcement).
+  const js = read('app.js');
+  assert.ok(!/createElementNS\([^)]*'title'\)/.test(js) && !/append\('title'\)/.test(js), 'map shapes must not get an SVG <title>');
+  assert.ok(!/changes? tracked/.test(js), 'old "N changes tracked" wording removed');
+  assert.match(js, /const label = entriesLabel;/, 'aria-label and tooltip share the list wording');
+  assert.match(js, /\.attr\('aria-label', d => label\(d\.code\)\)/);
+  assert.match(js, /const entriesLabel = code => `\$\{names\[code\] \|\| code\}, \$\{entriesText\(/);
+});
+test('p2_3.legend_group_role', () => {
+  assert.match(read('index.html'), /<div(?=[^>]*\bid="coverage-legend")(?=[^>]*\brole="group")(?=[^>]*\baria-label="[^"]+")[^>]*>/);
+});
+test('p2_3.print_hides_legend_and_list', () => {
+  const css = read('styles.css');
+  const m = css.match(/@media print[\s\S]*?\{([^}]*display:\s*none !important;)/);
+  assert.ok(m && /\.coverage-legend\b/.test(m[1]) && /\.coverage-list-details\b/.test(m[1]), 'print hides legend + list');
+});
+test('p2_3.list_rendered_without_d3', () => {
+  const p = makePage('');
+  const html = p.ctx.document.getElementById('coverage-list').innerHTML;
+  const counts = {}, names = {};
+  for (const c of CHANGES) { counts[c.country] = (counts[c.country] || 0) + 1; names[c.country] = c.name; }
+  const items = [...html.matchAll(/<li\b[^>]*>([\s\S]*?)<\/li>/g)].map(m => m[1].replace(/<[^>]*>/g, ' ').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim());
+  assert.equal(items.length, Object.keys(C2R).length, 'one <li> per covered country');
+  const order = Object.keys(C2R).sort((a, b) => counts[b] - counts[a] || names[a].localeCompare(names[b]));
+  order.forEach((code, i) => {
+    assert.ok(items[i].includes(names[code]), `item ${i} should be ${names[code]}: ${items[i]}`);
+    assert.ok(items[i].includes(entriesText(counts[code])), `${names[code]}: expected "${entriesText(counts[code])}" in "${items[i]}"`);
+  });
+  const hrefs = [...html.matchAll(/href="([^"]+)"/g)].map(m => m[1]);
+  assert.equal(hrefs.length, Object.keys(C2R).length, 'one link per country');
+  for (const h of hrefs) {
+    assert.match(h, /^countries\/[a-z0-9-]+\.html$/, h);
+    assert.ok(fs.existsSync(path.join(ROOT, h)), `${h} does not exist`);
+  }
 });
 
 console.log(`\n${pass} passed, ${fail} failed`);

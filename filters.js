@@ -167,7 +167,28 @@
     return 'intelligent-payroll-changes-' + String(date).slice(0, 10) + '.csv';
   }
 
-  const api = { MAX_COUNTRIES, WHENS, STATUS_LABELS, statusOf, formatEffective, CATEGORY_LABELS, WHEN_LABELS, parseCountries, serializeCountries, readSelection, readUrlState, applyFilters, slugify, csvCell, toCsv, csvFilename };
+  // Number of entries per country code, as a plain object (no prototype keys leak in).
+  function coverageDepth(changes) {
+    const counts = Object.create(null);
+    for (const c of changes || []) {
+      if (!c || typeof c.country !== 'string') continue;
+      counts[c.country] = (counts[c.country] || 0) + 1;
+    }
+    const out = {};
+    for (const k of Object.keys(counts)) Object.defineProperty(out, k, { value: counts[k], enumerable: true, writable: true, configurable: true });
+    return out;
+  }
+
+  // Shading bucket: 1-3 as is, 4 for 4 or more, 0 for anything that is not a positive integer.
+  function depthBucket(n) {
+    if (typeof n !== 'number' || !Number.isInteger(n) || n < 1) return 0;
+    return n >= 4 ? 4 : n;
+  }
+
+  // CSS class for a country's map shape/legend swatch, from its entry count.
+  function depthClass(n) { return `depth-${depthBucket(n)}`; }
+
+  const api = { MAX_COUNTRIES, WHENS, STATUS_LABELS, statusOf, formatEffective, CATEGORY_LABELS, WHEN_LABELS, parseCountries, serializeCountries, readSelection, readUrlState, applyFilters, slugify, csvCell, toCsv, csvFilename, coverageDepth, depthBucket, depthClass };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else if (typeof window !== 'undefined') window.PayrollFilters = api;
 })();

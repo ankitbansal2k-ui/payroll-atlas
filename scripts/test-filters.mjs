@@ -331,5 +331,52 @@ test('p2_2.csv_status', () => {
   assert.ok(dr.includes('"Draft — not yet law, Jan 2027"'), dr);
 });
 
+
+// ---------- P2-3: coverage depth (pure) ----------
+// Contract: coverageDepth(changes) -> plain {code: count}; depthBucket(n) -> 0 (n<1 / invalid), 1, 2, 3, 4 (n>=4).
+test('p2_3.exports', () => {
+  for (const k of ['coverageDepth', 'depthBucket', 'depthClass']) assert.equal(typeof F[k], 'function', k);
+});
+test('p2_3.coverageDepth_matches_CHANGES', () => {
+  const want = {};
+  for (const c of CHANGES) want[c.country] = (want[c.country] || 0) + 1;
+  const got = plain(F.coverageDepth(CHANGES));
+  assert.deepEqual(got, want);
+  assert.equal(Object.values(got).reduce((a, b) => a + b, 0), CHANGES.length);
+  for (const code of Object.keys(countryToRegion)) assert.ok(got[code] >= 1, `${code}: no entries counted`);
+});
+test('p2_3.coverageDepth_edge', () => {
+  assert.deepEqual(plain(F.coverageDepth([])), {});
+  assert.deepEqual(plain(F.coverageDepth([{ country: 'uk' }, { country: 'uk' }, { country: 'poland' }])), { uk: 2, poland: 1 });
+  const r = F.coverageDepth([{ country: '__proto__' }, { country: 'constructor' }, { country: 'uk' }]);
+  assert.equal(r.uk, 1);
+  assert.equal(Object.getPrototypeOf({}).polluted, undefined);
+  assert.deepEqual(plain(F.coverageDepth([{ country: 'toString' }])), { toString: 1 }, 'inherited names must not leak into counts');
+  // Input not mutated.
+  const input = [{ country: 'uk' }]; const copy = plain(input); F.coverageDepth(input); assert.deepEqual(input, copy);
+});
+test('p2_3.depthBucket_boundaries', () => {
+  const cases = [[1, 1], [2, 2], [3, 3], [4, 4], [5, 4], [20, 4], [1000, 4]];
+  for (const [n, b] of cases) assert.equal(F.depthBucket(n), b, `n=${n}`);
+  for (const bad of [0, -1, undefined, null, NaN, '', 'x', {}]) assert.equal(F.depthBucket(bad), 0, `n=${JSON.stringify(bad)}`);
+});
+test('p2_3.depthClass_assignment', () => {
+  const cases = [[1, 'depth-1'], [2, 'depth-2'], [3, 'depth-3'], [4, 'depth-4'], [9, 'depth-4'], [0, 'depth-0'], [undefined, 'depth-0']];
+  for (const [n, c] of cases) assert.equal(F.depthClass(n), c, `n=${n}`);
+  const d = plain(F.coverageDepth(CHANGES));
+  for (const code of Object.keys(countryToRegion)) assert.match(F.depthClass(d[code]), /^depth-[1-4]$/, code);
+});
+test('p2_3.every_country_one_bucket', () => {
+  const d = plain(F.coverageDepth(CHANGES));
+  const buckets = { 1: [], 2: [], 3: [], 4: [] };
+  for (const code of Object.keys(countryToRegion)) {
+    const b = F.depthBucket(d[code] || 0);
+    assert.ok(b >= 1 && b <= 4, `${code}: bucket ${b}`);
+    buckets[b].push(code);
+  }
+  assert.equal(Object.values(buckets).flat().length, Object.keys(countryToRegion).length);
+  assert.equal(F.depthBucket(d.nowhere || 0), 0, 'country without entries is not shaded');
+});
+
 console.log(`${n} filter tests passed, ${failed} failed.`);
 if (failed) process.exit(1);

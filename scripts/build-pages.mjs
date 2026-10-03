@@ -169,6 +169,17 @@ function indexPage() {
 ${cs.map(c => `      <li><a href="countries/${c.slug}.html">${c.flag} ${esc(c.name)}</a> <span class="count">${c.entries.length} ${c.entries.length === 1 ? 'change' : 'changes'}</span></li>`).join('\n')}
     </ul>`;
   }).join('\n\n');
+  // Countries with a single tracked change, generated from CHANGES; omitted entirely when there are none.
+  const thin = list.filter(c => c.entries.length === 1).sort((a, b) => a.name.localeCompare(b.name));
+  const thinSection = thin.length ? `
+
+    <section id="thin-coverage">
+      <h2>Thin coverage</h2>
+      <p>These countries have only one tracked change so far. Know a rule we are missing? <a href="suggest.html">Suggest a change</a>.</p>
+      <ul class="countries">
+${thin.map(c => `        <li><a href="countries/${c.slug}.html">${c.flag} ${esc(c.name)}</a> <span class="count">1 entry</span></li>`).join('\n')}
+      </ul>
+    </section>` : '';
   return `${head({ title: 'All countries | Intelligent Payroll', desc, url, depth: '' })}
 <body>
 ${header('')}
@@ -185,7 +196,7 @@ ${header('')}
 ${latest(10).map(e => `      <li><a href="countries/${countries.get(e.country).slug}.html#${esc(e.section)}">${e.flag} ${esc(e.name)}: ${esc(e.title)}</a> <span class="when">${e.updated && e.updated > e.added ? 'Updated' : 'Added'} ${fmtDay(lastChanged(e))}</span></li>`).join('\n')}
     </ul>
 
-${sections}
+${sections}${thinSection}
 
 ${requestsSection()}
   </main>

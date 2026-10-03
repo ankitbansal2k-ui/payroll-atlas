@@ -494,4 +494,47 @@ test('p2_2.validate_effective_year_in_text', () => {
   } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
 });
 
+// ---------- P2-3: thin-coverage backlog on countries.html ----------
+// Contract: build-pages emits <section id="thin-coverage"> (h2 present) listing exactly the countries with 1 entry,
+// sorted by name, each <li> linking to countries/<slug>.html and showing "1 entry", plus a link to suggest.html.
+// When no country has 1 entry the section is omitted entirely.
+test('p2_3.thin_coverage_section', () => {
+  const h = read('countries.html');
+  const counts = {}, names = {};
+  for (const c of CHANGES) { counts[c.country] = (counts[c.country] || 0) + 1; names[c.country] = c.name; }
+  const thin = Object.keys(counts).filter(k => counts[k] === 1).map(k => names[k]).sort((a, b) => a.localeCompare(b));
+  const m = h.match(/<section[^>]*\bid="thin-coverage"[^>]*>([\s\S]*?)<\/section>/);
+  if (!thin.length) { assert.ok(!m && !/id="thin-coverage"/.test(h), 'no thin-coverage section when no 1-entry countries'); return; }
+  assert.ok(m, 'countries.html has no <section id="thin-coverage">');
+  assert.match(m[1], /<h2[^>]*>/);
+  assert.match(m[1], /href="suggest\.html/, 'links to suggest.html');
+  const items = [...m[1].matchAll(/<li\b[^>]*>([\s\S]*?)<\/li>/g)].map(x => x[1]);
+  const got = items.map(x => decode(x.replace(/<[^>]*>/g, ' ')).replace(/\s+/g, ' ').trim());
+  assert.equal(items.length, thin.length, `expected ${thin.join(', ')}; got ${got.join(' | ')}`);
+  thin.forEach((name, i) => {
+    assert.ok(got[i].includes(name), `item ${i}: expected ${name}, got ${got[i]}`);
+    assert.ok(got[i].includes('1 entry'), `${name}: count text "1 entry"`);
+    const href = (items[i].match(/href="(countries\/[^"#]+\.html)"/) || [])[1];
+    assert.ok(href && resolves(href), `${name}: link to its country page`);
+  });
+});
+test('p2_3.thin_coverage_generated', () => {
+  // Generated from CHANGES, not hard-coded: the generator mentions the section id, and no country name literal list.
+  const g = read('scripts/build-pages.mjs');
+  assert.match(g, /thin-coverage/);
+  assert.match(g, /\.filter\(\s*c\s*=>\s*c\.entries\.length\s*===\s*1\s*\)/, 'thin list derived from entry counts');
+  // No hard-coded country names anywhere in the generator (names must come from data).
+  const allNames = [...new Set(CHANGES.map(c => c.name))].filter(n => n.length > 3);
+  const literal = allNames.filter(n => g.includes("'" + n + "'") || g.includes('"' + n + '"'));
+  assert.deepEqual(literal, [], 'country-name string literals in build-pages.mjs: ' + literal.join(', '));
+  const h = read('countries.html');
+  assert.ok((h.match(/id="thin-coverage"/g) || []).length <= 1);
+  const counts = {}, names = {};
+  for (const c of CHANGES) { counts[c.country] = (counts[c.country] || 0) + 1; names[c.country] = c.name; }
+  const want = Object.keys(counts).filter(k => counts[k] === 1).map(k => names[k]).sort((a, b) => a.localeCompare(b));
+  const m = h.match(/<section[^>]*\bid="thin-coverage"[^>]*>([\s\S]*?)<\/section>/);
+  const got = m ? [...m[1].matchAll(/<li\b[^>]*>\s*<a\b[^>]*>([\s\S]*?)<\/a>/g)].map(x => decode(x[1]).replace(/^\S+\s+/, '').trim()) : [];
+  assert.deepEqual(got, want, 'rendered thin-coverage names must exactly equal computed 1-entry countries');
+});
+
 console.log(`${passed} site tests passed.`);

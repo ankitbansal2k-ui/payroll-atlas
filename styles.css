@@ -1036,14 +1036,30 @@
     }
     .coverage-map svg { display: block; width: 100%; height: auto; }
     .coverage-map .land { fill: var(--map-land); stroke: var(--dark-bg); stroke-width: 0.4; }
-    .coverage-map .covered { stroke: var(--dark-bg); stroke-width: 0.4; cursor: pointer; transition: opacity .15s; }
+    .coverage-map .covered { stroke: var(--dark-bg); stroke-width: 0.4; cursor: pointer; }
+    /* Hover/focus: outline the shape instead of dimming it, so fill contrast never drops. */
     .coverage-map .covered:hover, .coverage-map .covered:focus-visible,
-    .coverage-map .dot:hover, .coverage-map .dot:focus-visible { opacity: 0.7; outline: none; }
+    .coverage-map .dot:hover, .coverage-map .dot:focus-visible { stroke: var(--text-primary); stroke-width: 1.5; outline: none; }
     .coverage-map .dot { stroke: var(--dark-bg); stroke-width: 1; cursor: pointer; }
     .coverage-map path, .coverage-map .dot { vector-effect: non-scaling-stroke; }
     .coverage-map .hit { fill: transparent; cursor: pointer; }
     .coverage-map [tabindex]:focus:not(:focus-visible) { outline: none; }
     .coverage-map .hit:focus-visible { outline: none; stroke: var(--text-primary); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+    /* Coverage depth: one teal ramp, dim (few entries) to bright (many). Every step is >= 3:1 against
+       uncovered land #1B2640 (4.0, 6.5, 9.6, 12.7) and none reuses a region colour. */
+    .depth-1 { fill: #2A9478; background-color: #2A9478; }
+    .depth-2 { fill: #3DBF98; background-color: #3DBF98; }
+    .depth-3 { fill: #6FE3BF; background-color: #6FE3BF; }
+    .depth-4 { fill: #C4F7E6; background-color: #C4F7E6; }
+    .coverage-legend { display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; margin: -1.25rem 0 1rem; font-size: 0.85rem; color: var(--text-secondary, var(--text-primary)); }
+    .coverage-legend-item { display: inline-flex; align-items: center; gap: 0.4rem; white-space: nowrap; }
+    .coverage-swatch { display: inline-block; width: 0.9rem; height: 0.9rem; border-radius: 3px; border: 1px solid var(--border-color); }
+    .coverage-list-details { margin: 0 0 2rem; }
+    .coverage-list-details summary { cursor: pointer; color: var(--blue-accent); }
+    .coverage-list { columns: 16rem; column-gap: 2rem; margin: 0.75rem 0 0; padding-left: 1.5rem; font-size: 0.9rem; }
+    .coverage-list li { break-inside: avoid; margin: 0 0 0.25rem; }
+    .coverage-list a { color: var(--text-primary); text-decoration: none; }
+    .coverage-list a:hover, .coverage-list a:focus-visible { color: var(--blue-accent); text-decoration: underline; }
     .coverage-map-back {
       position: absolute;
       top: 0.5rem;
@@ -1479,7 +1495,7 @@
     @media print {
       header, .region-tabs, .changelog-filters, #country-picker, .chip-remove, .chip-clear,
       #export-csv, #print-page, .list-actions, .filter-clear, .coverage-map, .footer-links, .item-chevron,
-      .final-cta, .hero-cta-row { display: none !important; }
+      .final-cta, .hero-cta-row, .coverage-legend, .coverage-list-details { display: none !important; }
       body { background: #fff !important; color: #000 !important; font-size: 11pt; }
       body * { color: #000 !important; -webkit-text-fill-color: #000 !important; background: transparent !important; box-shadow: none !important; text-shadow: none !important; }
       .badge, .status-chip { border: 1px solid #000; }

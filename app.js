@@ -311,6 +311,20 @@
     // Too small for the 110m outline data; drawn as dots instead.
     const SMALL_COUNTRY_POINTS = { malta:[14.4,35.9], sg:[103.82,1.35], hk:[114.17,22.32], bh:[50.55,26.07] };
 
+    function entriesText(n){ return n === 1 ? '1 entry' : `${n} entries`; }
+
+    // Accessible list alternative to the map: every covered country, most entries first.
+    function renderCoverageList(){
+      const el = document.getElementById('coverage-list');
+      if(!el) return;
+      const counts = PayrollFilters.coverageDepth(CHANGES);
+      const info = {};
+      CHANGES.forEach(c => { if(!info[c.country]) info[c.country] = {name: c.name, flag: c.flag}; });
+      const rows = Object.keys(countryToRegion).filter(code => info[code]).map(code => ({code, n: counts[code] || 0, name: info[code].name, flag: info[code].flag || ''}));
+      rows.sort((x, y) => y.n - x.n || x.name.localeCompare(y.name));
+      el.innerHTML = rows.map(r => `<li><a href="countries/${escapeHtml(PayrollFilters.slugify(r.name))}.html">${escapeHtml(r.flag)} ${escapeHtml(r.name)} — ${entriesText(r.n)}</a></li>`).join('');
+    }
+
     async function renderCoverageMap(){
       const box = document.getElementById('coverage-map');
       if(!box) return;
@@ -325,8 +339,8 @@
       document.querySelectorAll('select.country-selector option').forEach(o => {
         if(o.value) names[o.value] = o.textContent.replace(/^\S+\s/, '').trim();
       });
-      const counts = {};
-      CHANGES.forEach(c => { counts[c.country] = (counts[c.country] || 0) + 1; });
+      const counts = PayrollFilters.coverageDepth(CHANGES);
+      const depthClass = code => PayrollFilters.depthClass(counts[code] || 0);
       const byIso = {};
       Object.entries(COUNTRY_ISO).forEach(([code, iso]) => { if(countryToRegion[code]) byIso[iso] = code; });
 
@@ -346,7 +360,8 @@
       const narrow = () => box.clientWidth < 700;
       let k = 1, focusedRegion = null, tipCode = null;
 
-      const label = code => `${names[code] || code}: ${counts[code] || 0} change${counts[code] === 1 ? '' : 's'} tracked`;
+      const entriesLabel = code => `${names[code] || code}, ${entriesText(counts[code] || 0)}`;
+      const label = entriesLabel;
       const placeTip = (x, y, code) => {
         const r = box.getBoundingClientRect();
         tip.textContent = touch() ? label(code) + ' · tap again to open' : label(code);
@@ -424,14 +439,12 @@
 
       wire(layer.append('g').selectAll('path')
         .data(covered)
-        .join('path').attr('class', 'covered').attr('d', d => path(d.f))
-        .attr('fill', d => `var(--region-${countryToRegion[d.code]})`));
+        .join('path').attr('class', d => `covered ${depthClass(d.code)}`).attr('d', d => path(d.f)));
 
       wire(layer.append('g').selectAll('circle')
         .data(points)
-        .join('circle').attr('class', 'dot')
-        .attr('cx', d => d.xy[0]).attr('cy', d => d.xy[1])
-        .attr('fill', d => `var(--region-${countryToRegion[d.code]})`));
+        .join('circle').attr('class', d => `dot ${depthClass(d.code)}`)
+        .attr('cx', d => d.xy[0]).attr('cy', d => d.xy[1]));
 
       wire(layer.append('g').selectAll('circle')
         .data(tiny.concat(points))
@@ -461,6 +474,7 @@
     function initializeFromURL(){
       renderProofLine();
       renderRegionCoverage();
+      renderCoverageList();
       renderCoverageMap();
       const search = window.location.search || '';
       // Handles ?countries= and legacy ?country= (via readSelection); unknown values are dropped.
