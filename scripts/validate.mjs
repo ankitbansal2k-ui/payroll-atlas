@@ -6,7 +6,7 @@ import { loadSite } from './load.mjs';
 const { html, js, CHANGES, countryToRegion, selects } = loadSite();
 const errors = [];
 const err = (m) => errors.push(m);
-const CATEGORIES = new Set(['payroll', 'reporting', 'infrastructure']);
+const CATEGORIES = new Set(['payroll', 'reporting']);
 const REGIONS = new Set(['europe', 'apac', 'menat', 'latam', 'africa']);
 const seen = new Map();
 const names = new Map();

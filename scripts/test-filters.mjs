@@ -110,12 +110,12 @@ test('filter.region_intersect', () => {
 test('filter.legacy_equiv', () => {
   const legacy = (filter, country) => {
     let f = CHANGES;
-    if (['payroll', 'reporting', 'infrastructure'].includes(filter)) f = f.filter(c => c.category === filter);
+    if (['payroll', 'reporting'].includes(filter)) f = f.filter(c => c.category === filter);
     if (filter === 'high-impact') f = f.filter(c => c.impact === 'high');
     if (country) f = f.filter(c => c.country === country);
     return f;
   };
-  for (const filter of ['all', 'payroll', 'reporting', 'infrastructure', 'high-impact'])
+  for (const filter of ['all', 'payroll', 'reporting', 'high-impact'])
     for (const country of [null, 'poland', 'uk', 'germany'])
       assert.deepEqual(A({ filter, countries: country ? [country] : [] }).map(key), legacy(filter, country).map(key), `${filter}/${country}`);
 });
@@ -186,7 +186,7 @@ test('csv.filename', () => {
 // ?when= wins). 'upcoming' is no longer a category filter. applyFilters honours state.when:
 // upcoming = c.upcoming (drafts are upcoming), inforce = !c.upcoming. CSV Category column uses the label.
 test('p2_1.labels', () => {
-  assert.deepEqual(plain(F.CATEGORY_LABELS), { payroll: 'Payroll', reporting: 'Reporting', infrastructure: 'Systems & e-filing' });
+  assert.deepEqual(plain(F.CATEGORY_LABELS), { payroll: 'Payroll', reporting: 'Reporting' }); // P2-4: infrastructure removed
   assert.deepEqual(plain(F.WHEN_LABELS), { all: 'All dates', upcoming: 'Upcoming', inforce: 'In force' });
   assert.deepEqual(plain(F.WHENS), ['all', 'upcoming', 'inforce']);
   for (const c of new Set(CHANGES.map(x => x.category))) assert.ok(F.CATEGORY_LABELS[c], `label for ${c}`);
@@ -207,12 +207,12 @@ test('p2_1.url_legacy_upcoming', () => {
   assert.equal(both.filter, 'all'); assert.equal(both.when, 'inforce', 'explicit valid when wins');
   assert.equal(U('?filter=upcoming&when=junk').when, 'upcoming', 'invalid when falls back to the legacy mapping');
   assert.equal(U('?filter=high-impact').filter, 'high-impact', 'high-impact stays a filter');
-  assert.equal(U('?filter=infrastructure').filter, 'infrastructure', 'data value unchanged in URLs');
+  assert.equal(U('?filter=infrastructure').filter, 'all', 'P2-4: removed category falls back to all');
 });
 test('p2_1.when_matrix', () => {
   const byWhen = { all: () => true, upcoming: c => !!c.upcoming, inforce: c => !c.upcoming };
   const byFilter = { all: () => true, payroll: c => c.category === 'payroll', reporting: c => c.category === 'reporting',
-    infrastructure: c => c.category === 'infrastructure', 'high-impact': c => c.impact === 'high' };
+    'high-impact': c => c.impact === 'high' };
   let nonEmpty = 0;
   for (const when of Object.keys(byWhen)) for (const filter of Object.keys(byFilter)) for (const countries of [[], ['poland', 'germany']]) {
     const exp = CHANGES.filter(c => byWhen[when](c) && byFilter[filter](c) && (!countries.length || countries.includes(c.country)));
@@ -224,17 +224,33 @@ test('p2_1.when_matrix', () => {
   assert.equal(A({ when: 'bogus' }).length, CHANGES.length, 'unknown when = all');
 });
 test('p2_1.csv_category_label', () => {
-  // Synthetic rows: only one real infrastructure entry exists (kw, slated for removal in Phase 2).
-  const infra = CHANGES.slice(0, 3).map(c => ({ ...c, category: 'infrastructure' }));
+  // P2-4: infrastructure removed; synthetic reporting rows check the label mapping.
+  const infra = CHANGES.slice(0, 3).map(c => ({ ...c, category: 'reporting' }));
   const lines = F.toCsv(infra, '').slice(1).split('\r\n').slice(1, -1);
   for (const [i, l] of lines.entries()) {
     // Category is the 3rd-from-last column (before Source URL, Page URL; URLs never contain commas here).
-    const cells = l.split(','); assert.equal(cells.at(-3), 'Systems & e-filing', `row ${i}: ${l}`);
+    const cells = l.split(','); assert.equal(cells.at(-3), 'Reporting', `row ${i}: ${l}`);
   }
   const pay = F.toCsv(CHANGES.filter(c => c.category === 'payroll').slice(0, 1), '').slice(1).split('\r\n')[1].split(',');
   assert.equal(pay.at(-3), 'Payroll');
   const row = infra[0];
   assert.ok(F.toCsv([row], '').includes(F.csvCell(row.badge)), 'Status column unchanged (badge)');
+});
+
+// ---------- P2-4: infrastructure category removed ----------
+// Contract: CATEGORY_LABELS keys exactly payroll/reporting; FILTERS = all,payroll,reporting,high-impact;
+// legacy ?filter=infrastructure -> filter 'all'; no CHANGES entry has category 'infrastructure'.
+test('p2_4.categories', () => {
+  assert.deepEqual(Object.keys(F.CATEGORY_LABELS).sort(), ['payroll', 'reporting']);
+  assert.ok(!('infrastructure' in F.CATEGORY_LABELS));
+  assert.ok(!/infrastructure|Systems & e-filing/.test(src), 'filters.js must not mention infrastructure (FILTERS/CATEGORIES)');
+  assert.deepEqual(CHANGES.filter(c => c.category === 'infrastructure').map(key), []);
+});
+test('p2_4.legacy_url', () => {
+  assert.equal(U('?filter=infrastructure').filter, 'all');
+  const st = U('?filter=infrastructure&countries=poland&when=upcoming');
+  assert.equal(st.filter, 'all'); assert.deepEqual(st.countries, ['poland']); assert.equal(st.when, 'upcoming');
+  assert.equal(A({ filter: 'infrastructure' }).length, CHANGES.length, 'unknown category = all');
 });
 
 console.log(`${n} filter tests passed, ${failed} failed.`);

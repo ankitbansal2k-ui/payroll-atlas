@@ -85,7 +85,7 @@ function makePage(search = '', hash = '') {
   add('input', { id: 'search-input' });
   add('a', { classes: ['nav-link'], dataset: { view: 'view-changelog' } });
   for (const r of ['europe', 'apac', 'menat', 'latam', 'africa']) add('button', { classes: ['region-tab'], dataset: { region: r } });
-  for (const f of ['all', 'payroll', 'reporting', 'infrastructure', 'high-impact']) add('button', { classes: ['filter-btn'], dataset: { filter: f } });
+  for (const f of ['all', 'payroll', 'reporting', 'high-impact']) add('button', { classes: ['filter-btn'], dataset: { filter: f } });
   // P2-1 timing toggle (index.html): <button type="button" class="when-btn" data-when="all|upcoming|inforce" aria-pressed>.
   for (const w of ['all', 'upcoming', 'inforce']) { const b = add('button', { classes: ['when-btn'].concat(w === 'all' ? ['active'] : []), dataset: { when: w } }); b.setAttribute('aria-pressed', w === 'all' ? 'true' : 'false'); }
   const select = add('select', { classes: ['country-selector'], ctor: HTMLSelectElement });
@@ -915,7 +915,6 @@ test('p2_1.static: index.html timing toggle markup, no "Upcoming Only" filter bu
   const bar = html.slice(fs0, picker);
   assert.ok(!/data-filter="upcoming"/.test(html), 'data-filter="upcoming" button must be gone');
   assert.ok(!/Upcoming Only/i.test(html), '"Upcoming Only" text must be gone');
-  assert.match(bar, /<button\b[^>]*data-filter="infrastructure"[^>]*>\s*Systems &amp; e-filing\s*<\/button>/, 'infrastructure button label');
   assert.match(bar, /<button\b[^>]*data-filter="high-impact"[^>]*>/, 'high-impact stays among category buttons');
   const group = bar.match(/<div\b(?=[^>]*class="when-toggle")(?=[^>]*role="group")(?=[^>]*aria-label="[^"]+")[^>]*>([\s\S]*?)<\/div>/);
   assert.ok(group, '.changelog-filters must contain <div class="when-toggle" role="group" aria-label="..."> before #country-picker');
@@ -1007,20 +1006,20 @@ test('p2_1.clear: Clear resets timing too', () => {
 });
 
 test('p2_1.banner: banner names category by label and the timing choice', () => {
-  const p = makePage('?countries=poland&filter=infrastructure&when=upcoming');
+  const p = makePage('?countries=poland&filter=reporting&when=upcoming'); // P2-4: was infrastructure
   const banner = (p.list().match(/<div class="filter-banner">([\s\S]*?)<\/div>/) || [])[1] || '';
   assert.ok(banner, 'banner rendered');
   const text = banner.replace(/<[^>]*>/g, '').replace(/&amp;/g, '&');
-  assert.match(text, /Systems & e-filing/, 'category label in banner: ' + text.trim());
+  assert.match(text, /Reporting/, 'category label in banner: ' + text.trim());
   assert.ok(!/infrastructure/i.test(text), 'raw value / old label not shown: ' + text.trim());
   assert.match(text, /Upcoming/, 'timing shown in banner');
 });
 
 test('p2_1.print_header: uses the shared labels', () => {
-  const p = makePage('?countries=poland&filter=infrastructure&when=inforce');
+  const p = makePage('?countries=poland&filter=reporting&when=inforce'); // P2-4: was infrastructure
   p.fireWin('beforeprint');
   const t = headerText(p).replace(/&amp;/g, '&');
-  assert.match(t, /Systems & e-filing/, t); assert.ok(!/infrastructure/i.test(t), t);
+  assert.match(t, /Reporting/, t); assert.ok(!/infrastructure/i.test(t), t);
   assert.match(t, /In force/);
   const p2 = makePage('?countries=poland&filter=upcoming');
   p2.fireWin('beforeprint');
@@ -1040,6 +1039,22 @@ test('p2_1.single_map: app.js uses the shared label map, no own "Infrastructure"
   assert.ok(!/['"]Infrastructure['"]/.test(js), 'app.js must not hard-code "Infrastructure"');
   assert.ok(!/Upcoming only/i.test(js), 'old "Upcoming only" label gone');
   assert.match(js, /PayrollFilters\.CATEGORY_LABELS/, 'app.js uses PayrollFilters.CATEGORY_LABELS');
+});
+
+// ---------- P2-4: infrastructure category removed ----------
+test('p2_4.static: no infrastructure button or "Systems & e-filing" text in index.html', () => {
+  const html = read('index.html');
+  assert.ok(!/data-filter="infrastructure"/.test(html), 'infrastructure button must be gone');
+  assert.ok(!/Systems (&amp;|&) e-filing/.test(html), '"Systems & e-filing" text must be gone');
+  const fs0 = html.indexOf('class="changelog-filters"'), picker = html.indexOf('id="country-picker"');
+  const filters = [...html.slice(fs0, picker).matchAll(/data-filter="([^"]+)"/g)].map(m => m[1]);
+  assert.deepEqual(filters, ['all', 'payroll', 'reporting', 'high-impact']);
+});
+test('p2_4.legacy: ?filter=infrastructure&countries=poland is rewritten to ?countries=poland', () => {
+  const p = makePage('?filter=infrastructure&countries=poland');
+  assert.equal(p.cards(), count({ countries: ['poland'] }));
+  assert.equal(p.lastParams().toString(), 'countries=poland');
+  assert.ok(p.btn('filter-btn', 'filter', 'all').classList.contains('active'), 'All category active');
 });
 
 console.log(`\n${pass} passed, ${fail} failed`);

@@ -5,12 +5,12 @@
   'use strict';
 
   const MAX_COUNTRIES = 30;
-  const FILTERS = ['all', 'payroll', 'reporting', 'infrastructure', 'high-impact'];
+  const FILTERS = ['all', 'payroll', 'reporting', 'high-impact'];
   const WHENS = Object.freeze(['all', 'upcoming', 'inforce']);
   // Shared user-facing labels (data values stay unchanged in URLs and data).
-  const CATEGORY_LABELS = Object.freeze({ payroll: 'Payroll', reporting: 'Reporting', infrastructure: 'Systems & e-filing' });
+  const CATEGORY_LABELS = Object.freeze({ payroll: 'Payroll', reporting: 'Reporting' });
   const WHEN_LABELS = Object.freeze({ all: 'All dates', upcoming: 'Upcoming', inforce: 'In force' });
-  const CATEGORIES = ['payroll', 'reporting', 'infrastructure'];
+  const CATEGORIES = ['payroll', 'reporting'];
   const has = (obj, k) => Object.prototype.hasOwnProperty.call(obj, k);
 
   // Parse "a,b,c" into known country codes: trimmed, lower-cased, de-duplicated, capped.

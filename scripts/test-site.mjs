@@ -6,6 +6,7 @@ import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
+import os from 'node:os';
 import { loadSite } from './load.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -306,9 +307,48 @@ test('p2_1.no_infrastructure_label', () => {
   for (const f of ['feed.xml', 'calendar.ics', ...countryFiles.filter(f => f.endsWith('.ics')).map(f => `countries/${f}`)])
     if (/\bInfrastructure\b/.test(read(f))) bad.push(f);
   assert.deepEqual(bad, [], 'visible "Infrastructure" label in: ' + bad.join(', '));
-  assert.match(indexHtml, /data-filter="infrastructure"[^>]*>\s*Systems &amp; e-filing\s*</, 'index.html category button reads "Systems & e-filing"');
+  // P2-4: infrastructure button removed entirely (see p2_4.* tests).
   assert.ok(!/data-filter="upcoming"/.test(indexHtml), 'Upcoming moved out of the category buttons');
   assert.match(indexHtml, /data-filter="high-impact"/, 'high impact stays a category button');
+});
+
+// P2-4: five non-payroll entries dropped; infrastructure category removed.
+const DROPPED = ['cn-vat', 'do-reporting', 'qa-reporting-upcoming', 'bh-tax-upcoming', 'kw-infrastructure'];
+test('p2_4.entries_removed', () => {
+  // CHANGES comes from another vm realm: spread into a local array before strict comparison.
+  assert.deepEqual([...CHANGES.filter(e => DROPPED.includes(e.section)).map(key)], [], 'dropped sections still in CHANGES');
+  assert.equal(CHANGES.length, 172);
+  assert.ok(CHANGES.every(e => ['payroll', 'reporting'].includes(e.category)), 'category must be payroll|reporting');
+});
+test('p2_4.countries_keep_entries', () => {
+  const { countryToRegion } = loadSite();
+  const missing = Object.keys(countryToRegion).filter(c => !CHANGES.some(e => e.country === c));
+  assert.deepEqual(missing, [], 'countries without entries');
+  assert.equal(Object.keys(countryToRegion).length, 75);
+});
+test('p2_4.generated_clean', () => {
+  const files = ['feed.xml', 'calendar.ics', 'upcoming.html', 'countries.html', 'sitemap.xml',
+    ...countryFiles.filter(f => f.endsWith('.html') || f.endsWith('.ics')).map(f => `countries/${f}`)];
+  const hits = [];
+  for (const f of files) { const t = read(f); for (const s of DROPPED) if (new RegExp('[#"-]' + s + '\\b').test(t)) hits.push(`${f}: ${s}`); }
+  assert.deepEqual(hits, [], 'dropped sections in generated files');
+  for (const f of ['index.html', 'README.md']) assert.ok(!/Systems (&amp;|&) e-filing/.test(read(f)), f);
+  assert.ok(!/\binfrastructure\b/.test(read('README.md')), 'README must not list infrastructure');
+});
+test('p2_4.validate_rejects_infrastructure', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pa-p24-'));
+  try {
+    fs.mkdirSync(path.join(tmp, 'scripts')); fs.mkdirSync(path.join(tmp, 'data'));
+    for (const f of ['scripts/validate.mjs', 'scripts/load.mjs', 'index.html', 'vercel.json', '_headers', 'data/requests.json']) fs.copyFileSync(path.join(ROOT, f), path.join(tmp, f));
+    if (fs.existsSync(path.join(ROOT, '.well-known'))) fs.cpSync(path.join(ROOT, '.well-known'), path.join(tmp, '.well-known'), { recursive: true });
+    const run = () => { try { execFileSync(process.execPath, ['scripts/validate.mjs'], { cwd: tmp, encoding: 'utf8', stdio: 'pipe' }); return ''; } catch (e) { return String(e.stdout) + String(e.stderr); } };
+    const base = read('app.js');
+    fs.writeFileSync(path.join(tmp, 'app.js'), base);
+    assert.ok(!/bad category/.test(run()), 'real app.js flagged');
+    const m = base.match(/category:'(payroll|reporting)'/);
+    fs.writeFileSync(path.join(tmp, 'app.js'), base.replace(m[0], "category:'infrastructure'"));
+    assert.match(run(), /bad category infrastructure/, 'validate.mjs must reject category infrastructure');
+  } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
 });
 
 console.log(`${passed} site tests passed.`);
