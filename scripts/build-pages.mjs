@@ -27,6 +27,12 @@ const recent = d => typeof d === 'string' && d > FRESH_AFTER && d >= FRESH_FROM;
 const freshness = e => recent(e.added) ? 'new' : recent(e.updated) ? 'updated' : null;
 const lastChanged = e => (e.updated && e.updated > e.added ? e.updated : e.added);
 
+const IMPACT = {
+  high: 'High: a new process, system, filing or calculation method',
+  medium: 'Medium: new rates, thresholds or bands to load and check',
+  low: 'Low: little or no payroll configuration needed',
+};
+
 const REGIONS = { europe: 'Europe', apac: 'APAC', menat: 'MENAT', latam: 'LATAM', africa: 'Africa' };
 const ISSUES = 'https://github.com/ankitbansal2k-ui/payroll-atlas/issues';
 const CSP = `<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">`;
@@ -101,13 +107,14 @@ function entryHtml(e) {
   const badges = [`<span class="badge">${esc(e.badge)}</span>`];
   const fresh = freshness(e);
   if (fresh) badges.unshift(`<span class="badge fresh">${fresh === 'new' ? 'New' : 'Updated'}</span>`);
+  if (e.impact === 'high') badges.push('<span class="badge impact-high">High impact</span>');
   if (e.draft) badges.push('<span class="badge draft">Draft — not yet law</span>');
   else if (e.upcoming) badges.push('<span class="badge upcoming">Upcoming</span>');
   return `    <article class="entry" id="${esc(e.section)}">
       <h2>${esc(e.title)}</h2>
       <p class="badges">${badges.join(' ')}</p>
       <p>${esc(d.lead)}</p>
-${list2('For the employer', d.employer)}${list2('For the employee', d.employee)}${d.example ? `      <p class="example"><strong>In practice:</strong> ${esc(d.example)}</p>\n` : ''}${d.note ? `      <p class="note">${esc(d.note)}</p>\n` : ''}      <p class="source"><a href="${esc(d.sourceUrl)}" rel="noopener">${esc(d.sourceLabel)}</a> &middot; Last verified ${VERIFIED} &middot; Added ${fmtDay(e.added)}${e.updated ? ` &middot; Updated ${fmtDay(e.updated)}` : ''}</p>
+${list2('For the employer', d.employer)}${list2('For the employee', d.employee)}${d.example ? `      <p class="example"><strong>In practice:</strong> ${esc(d.example)}</p>\n` : ''}${d.note ? `      <p class="note">${esc(d.note)}</p>\n` : ''}      <p class="source"><a href="${esc(d.sourceUrl)}" rel="noopener">${esc(d.sourceLabel)}</a> &middot; Payroll impact: ${IMPACT[e.impact]} &middot; Last verified ${VERIFIED} &middot; Added ${fmtDay(e.added)}${e.updated ? ` &middot; Updated ${fmtDay(e.updated)}` : ''}</p>
     </article>`;
 }
 
@@ -262,7 +269,7 @@ function upcomingPage() {
   }
   const body = [...groups.entries()].sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0)).map(([, g]) => `    <h2>${esc(g.label)}</h2>
     <ul class="timeline">
-${g.items.map(e => { const c = countries.get(e.country); return `      <li><span class="when">${esc(whenLabel(e.effective))}</span> <a href="countries/${c.slug}.html#${esc(e.section)}">${e.flag} ${esc(e.name)}: ${esc(e.title)}</a> <span class="count">${REGIONS[c.region]}${e.draft ? ' &middot; draft, not yet law' : ''}</span></li>`; }).join('\n')}
+${g.items.map(e => { const c = countries.get(e.country); return `      <li><span class="when">${esc(whenLabel(e.effective))}</span> <a href="countries/${c.slug}.html#${esc(e.section)}">${e.flag} ${esc(e.name)}: ${esc(e.title)}</a> <span class="count">${REGIONS[c.region]}${e.impact === 'high' ? ' &middot; <strong>high impact</strong>' : ''}${e.draft ? ' &middot; draft, not yet law' : ''}</span></li>`; }).join('\n')}
     </ul>`).join('\n\n');
   const desc = clip(`${upcomingAll.length} upcoming payroll law changes across ${new Set(upcomingAll.map(e => e.country)).size} countries, by month, each linked to its source. Calendar (.ics) download included.`, 158);
   return `${head({ title: "What's coming: upcoming payroll changes | Intelligent Payroll", desc, url, depth: '' })}

@@ -645,6 +645,12 @@
       margin-right: 0.4rem;
     }
 
+    .badge.impact-high {
+      background: rgba(255, 107, 107, 0.16);
+      color: #FF9B9B;
+      margin-right: 0.4rem;
+    }
+
     .badge.active {
       background: rgba(45, 212, 163, 0.2);
       color: var(--success);

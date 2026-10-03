@@ -69,3 +69,4 @@ code { font-family: 'Geist Mono', ui-monospace, Consolas, monospace; font-size: 
 @media (max-width: 480px) { .cta.secondary { margin: 0.5rem 0 0; } }
 .sub { font-size: 1rem; }
 code { font-size: 0.85em; word-break: break-all; }
+.badge.impact-high { background: rgba(255, 107, 107, 0.16); color: #FF9B9B; }

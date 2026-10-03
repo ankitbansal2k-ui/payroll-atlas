@@ -30,6 +30,7 @@ for (const [i, c] of CHANGES.entries()) {
   for (const f of ['country', 'flag', 'name', 'section', 'title', 'badge']) if (!c[f] || typeof c[f] !== 'string') err(`${id}: missing ${f}`);
   if (!CATEGORIES.has(c.category)) err(`${id}: bad category ${c.category}`);
   if (typeof c.upcoming !== 'boolean') err(`${id}: upcoming must be boolean`);
+  if (!['high', 'medium', 'low'].includes(c.impact)) err(`${id}: impact must be high, medium or low`);
   if (c.draft && !c.upcoming) err(`${id}: draft entries must be upcoming:true`);
   const d = c.detail;
   if (!d) { err(`${id}: missing detail`); continue; }
