@@ -1,0 +1,49 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Intelligent Payroll//Upcoming payroll changes//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Intelligent Payroll: United Kingdom
+BEGIN:VEVENT
+UID:uk-uk-upcoming@intelligentpayroll.eu
+DTSTAMP:20261001T000000Z
+DTSTART;VALUE=DATE:20270101
+DTEND;VALUE=DATE:20270102
+SUMMARY:United Kingdom: Unfair dismissal qualifying period cut to six month
+ s
+DESCRIPTION:Starts in January 2027\; the source does not state the day. Eff
+ ective January 2027. Under the Employment Rights Act timetable\, the unfai
+ r dismissal qualifying period is reduced to six months\, and the cap on th
+ e compensatory award is removed\, from January 2027. The reduced qualifyin
+ g period applies to dismissals taking place from that date.\n\nSource: htt
+ ps://www.davidsonmorris.com/employment-rights-act-timeline/\nDetails: http
+ s://www.intelligentpayroll.eu/countries/united-kingdom.html#uk-upcoming\n\
+ nFor information only\, not legal or tax advice. Sources last checked 1 Oc
+ tober 2026.
+URL:https://www.intelligentpayroll.eu/countries/united-kingdom.html#uk-upco
+ ming
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:uk-uk-reporting-upcoming@intelligentpayroll.eu
+DTSTAMP:20261001T000000Z
+DTSTART;VALUE=DATE:20270406
+DTEND;VALUE=DATE:20270407
+SUMMARY:United Kingdom: Mandatory payrolling of benefits in kind\, phased f
+ rom April 2027
+DESCRIPTION:Phase 1: 6 Apr 2027. Payrolling of benefits in kind becomes man
+ datory in phases. From 6 April 2027 the most common benefits - company car
+ s\, car and van fuel\, vans and medical benefit - must be reported and tax
+ ed in real time through RTI payroll software. From 6 April 2028 most remai
+ ning benefits in kind are mandated\, except employer-provided loans and ac
+ commodation.\n\nSource: https://www.gov.uk/government/publications/changes
+ -to-reporting-of-benefits-in-kind-from-april-2027/mandatory-reporting-of-b
+ enefits-in-kind-in-real-time-information-rti-from-april-2027\nDetails: htt
+ ps://www.intelligentpayroll.eu/countries/united-kingdom.html#uk-reporting-
+ upcoming\n\nFor information only\, not legal or tax advice. Sources last c
+ hecked 1 October 2026.
+URL:https://www.intelligentpayroll.eu/countries/united-kingdom.html#uk-repo
+ rting-upcoming
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR

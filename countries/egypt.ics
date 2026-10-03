@@ -1,0 +1,23 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Intelligent Payroll//Upcoming payroll changes//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Intelligent Payroll: Egypt
+BEGIN:VEVENT
+UID:eg-eg-insurable-wage-2027@intelligentpayroll.eu
+DTSTAMP:20261001T000000Z
+DTSTART;VALUE=DATE:20270101
+DTEND;VALUE=DATE:20270102
+SUMMARY:Egypt: Insurable wage limits rise again in 2027
+DESCRIPTION:Effective 1 January 2027. Under the scheduled annual increases\
+ , the minimum insurable wage becomes EGP 3\,200 and the maximum EGP 19\,30
+ 0 per month in 2027.\n\nSource: https://taxsummaries.pwc.com/egypt/individ
+ ual/other-taxes\nDetails: https://www.intelligentpayroll.eu/countries/egyp
+ t.html#eg-insurable-wage-2027\n\nFor information only\, not legal or tax a
+ dvice. Sources last checked 1 October 2026.
+URL:https://www.intelligentpayroll.eu/countries/egypt.html#eg-insurable-wag
+ e-2027
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR

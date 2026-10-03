@@ -1,0 +1,25 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Intelligent Payroll//Upcoming payroll changes//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Intelligent Payroll: Estonia
+BEGIN:VEVENT
+UID:estonia-ee-reporting-upcoming@intelligentpayroll.eu
+DTSTAMP:20261001T000000Z
+DTSTART;VALUE=DATE:20270401
+DTEND;VALUE=DATE:20270402
+SUMMARY:Estonia: Data-based TSD replaces the tax declaration form
+DESCRIPTION:Effective 1 Apr 2027. The Tax and Customs Board (MTA) is moving
+  to data-based reporting: the accountant will send transaction data to the
+  tax authority\, which calculates the taxes itself. MTA confirmed the new 
+ system takes effect on 1 April 2027.\n\nSource: https://www.raamatupidaja.
+ ee/uudised/2025/01/20/mta-plaanib-raamatupidamiskirjendite-pohise-tsd-kasu
+ tuselevottu-2026-aasta-lopus\nDetails: https://www.intelligentpayroll.eu/c
+ ountries/estonia.html#ee-reporting-upcoming\n\nFor information only\, not 
+ legal or tax advice. Sources last checked 1 October 2026.
+URL:https://www.intelligentpayroll.eu/countries/estonia.html#ee-reporting-u
+ pcoming
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR

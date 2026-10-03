@@ -1,0 +1,26 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Intelligent Payroll//Upcoming payroll changes//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Intelligent Payroll: Belgium
+BEGIN:VEVENT
+UID:belgium-be-reporting-upcoming@intelligentpayroll.eu
+DTSTAMP:20261001T000000Z
+DTSTART;VALUE=DATE:20270101
+DTEND;VALUE=DATE:20270102
+SUMMARY:Belgium: "Loon-datatransfer" tool to replace DmfA
+DESCRIPTION:Voluntary from 2027. As part of RSZ's e-gov modernisation\, a n
+ ew "loon-datatransfer" (wage data transfer) tool will be available for vol
+ untary use and testing from 1 January 2027\, become mandatory from 1 Janua
+ ry 2028\, and the DmfA submission itself will be abolished from 1 January 
+ 2030. RSZ began sending informational letters to employers about the trans
+ ition from 28 May 2026.\n\nSource: https://www.unizo.be/berichten/nieuws/i
+ nformatiebrieven-rsz\nDetails: https://www.intelligentpayroll.eu/countries
+ /belgium.html#be-reporting-upcoming\n\nFor information only\, not legal or
+  tax advice. Sources last checked 1 October 2026.
+URL:https://www.intelligentpayroll.eu/countries/belgium.html#be-reporting-u
+ pcoming
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR

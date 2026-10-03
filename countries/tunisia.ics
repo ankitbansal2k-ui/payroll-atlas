@@ -1,0 +1,24 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Intelligent Payroll//Upcoming payroll changes//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Intelligent Payroll: Tunisia
+BEGIN:VEVENT
+UID:tn-tn-solidarity-contribution@intelligentpayroll.eu
+DTSTAMP:20261001T000000Z
+DTSTART;VALUE=DATE:20270101
+DTEND;VALUE=DATE:20270102
+SUMMARY:Tunisia: Social Solidarity Contribution rises to 1%
+DESCRIPTION:Starts in January 2027\; the source does not state the day. Eff
+ ective January 2027. The 0.5% Social Solidarity Contribution applies throu
+ gh fiscal year 2026 and is returns to 1% from January 2027.\n\nSource: htt
+ ps://taxsummaries.pwc.com/tunisia/individual/taxes-on-personal-income\nDet
+ ails: https://www.intelligentpayroll.eu/countries/tunisia.html#tn-solidari
+ ty-contribution\n\nFor information only\, not legal or tax advice. Sources
+  last checked 1 October 2026.
+URL:https://www.intelligentpayroll.eu/countries/tunisia.html#tn-solidarity-
+ contribution
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR

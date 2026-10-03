@@ -89,7 +89,7 @@ const head = ({ title, desc, url, depth, noindex }) => `<!DOCTYPE html>
 const header = depth => `  <header><a href="${depth || './'}">Intelligent Payroll</a> <a class="nav" href="${depth}countries.html">All countries</a></header>`;
 const footer = depth => `  <footer>
     <p>For information only, not legal or tax advice. Sources last checked ${VERIFIED}. Found an error? <a href="${ISSUES}" rel="noopener">Tell us</a>.</p>
-    <p><a href="${depth || './'}">Home</a> &middot; <a href="${depth}countries.html">All countries</a> &middot; <a href="${depth}suggest.html">Suggest a change</a> &middot; <a href="${depth}feed.xml">RSS feed</a> &middot; <a href="${depth}privacy.html">Privacy</a> &middot; <a href="${depth}terms.html">Terms and disclaimer</a></p>
+    <p><a href="${depth || './'}">Home</a> &middot; <a href="${depth}countries.html">All countries</a> &middot; <a href="${depth}upcoming.html">What's coming</a> &middot; <a href="${depth}suggest.html">Suggest a change</a> &middot; <a href="${depth}feed.xml">RSS feed</a> &middot; <a href="${depth}privacy.html">Privacy</a> &middot; <a href="${depth}terms.html">Terms and disclaimer</a></p>
   </footer>`;
 
 const list2 = (label, items) => items && items.length
@@ -127,7 +127,7 @@ ${header('../')}
     <h1>${c.flag} ${esc(c.name)}: payroll law changes</h1>
     <p class="meta">${n} tracked ${n === 1 ? 'change' : 'changes'} &middot; ${region} &middot; sources last checked ${VERIFIED}</p>
     <p>Statutory and legislative payroll changes in ${esc(c.name)}, each linked to the page it was checked against. For information only, not legal or tax advice: confirm details with the source before acting. See the <a href="../terms.html">terms</a>.</p>
-    <p><a class="cta" href="../?country=${encodeURIComponent(c.code)}">Open in the interactive changelog</a></p>
+    <p><a class="cta" href="../?country=${encodeURIComponent(c.code)}">Open in the interactive changelog</a>${icsCountries.includes(c) ? ` <a class="cta secondary" href="${c.slug}.ics">Add upcoming changes to calendar (.ics)</a>` : ''}</p>
 ${partial}
 ${ordered.map(entryHtml).join('\n\n')}
 
@@ -159,6 +159,8 @@ ${header('')}
     <h1>All countries</h1>
     <p class="meta">${list.length} countries &middot; ${CHANGES.length} tracked changes &middot; sources last checked ${VERIFIED}</p>
     <p>Pick a country to read its payroll changes with links to the official or professional source for each. Prefer filters and search? <a href="./">Use the interactive changelog</a>.</p>
+
+    <p>Looking ahead? See <a href="upcoming.html">what's coming</a>, in date order, with calendar downloads.</p>
 
     <h2 id="latest">Latest changes</h2>
     <p>The most recently added or updated entries. Follow them with the <a href="feed.xml">RSS feed</a>.</p>
@@ -234,14 +236,100 @@ ${footer('')}
 `;
 }
 
+// ---- What's coming: upcoming.html and .ics calendars ----
+// Uses the structured `effective` date, shown only as precisely as the source states it.
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const upcomingAll = CHANGES.filter(e => e.upcoming)
+  .sort((a, b) => (a.effective ?? '9999').localeCompare(b.effective ?? '9999') || a.name.localeCompare(b.name) || a.section.localeCompare(b.section));
+const whenLabel = v => v === null ? 'Date not set yet'
+  : v.length === 4 ? `Sometime in ${v}`
+  : v.length === 7 ? `${MONTHS[+v.slice(5, 7) - 1]} ${v.slice(0, 4)} (day not stated)`
+  : fmtDay(v);
+// Group key: the month for day/month precision; the year or "undated" otherwise. Keys sort in time order.
+const groupOf = v => v === null ? ['~', 'Date not set yet'] : v.length === 4 ? [`${v}-~`, `Sometime in ${v}`] : [v.slice(0, 7), `${MONTHS[+v.slice(5, 7) - 1]} ${v.slice(0, 4)}`];
+// Calendars carry only entries with at least a month; "sometime in 2027" would be a misleading 1 January event.
+const calendarable = e => e.effective !== null && e.effective.length >= 7;
+const icsCountries = list.filter(c => c.entries.some(e => e.upcoming && calendarable(e)));
+const icsName = c => `countries/${c.slug}.ics`;
+
+function upcomingPage() {
+  const url = `${SITE}upcoming.html`;
+  const groups = new Map();
+  for (const e of upcomingAll) {
+    const [key, label] = groupOf(e.effective);
+    if (!groups.has(key)) groups.set(key, { label, items: [] });
+    groups.get(key).items.push(e);
+  }
+  const body = [...groups.entries()].sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0)).map(([, g]) => `    <h2>${esc(g.label)}</h2>
+    <ul class="timeline">
+${g.items.map(e => { const c = countries.get(e.country); return `      <li><span class="when">${esc(whenLabel(e.effective))}</span> <a href="countries/${c.slug}.html#${esc(e.section)}">${e.flag} ${esc(e.name)}: ${esc(e.title)}</a> <span class="count">${REGIONS[c.region]}${e.draft ? ' &middot; draft, not yet law' : ''}</span></li>`; }).join('\n')}
+    </ul>`).join('\n\n');
+  const desc = clip(`${upcomingAll.length} upcoming payroll law changes across ${new Set(upcomingAll.map(e => e.country)).size} countries, by month, each linked to its source. Calendar (.ics) download included.`, 158);
+  return `${head({ title: "What's coming: upcoming payroll changes | Intelligent Payroll", desc, url, depth: '' })}
+<body>
+${header('')}
+  <main>
+    <h1>What's coming</h1>
+    <p class="meta">${upcomingAll.length} upcoming changes &middot; sources last checked ${VERIFIED}</p>
+    <p>Payroll changes that have been announced but are not yet in force, in date order. Dates are shown only as precisely as the source states them. Drafts are proposals that are not yet law and may change. For information only, not legal or tax advice.</p>
+    <p><a class="cta" href="calendar.ics">Add all to your calendar (.ics)</a></p>
+    <p class="hint">Download the file and open it, or import it into Outlook, Google Calendar or Apple Calendar. Changes with only a year are not included, because they have no date to put in a calendar. Calendars for single countries are on each country page.</p>
+
+${body}
+  </main>
+${footer('')}
+</body>
+</html>
+`;
+}
+
+// iCalendar (RFC 5545): CRLF line endings, escaped text, lines folded at 75 octets.
+const icsText = s => String(s).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
+function icsFold(line) {
+  const out = [];
+  let cur = '', bytes = 0;
+  for (const ch of line) {
+    const b = Buffer.byteLength(ch);
+    if (bytes + b > (out.length ? 74 : 75)) { out.push(cur); cur = ''; bytes = 0; }
+    cur += ch; bytes += b;
+  }
+  out.push(cur);
+  return out.join('\r\n ');
+}
+function icsCalendar(name, entries) {
+  const stamp = VERIFIED_ISO.replace(/-/g, '') + 'T000000Z';
+  const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Intelligent Payroll//Upcoming payroll changes//EN', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', `X-WR-CALNAME:${icsText(name)}`];
+  for (const e of entries.filter(x => x.upcoming && calendarable(x))) {
+    const start = e.effective.length === 7 ? `${e.effective}-01` : e.effective;
+    const next = new Date(Date.parse(start + 'T00:00:00Z') + 864e5).toISOString().slice(0, 10);
+    const pageUrl = `${SITE}countries/${countries.get(e.country).slug}.html#${e.section}`;
+    const note = e.effective.length === 7 ? `Starts in ${MONTHS[+e.effective.slice(5, 7) - 1]} ${e.effective.slice(0, 4)}; the source does not state the day. ` : '';
+    lines.push('BEGIN:VEVENT',
+      `UID:${e.country}-${e.section}@${new URL(SITE).hostname.replace(/^www\./, '')}`,
+      `DTSTAMP:${stamp}`,
+      `DTSTART;VALUE=DATE:${start.replace(/-/g, '')}`,
+      `DTEND;VALUE=DATE:${next.replace(/-/g, '')}`,
+      `SUMMARY:${icsText(`${e.name}: ${e.title}${e.draft ? ' (draft)' : ''}`)}`,
+      `DESCRIPTION:${icsText(`${note}${e.badge}. ${e.detail.lead}\n\nSource: ${e.detail.sourceUrl}\nDetails: ${pageUrl}\n\nFor information only, not legal or tax advice. Sources last checked ${VERIFIED}.`)}`,
+      `URL:${pageUrl}`,
+      'TRANSP:TRANSPARENT',
+      'END:VEVENT');
+  }
+  lines.push('END:VCALENDAR');
+  return lines.map(icsFold).join('\r\n') + '\r\n';
+}
+
 // ---- outputs ----
 const out = new Map();
 out.set('countries.html', indexPage());
 out.set('suggest.html', suggestPage());
+out.set('upcoming.html', upcomingPage());
+out.set('calendar.ics', icsCalendar("Intelligent Payroll: what's coming", CHANGES));
+for (const c of icsCountries) out.set(icsName(c), icsCalendar(`Intelligent Payroll: ${c.name}`, c.entries));
 out.set('worker/countries.json', JSON.stringify(Object.fromEntries(list.map(c => [c.code, c.name])), null, 0) + '\n');
 for (const c of list) out.set(`countries/${c.slug}.html`, countryPage(c));
 
-const urls = ['', 'countries.html', ...list.map(c => `countries/${c.slug}.html`), 'suggest.html', 'privacy.html', 'terms.html'];
+const urls = ['', 'countries.html', ...list.map(c => `countries/${c.slug}.html`), 'upcoming.html', 'suggest.html', 'privacy.html', 'terms.html'];
 out.set('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.map(u => `  <url><loc>${SITE}${u}</loc><lastmod>${VERIFIED_ISO}</lastmod></url>`).join('\n')}
@@ -328,7 +416,7 @@ for (const [re, label] of [[/property="og:url" content="([^"]+)"/, 'og:url'], [/
 // ---- write or check ----
 const norm = s => s.replace(/\r\n/g, '\n');
 const dir = path.join(ROOT, 'countries');
-const existing = fs.existsSync(dir) ? fs.readdirSync(dir).filter(f => f.endsWith('.html')).map(f => `countries/${f}`) : [];
+const existing = fs.existsSync(dir) ? fs.readdirSync(dir).filter(f => f.endsWith('.html') || f.endsWith('.ics')).map(f => `countries/${f}`) : [];
 const stale = existing.filter(f => !out.has(f));
 
 if (check) {

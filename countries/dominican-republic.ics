@@ -1,0 +1,27 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Intelligent Payroll//Upcoming payroll changes//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Intelligent Payroll: Dominican Republic
+BEGIN:VEVENT
+UID:do-do-reporting@intelligentpayroll.eu
+DTSTAMP:20261001T000000Z
+DTSTART;VALUE=DATE:20261115
+DTEND;VALUE=DATE:20261116
+SUMMARY:Dominican Republic: E-invoicing deadline for small\, micro and uncl
+ assified taxpayers extended to 15 Nov 2026
+DESCRIPTION:Deadline 15 Nov 2026. On 6 May 2026 the DGII granted a six-mont
+ h extension under Law 32-23 on Electronic Invoicing: small\, micro and unc
+ lassified taxpayers now have until 15 November 2026 (originally 15 May 202
+ 6) to implement electronic invoicing.\n\nSource: https://www.ey.com/es_ce/
+ technical/tax/tax-alerts/republica-dominicana-dgii-otorga-prorroga-de-seis
+ -meses-a-contribuyentes-identificados-como-pequenos-micros-y-no-clasificad
+ os-para-la-implementacion-de-fe\nDetails: https://www.intelligentpayroll.e
+ u/countries/dominican-republic.html#do-reporting\n\nFor information only\,
+  not legal or tax advice. Sources last checked 1 October 2026.
+URL:https://www.intelligentpayroll.eu/countries/dominican-republic.html#do-
+ reporting
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR

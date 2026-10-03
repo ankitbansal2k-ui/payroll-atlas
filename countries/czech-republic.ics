@@ -1,0 +1,28 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Intelligent Payroll//Upcoming payroll changes//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Intelligent Payroll: Czech Republic
+BEGIN:VEVENT
+UID:czechia-cz-reporting-upcoming@intelligentpayroll.eu
+DTSTAMP:20261001T000000Z
+DTSTART;VALUE=DATE:20270101
+DTEND;VALUE=DATE:20270102
+SUMMARY:Czech Republic: EU Pay Transparency Directive - phased Labour Code 
+ amendment (draft)
+DESCRIPTION:Mostly from 1 Jan 2027. The draft amendment to the Labour Code\
+ , published on 27 March 2026\, transposing the directive foresees phased e
+ ntry into force: most provisions are expected to take effect from 1 Januar
+ y 2027\, while regular pay-gap reporting\, the related pay assessment and 
+ corrective measures\, and employees' right to request written pay informat
+ ion are expected from 1 January 2028.\n\nSource: https://www.ey.com/cs_cz/
+ technical/tax/tax-alerts/2026/03/transparentnost-odmenovani-1-cast-novela-
+ zakoniku-prace-zverejnena\nDetails: https://www.intelligentpayroll.eu/coun
+ tries/czech-republic.html#cz-reporting-upcoming\n\nFor information only\, 
+ not legal or tax advice. Sources last checked 1 October 2026.
+URL:https://www.intelligentpayroll.eu/countries/czech-republic.html#cz-repo
+ rting-upcoming
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR

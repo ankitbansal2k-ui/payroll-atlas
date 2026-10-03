@@ -1,0 +1,24 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Intelligent Payroll//Upcoming payroll changes//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Intelligent Payroll: Kenya
+BEGIN:VEVENT
+UID:ke-ke-fa2026-return-deadline@intelligentpayroll.eu
+DTSTAMP:20261001T000000Z
+DTSTART;VALUE=DATE:20270101
+DTEND;VALUE=DATE:20270102
+SUMMARY:Kenya: Individual income tax returns due by end of fourth month
+DESCRIPTION:Effective 1 January 2027. From 1 January 2027\, individual taxp
+ ayers will be required to file income tax returns by the last day of the f
+ ourth month after the end of the year of income.\n\nSource: https://www.kr
+ a.go.ke/finance-act-2026-what-it-means-for-you\nDetails: https://www.intel
+ ligentpayroll.eu/countries/kenya.html#ke-fa2026-return-deadline\n\nFor inf
+ ormation only\, not legal or tax advice. Sources last checked 1 October 20
+ 26.
+URL:https://www.intelligentpayroll.eu/countries/kenya.html#ke-fa2026-return
+ -deadline
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR
