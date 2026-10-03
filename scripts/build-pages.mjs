@@ -18,12 +18,12 @@ const SITE = html.match(/<link rel="canonical" href="([^"]+)"/)[1].replace(/\/?$
 const VERIFIED_ISO = js.match(/new Date\('(\d{4}-\d{2}-\d{2})T/)[1];
 const VERIFIED = new Date(VERIFIED_ISO + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
 const fmtDay = iso => new Date(iso + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
-// Same rule as freshnessOf() in app.js: labels only for entries added/updated in the FRESH_DAYS up to the
-// last-verified date, and never for entries already on the site at launch.
+// Same rule as freshnessOf() in app.js: labels only for entries added/updated in the FRESH_DAYS up to and
+// including the last-verified date (never after it), and never for entries already on the site at launch.
 const FRESH_AFTER = js.match(/const FRESH_LABELS_AFTER = '(\d{4}-\d{2}-\d{2})'/)[1];
 const FRESH_DAYS = Number(js.match(/const FRESH_DAYS = (\d+);/)[1]);
 const FRESH_FROM = new Date(Date.parse(VERIFIED_ISO + 'T00:00:00Z') - (FRESH_DAYS - 1) * 864e5).toISOString().slice(0, 10);
-const recent = d => typeof d === 'string' && d > FRESH_AFTER && d >= FRESH_FROM;
+const recent = d => typeof d === 'string' && d > FRESH_AFTER && d >= FRESH_FROM && d <= VERIFIED_ISO;
 const freshness = e => recent(e.added) ? 'new' : recent(e.updated) ? 'updated' : null;
 const lastChanged = e => (e.updated && e.updated > e.added ? e.updated : e.added);
 
@@ -134,7 +134,7 @@ ${header('../')}
     <h1>${c.flag} ${esc(c.name)}: payroll law changes</h1>
     <p class="meta">${n} tracked ${n === 1 ? 'change' : 'changes'} &middot; ${region} &middot; sources last checked ${VERIFIED}</p>
     <p>Statutory and legislative payroll changes in ${esc(c.name)}, each linked to the page it was checked against. For information only, not legal or tax advice: confirm details with the source before acting. See the <a href="../terms.html">terms</a>.</p>
-    <p><a class="cta" href="../?country=${encodeURIComponent(c.code)}">Open in the interactive changelog</a>${icsCountries.includes(c) ? ` <a class="cta secondary" href="${c.slug}.ics">Add upcoming changes to calendar (.ics)</a>` : ''}</p>
+    <p><a class="cta" href="../?country=${encodeURIComponent(c.code)}">Open in the interactive changelog</a>${icsCountries.includes(c) ? ` <a class="cta secondary" href="${SITE.replace(/^https:/, 'webcal:')}countries/${c.slug}.ics">Subscribe to ${esc(c.name)} calendar</a> <a href="${c.slug}.ics">Download (.ics)</a>` : ''}</p>
 ${partial}
 ${ordered.map(entryHtml).join('\n\n')}
 

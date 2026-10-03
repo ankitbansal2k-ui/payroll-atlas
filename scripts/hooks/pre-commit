@@ -27,3 +27,10 @@ if ! node scripts/test-worker.mjs >/dev/null; then
   echo "pre-commit: commit blocked. The suggestion handler tests (scripts/test-worker.mjs) failed."
   exit 1
 fi
+
+if ! node scripts/test-site.mjs >/dev/null; then
+  node scripts/test-site.mjs
+  echo ""
+  echo "pre-commit: commit blocked. The site regression tests (scripts/test-site.mjs) failed."
+  exit 1
+fi

@@ -12,6 +12,9 @@ const HEADERS = {
   'Cache-Control': 'no-store',
   'X-Content-Type-Options': 'nosniff',
   'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'X-Frame-Options': 'DENY',
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+  'Cross-Origin-Opener-Policy': 'same-origin',
   'Strict-Transport-Security': 'max-age=63072000; includeSubDomains',
   'Content-Security-Policy': "default-src 'none'; style-src 'self'; font-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
 };
@@ -47,7 +50,10 @@ export async function handleSuggest(request, env, now = Date.now()) {
   if (request.method !== 'POST') return page(405, 'Not allowed', ['Use the suggestion form to send a suggestion.']);
   const origin = request.headers.get('Origin');
   if (origin && origin !== SITE_ORIGIN && origin !== new URL(request.url).origin) return page(403, 'Not allowed', ['Suggestions can only be sent from this site.']);
-  if (Number(request.headers.get('Content-Length') || 0) > 20000) return page(413, 'Too long', ['Your suggestion is too long. Shorten it and try again.']);
+  // Browsers always send Content-Length for form posts; refuse chunked bodies so the size cap cannot be skipped.
+  const length = request.headers.get('Content-Length');
+  if (length === null) return page(411, 'Something went wrong', ['We could not read the form. Go back and try again.']);
+  if (!/^\d{1,5}$/.test(length.trim()) || Number(length) > 20000) return page(413, 'Too long', ['Your suggestion is too long. Shorten it and try again.']);
 
   const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
   if (env.SUGGEST_LIMIT) {

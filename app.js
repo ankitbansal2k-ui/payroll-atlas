@@ -183,7 +183,7 @@
     const LAST_VERIFIED = new Date('2026-10-01T00:00:00Z');
 
     // "New" and "Updated" labels: an entry is labelled when it was added (or, for "Updated", given an
-    // `updated` date) in the FRESH_DAYS up to LAST_VERIFIED. Entries already on the site at launch
+    // `updated` date) in the FRESH_DAYS up to and including LAST_VERIFIED (later dates are not labelled). Entries already on the site at launch
     // (on or before FRESH_LABELS_AFTER) are never labelled. scripts/build-pages.mjs applies the same rule.
     const FRESH_LABELS_AFTER = '2026-10-03';
     const FRESH_DAYS = 14;
@@ -196,7 +196,8 @@
     };
     function freshnessOf(item){
       const from = new Date(LAST_VERIFIED.getTime() - (FRESH_DAYS - 1) * 864e5).toISOString().slice(0, 10);
-      const recent = d => typeof d === 'string' && d > FRESH_LABELS_AFTER && d >= from;
+      const to = LAST_VERIFIED.toISOString().slice(0, 10);
+      const recent = d => typeof d === 'string' && d > FRESH_LABELS_AFTER && d >= from && d <= to;
       if(recent(item.added)) return 'new';
       if(recent(item.updated)) return 'updated';
       return null;

@@ -48,7 +48,8 @@ await test('email subject has no line breaks; replyTo only when given', () => {
 });
 
 // ---- handler, with fake Cloudflare bindings ----
-const req = (body, headers = {}) => new Request('https://www.intelligentpayroll.eu/api/suggest', { method: 'POST', body: fd(body), headers: { Origin: 'https://www.intelligentpayroll.eu', 'CF-Connecting-IP': '1.2.3.4', ...headers } });
+// URL-encoded body with an explicit Content-Length, as a browser form post sends.
+const req = (body, headers = {}) => { const b = new URLSearchParams(body).toString(); return new Request('https://www.intelligentpayroll.eu/api/suggest', { method: 'POST', body: b, headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Content-Length': String(Buffer.byteLength(b)), Origin: 'https://www.intelligentpayroll.eu', 'CF-Connecting-IP': '1.2.3.4', ...headers } }); };
 const env = (over = {}) => {
   const sent = [];
   return { sent, SUGGEST_TO: 'owner@example.com', EMAIL: { send: async m => { sent.push(m); return { messageId: '1' }; } }, SUGGEST_LIMIT: { limit: async () => ({ success: true }) }, ...over };
@@ -59,6 +60,9 @@ await test('handler sends one email and thanks the visitor', async () => {
   assert.equal(r.status, 200); assert.equal(e.sent.length, 1);
   assert.equal(e.sent[0].to, 'owner@example.com'); assert.equal(e.sent[0].from, 'suggestions@intelligentpayroll.eu');
   assert.match(r.headers.get('Content-Security-Policy'), /default-src 'none'/);
+  assert.equal(r.headers.get('X-Frame-Options'), 'DENY');
+  assert.equal(r.headers.get('Permissions-Policy'), 'camera=(), microphone=(), geolocation=()');
+  assert.equal(r.headers.get('Cross-Origin-Opener-Policy'), 'same-origin');
 });
 await test('handler: spam gets a thank-you but no email', async () => {
   const e = env(); const r = await handleSuggest(req({ ...good, website: 'spam' }), e, NOW);
@@ -83,6 +87,15 @@ await test('handler: missing secret gives 503, send failure gives 502', async ()
   const e = env({ EMAIL: { send: async () => { throw Object.assign(new Error('x'), { code: 'E_RATE_LIMIT_EXCEEDED' }); } } });
   const orig = console.error; console.error = () => {};
   try { assert.equal((await handleSuggest(req(good), e, NOW)).status, 502); } finally { console.error = orig; }
+});
+await test('handler: missing Content-Length gives 411, oversized gives 413', async () => {
+  const e = env();
+  const chunked = new Request('https://www.intelligentpayroll.eu/api/suggest', { method: 'POST', body: new URLSearchParams(good).toString(), headers: { Origin: 'https://www.intelligentpayroll.eu' } });
+  assert.equal(chunked.headers.get('Content-Length'), null);
+  assert.equal((await handleSuggest(chunked, e, NOW)).status, 411);
+  assert.equal((await handleSuggest(req(good, { 'Content-Length': '20001' }), e, NOW)).status, 413);
+  for (const len of ['abc', '-5', '0x10', '1e4', '']) assert.equal((await handleSuggest(req(good, { 'Content-Length': len }), e, NOW)).status, 413, JSON.stringify(len));
+  assert.equal(e.sent.length, 0);
 });
 
 console.log(`\n${n} worker tests passed.`);
