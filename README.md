@@ -40,11 +40,14 @@ All content is the `CHANGES` array in `app.js`, one object per line:
 
 ```js
 {country:'hk',flag:'🇭🇰',name:'Hong Kong',section:'hk-mpf',title:'...',badge:'Effective 1 May 2025',
- category:'payroll',upcoming:false,
+ effective:'2025-05-01',added:'2026-10-03',category:'payroll',upcoming:false,
  detail:{lead:'...',employer:['...'],employee:['...'],note:'',example:'',
          sourceUrl:'https://...',sourceLabel:'Source: <Publisher> - <page title>'}},
 ```
 
+- `badge` is the human-readable label shown on the site. `effective` is the same date in machine-readable form: the start of the change, only as precise as the source states it (`'2026-01-01'`, `'2026-04'` or `'2026'`). For a phased change use the first phase. Use `null` only when no single start date applies (for example "current rates", or a draft with no date yet). Tax years count from their known start (UK `2026/27` is `'2026-04-06'`).
+- `added` is the day the entry was first published (`YYYY-MM-DD`). Do not change it when you edit an entry.
+- The validator checks that `effective` is a real date whose year appears in the badge or lead, and that `upcoming` agrees with it relative to the last-verified date: a change starting after that date must be `upcoming:true`, one that started before it must be `upcoming:false` (unless it is a draft). After moving the last-verified date forward, run the validator and flip the entries it names.
 - `category` is `payroll`, `reporting` or `infrastructure`.
 - `upcoming:true` means not yet in force. Add `draft:true` as well for proposed legislation that is not yet law; the site then shows a "Draft — not yet law" badge.
 - `country` is the key used by the country selectors, the region tabs and the map. Two-letter codes for most countries; full lowercase names for the European ones. A new country must also be added to `countryToRegion`, to **both** `<select class="country-selector">` lists, and to `COUNTRY_ISO` (for the map).

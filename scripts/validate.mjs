@@ -10,6 +10,20 @@ const CATEGORIES = new Set(['payroll', 'reporting', 'infrastructure']);
 const REGIONS = new Set(['europe', 'apac', 'menat', 'latam', 'africa']);
 const seen = new Map();
 const names = new Map();
+const TODAY = new Date().toISOString().slice(0, 10);
+const VERIFIED = (js.match(/new Date\('(\d{4}-\d{2}-\d{2})T/) || [])[1];
+if (!VERIFIED) err('app.js: could not find the LAST_VERIFIED date');
+const isIsoDay = s => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s) && new Date(s + 'T00:00:00Z').toISOString().startsWith(s);
+// 'YYYY' | 'YYYY-MM' | 'YYYY-MM-DD' -> { start, end } as YYYY-MM-DD strings, or null if malformed.
+function periodOf(v) {
+  if (typeof v !== 'string') return null;
+  if (/^\d{4}$/.test(v)) return { start: `${v}-01-01`, end: `${v}-12-31` };
+  if (/^\d{4}-(0[1-9]|1[0-2])$/.test(v)) {
+    const last = new Date(Date.UTC(+v.slice(0, 4), +v.slice(5, 7), 0)).getUTCDate();
+    return { start: `${v}-01`, end: `${v}-${last}` };
+  }
+  return isIsoDay(v) ? { start: v, end: v } : null;
+}
 
 for (const [i, c] of CHANGES.entries()) {
   const id = `${c.country}/${c.section}`;
@@ -31,6 +45,21 @@ for (const [i, c] of CHANGES.entries()) {
   if (names.has(key) && names.get(key) !== nf) err(`${key}: inconsistent name/flag`);
   names.set(key, nf);
   if (!countryToRegion[c.country]) err(`${id}: country not in countryToRegion`);
+
+  // Structured dates. effective: start of the change as precisely as the source states it
+  // ('YYYY-MM-DD', 'YYYY-MM' or 'YYYY'), or null when no single start date applies (current rates,
+  // drafts without a date). added: the day the entry was first published.
+  if (!isIsoDay(c.added)) err(`${id}: added must be YYYY-MM-DD`);
+  else if (c.added > TODAY) err(`${id}: added ${c.added} is in the future`);
+  if (c.effective !== null) {
+    const span = periodOf(c.effective);
+    if (!span) { err(`${id}: effective must be YYYY, YYYY-MM, YYYY-MM-DD or null`); continue; }
+    const year = c.effective.slice(0, 4);
+    if (!c.badge.includes(year) && !d.lead.includes(year)) err(`${id}: effective year ${year} appears in neither badge nor lead`);
+    // The upcoming flag must agree with the date, relative to the last verification date.
+    if (span.start > VERIFIED && !c.upcoming) err(`${id}: starts ${c.effective}, after ${VERIFIED}, so upcoming must be true`);
+    if (span.end < VERIFIED && c.upcoming && !c.draft) err(`${id}: started ${c.effective}, before ${VERIFIED}, so upcoming must be false`);
+  }
 }
 
 for (const [code, region] of Object.entries(countryToRegion)) {
