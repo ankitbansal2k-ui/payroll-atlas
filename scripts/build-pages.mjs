@@ -17,6 +17,16 @@ const { html, js, CHANGES, countryToRegion } = loadSite();
 const SITE = html.match(/<link rel="canonical" href="([^"]+)"/)[1].replace(/\/?$/, '/');
 const VERIFIED_ISO = js.match(/new Date\('(\d{4}-\d{2}-\d{2})T/)[1];
 const VERIFIED = new Date(VERIFIED_ISO + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+const fmtDay = iso => new Date(iso + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+// Same rule as freshnessOf() in app.js: labels only for entries added/updated in the FRESH_DAYS up to the
+// last-verified date, and never for entries already on the site at launch.
+const FRESH_AFTER = js.match(/const FRESH_LABELS_AFTER = '(\d{4}-\d{2}-\d{2})'/)[1];
+const FRESH_DAYS = Number(js.match(/const FRESH_DAYS = (\d+);/)[1]);
+const FRESH_FROM = new Date(Date.parse(VERIFIED_ISO + 'T00:00:00Z') - (FRESH_DAYS - 1) * 864e5).toISOString().slice(0, 10);
+const recent = d => typeof d === 'string' && d > FRESH_AFTER && d >= FRESH_FROM;
+const freshness = e => recent(e.added) ? 'new' : recent(e.updated) ? 'updated' : null;
+const lastChanged = e => (e.updated && e.updated > e.added ? e.updated : e.added);
+
 const REGIONS = { europe: 'Europe', apac: 'APAC', menat: 'MENAT', latam: 'LATAM', africa: 'Africa' };
 const ISSUES = 'https://github.com/ankitbansal2k-ui/payroll-atlas/issues';
 const CSP = `<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">`;
@@ -34,6 +44,8 @@ for (const c of CHANGES) {
 const slugs = new Set();
 for (const c of countries.values()) { if (slugs.has(c.slug)) throw new Error(`duplicate slug ${c.slug}`); slugs.add(c.slug); }
 const list = [...countries.values()].sort((a, b) => a.name.localeCompare(b.name));
+// Newest first by last change, then by country and section so the order is stable between builds.
+const latest = n => [...CHANGES].sort((a, b) => lastChanged(b).localeCompare(lastChanged(a)) || a.name.localeCompare(b.name) || a.section.localeCompare(b.section)).slice(0, n);
 
 // Visitor requests (data/requests.json), reviewed by hand before they are listed. Schema checked in validate.mjs.
 const REQUESTS = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/requests.json'), 'utf8'));
@@ -70,13 +82,14 @@ const head = ({ title, desc, url, depth, noindex }) => `<!DOCTYPE html>
   <meta property="og:image" content="${SITE}og-image.png">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" type="image/svg+xml" href="${depth}design/assets/favicons/favicon.svg">
+  <link rel="alternate" type="application/atom+xml" title="Intelligent Payroll: latest payroll changes" href="${depth}feed.xml">
   <link rel="stylesheet" href="${depth}legal.css">
 </head>`;
 
 const header = depth => `  <header><a href="${depth || './'}">Intelligent Payroll</a> <a class="nav" href="${depth}countries.html">All countries</a></header>`;
 const footer = depth => `  <footer>
     <p>For information only, not legal or tax advice. Sources last checked ${VERIFIED}. Found an error? <a href="${ISSUES}" rel="noopener">Tell us</a>.</p>
-    <p><a href="${depth || './'}">Home</a> &middot; <a href="${depth}countries.html">All countries</a> &middot; <a href="${depth}suggest.html">Suggest a change</a> &middot; <a href="${depth}privacy.html">Privacy</a> &middot; <a href="${depth}terms.html">Terms and disclaimer</a></p>
+    <p><a href="${depth || './'}">Home</a> &middot; <a href="${depth}countries.html">All countries</a> &middot; <a href="${depth}suggest.html">Suggest a change</a> &middot; <a href="${depth}feed.xml">RSS feed</a> &middot; <a href="${depth}privacy.html">Privacy</a> &middot; <a href="${depth}terms.html">Terms and disclaimer</a></p>
   </footer>`;
 
 const list2 = (label, items) => items && items.length
@@ -86,13 +99,15 @@ const list2 = (label, items) => items && items.length
 function entryHtml(e) {
   const d = e.detail;
   const badges = [`<span class="badge">${esc(e.badge)}</span>`];
+  const fresh = freshness(e);
+  if (fresh) badges.unshift(`<span class="badge fresh">${fresh === 'new' ? 'New' : 'Updated'}</span>`);
   if (e.draft) badges.push('<span class="badge draft">Draft — not yet law</span>');
   else if (e.upcoming) badges.push('<span class="badge upcoming">Upcoming</span>');
   return `    <article class="entry" id="${esc(e.section)}">
       <h2>${esc(e.title)}</h2>
       <p class="badges">${badges.join(' ')}</p>
       <p>${esc(d.lead)}</p>
-${list2('For the employer', d.employer)}${list2('For the employee', d.employee)}${d.example ? `      <p class="example"><strong>In practice:</strong> ${esc(d.example)}</p>\n` : ''}${d.note ? `      <p class="note">${esc(d.note)}</p>\n` : ''}      <p class="source"><a href="${esc(d.sourceUrl)}" rel="noopener">${esc(d.sourceLabel)}</a> &middot; Last verified ${VERIFIED}</p>
+${list2('For the employer', d.employer)}${list2('For the employee', d.employee)}${d.example ? `      <p class="example"><strong>In practice:</strong> ${esc(d.example)}</p>\n` : ''}${d.note ? `      <p class="note">${esc(d.note)}</p>\n` : ''}      <p class="source"><a href="${esc(d.sourceUrl)}" rel="noopener">${esc(d.sourceLabel)}</a> &middot; Last verified ${VERIFIED} &middot; Added ${fmtDay(e.added)}${e.updated ? ` &middot; Updated ${fmtDay(e.updated)}` : ''}</p>
     </article>`;
 }
 
@@ -144,6 +159,12 @@ ${header('')}
     <h1>All countries</h1>
     <p class="meta">${list.length} countries &middot; ${CHANGES.length} tracked changes &middot; sources last checked ${VERIFIED}</p>
     <p>Pick a country to read its payroll changes with links to the official or professional source for each. Prefer filters and search? <a href="./">Use the interactive changelog</a>.</p>
+
+    <h2 id="latest">Latest changes</h2>
+    <p>The most recently added or updated entries. Follow them with the <a href="feed.xml">RSS feed</a>.</p>
+    <ul class="latest">
+${latest(10).map(e => `      <li><a href="countries/${countries.get(e.country).slug}.html#${esc(e.section)}">${e.flag} ${esc(e.name)}: ${esc(e.title)}</a> <span class="when">${e.updated && e.updated > e.added ? 'Updated' : 'Added'} ${fmtDay(lastChanged(e))}</span></li>`).join('\n')}
+    </ul>
 
 ${sections}
 
@@ -225,6 +246,41 @@ out.set('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.map(u => `  <url><loc>${SITE}${u}</loc><lastmod>${VERIFIED_ISO}</lastmod></url>`).join('\n')}
 </urlset>
+`);
+// Atom feed of the newest entries (by added/updated date). Entry ids are stable tag: URIs, so readers
+// do not show an entry twice when its text changes; a new \`updated\` date resurfaces it.
+const FEED_URL = `${SITE}feed.xml`;
+const feedEntries = latest(50);
+const xmlEsc = s => esc(s).replace(/'/g, '&apos;');
+const iso = d => `${d}T00:00:00Z`;
+out.set('feed.xml', `<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Intelligent Payroll: payroll law changes</title>
+  <subtitle>New and updated statutory payroll changes by country, each linked to its source.</subtitle>
+  <link href="${SITE}" rel="alternate" type="text/html"/>
+  <link href="${FEED_URL}" rel="self" type="application/atom+xml"/>
+  <id>${FEED_URL}</id>
+  <updated>${iso(feedEntries.length ? lastChanged(feedEntries[0]) : VERIFIED_ISO)}</updated>
+  <author><name>Intelligent Payroll</name><uri>${SITE}</uri></author>
+  <rights>All rights reserved. For information only, not legal or tax advice.</rights>
+${feedEntries.map(e => {
+  const url = `${SITE}countries/${countries.get(e.country).slug}.html#${e.section}`;
+  const d = e.detail;
+  const html = `<p><strong>${esc(e.badge)}</strong>${e.draft ? ' (draft, not yet law)' : ''}</p><p>${esc(d.lead)}</p>` +
+    (d.employer.length ? `<p>For the employer:</p><ul>${d.employer.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : '') +
+    `<p><a href="${esc(d.sourceUrl)}">${esc(d.sourceLabel)}</a></p><p>For information only, not legal or tax advice.</p>`;
+  return `  <entry>
+    <title>${xmlEsc(`${e.name}: ${e.title}`)}</title>
+    <link href="${xmlEsc(url)}" rel="alternate" type="text/html"/>
+    <id>tag:${new URL(SITE).hostname.replace(/^www\./, '')},2026:${xmlEsc(e.country)}/${xmlEsc(e.section)}</id>
+    <published>${iso(e.added)}</published>
+    <updated>${iso(lastChanged(e))}</updated>
+    <category term="${xmlEsc(countryToRegion[e.country])}" label="${REGIONS[countryToRegion[e.country]]}"/>
+    <summary>${xmlEsc(clip(d.lead, 280))}</summary>
+    <content type="html">${xmlEsc(html)}</content>
+  </entry>`;
+}).join('\n')}
+</feed>
 `);
 out.set('robots.txt', `User-agent: *\nAllow: /\n\nSitemap: ${SITE}sitemap.xml\n`);
 

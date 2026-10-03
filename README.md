@@ -47,6 +47,8 @@ All content is the `CHANGES` array in `app.js`, one object per line:
 
 - `badge` is the human-readable label shown on the site. `effective` is the same date in machine-readable form: the start of the change, only as precise as the source states it (`'2026-01-01'`, `'2026-04'` or `'2026'`). For a phased change use the first phase. Use `null` only when no single start date applies (for example "current rates", or a draft with no date yet). Tax years count from their known start (UK `2026/27` is `'2026-04-06'`).
 - `added` is the day the entry was first published (`YYYY-MM-DD`). Do not change it when you edit an entry.
+- `updated` (optional, `YYYY-MM-DD`): set it when you make a change readers should notice (new rate, new date, corrected figure), not for typo fixes. It moves the entry to the top of the RSS feed (`feed.xml`) and the "Latest changes" list on `countries.html`.
+- "New" and "Updated" labels appear on entries whose `added` or `updated` date falls in the 14 days up to the last-verified date (`FRESH_DAYS` in `app.js`). Entries that were on the site at launch (on or before `FRESH_LABELS_AFTER`) never get a label.
 - The validator checks that `effective` is a real date whose year appears in the badge or lead, and that `upcoming` agrees with it relative to the last-verified date: a change starting after that date must be `upcoming:true`, one that started before it must be `upcoming:false` (unless it is a draft). After moving the last-verified date forward, run the validator and flip the entries it names.
 - `category` is `payroll`, `reporting` or `infrastructure`.
 - `upcoming:true` means not yet in force. Add `draft:true` as well for proposed legislation that is not yet law; the site then shows a "Draft — not yet law" badge.

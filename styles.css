@@ -639,6 +639,12 @@
       margin-right: 0.4rem;
     }
 
+    .badge.fresh {
+      background: rgba(122, 162, 255, 0.18);
+      color: #9DB8FF;
+      margin-right: 0.4rem;
+    }
+
     .badge.active {
       background: rgba(45, 212, 163, 0.2);
       color: var(--success);

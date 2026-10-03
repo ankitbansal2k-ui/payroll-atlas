@@ -179,6 +179,22 @@
       {country:'pk',flag:'🇵🇰',name:'Pakistan',section:'pk-bps-2026',title:'Federal civil-servant Basic Pay Scales 2026 and 7% ad-hoc relief allowance',badge:'Effective 1 Jul 2026',effective:'2026-07-01',added:'2026-10-01',category:'payroll',upcoming:false,detail:{lead:'This applies to federal government civil servants only and is not a private-sector payroll rule. By Office Memorandum dated 21 July 2026, the Ministry of Finance approved revised Basic Pay Scales and allowances effective 1 July 2026 for federal civil employees paid from civil and defence estimates. BPS-2026 replaces BPS-2022 and merges the earlier ad-hoc relief allowances; a new Ad-hoc Relief Allowance-2026 of 7% of running basic pay applies from 1 July 2026 until further orders.',employer:['Federal payroll units: fix pay in BPS-2026 point to point from the stage held on 30 June 2026.','Stop the Ad-hoc Relief Allowances of 2022 (15%) and 2025 (10%), which cease on 1 July 2026, and pay the 7% allowance instead.','Annual increment remains admissible on 1 December each year.'],employee:['The Ad-hoc Relief Allowance-2026 is subject to income tax.'],note:'Applies to federal government civil employees, not to the private sector.',example:'',sourceUrl:'https://www.finance.gov.pk/circulars/REVISION_OF_BASIC_PAY_SCALES_2026.pdf',sourceLabel:'Source: Government of Pakistan Ministry of Finance - Office Memorandum, Revision of Basic Pay Scales and Allowances of Civil Servants 2026'}},
     ];
 
+    // Date the sources were last checked (also read by scripts/build-pages.mjs and scripts/validate.mjs).
+    const LAST_VERIFIED = new Date('2026-10-01T00:00:00Z');
+
+    // "New" and "Updated" labels: an entry is labelled when it was added (or, for "Updated", given an
+    // `updated` date) in the FRESH_DAYS up to LAST_VERIFIED. Entries already on the site at launch
+    // (on or before FRESH_LABELS_AFTER) are never labelled. scripts/build-pages.mjs applies the same rule.
+    const FRESH_LABELS_AFTER = '2026-10-03';
+    const FRESH_DAYS = 14;
+    function freshnessOf(item){
+      const from = new Date(LAST_VERIFIED.getTime() - (FRESH_DAYS - 1) * 864e5).toISOString().slice(0, 10);
+      const recent = d => typeof d === 'string' && d > FRESH_LABELS_AFTER && d >= from;
+      if(recent(item.added)) return 'new';
+      if(recent(item.updated)) return 'updated';
+      return null;
+    }
+
     // UI Functions
     function showView(viewId){
       document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
@@ -445,7 +461,6 @@
         .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     }
 
-    const LAST_VERIFIED = new Date('2026-10-01T00:00:00Z');
     const LAST_VERIFIED_LABEL = LAST_VERIFIED.toLocaleDateString('en-GB', {day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC'});
     const footerVerified = document.getElementById('footer-verified');
     if(footerVerified) footerVerified.textContent = LAST_VERIFIED_LABEL;
@@ -539,7 +554,7 @@
               <span class="item-title">${escapeHtml(item.title)}</span>
             </div>
             <span class="item-header-right">
-              ${item.draft ? '<span class="badge draft" title="Proposed legislation that has not been enacted; details and dates may change.">Draft — not yet law</span>' : ''}<span class="badge ${item.upcoming ? 'upcoming' : 'active'}">${escapeHtml(item.badge)}</span>
+              ${freshnessOf(item) === 'new' ? '<span class="badge fresh">New</span>' : freshnessOf(item) === 'updated' ? '<span class="badge fresh">Updated</span>' : ''}${item.draft ? '<span class="badge draft" title="Proposed legislation that has not been enacted; details and dates may change.">Draft — not yet law</span>' : ''}<span class="badge ${item.upcoming ? 'upcoming' : 'active'}">${escapeHtml(item.badge)}</span>
               <span class="item-chevron" aria-hidden="true"></span>
             </span>
           </button>

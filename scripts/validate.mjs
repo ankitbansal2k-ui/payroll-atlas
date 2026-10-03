@@ -51,6 +51,11 @@ for (const [i, c] of CHANGES.entries()) {
   // drafts without a date). added: the day the entry was first published.
   if (!isIsoDay(c.added)) err(`${id}: added must be YYYY-MM-DD`);
   else if (c.added > TODAY) err(`${id}: added ${c.added} is in the future`);
+  if ('updated' in c) {
+    if (!isIsoDay(c.updated)) err(`${id}: updated must be YYYY-MM-DD`);
+    else if (c.updated > TODAY) err(`${id}: updated ${c.updated} is in the future`);
+    else if (isIsoDay(c.added) && c.updated <= c.added) err(`${id}: updated must be after added`);
+  }
   if (c.effective !== null) {
     const span = periodOf(c.effective);
     if (!span) { err(`${id}: effective must be YYYY, YYYY-MM, YYYY-MM-DD or null`); continue; }

@@ -57,3 +57,7 @@ code { font-family: 'Geist Mono', ui-monospace, Consolas, monospace; font-size: 
 .suggest button { margin-top: 1.25rem; border: 0; cursor: pointer; font: inherit; font-weight: 700; justify-self: start; }
 .suggest [hidden] { display: none; }
 .hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+.badge.fresh { background: rgba(122, 162, 255, 0.18); color: #9DB8FF; }
+.latest { list-style: none; padding: 0; }
+.latest li { padding: 0.45rem 0; border-bottom: 1px solid var(--border); }
+.latest .when { color: var(--muted); font-size: 0.85rem; }
