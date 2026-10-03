@@ -1354,7 +1354,7 @@
 }
 
     /* CP3: multi-country picker */
-    .country-picker { position: static; flex: none; }
+    .country-picker { position: relative; flex: none; }
     .changelog-filters .country-picker { margin: 0; text-align: left; }
     .country-picker > summary {
       list-style: none; cursor: pointer; min-height: 44px; display: inline-flex; align-items: center; gap: 0.5rem;
@@ -1371,10 +1371,14 @@
     .chip-remove:focus-visible,
     .chip-clear:focus-visible { outline: 2px solid var(--blue-accent); outline-offset: 2px; }
     .country-picker-panel {
-      position: absolute; z-index: 20; top: calc(100% + 6px); left: 0; width: min(320px, 100%);
+      position: absolute; z-index: 20; top: 100%; left: 0; margin-top: 6px; width: min(320px, calc(100vw - 32px));
       background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 0.75rem;
       box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45); box-sizing: border-box;
     }
+    .country-picker.panel-align-right .country-picker-panel { right: 0; left: auto; }
+    .changelog-filters { position: relative; }
+    .changelog-filters .country-picker.panel-align-row { position: static; }
+    .country-picker.panel-align-row .country-picker-panel { left: 0; right: auto; }
     #country-filter {
       width: 100%; box-sizing: border-box; min-height: 40px; padding: 0.5rem 0.75rem; margin-bottom: 0.5rem;
       background: var(--dark-bg); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 6px; font: inherit;
@@ -1417,6 +1421,7 @@
       .country-picker { width: 100%; }
       .country-picker > summary { width: 100%; box-sizing: border-box; justify-content: space-between; }
       .country-picker-panel { position: static; width: 100%; margin-top: 6px; }
+      .country-picker.panel-align-right .country-picker-panel { left: 0; right: auto; }
       .chip-remove { min-width: 44px; min-height: 44px; }
     }
 

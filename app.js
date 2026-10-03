@@ -869,6 +869,24 @@
       }
     });
 
+    // CP6: keep the open picker panel on screen; align it to the summary's right edge near the viewport edge.
+    function alignPickerPanel() {
+      const picker = document.getElementById('country-picker');
+      const summary = document.getElementById('country-picker-summary');
+      if (!picker || !summary || !picker.open) return;
+      // Three states: default (left-aligned under the button), panel-align-right, or
+      // panel-align-row (neither fits: the panel anchors to the filter row's left edge).
+      const rect = summary.getBoundingClientRect();
+      const panelW = Math.min(320, window.innerWidth - 32);
+      const fitsLeft = rect.left + panelW <= window.innerWidth - 16;
+      const fitsRight = !fitsLeft && rect.right - panelW >= 16;
+      picker.classList.toggle('panel-align-right', fitsRight);
+      picker.classList.toggle('panel-align-row', !fitsLeft && !fitsRight);
+    }
+    const pickerEl = document.getElementById('country-picker');
+    if (pickerEl) pickerEl.addEventListener('toggle', alignPickerPanel);
+    window.addEventListener('resize', alignPickerPanel);
+
     document.addEventListener('submit', e => {
       const f = e.target;
       if (f instanceof HTMLFormElement && f.classList.contains('search-form')) {

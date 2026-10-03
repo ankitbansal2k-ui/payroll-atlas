@@ -35,7 +35,7 @@ class Element {
   closest(sel) { for (let e = this; e; e = e.parentElement) if (e.matches(sel)) return e; return null; }
   querySelector() { return null; }
   querySelectorAll() { return []; }
-  addEventListener() {}
+  addEventListener(t, fn) { ((this._ls ||= {})[t] ||= []).push(fn); }
   scrollIntoView() {}
   getBoundingClientRect() { return { left: 0, top: 0, width: 0, height: 0 }; }
   // CP4: attributes (disabled / aria-label are attribute-backed), click spy, detach.
@@ -144,7 +144,7 @@ function makePage(search = '', hash = '') {
     setTimeout: fakeSetTimeout, clearTimeout: fakeClearTimeout, localStorage: storage, sessionStorage: storage, Blob,
     fetch: net('fetch'), XMLHttpRequest: net('XMLHttpRequest'), WebSocket: net('WebSocket'), EventSource: net('EventSource'),
     navigator: { userAgent: 'node', sendBeacon: net('navigator.sendBeacon') },
-    scrollTo() {}, addEventListener: (t, fn) => (winListeners[t] ||= []).push(fn), print: () => { printCalls.n++; }, matchMedia: () => ({ matches: false, addEventListener() {} })
+    innerWidth: 1280, innerHeight: 800, scrollTo() {}, addEventListener: (t, fn) => (winListeners[t] ||= []).push(fn), print: () => { printCalls.n++; }, matchMedia: () => ({ matches: false, addEventListener() {} })
   };
   ctx.window = ctx; ctx.self = ctx;
   vm.createContext(ctx);
@@ -157,6 +157,8 @@ function makePage(search = '', hash = '') {
   const p_fire = (...a) => fire(...a);
   return {
     ctx, calls, list, fire, fireRaw, exportBtn, printCalls, all, printBtn,
+    // CP6: element-level + document-level (capture/delegated) listeners for non-bubbling events like toggle.
+    fireOn: (el, type) => { const ev = { type, target: el, currentTarget: el, newState: el.open ? 'open' : 'closed' }; ((el._ls || {})[type] || []).forEach(fn => fn(ev)); (listeners[type] || []).forEach(fn => fn(ev)); },
     fireWin: type => (winListeners[type] || []).forEach(fn => fn({ type })), dl, flushTimers, timers,
     exportClick: () => { p_fire('click', exportBtn); }, summary, select, form, clear, srcs, picker, pickerList,
     pickerHtml: () => pickerList.innerHTML,
@@ -734,6 +736,160 @@ test('print.header_escaped: hostile URL values never reach #print-header as mark
   assert.ok(!/<img|<b>/i.test(h.innerHTML || ''), 'unescaped user value in print header');
 });
 
+
+// ---------- CP6: picker panel anchored under the summary button ----------
+// Minimal CSS walker: returns [{media, sel, decls}] (media = '' for top-level rules).
+function cssRules(css) {
+  css = css.replace(/\/\*[\s\S]*?\*\//g, '');
+  const out = [];
+  (function walk(src, media) {
+    let i = 0;
+    while (i < src.length) {
+      const open = src.indexOf('{', i); if (open < 0) break;
+      const head = src.slice(i, open).trim();
+      let d = 0, j = open;
+      for (; j < src.length; j++) { if (src[j] === '{') d++; else if (src[j] === '}' && --d === 0) break; }
+      const body = src.slice(open + 1, j);
+      if (head.startsWith('@media')) walk(body, head);
+      else if (!head.startsWith('@')) {
+        const decls = {};
+        for (const part of body.split(';')) { const k = part.indexOf(':'); if (k > 0) decls[part.slice(0, k).trim().toLowerCase()] = part.slice(k + 1).trim().replace(/\s+/g, ' '); }
+        for (const sel of head.split(',')) out.push({ media, sel: sel.trim().replace(/\s+/g, ' '), decls });
+      }
+      i = j + 1;
+    }
+  })(css, '');
+  return out;
+}
+const CP6_RULES = cssRules(read('styles.css'));
+// Effective value of prop for an exact selector in a media context (last wins; '' = screen >480px base rules).
+const cssVal = (sel, prop, media = m => m === '') => {
+  let v; for (const r of CP6_RULES) if (r.sel === sel && media(r.media) && prop in r.decls) v = r.decls[prop]; return v;
+};
+const isMobile = m => /max-width:\s*480px/.test(m);
+
+test('cp6.css.anchor_context: .country-picker is position: relative on screens >480px', () => {
+  assert.equal(cssVal('.country-picker', 'position'), 'relative', '.country-picker must be the positioning context');
+});
+test('cp6.css.panel_under_button: panel is absolute at top:100% left:0 of the picker', () => {
+  assert.equal(cssVal('.country-picker-panel', 'position'), 'absolute');
+  assert.equal(cssVal('.country-picker-panel', 'top'), '100%');
+  assert.equal(cssVal('.country-picker-panel', 'left'), '0');
+});
+test('cp6.css.panel_width: panel width is min(320px, calc(100vw - 32px))', () => {
+  assert.equal((cssVal('.country-picker-panel', 'width') || '').replace(/\s+/g, ''), 'min(320px,calc(100vw-32px))');
+});
+test('cp6.css.align_right: .country-picker.panel-align-right .country-picker-panel sets right:0; left:auto', () => {
+  const sel = '.country-picker.panel-align-right .country-picker-panel';
+  assert.equal(cssVal(sel, 'right'), '0', 'right:0 missing');
+  assert.equal(cssVal(sel, 'left'), 'auto', 'left:auto missing');
+});
+test('cp6.css.mobile_in_flow: at <=480px the picker and panel stay static and full width', () => {
+  assert.equal(cssVal('.country-picker-panel', 'position', isMobile), 'static');
+  assert.equal(cssVal('.country-picker-panel', 'width', isMobile), '100%');
+  assert.equal(cssVal('.country-picker', 'width', isMobile), '100%');
+  const ar = cssVal('.country-picker.panel-align-right .country-picker-panel', 'position', isMobile);
+  assert.ok(ar === undefined || ar === 'static', 'align-right must not take the panel out of flow on phones');
+});
+
+function cp6Page(innerWidth, left, width = 120) {
+  const p = makePage('');
+  p.ctx.innerWidth = innerWidth;
+  const rect = () => ({ left, right: left + width, width, top: 100, bottom: 144, height: 44, x: left, y: 100 });
+  p.summary.getBoundingClientRect = rect; p.picker.getBoundingClientRect = rect;
+  const open = o => { p.picker.open = o; p.fireOn(p.picker, 'toggle'); };
+  const has = () => p.picker.classList.contains('panel-align-right');
+  return { p, open, has, move: l => { left = l; }, resize: w => { p.ctx.innerWidth = w; p.fireWin('resize'); } };
+}
+test('cp6.js.no_inline: app.js wires toggle/resize via addEventListener and uses panel-align-right', () => {
+  const js = read('app.js');
+  assert.ok(/addEventListener\(\s*['"]toggle['"]/.test(js), 'no toggle listener');
+  assert.ok(/addEventListener\(\s*['"]resize['"]/.test(js), 'no resize listener');
+  assert.ok(/panel-align-right/.test(js), 'class name panel-align-right not used');
+  assert.ok(!/\bontoggle\b|\bonresize\b/.test(js + read('index.html')), 'inline handler property used');
+});
+test('cp6.js.right_edge: opening near the right edge adds panel-align-right', () => {
+  const t = cp6Page(1000, 800); // 800 + 320 > 1000 - 16
+  t.open(true);
+  assert.equal(t.has(), true, 'panel would overflow but class not added');
+});
+test('cp6.js.left_edge: opening with room on the right leaves/removes panel-align-right', () => {
+  const t = cp6Page(1000, 100);
+  t.p.picker.classList.add('panel-align-right'); // stale class from an earlier open
+  t.open(true);
+  assert.equal(t.has(), false, 'panel fits but class still present');
+});
+test('cp6.js.boundary: exactly fitting (left + 320 == innerWidth - 16) does not align right', () => {
+  const t = cp6Page(1000, 664);
+  t.open(true);
+  assert.equal(t.has(), false);
+});
+test('cp6.js.resize_open: resize while open re-evaluates both ways', () => {
+  const t = cp6Page(1400, 800);
+  t.open(true);
+  assert.equal(t.has(), false, 'fits at 1400px');
+  t.resize(1000);
+  assert.equal(t.has(), true, 'shrinking window must align right');
+  t.resize(1400);
+  assert.equal(t.has(), false, 'growing window must remove the class');
+});
+test('cp6.js.closed_noop: toggle closed and resize while closed change nothing', () => {
+  const t = cp6Page(1000, 800);
+  t.open(false);
+  assert.equal(t.has(), false, 'closed toggle must not add the class');
+  t.resize(900);
+  assert.equal(t.has(), false, 'resize while closed must not add the class');
+  t.p.picker.classList.add('panel-align-right');
+  t.move(100); t.resize(1000);
+  assert.equal(t.has(), true, 'resize while closed must not touch the class');
+});
+
+const cp6State = t => {
+  const r = t.p.picker.classList.contains('panel-align-right'), w = t.p.picker.classList.contains('panel-align-row');
+  assert.ok(!(r && w), 'both alignment classes present at once');
+  return r ? 'right' : w ? 'row' : 'default';
+};
+test('cp6.js.row_fallback: neither alignment fits (500px, summary 170..290) -> panel-align-row only', () => {
+  const t = cp6Page(500, 170, 120); // left: 170+320 > 484; right: 290-320 = -30 < 16
+  t.open(true);
+  assert.equal(cp6State(t), 'row');
+  assert.equal(t.p.picker.classList.contains('panel-align-right'), false, 'must not right-align off the left edge');
+});
+test('cp6.js.right_fits: right alignment used when it fits (1000px, summary 800..930)', () => {
+  const t = cp6Page(1000, 800, 130);
+  t.open(true);
+  assert.equal(cp6State(t), 'right');
+});
+test('cp6.js.default_fits: left alignment fits -> no class', () => {
+  const t = cp6Page(1000, 100, 130);
+  t.p.picker.classList.add('panel-align-row'); // stale
+  t.open(true);
+  assert.equal(cp6State(t), 'default');
+});
+test('cp6.js.resize_three_states: resize moves through default/right/row and back', () => {
+  const t = cp6Page(1400, 300, 120); // summary 300..420
+  t.open(true);
+  assert.equal(cp6State(t), 'default', '1400');
+  t.resize(600); // 300+320 > 584; 420-320 = 100 >= 16
+  assert.equal(cp6State(t), 'right', '600');
+  t.move(170); t.resize(500); // 170..290 at 500
+  assert.equal(cp6State(t), 'row', '500');
+  t.move(300); t.resize(600);
+  assert.equal(cp6State(t), 'right', 'row -> right');
+  t.move(170); t.resize(500);
+  assert.equal(cp6State(t), 'row', 'right -> row');
+  t.resize(1400);
+  assert.equal(cp6State(t), 'default', 'row -> default');
+  t.open(false); t.resize(500);
+  assert.equal(cp6State(t), 'default', 'closed: unchanged');
+});
+test('cp6.css.align_row: panel-align-row makes the picker static inside the (relative) filter row, panel left:0', () => {
+  assert.equal(cssVal('.changelog-filters', 'position'), 'relative', 'filter row must be the positioning context');
+  assert.equal(cssVal('.changelog-filters .country-picker.panel-align-row', 'position'), 'static');
+  assert.equal(cssVal('.country-picker.panel-align-row .country-picker-panel', 'left'), '0');
+  assert.equal(cssVal('.country-picker.panel-align-row .country-picker-panel', 'right'), 'auto');
+  assert.equal(cssVal('.country-picker-panel', 'position', isMobile), 'static', 'phones stay in flow');
+});
 
 console.log(`\n${pass} passed, ${fail} failed`);
 if (fail) process.exit(1);
