@@ -524,6 +524,40 @@
       }
     }
 
+    // CP5 print: expand every filtered card before printing, restore afterwards.
+    const FILTER_LABELS = {payroll: 'Payroll', reporting: 'Reporting', infrastructure: 'Infrastructure', upcoming: 'Upcoming only', 'high-impact': 'High impact'};
+    let printOpened = [];
+    function printSummary(){
+      const parts = [];
+      const picked = state.countries.filter(isKnownCountry).map(countryName);
+      parts.push(picked.length ? picked.join(', ') : 'All countries');
+      if(state.region) parts.push(regionLabel(state.region));
+      if(state.filter && state.filter !== 'all') parts.push(FILTER_LABELS[state.filter] || state.filter);
+      if(state.search) parts.push('Search: "' + state.search + '"');
+      const date = new Date().toLocaleDateString('en-GB', {day: 'numeric', month: 'long', year: 'numeric'});
+      return 'Intelligent Payroll — ' + parts.join(' · ') + ' — printed ' + date;
+    }
+    function beforePrint(){
+      const header = document.getElementById('print-header');
+      if(header) header.textContent = printSummary();
+      printOpened = [];
+      document.querySelectorAll('.item-card').forEach(card => {
+        const panel = card.querySelector('.item-detail');
+        const item = currentChangelogItems[Number(card.dataset.index)];
+        if(panel && item && !panel.dataset.loaded){
+          panel.innerHTML = renderDetail(item);
+          panel.dataset.loaded = '1';
+        }
+        if(!card.classList.contains('open')){ card.classList.add('open'); printOpened.push(card); }
+      });
+    }
+    function afterPrint(){
+      printOpened.forEach(card => card.classList.remove('open'));
+      printOpened = [];
+    }
+    window.addEventListener('beforeprint', beforePrint);
+    window.addEventListener('afterprint', afterPrint);
+
     function regionLabel(r){
       return ({europe: 'Europe', apac: 'APAC', menat: 'MENAT', latam: 'LATAM', africa: 'Africa'})[r] || '';
     }
@@ -787,6 +821,7 @@
       const action = t.closest('[data-action]');
       if (!action) return;
       if (action.dataset.action === 'export-csv') { e.preventDefault(); exportCsv(); }
+      else if (action.dataset.action === 'print') { e.preventDefault(); window.print(); }
       else if (action.dataset.action === 'clear-filter') { e.preventDefault(); clearFilter(); }
       else if (action.dataset.action === 'show-region') { e.preventDefault(); showWholeRegion(); }
       else if (action.dataset.action === 'show-countries') { e.preventDefault(); showCountriesAllRegions(); }

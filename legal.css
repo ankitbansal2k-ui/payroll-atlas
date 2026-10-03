@@ -70,3 +70,12 @@ code { font-family: 'Geist Mono', ui-monospace, Consolas, monospace; font-size: 
 .sub { font-size: 1rem; }
 code { font-size: 0.85em; word-break: break-all; }
 .badge.impact-high { background: rgba(255, 107, 107, 0.16); color: #FF9B9B; }
+
+/* CP5: print / save as PDF */
+@media print {
+  header, .cta, .chips, footer p:last-child { display: none !important; }
+  body { background: #fff; color: #000; font-size: 11pt; }
+  .entry { break-inside: avoid; background: #fff; border-color: #ccc; color: #000; }
+  .entry *, main * { color: #000 !important; }
+  .source a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 9pt; word-break: break-all; }
+}

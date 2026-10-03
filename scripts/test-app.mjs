@@ -98,6 +98,9 @@ function makePage(search = '', hash = '') {
   // CP4 static button (index.html): <button type="button" id="export-csv" data-action="export-csv">
   const exportBtn = add('button', { id: 'export-csv', classes: ['export-csv'], dataset: { action: 'export-csv' } });
   exportBtn.type = 'button';
+  // CP5 static elements (index.html): print button and print-only header.
+  const printBtn = add('button', { id: 'print-page', dataset: { action: 'print' } }); printBtn.type = 'button';
+  add('div', { id: 'print-header', classes: ['print-only'] });
   const canon = add('link'); canon.rel = 'canonical'; canon.href = 'https://www.intelligentpayroll.eu/'; canon.setAttribute('href', canon.href);
   // CP4 download spies.
   const dl = { blobs: [], created: [], revoked: [], anchors: [], clicks: [] };
@@ -133,6 +136,7 @@ function makePage(search = '', hash = '') {
     },
     pushState: () => { throw new Error('pushState must not be used (replaceState only)'); }
   };
+  const winListeners = {}; const printCalls = { n: 0 };
   const forbidden = () => { throw new Error('browser storage must not be used'); };
   const storage = { getItem: forbidden, setItem: forbidden, removeItem: forbidden };
   const ctx = {
@@ -140,7 +144,7 @@ function makePage(search = '', hash = '') {
     setTimeout: fakeSetTimeout, clearTimeout: fakeClearTimeout, localStorage: storage, sessionStorage: storage, Blob,
     fetch: net('fetch'), XMLHttpRequest: net('XMLHttpRequest'), WebSocket: net('WebSocket'), EventSource: net('EventSource'),
     navigator: { userAgent: 'node', sendBeacon: net('navigator.sendBeacon') },
-    scrollTo() {}, addEventListener() {}, matchMedia: () => ({ matches: false, addEventListener() {} })
+    scrollTo() {}, addEventListener: (t, fn) => (winListeners[t] ||= []).push(fn), print: () => { printCalls.n++; }, matchMedia: () => ({ matches: false, addEventListener() {} })
   };
   ctx.window = ctx; ctx.self = ctx;
   vm.createContext(ctx);
@@ -152,7 +156,8 @@ function makePage(search = '', hash = '') {
   const list = () => document.getElementById('changelog-list').innerHTML;
   const p_fire = (...a) => fire(...a);
   return {
-    ctx, calls, list, fire, fireRaw, exportBtn, dl, flushTimers, timers,
+    ctx, calls, list, fire, fireRaw, exportBtn, printCalls, all, printBtn,
+    fireWin: type => (winListeners[type] || []).forEach(fn => fn({ type })), dl, flushTimers, timers,
     exportClick: () => { p_fire('click', exportBtn); }, summary, select, form, clear, srcs, picker, pickerList,
     pickerHtml: () => pickerList.innerHTML,
     chipsHtml: () => document.getElementById('country-chips').innerHTML,
@@ -603,7 +608,7 @@ test('export.revoke: object URL revoked after >=40s, or at the start of the next
   p.flushTimers();
   assert.deepEqual(p.dl.revoked, [p.dl.created[0].url, p.dl.created[1].url]);
   const html = read('index.html');
-  assert.match(html, /<\/details>\s*<button\b(?=[^>]*id="export-csv")(?=[^>]*aria-label="Export changes as CSV")[^>]*>[^<]*<\/button>\s*<\/div>/, 'export is the last item in the filter row with a default aria-label');
+  assert.match(html, /<\/details>\s*<div\b[^>]*class="list-actions"[^>]*>\s*<button\b(?=[^>]*id="export-csv")(?=[^>]*aria-label="Export changes as CSV")[^>]*>[^<]*<\/button>\s*<button\b(?=[^>]*id="print-page")[^>]*>[^<]*<\/button>\s*<\/div>\s*<\/div>/, 'export + print live in .list-actions, the last child of the filter row (after </details>), export with a default aria-label');
 });
 
 test('export.static: index.html has the Export CSV button, no inline handler, canonical SITE', () => {
@@ -674,6 +679,61 @@ test('export.no_network / static checks in app.js', () => {
   assert.match(js, /PayrollFilters\.toCsv\s*\(/); assert.match(js, /PayrollFilters\.csvFilename\s*\(/);
   assert.match(js, /revokeObjectURL/);
 });
+
+// ---------- CP5: print ----------
+test('print.button: clicking Print / PDF calls window.print once (delegated, data-action="print")', () => {
+  const p = makePage('?countries=poland,germany');
+  p.fire('click', p.printBtn);
+  assert.equal(p.printCalls.n, 1, 'window.print must be called exactly once');
+  const html = read('index.html');
+  assert.match(html, /<button type="button" id="print-page"[^>]*data-action="print"[^>]*>Print \/ PDF<\/button>/, 'static button in index.html');
+});
+
+// Real cards are only innerHTML strings in this fake DOM, so materialise them as elements the way a
+// browser would: .item-card[data-index] with a child .item-detail reachable via card.querySelector.
+function materialiseCards(p) {
+  const n = p.cards();
+  const cards = [];
+  for (let i = 0; i < n; i++) {
+    const card = new p.ctx.Element('div', { classes: ['item-card'], dataset: { index: String(i) } });
+    const panel = new p.ctx.Element('div', { classes: ['item-detail'], parent: card });
+    card.querySelector = sel => (sel === '.item-detail' ? panel : null);
+    card.querySelectorAll = sel => (sel === '.item-detail' ? [panel] : []);
+    p.all.push(card, panel); cards.push({ card, panel });
+  }
+  return cards;
+}
+
+test('print.beforeprint: every filtered card detail is rendered, then restored afterprint', () => {
+  const p = makePage('?countries=poland,germany');
+  p.fire('click', p.btn('nav-link', 'view', 'view-changelog'));
+  const n = count({ countries: ['poland', 'germany'] });
+  assert.equal(p.cards(), n);
+  const cards = materialiseCards(p);
+  p.fireWin('beforeprint');
+  for (const { panel } of cards) assert.match(panel.innerHTML, /class="detail-verified"/, 'detail panel must be filled before printing');
+  p.fireWin('afterprint');
+  for (const { card } of cards) assert.equal(card.classList.contains('open'), false, 'cards the user had not opened stay closed after printing');
+});
+
+test('print.header: beforeprint writes active selection and print date into #print-header', () => {
+  const p = makePage('?countries=poland,germany&filter=payroll');
+  p.fire('click', p.btn('nav-link', 'view', 'view-changelog'));
+  p.fireWin('beforeprint');
+  const h = p.ctx.document.getElementById('print-header');
+  const text = (h.textContent || '') + ' ' + (h.innerHTML || '').replace(/<[^>]*>/g, '');
+  assert.match(text, /Poland/); assert.match(text, /Germany/); assert.match(text, /Payroll/i);
+  assert.match(text, /\b\d{1,2} (January|February|March|April|May|June|July|August|September|October|November|December) \d{4}\b/, 'print date like "3 October 2026"');
+});
+
+test('print.header_escaped: hostile URL values never reach #print-header as markup', () => {
+  const p = makePage('?countries=%3Cimg%20src%3Dx%3E,poland&q=%3Cb%3Ex');
+  p.fire('click', p.btn('nav-link', 'view', 'view-changelog'));
+  p.fireWin('beforeprint');
+  const h = p.ctx.document.getElementById('print-header');
+  assert.ok(!/<img|<b>/i.test(h.innerHTML || ''), 'unescaped user value in print header');
+});
+
 
 console.log(`\n${pass} passed, ${fail} failed`);
 if (fail) process.exit(1);

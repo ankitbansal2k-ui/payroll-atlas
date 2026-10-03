@@ -48,3 +48,10 @@ if ! node scripts/test-app.mjs >/dev/null; then
   echo "pre-commit: commit blocked. The app wiring tests (scripts/test-app.mjs) failed."
   exit 1
 fi
+
+if ! node scripts/test-print.mjs >/dev/null; then
+  node scripts/test-print.mjs
+  echo ""
+  echo "pre-commit: commit blocked. The print stylesheet tests (scripts/test-print.mjs) failed."
+  exit 1
+fi

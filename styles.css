@@ -825,8 +825,9 @@
       background: rgba(45, 212, 163, 0.1);
     }
 
+    .list-actions { display: flex; gap: 1rem; margin-left: auto; flex-wrap: wrap; }
+
     .export-btn {
-      margin-left: auto;
       padding: 0.5rem 1rem;
       background: var(--card-bg);
       border: 1px solid var(--blue-accent);
@@ -847,7 +848,7 @@
     }
 
     @media (max-width: 600px) {
-      .export-btn { margin-left: 0; }
+      .list-actions { margin-left: 0; width: 100%; }
     }
 
     /* Stats grid */
@@ -1354,6 +1355,7 @@
 
     /* CP3: multi-country picker */
     .country-picker { position: static; flex: none; }
+    .changelog-filters .country-picker { margin: 0; text-align: left; }
     .country-picker > summary {
       list-style: none; cursor: pointer; min-height: 44px; display: inline-flex; align-items: center; gap: 0.5rem;
       padding: 0.5rem 1rem; border: 1px solid var(--border-color); border-radius: 8px;
@@ -1416,4 +1418,23 @@
       .country-picker > summary { width: 100%; box-sizing: border-box; justify-content: space-between; }
       .country-picker-panel { position: static; width: 100%; margin-top: 6px; }
       .chip-remove { min-width: 44px; min-height: 44px; }
+    }
+
+    /* CP5: print / save as PDF */
+    .print-only { display: none; }
+
+    @media print {
+      header, .region-tabs, .changelog-filters, #country-picker, .chip-remove, .chip-clear,
+      #export-csv, #print-page, .list-actions, .filter-clear, .coverage-map, .footer-links, .item-chevron,
+      .final-cta, .hero-cta-row { display: none !important; }
+      body { background: #fff !important; color: #000 !important; font-size: 11pt; }
+      body * { color: #000 !important; -webkit-text-fill-color: #000 !important; background: transparent !important; box-shadow: none !important; text-shadow: none !important; }
+      .badge { border: 1px solid #000; }
+      a { color: #000 !important; text-decoration: underline; }
+      .item-card { background: #fff; border: 1px solid #ccc; box-shadow: none; break-inside: avoid; color: #000; }
+      .item-detail { display: block; background: #fff; color: #000; }
+      .item-card *, .filter-banner, .filter-banner * { color: #000 !important; }
+      a.detail-source[href^="http"]::after { content: " (" attr(href) ")"; font-size: 9pt; word-break: break-all; }
+      [data-reveal], [data-reveal-item] { opacity: 1 !important; transform: none !important; filter: none !important; visibility: visible !important; }
+      .print-only { display: block; margin-bottom: 1rem; font-size: 10pt; color: #333; }
     }
