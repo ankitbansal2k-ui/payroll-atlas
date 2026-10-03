@@ -524,7 +524,7 @@
         : '';
 
       return `
-        ${d.lead ? `<p class="detail-lead">${escapeHtml(d.lead)}</p>` : ''}
+        ${d.lead ? `<p class="detail-lead">${PayrollFilters.highlight(d.lead, state.search)}</p>` : ''}
         ${(employerList || employeeList) ? `<div class="detail-actions">${employerList}${employeeList}</div>` : ''}
         ${d.example ? `<div class="detail-example"><span class="detail-example-label">In practice</span>${escapeHtml(d.example)}</div>` : ''}
         ${d.note ? `<p class="detail-note">${escapeHtml(d.note)}</p>` : ''}
@@ -700,7 +700,7 @@
           <button type="button" class="item-header" data-action="toggle-detail" aria-expanded="false">
             <div>
               <strong>${escapeHtml(item.flag)} ${escapeHtml(item.name)}</strong><br/>
-              <span class="item-title">${escapeHtml(item.title)}</span>
+              <span class="item-title">${PayrollFilters.highlight(item.title, state.search)}</span>
             </div>
             <span class="item-header-right">
               ${freshnessOf(item) === 'new' ? '<span class="badge fresh">New</span>' : freshnessOf(item) === 'updated' ? '<span class="badge fresh">Updated</span>' : ''}${item.impact === 'high' ? '<span class="badge impact-high" title="A new process, system, filing or calculation method">High impact</span>' : ''}${statusChip(item)}${item.badge ? '<span class="badge-note">' + escapeHtml(item.badge) + '</span>' : ''}

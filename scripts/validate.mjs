@@ -109,14 +109,14 @@ for (const [n, opts] of selects.entries()) {
 // XSS guard: values that can come from the address bar or the search box must be escaped
 // wherever they are interpolated into a template string that ends up in innerHTML.
 {
-  const RISKY = /\b(country|countryParam|search|query|term|param|params|countries|selection|state)\b/;
+  const RISKY = /\b(country|countryParam|search|query|term|param|params|countries|selection|state|hlNeedle)\b/; // no aliases: pass state.search to wrappers directly
   const lines = js.split('\n');
   lines.forEach((line, i) => {
     if (/^\s*\{country:/.test(line)) return; // data rows
     for (const m of line.matchAll(/\$\{([^}]*)\}/g)) {
       // Drop the parts that are properly escaped, and plain truthiness tests such as `search ? ...`.
       const rest = m[1]
-        .replace(/escapeHtml\((?:[^()]|\([^()]*\))*\)?/g, '')
+        .replace(/(?:escapeHtml|PayrollFilters\.highlight)\((?:[^()]|\([^()]*\))*\)?/g, '') // escaping wrappers
         .replace(/\b(?:state\.)?(country|countryParam|search|query|term|param|params|countries|selection|state)\s*(\?|&&)/g, '');
       if (RISKY.test(rest)) err(`app.js:${i + 1}: unescaped user-controlled value in template: ${m[1].trim()}`);
     }

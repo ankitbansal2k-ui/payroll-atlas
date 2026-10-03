@@ -229,5 +229,22 @@ test('legal.no_print_button: generated pages carry no print button (plan: index/
   assert.ok(!/data-action="print"/.test(legalMarkup));
 });
 
+// ---------- P2-6: search highlight (<mark class="search-hit">, built by filters.js highlight) ----------
+test('p2_6.search_hit_screen_and_print', () => {
+  assert.ok(/class="search-hit"/.test(read('filters.js')), 'filters.js highlight must emit class="search-hit"');
+  const css = stripComments(read('styles.css'));
+  const screen = rules(css).filter(r => r.selectors.some(s => /(^|\s|mark)\.search-hit$/.test(s)));
+  assert.ok(screen.some(r => 'background' in r.decls || 'background-color' in r.decls) && screen.some(r => 'color' in r.decls),
+    'screen rule for .search-hit (or mark.search-hit) with explicit background and color (readable on the dark UI)');
+  const rs = printRules('styles.css');
+  const sel = ['.search-hit', 'mark.search-hit'].find(s => rulesFor(rs, s).length);
+  assert.ok(sel, 'need a @media print rule for .search-hit');
+  const c = val(declOf(rs, sel, 'color'));
+  assert.ok(isDark(c) || c === 'inherit' || c === 'currentcolor', `print .search-hit color must be dark/inherit, got ${c}`);
+  const bg = val(declOf(rs, sel, 'background')) || val(declOf(rs, sel, 'background-color'));
+  assert.ok(bg !== undefined && bg !== '', 'print .search-hit sets background (e.g. none/transparent or a light tint)');
+  assert.ok(!isDark(bg), `print background must not be dark, got ${bg}`);
+});
+
 console.log(`\n${pass} passed, ${fail} failed`);
 if (fail) process.exit(1);

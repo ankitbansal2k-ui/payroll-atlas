@@ -125,7 +125,7 @@
     const st = state || {};
     const filter = st.filter || 'all';
     const picked = st.countries || [];
-    const needle = (st.search || '').toLowerCase();
+    const needle = foldForSearch(st.search || '');
     return changes.filter(c => {
       if (CATEGORIES.includes(filter) && c.category !== filter) return false;
       if (st.when === 'upcoming' && !c.upcoming) return false;
@@ -134,9 +134,40 @@
       if (picked.length && !picked.includes(c.country)) return false;
       if (st.region && countryToRegion && countryToRegion[c.country] !== st.region) return false;
       // Intentionally wider than old app.js (name+title): also matches detail.lead.
-      if (needle && ![c.title, c.name, c.detail && c.detail.lead].some(t => (t || '').toLowerCase().includes(needle))) return false;
+      if (needle && ![c.title, c.name, c.detail && c.detail.lead, c.detail && c.detail.sourceLabel].some(t => foldForSearch(t || '').includes(needle))) return false;
       return true;
     });
+  }
+
+  const SEARCH_MAX_LENGTH = 200;
+  const HTML_ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+  function escHtml(s) { return s.replace(/[&<>"']/g, ch => HTML_ESC[ch]); }
+  // Shared case fold for search filtering AND highlighting, so a card the filter shows always gets a mark.
+  // Lower-cases per code point (astral letters such as Deseret fold too). A code point whose lower case has a
+  // different length (Turkish capital dotted I -> "i" + combining dot) is kept unchanged, so the fold is
+  // length-preserving and indices map back to the original text. Final sigma folds to plain sigma.
+  function foldForSearch(s) {
+    let out = '';
+    for (const ch of String(s)) {
+      const lo = ch.toLowerCase();
+      out += lo.length !== ch.length ? ch : lo === 'ς' ? 'σ' : lo;
+    }
+    return out;
+  }
+
+  // Escaped text with case-insensitive literal matches of query wrapped in <mark class="search-hit">.
+  // Matching runs on the raw text (never on entities); no regex is built from the query.
+  function highlight(text, query) {
+    if (text === null || text === undefined) return '';
+    const raw = String(text);
+    if (typeof query !== 'string' || !query.trim() || query.length > SEARCH_MAX_LENGTH || query.length > raw.length) return escHtml(raw);
+    const hay = foldForSearch(raw), needle = foldForSearch(query);
+    let out = '', pos = 0, i;
+    while ((i = hay.indexOf(needle, pos)) !== -1) {
+      out += escHtml(raw.slice(pos, i)) + '<mark class="search-hit">' + escHtml(raw.slice(i, i + needle.length)) + '</mark>';
+      pos = i + needle.length;
+    }
+    return out + escHtml(raw.slice(pos));
   }
 
   // Same slug rule as scripts/build-pages.mjs (country page file names).
@@ -188,7 +219,7 @@
   // CSS class for a country's map shape/legend swatch, from its entry count.
   function depthClass(n) { return `depth-${depthBucket(n)}`; }
 
-  const api = { MAX_COUNTRIES, WHENS, STATUS_LABELS, statusOf, formatEffective, CATEGORY_LABELS, WHEN_LABELS, parseCountries, serializeCountries, readSelection, readUrlState, applyFilters, slugify, csvCell, toCsv, csvFilename, coverageDepth, depthBucket, depthClass };
+  const api = { MAX_COUNTRIES, WHENS, STATUS_LABELS, statusOf, formatEffective, CATEGORY_LABELS, WHEN_LABELS, parseCountries, serializeCountries, readSelection, readUrlState, applyFilters, slugify, csvCell, toCsv, csvFilename, coverageDepth, depthBucket, depthClass, highlight, foldForSearch, SEARCH_MAX_LENGTH };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else if (typeof window !== 'undefined') window.PayrollFilters = api;
 })();

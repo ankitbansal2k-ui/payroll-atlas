@@ -5,7 +5,7 @@
 //   Page URL = `${site}countries/<slugify(name)>.html#<section>`.
 // - Selection order is preserved (serializeCountries joins in given order).
 // - Both ?countries= and legacy ?country= present: merged, countries first (plan test params.both).
-// - Search matches case-insensitively across title, name and detail.lead.
+// - Search matches case-insensitively across title, name, detail.lead and (P2-6) detail.sourceLabel.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
@@ -96,7 +96,8 @@ test('filter.combo', () => {
 });
 test('filter.search_fields', () => {
   for (const q of ['poland', 'minimum wage', 'VDU']) {
-    const exp = CHANGES.filter(c => [c.title, c.name, c.detail && c.detail.lead].some(t => (t || '').toLowerCase().includes(q.toLowerCase())));
+    // P2-6: search also covers the source label.
+    const exp = CHANGES.filter(c => [c.title, c.name, c.detail && c.detail.lead, c.detail && c.detail.sourceLabel].some(t => (t || '').toLowerCase().includes(q.toLowerCase())));
     assert.deepEqual(A({ search: q }).map(key), exp.map(key), q);
   }
 });
@@ -376,6 +377,106 @@ test('p2_3.every_country_one_bucket', () => {
   }
   assert.equal(Object.values(buckets).flat().length, Object.keys(countryToRegion).length);
   assert.equal(F.depthBucket(d.nowhere || 0), 0, 'country without entries is not shaded');
+});
+
+// ---------- P2-6: search also matches detail.sourceLabel; highlight(text, query) ----------
+// Contract (P2-6): F.highlight(text, query) -> HTML string. Escapes the WHOLE text with app.js escapeHtml rules
+// (& < > " ' -> &amp; &lt; &gt; &quot; &#39;), then wraps each case-insensitive, non-overlapping occurrence of the
+// query (matched against the raw text, never inside an entity) in <mark class="search-hit">...</mark>, keeping the
+// original casing. The query is a phrase (not split into words), matched "as typed": no accent folding ("zl" does
+// not match "zł"). Empty/whitespace/non-string query -> plain escaped text. Queries longer than
+// F.SEARCH_MAX_LENGTH (200) are not highlighted (plain escaped text). Never throws on regex metacharacters.
+const BS = String.fromCharCode(92); // backslash (avoids shell escaping issues)
+const M = s => `<mark class="search-hit">${s}</mark>`;
+const H = (t, q) => F.highlight(t, q);
+test('p2_6.exports', () => { assert.equal(typeof F.highlight, 'function'); assert.equal(F.SEARCH_MAX_LENGTH, 200); });
+test('p2_6.sourceLabel_only_match', () => {
+  const hit = plain(F.applyFilters(CHANGES, { search: 'mindestlohnes' }, countryToRegion));
+  assert.ok(hit.length >= 1, 'word only in detail.sourceLabel must match');
+  for (const c of hit) assert.ok(/mindestlohnes/i.test(c.detail.sourceLabel));
+  assert.ok(!hit.some(c => [c.title, c.name, c.detail.lead].some(t => /mindestlohnes/i.test(t || ''))), 'fixture: word must be sourceLabel-only');
+  const syn = [{ country: 'uk', title: 'T', name: 'United Kingdom', detail: { lead: 'L', sourceLabel: 'HMRC guidance' } }];
+  assert.equal(F.applyFilters(syn, { search: 'hmrc' }, countryToRegion).length, 1);
+  assert.equal(F.applyFilters(syn, { search: 'zzz' }, countryToRegion).length, 0);
+  assert.equal(F.applyFilters([{ country: 'uk', title: 'T', name: 'N' }], { search: 'x' }, countryToRegion).length, 0, 'missing detail must not throw');
+});
+test('p2_6.highlight_basic_case', () => {
+  assert.equal(H('Minimum wage rises', 'minimum'), M('Minimum') + ' wage rises');
+  assert.equal(H('minimum wage', 'MINIMUM'), M('minimum') + ' wage');
+  assert.equal(H('Social minimum wage', 'minimum wage'), 'Social ' + M('minimum wage'), 'phrase, not split into words');
+  assert.equal(H('no hit here', 'wage'), 'no hit here');
+});
+test('p2_6.highlight_multiple_nonoverlapping', () => {
+  assert.equal(H('Wage, wage and WAGE', 'wage'), `${M('Wage')}, ${M('wage')} and ${M('WAGE')}`);
+  assert.equal(H('aaa', 'aa'), M('aa') + 'a');
+  assert.equal(H('aaaa', 'aa'), M('aa') + M('aa'));
+});
+test('p2_6.highlight_regex_metachars', () => {
+  for (const q of ['(', '[', '.*', BS, '(.*', '$', '^', '|', '+', '?', '{2}', ')', ']', '*']) {
+    assert.doesNotThrow(() => H('plain text', q), q);
+    assert.equal(H('plain text', q), 'plain text', `"${q}" must be literal`);
+  }
+  assert.equal(H('a (.* b', '(.*'), 'a ' + M('(.*') + ' b');
+  assert.equal(H('x [y] z', '[y]'), 'x ' + M('[y]') + ' z');
+  assert.equal(H('C:' + BS + 'path', BS), 'C:' + M(BS) + 'path');
+  assert.equal(H('1.5% or 105%', '1.5'), M('1.5') + '% or 105%', '"." is not a wildcard');
+});
+test('p2_6.highlight_entity_safety', () => {
+  assert.equal(H('a&b', '&'), 'a' + M('&amp;') + 'b');
+  assert.equal(H('a&b', 'amp'), 'a&amp;b', '"amp" must not match inside &amp;');
+  assert.equal(H('x < y', 'lt'), 'x &lt; y', '"lt" must not match inside &lt;');
+  assert.equal(H('x > y', 'gt'), 'x &gt; y');
+  assert.equal(H('"q"', 'quot'), '&quot;q&quot;');
+  assert.equal(H("it's", '39'), 'it&#39;s');
+  assert.equal(H("it's", "'"), 'it' + M('&#39;') + 's');
+  assert.equal(H('A&B Ltd', 'a&b'), M('A&amp;B') + ' Ltd');
+  assert.equal(H('a <script> b', '<script>'), 'a ' + M('&lt;script&gt;') + ' b');
+  assert.equal(H('<b>x</b>', 'b'), '&lt;' + M('b') + '&gt;x&lt;/' + M('b') + '&gt;');
+  assert.equal(H('a; b', ';'), 'a' + M(';') + ' b');
+  assert.equal(H('&amp;', '&amp;'), M('&amp;amp;'), 'literal "&amp;" in data is escaped once, matched as typed');
+  assert.equal(H('&amp;', 'amp'), '&amp;' + M('amp') + ';', 'no double-escaping, no broken entity');
+  assert.equal(H('<img src=x onerror=1>', '<img src=x onerror=1>'), M('&lt;img src=x onerror=1&gt;'));
+  assert.equal(H('a < b & c', '<script>'), 'a &lt; b &amp; c');
+});
+test('p2_6.highlight_empty_and_long', () => {
+  for (const q of ['', '   ', '\t\n', null, undefined, 42, {}, []]) assert.equal(H('a & <b>', q), 'a &amp; &lt;b&gt;', JSON.stringify(q));
+  assert.equal(H('short', 'short but longer query'), 'short');
+  assert.equal(H(null, 'x'), ''); assert.equal(H(undefined, 'x'), '');
+  assert.equal(H(12345, '23'), '1' + M('23') + '45');
+  const long = 'w'.repeat(201);
+  assert.equal(H(long + ' tail', long), long + ' tail', 'over SEARCH_MAX_LENGTH: not highlighted');
+  const ok = 'w'.repeat(200);
+  assert.equal(H(ok, ok), M(ok));
+  const t0 = Date.now(); H('ab'.repeat(50000), 'a'.repeat(100000)); H('a'.repeat(100000), 'a'); assert.ok(Date.now() - t0 < 2000, 'fast on big input');
+});
+test('p2_6.highlight_diacritics_as_typed', () => {
+  assert.equal(H('Płaca minimalna 4 806 zł', 'zl'), 'Płaca minimalna 4 806 zł', 'no accent folding');
+  assert.equal(H('Płaca minimalna 4 806 zł', 'zł'), 'Płaca minimalna 4 806 ' + M('zł'));
+  assert.equal(H('ÉLECTION', 'élection'), M('ÉLECTION'));
+  assert.equal(H('İstanbul wage', 'wage'), 'İstanbul ' + M('wage'), 'lower-casing that changes length must not shift offsets');
+  assert.equal(H('Straße wage', 'wage'), 'Straße ' + M('wage'));
+  assert.equal(H('€1,153 a month', '€1,153'), M('€1,153') + ' a month');
+});
+
+// Fold agreement (P2-6 fix): applyFilters and highlight share F.foldForSearch (per code point, length-preserving).
+// Documented choice: Turkish capital dotted I (U+0130) lowercases to two code units, so it is kept as is:
+// query 'i' does NOT match 'İstanbul' (neither filter nor mark); query 'İ' does. Final sigma folds to sigma.
+test('p2_6.fold_filter_highlight_agree', () => {
+  const card = t => [{ country: 'uk', title: t, name: 'N', detail: { lead: '' } }];
+  const agree = (title, q, expected) => {
+    const shown = F.applyFilters(card(title), { search: q }, countryToRegion).length === 1;
+    const marked = /<mark class="search-hit">/.test(H(title, q));
+    assert.equal(shown, expected, `filter ${title} / ${q}`);
+    assert.equal(marked, shown, `highlight disagrees with filter for ${title} / ${q}`);
+  };
+  agree('İstanbul', 'i', false);
+  agree('İstanbul', 'İ', true);
+  agree('İstanbul', 'stanbul', true);
+  agree('ΟΔΟΣ', 'οδος', true);
+  assert.equal(H('ΟΔΟΣ', 'οδος'), '<mark class="search-hit">ΟΔΟΣ</mark>');
+  agree('\u{10400}x', '\u{10428}', true);
+  assert.equal(H('\u{10400}x', '\u{10428}'), '<mark class="search-hit">\u{10400}</mark>x');
+  assert.equal(F.foldForSearch('İA\u{10400}').length, 'İA\u{10400}'.length, 'fold must preserve length');
 });
 
 console.log(`${n} filter tests passed, ${failed} failed.`);

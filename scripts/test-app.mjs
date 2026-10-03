@@ -185,7 +185,7 @@ const count = st => CHANGES.filter(c =>
   (!st.region || C2R[c.country] === st.region) &&
   (!st.filter || st.filter === 'all' || (st.filter === 'high-impact' ? c.impact === 'high' : c.category === st.filter)) &&
   (!st.when || st.when === 'all' || (st.when === 'upcoming' ? !!c.upcoming : !c.upcoming)) &&
-  (!st.search || [c.title, c.name, c.detail && c.detail.lead].some(t => (t || '').toLowerCase().includes(st.search)))).length;
+  (!st.search || [c.title, c.name, c.detail && c.detail.lead, c.detail && c.detail.sourceLabel].some(t => (t || '').toLowerCase().includes(st.search)))).length;
 
 // ---------- tests ----------
 let pass = 0, fail = 0;
@@ -1199,5 +1199,97 @@ test('p2_3.list_rendered_without_d3', () => {
   }
 });
 
+// ---------- P2-6: highlighted search ----------
+// Contract: card titles (.item-title) and the expanded detail lead (.detail-lead) are built with
+// PayrollFilters.highlight(text, state.search); names, badges, attributes and the source link are not highlighted.
+const MARK_OPEN = '<mark class="search-hit">';
+const badTags = html => [...html.matchAll(/<[^>]*>/g)].map(m => m[0]).filter(t => /mark|search-hit/i.test(t) && t !== MARK_OPEN && t !== '</mark>');
+const titles = html => [...html.matchAll(/<span class="item-title">([\s\S]*?)<\/span>/g)].map(m => m[1]);
+test('p2_6.titles_highlighted_original_case', () => {
+  const p = makePage('');
+  p.ctx.document.getElementById('search-input').value = 'MINIMUM';
+  p.fire('submit', p.form);
+  assert.equal(p.cards(), count({ search: 'minimum' }));
+  const ts = titles(p.list());
+  const hits = ts.filter(t => /minimum/i.test(t.replace(/<[^>]*>/g, '')));
+  assert.ok(hits.length > 0, 'fixture: some title contains "minimum"');
+  for (const t of hits) {
+    const plainT = t.replace(/<[^>]*>/g, '');
+    const word = plainT.match(/minimum/i)[0];
+    assert.ok(t.includes(MARK_OPEN + word + '</mark>'), `title not highlighted with original case: ${t}`);
+  }
+  assert.deepEqual(badTags(p.list()), [], 'mark only as <mark class="search-hit"> elements, never in attributes');
+  assert.ok(!/<strong>[^<]*<mark/.test(p.list()), 'country name is not highlighted');
+});
+test('p2_6.clearing_search_removes_marks', () => {
+  const p = makePage('?q=minimum');
+  p.fire('click', p.btn('nav-link', 'view', 'view-changelog'));
+  assert.ok(p.list().includes(MARK_OPEN), 'marks shown for ?q=minimum');
+  p.fire('click', p.clear);
+  assert.ok(!/search-hit|<mark/.test(p.list()), 'marks remain after clearing search');
+});
+test('p2_6.xss_query_stays_text', () => {
+  for (const q of ['<img src=x onerror=1>', '"><img src=x onerror=1>', '(.*', '[', '&amp;', 'class', 'span', 'mark', 'item']) {
+    const p = makePage('?q=' + encodeURIComponent(q));
+    p.fire('click', p.btn('nav-link', 'view', 'view-changelog'));
+    const html = p.list();
+    assert.ok(!/<img/i.test(html), `${q}: <img> rendered`);
+    assert.deepEqual(badTags(html), [], `${q}: highlight leaked into tags/attributes`);
+    assert.equal((html.match(/class="item-card"/g) || []).length, count({ search: q.toLowerCase() }), `${q}: card markup broken`);
+    for (const t of titles(html)) assert.ok(!/&amp;(amp|lt|gt|quot|#39);/.test(t.replace(/<\/?mark[^>]*>/g, '')), `${q}: double-escaped title ${t}`);
+  }
+});
+test('p2_6.detail_lead_highlighted_source_link_not', () => {
+  const p = makePage('?q=minimum');
+  p.fire('click', p.btn('nav-link', 'view', 'view-changelog'));
+  const filtered = CHANGES.filter(c => [c.title, c.name, c.detail && c.detail.lead, c.detail && c.detail.sourceLabel].some(t => (t || '').toLowerCase().includes('minimum')));
+  const i = filtered.findIndex(c => c.detail && /minimum/i.test(c.detail.lead || ''));
+  assert.ok(i >= 0, 'fixture: a lead containing "minimum"');
+  const cards = materialiseCards(p);
+  p.fire('click', new p.ctx.Element('button', { dataset: { action: 'toggle-detail' }, parent: cards[i].card }));
+  const html = cards[i].panel.innerHTML;
+  const lead = (html.match(/<p class="detail-lead">([\s\S]*?)<\/p>/) || [])[1] || '';
+  assert.ok(lead.includes(MARK_OPEN), `lead not highlighted: ${lead}`);
+  const src = (html.match(/<a class="detail-source"[^>]*>([\s\S]*?)<\/a>/) || [])[0] || '';
+  assert.ok(!/<mark/.test(src), 'source link must not be highlighted');
+  assert.deepEqual(badTags(html), []);
+});
+test('p2_6.sourceLabel_search_finds_entry', () => {
+  const p = makePage('?q=mindestlohnes');
+  p.fire('click', p.btn('nav-link', 'view', 'view-changelog'));
+  assert.ok(p.cards() >= 1, 'sourceLabel-only word finds the entry');
+  assert.equal(p.cards(), count({ search: 'mindestlohnes' }));
+  assert.match(p.list(), /Showing results for/);
+});
+test('p2_6.static: app.js builds title and lead via PayrollFilters.highlight', () => {
+  const js = read('app.js');
+  assert.match(js, /PayrollFilters\.highlight\(\s*item\.title\s*,/, 'title via highlight');
+  assert.match(js, /PayrollFilters\.highlight\(\s*d\.lead\s*,/, 'lead via highlight');
+  assert.ok(!/<mark/.test(js), 'app.js must not build <mark> itself (only the helper does)');
+  assert.ok(!/escapeHtml\(\s*item\.title\s*\)/.test(js.slice(js.indexOf('list.innerHTML = banner'))), 'card title still plain escapeHtml');
+});
+
 console.log(`\n${pass} passed, ${fail} failed`);
-if (fail) process.exit(1);
+if (fail) process.exit(1);test('xss.rule: PayrollFilters.highlight(..., state.search) passes; raw ${state.search}/${hlNeedle} fail', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pa-validate-'));
+  try {
+    fs.mkdirSync(path.join(tmp, 'scripts')); fs.mkdirSync(path.join(tmp, 'data'));
+    for (const f of ['scripts/validate.mjs', 'scripts/load.mjs', 'filters.js', 'index.html', 'vercel.json', '_headers', 'data/requests.json']) fs.copyFileSync(path.join(ROOT, f), path.join(tmp, f));
+    if (fs.existsSync(path.join(ROOT, '.well-known'))) fs.cpSync(path.join(ROOT, '.well-known'), path.join(tmp, '.well-known'), { recursive: true });
+    const run = js => {
+      fs.writeFileSync(path.join(tmp, 'app.js'), js);
+      try { return execFileSync(process.execPath, ['scripts/validate.mjs'], { cwd: tmp, encoding: 'utf8', stdio: 'pipe' }); }
+      catch (e) { return String(e.stdout) + String(e.stderr); }
+    };
+    const base = read('app.js');
+    assert.ok(!/hlNeedle/.test(base), 'app.js must not alias state.search');
+    const ok = run(base + '\n    document.body.innerHTML = `<b>${PayrollFilters.highlight(item.title, state.search)}</b>`;\n');
+    assert.ok(!/unescaped user-controlled value/.test(ok), 'highlight wrapper flagged: ' + ok);
+    for (const name of ['state.search', 'hlNeedle']) {
+      const out = run(base + `\n    document.body.innerHTML = \`<b>\${${name}}</b>\`;\n`);
+      assert.match(out, new RegExp('unescaped user-controlled value in template: ' + name.replace('.', '\.')), `\${${name}} not flagged`);
+    }
+  } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+});
+
+

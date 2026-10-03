@@ -1489,6 +1489,9 @@
       .chip-remove { min-width: 44px; min-height: 44px; }
     }
 
+    /* P2-6: search highlight (amber tint, dark text: ~9:1 contrast) */
+    mark.search-hit { background: #F0A93B; color: #0B1220; border-radius: 2px; padding: 0 1px; }
+
     /* CP5: print / save as PDF */
     .print-only { display: none; }
 
@@ -1498,6 +1501,7 @@
       .final-cta, .hero-cta-row, .coverage-legend, .coverage-list-details { display: none !important; }
       body { background: #fff !important; color: #000 !important; font-size: 11pt; }
       body * { color: #000 !important; -webkit-text-fill-color: #000 !important; background: transparent !important; box-shadow: none !important; text-shadow: none !important; }
+      mark.search-hit { color: inherit !important; background: transparent !important; text-decoration: underline; }
       .badge, .status-chip { border: 1px solid #000; }
       a { color: #000 !important; text-decoration: underline; }
       .item-card { background: #fff; border: 1px solid #ccc; box-shadow: none; break-inside: avoid; color: #000; }
