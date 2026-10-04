@@ -1043,13 +1043,13 @@ test('p2_8.render_only_for_listed_countries', () => {
   const s = factsSite();
   try {
     let r = s.build(richFixture()); assert.ok(r.ok, r.out.slice(0, 300));
-    const withBox = s.pages().filter(f => /key-facts|Key facts/.test(fs.readFileSync(path.join(s.dir, 'countries', f), 'utf8')));
+    const withBox = s.pages().filter(f => /id="key-facts"/.test(fs.readFileSync(path.join(s.dir, 'countries', f), 'utf8')));
     assert.deepEqual(withBox.sort(), ['france.html', 'spain.html'], 'only listed countries get a box');
     for (const f of ['countries.html', 'glossary.html', 'upcoming.html', 'index.html']) {
       const p = path.join(s.dir, f); if (fs.existsSync(p)) assert.ok(!/id="key-facts"/.test(fs.readFileSync(p, 'utf8')), `${f}: no fact box`);
     }
     r = s.build([]); assert.ok(r.ok, r.out.slice(0, 300));
-    for (const f of s.pages()) assert.ok(!/key-facts|Key facts|fact-disclaimer/.test(fs.readFileSync(path.join(s.dir, 'countries', f), 'utf8')), `${f}: empty facts.json renders no box at all`);
+    for (const f of s.pages()) assert.ok(!/id="key-facts"|fact-disclaimer/.test(fs.readFileSync(path.join(s.dir, 'countries', f), 'utf8')), `${f}: empty facts.json renders no box at all`);
   } finally { s.done(); }
 });
 test('p2_8.render_escapes_everything', () => {
@@ -1147,7 +1147,7 @@ test('p2_8.pages.key_facts_only_for_fact_countries', () => {
     if (want.has(f)) {
       assert.equal((h.match(/id="key-facts"/g) || []).length, 1, `${f}: one #key-facts heading`);
       assert.ok(h.includes('<h2 id="key-facts">Key facts</h2>'), `${f}: heading`);
-    } else assert.ok(!/key-facts|Key facts|fact-disclaimer|class="fact"/.test(h), `${f}: must not render a fact box`);
+    } else assert.ok(!/id="key-facts"|fact-disclaimer|class="fact"/.test(h), `${f}: must not render a fact box`);
   }
   for (const f of ['countries.html', 'glossary.html', 'upcoming.html']) assert.ok(!/id="key-facts"/.test(read(f)), `${f}: no fact box`);
 });
@@ -1269,6 +1269,122 @@ test('p2_8.key_facts_precede_partial_coverage_notice', () => {
     assert.ok(part > 0, 'france fixture page shows the partial-coverage notice');
     assert.ok(h1 > 0 && h1 < sec && sec < part && part < art, 'order: h1, Key facts, partial-coverage notice, first entry');
   } finally { s.done(); }
+});
+
+// ---------- P3-1: Key facts index page, top navigation, no GitHub repo link, footers ----------
+// Contract:
+//  keyfacts.html (build-pages.mjs): <title>Key facts by country | Intelligent Payroll</title>, <h1>Key facts by country</h1>, canonical SITE+keyfacts.html,
+//    standard head()/header('')/footer('') helpers, legal.css. Intro <p> mentions "sources" and "as of" (dates are per country on its page).
+//    Derived from data/facts.json (countries absent from it are absent here; nothing hard-coded). Grouped by region in the same order/labels as
+//    countries.html: <h2>Europe <span class="count">(N)</span></h2> (only regions that have facts) then <ul class="countries"> with, per country:
+//    <li><a href="countries/<slug>.html#key-facts">FLAG Name</a> <span class="count">CUR</span></li>   (CUR = facts.json currency; flag+name from the changelog data).
+//    Listed in sitemap.xml. Escaped, no inline script/style/handlers.
+//  Generated header (every generated page, incl. countries/*.html with '../'):
+//    <header><a ...>Intelligent Payroll</a> <a class="nav" href="[../]countries.html">All countries</a> <a class="nav" href="[../]keyfacts.html">Key facts</a> <a class="nav" href="[../]glossary.html">Glossary</a></header>
+//  Generated footer: adds <a href="[../]keyfacts.html">Key facts</a> (next to Glossary). Footers have no link to the GitHub repo root nor "View source";
+//    the "Tell us" issues link (github.com/.../issues) stays.
+//  legal.css: header must wrap (flex-wrap: wrap) so 4 items fit at 375px.
+//  index.html: header nav gets <a href="keyfacts.html" class="nav-link">Key facts</a> and <a href="glossary.html" class="nav-link">Glossary</a> after Changelog
+//    (no data-view); footer drops "View source on GitHub"; keeps "Report an error or contact us" (issues URL).
+const REPO_ROOT_LINK = /href="https:\/\/github\.com\/ankitbansal2k-ui\/payroll-atlas\/?"/;
+const footerOf = h => (h.match(/<footer[\s\S]*?<\/footer>/) || [''])[0];
+const headerOf = h => (h.match(/<header[\s\S]*?<\/header>/) || [''])[0];
+const allGenerated = () => ['countries.html', 'upcoming.html', 'glossary.html', 'privacy.html', 'terms.html', 'suggest.html', 'keyfacts.html', ...countryFiles.filter(f => f.endsWith('.html')).map(f => `countries/${f}`)].filter(f => fs.existsSync(path.join(ROOT, f)));
+const REGION_LABELS = ['Europe', 'APAC', 'MENAT', 'LATAM', 'Africa'];
+const REGION_OF = { europe: 'Europe', apac: 'APAC', menat: 'MENAT', latam: 'LATAM', africa: 'Africa' };
+const keyfactsExpect = () => {
+  const facts = JSON.parse(read('data/facts.json')), site = loadSite();
+  const info = new Map(CHANGES.map(e => [e.country, e]));
+  return facts.map(f => { const e = info.get(f.code); return { code: f.code, currency: f.currency, name: e.name, flag: e.flag, slug: P2.slugify(e.name), region: REGION_OF[site.countryToRegion[f.code]] }; });
+};
+
+test('p3_1.keyfacts_page_exists_with_head', () => {
+  assert.ok(fs.existsSync(path.join(ROOT, 'keyfacts.html')), 'keyfacts.html not generated by build-pages.mjs');
+  const h = read('keyfacts.html');
+  assert.match(h, /<title>Key facts by country \| Intelligent Payroll<\/title>/);
+  assert.match(h, /<h1>Key facts by country<\/h1>/);
+  assert.match(h, /<link rel="canonical" href="https:\/\/www\.intelligentpayroll\.eu\/keyfacts\.html">/);
+  assert.match(h, /<link rel="stylesheet" href="legal\.css">/);
+  assert.match(h, /Content-Security-Policy/, 'standard head() CSP');
+  assert.ok(!/\son[a-z]+=|<script|\sstyle=/i.test(h), 'CSP: no inline handlers/scripts/styles');
+  const intro = (h.match(/<main>[\s\S]*?<\/main>/) || [''])[0].replace(/<[^>]*>/g, ' ');
+  assert.match(intro, /sources?/i, 'intro mentions sources');
+  assert.match(intro, /as of/i, 'intro explains as-of dates');
+});
+test('p3_1.keyfacts_page_lists_countries_from_data_grouped_by_region', () => {
+  assert.ok(fs.existsSync(path.join(ROOT, 'keyfacts.html')), 'keyfacts.html missing');
+  const h = read('keyfacts.html'), want = keyfactsExpect();
+  const heads = [...h.matchAll(/<h2>(Europe|APAC|MENAT|LATAM|Africa) <span class="count">\((\d+)\)<\/span><\/h2>/g)];
+  const present = REGION_LABELS.filter(l => want.some(w => w.region === l));
+  assert.deepEqual(heads.map(m => m[1]), present, 'region headings in site order, only regions that have facts');
+  for (const m of heads) assert.equal(Number(m[2]), want.filter(w => w.region === m[1]).length, `${m[1]} count`);
+  const links = [...h.matchAll(/<li><a href="(countries\/[^"#]+\.html)#key-facts">([^<]*)<\/a> <span class="count">([A-Z]{3})<\/span><\/li>/g)];
+  assert.equal(links.length, want.length, 'one <li> per country in facts.json');
+  for (const w of want) {
+    const l = links.find(x => x[1] === `countries/${w.slug}.html`);
+    assert.ok(l, `${w.name}: link`);
+    assert.equal(l[2], `${w.flag} ${escH(w.name)}`, `${w.name}: flag and escaped name`);
+    assert.equal(l[3], w.currency, `${w.name}: currency`);
+    assert.ok(resolves(`countries/${w.slug}.html#key-facts`), `${w.name}: #key-facts anchor exists on the country page`);
+    const at = h.indexOf(l[0]), hd = [...heads].filter(m => m.index < at).pop();
+    assert.equal(hd && hd[1], w.region, `${w.name}: under ${w.region}`);
+  }
+});
+test('p3_1.keyfacts_page_is_data_driven_fixture', () => {
+  const s = factsSite();
+  try {
+    const r = s.build(richFixture()); assert.ok(r.ok, r.out.slice(0, 300));
+    assert.ok(fs.existsSync(path.join(s.dir, 'keyfacts.html')), 'keyfacts.html not generated');
+    const h = fs.readFileSync(path.join(s.dir, 'keyfacts.html'), 'utf8');
+    const hrefs = [...h.matchAll(/href="(countries\/[^"]+)"/g)].map(m => m[1]).sort();
+    assert.deepEqual(hrefs, ['countries/france.html#key-facts', 'countries/spain.html#key-facts'], 'only countries present in facts.json (france, spain) are listed');
+    assert.ok(!/Poland|Germany/.test(h), 'no hard-coded countries');
+    assert.equal((h.match(/<h2>/g) || []).length, 1, 'only the Europe group (both fixture countries are European)');
+    assert.match(fs.readFileSync(path.join(s.dir, 'sitemap.xml'), 'utf8'), /<loc>[^<]*\/keyfacts\.html<\/loc>/);
+  } finally { s.done(); }
+});
+test('p3_1.keyfacts_in_sitemap_and_footers_and_headers', () => {
+  assert.match(read('sitemap.xml'), /<loc>https:\/\/www\.intelligentpayroll\.eu\/keyfacts\.html<\/loc>/, 'keyfacts.html in sitemap.xml');
+  const gen = allGenerated();
+  assert.ok(gen.length > 70);
+  for (const f of gen) {
+    const d = f.startsWith('countries/') ? '../' : '';
+    const hd = headerOf(read(f)), ft = footerOf(read(f));
+    assert.ok(hd.includes(`<a class="nav" href="${d}keyfacts.html">Key facts</a>`), `${f}: header Key facts link`);
+    assert.ok(hd.includes(`<a class="nav" href="${d}glossary.html">Glossary</a>`), `${f}: header Glossary link`);
+    assert.ok(hd.includes(`<a class="nav" href="${d}countries.html">All countries</a>`), `${f}: header All countries kept`);
+    assert.ok(ft.includes(`<a href="${d}keyfacts.html">Key facts</a>`), `${f}: footer Key facts link`);
+    assert.ok(ft.includes(`<a href="${d}glossary.html">Glossary</a>`), `${f}: footer Glossary link kept`);
+  }
+});
+test('p3_1.generated_header_wraps_at_phone_width', () => {
+  const css = read('legal.css').replace(/\/\*[\s\S]*?\*\//g, '');
+  const rule = [...css.matchAll(/(^|\})\s*header\s*\{([^}]*)\}/g)].map(m => m[2]).join(';');
+  assert.match(rule, /flex-wrap:\s*wrap/, 'legal.css header needs flex-wrap: wrap for 4 items at 375px');
+});
+test('p3_1.no_github_repo_link_or_view_source_in_user_facing_footers', () => {
+  const idx = read('index.html');
+  assert.ok(!REPO_ROOT_LINK.test(idx), 'index.html must not link to the GitHub repository root');
+  assert.ok(!/View source/i.test(idx), 'index.html: "View source on GitHub" removed');
+  assert.match(footerOf(idx), /<a href="https:\/\/github\.com\/ankitbansal2k-ui\/payroll-atlas\/issues"[^>]*>Report an error or contact us<\/a>/, 'index.html keeps the issues link');
+  for (const f of allGenerated()) {
+    const ft = footerOf(read(f));
+    assert.ok(ft, `${f}: has footer`);
+    assert.ok(!REPO_ROOT_LINK.test(ft) && !/View source/i.test(ft), `${f}: footer must not link to the repo root / View source`);
+    assert.ok(/href="https:\/\/github\.com\/ankitbansal2k-ui\/payroll-atlas\/issues"[^>]*>Tell us<\/a>/.test(ft), `${f}: footer keeps the "Tell us" issues link`);
+  }
+});
+test('p3_1.index_header_nav_links', () => {
+  const idx = read('index.html'), nav = (idx.match(/<header>[\s\S]*?<nav>([\s\S]*?)<\/nav>/) || [])[1] || '';
+  const a = [...nav.matchAll(/<a\b([^>]*)>([^<]*)<\/a>/g)].map(m => ({ attrs: m[1], text: m[2] }));
+  assert.deepEqual(a.map(x => x.text), ['Home', 'Changelog', 'Key facts', 'Glossary'], 'nav order');
+  for (const [t, href] of [['Key facts', 'keyfacts.html'], ['Glossary', 'glossary.html']]) {
+    const x = a.find(y => y.text === t);
+    assert.match(x.attrs, new RegExp(`\\bhref="${href}"`), `${t}: real href`);
+    assert.match(x.attrs, /\bclass="nav-link"/, `${t}: class nav-link`);
+    assert.ok(!/data-view/.test(x.attrs), `${t}: no data-view (real navigation)`);
+  }
+  assert.match(a[0].attrs, /data-view="view-home"/); assert.match(a[1].attrs, /data-view="view-changelog"/);
 });
 
 console.log(`${passed} site tests passed.`);

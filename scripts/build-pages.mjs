@@ -120,10 +120,10 @@ const head = ({ title, desc, url, depth, noindex }) => `<!DOCTYPE html>
   <link rel="stylesheet" href="${depth}legal.css">
 </head>`;
 
-const header = depth => `  <header><a href="${depth || './'}">Intelligent Payroll</a> <a class="nav" href="${depth}countries.html">All countries</a></header>`;
+const header = depth => `  <header><a href="${depth || './'}">Intelligent Payroll</a> <a class="nav" href="${depth}countries.html">All countries</a> <a class="nav" href="${depth}keyfacts.html">Key facts</a> <a class="nav" href="${depth}glossary.html">Glossary</a></header>`;
 const footer = depth => `  <footer>
     <p>For information only, not legal or tax advice. Sources last checked ${VERIFIED}. Found an error? <a href="${ISSUES}" rel="noopener">Tell us</a>.</p>
-    <p><a href="${depth || './'}">Home</a> &middot; <a href="${depth}countries.html">All countries</a> &middot; <a href="${depth}upcoming.html">What's coming</a> &middot; <a href="${depth}glossary.html">Glossary</a> &middot; <a href="${depth}suggest.html">Suggest a change</a> &middot; <a href="${depth}feed.xml">RSS feed</a> &middot; <a href="${depth}privacy.html">Privacy</a> &middot; <a href="${depth}terms.html">Terms and disclaimer</a></p>
+    <p><a href="${depth || './'}">Home</a> &middot; <a href="${depth}countries.html">All countries</a> &middot; <a href="${depth}upcoming.html">What's coming</a> &middot; <a href="${depth}keyfacts.html">Key facts</a> &middot; <a href="${depth}glossary.html">Glossary</a> &middot; <a href="${depth}suggest.html">Suggest a change</a> &middot; <a href="${depth}feed.xml">RSS feed</a> &middot; <a href="${depth}privacy.html">Privacy</a> &middot; <a href="${depth}terms.html">Terms and disclaimer</a></p>
   </footer>`;
 
 // items are HTML (already escaped, possibly with glossary links).
@@ -260,6 +260,34 @@ ${latest(10).map(e => `      <li><a href="countries/${countries.get(e.country).s
 ${sections}${thinSection}
 
 ${requestsSection()}
+  </main>
+${footer('')}
+</body>
+</html>
+`;
+}
+
+// Key facts index: every country in data/facts.json, grouped by region (same labels and order as countries.html).
+function keyfactsPage() {
+  const url = `${SITE}keyfacts.html`;
+  const withFacts = list.filter(c => FACTS_BY_CODE.has(c.code));
+  const desc = clip(`Minimum wage, tax rates and other payroll key facts for ${withFacts.length} countries, each with its official source and as-of date.`, 158);
+  const sections = Object.entries(REGIONS).map(([key, label]) => {
+    const cs = withFacts.filter(c => c.region === key);
+    if (!cs.length) return '';
+    return `    <h2>${label} <span class="count">(${cs.length})</span></h2>
+    <ul class="countries">
+${cs.map(c => `      <li><a href="countries/${c.slug}.html#key-facts">${c.flag} ${esc(c.name)}</a> <span class="count">${esc(FACTS_BY_CODE.get(c.code).currency)}</span></li>`).join('\n')}
+    </ul>`;
+  }).filter(Boolean).join('\n\n');
+  return `${head({ title: 'Key facts by country | Intelligent Payroll', desc, url, depth: '' })}
+<body>
+${header('')}
+  <main>
+    <h1>Key facts by country</h1>
+    <p>Pick a country to see its key payroll facts, such as minimum wage and tax rates. Each fact links to its official or professional source and shows the as of date it is valid from or was last checked. Rules change, so always confirm with the source.</p>
+
+${sections}
   </main>
 ${footer('')}
 </body>
@@ -458,13 +486,14 @@ const out = new Map();
 out.set('countries.html', indexPage());
 out.set('suggest.html', suggestPage());
 out.set('glossary.html', glossaryPage());
+out.set('keyfacts.html', keyfactsPage());
 out.set('upcoming.html', upcomingPage());
 out.set('calendar.ics', icsCalendar("Intelligent Payroll: what's coming", CHANGES));
 for (const c of icsCountries) out.set(icsName(c), icsCalendar(`Intelligent Payroll: ${c.name}`, c.entries));
 out.set('worker/countries.json', JSON.stringify(Object.fromEntries(list.map(c => [c.code, c.name])), null, 0) + '\n');
 for (const c of list) out.set(`countries/${c.slug}.html`, countryPage(c));
 
-const urls = ['', 'countries.html', ...list.map(c => `countries/${c.slug}.html`), 'upcoming.html', 'glossary.html', 'suggest.html', 'privacy.html', 'terms.html'];
+const urls = ['', 'countries.html', ...list.map(c => `countries/${c.slug}.html`), 'upcoming.html', 'keyfacts.html', 'glossary.html', 'suggest.html', 'privacy.html', 'terms.html'];
 out.set('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.map(u => `  <url><loc>${SITE}${u}</loc><lastmod>${VERIFIED_ISO}</lastmod></url>`).join('\n')}

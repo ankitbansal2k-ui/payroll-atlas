@@ -1269,6 +1269,95 @@ test('p2_6.static: app.js builds title and lead via PayrollFilters.highlight', (
   assert.ok(!/escapeHtml\(\s*item\.title\s*\)/.test(js.slice(js.indexOf('list.innerHTML = banner'))), 'card title still plain escapeHtml');
 });
 
+// ---------- P3-1: top nav links, picker Done button, outside click ----------
+// Contract:
+//  index.html: header nav = Home, Changelog (data-view as before) + <a href="keyfacts.html" class="nav-link">Key facts</a> + <a href="glossary.html" class="nav-link">Glossary</a> (no data-view).
+//  index.html inside .country-picker-panel, after #country-picker-list:
+//    <button type="button" class="picker-done" data-action="close-picker">Done</button>
+//  styles.css: .picker-done { position: sticky; bottom: 0; background: <opaque> ... } (always visible in the panel).
+//  app.js click handler: data-action="close-picker" closes #country-picker (open=false), focuses #country-picker-summary, preventDefault. Selection untouched.
+//  Outside click: a document click whose target is an Element NOT inside #country-picker closes it when open (no error/no-op when closed); other handlers
+//  for that click (chip remove, filters, ...) still run. Clicking inside the picker (summary, checkboxes, panel) never closes it via this handler.
+const doneBtn = p => { const b = new Element('button', { classes: ['picker-done'], dataset: { action: 'close-picker' }, parent: p.picker }); b.type = 'button'; return b; };
+const clickEv = target => ({ type: 'click', target, defaultPrevented: false, preventDefault() { this.defaultPrevented = true; } });
+
+test('p3_1.spa.nav_links_are_real_links', () => {
+  const html = read('index.html');
+  const nav = (html.match(/<header>[\s\S]*?<nav>([\s\S]*?)<\/nav>/) || [])[1] || '';
+  assert.match(nav, /<a href="keyfacts\.html" class="nav-link">Key facts<\/a>/, 'Key facts nav link');
+  assert.match(nav, /<a href="glossary\.html" class="nav-link">Glossary<\/a>/, 'Glossary nav link');
+  assert.ok(!/<a[^>]*(keyfacts|glossary)\.html[^>]*data-view/.test(nav), 'no data-view on the new links');
+  assert.match(nav, /<a href="#" class="nav-link" data-view="view-home">Home<\/a>[\s\S]*<a href="#" class="nav-link" data-view="view-changelog">Changelog<\/a>/, 'Home/Changelog unchanged');
+});
+test('p3_1.spa.nav_click_on_real_link_is_not_hijacked', () => {
+  const p = makePage('');
+  const a = new Element('a', { classes: ['nav-link'] }); a.href = 'keyfacts.html';
+  const ev = clickEv(a); p.fireRaw('click', ev);
+  assert.equal(ev.defaultPrevented, false, 'click on a nav link without data-view must navigate normally');
+  assert.equal(p.ctx.document.getElementById('view-home').classList.contains('hidden'), false, 'view unchanged');
+});
+test('p3_1.spa.nav_fits_phone_width_css', () => {
+  const css = read('styles.css');
+  assert.equal(cssVal('nav', 'flex-wrap', m => /max-width:\s*768px/.test(m)), 'wrap', 'header nav wraps on small screens');
+  assert.equal(cssVal('.header-container', 'flex-wrap', m => /max-width:\s*768px/.test(m)), 'wrap');
+  for (const r of CP6_RULES) if (/^nav(\s|$)|^nav a/.test(r.sel) || r.sel === 'header nav a') assert.ok(r.decls['white-space'] !== 'nowrap', `${r.sel}: no nowrap (would scroll sideways at 375px)`);
+  assert.ok(!/nav\s+a\s*\{[^}]*min-width/.test(css), 'nav links have no min-width');
+});
+test('p3_1.picker.done_button_markup_and_css', () => {
+  const html = read('index.html');
+  const panel = (html.match(/<div class="country-picker-panel">([\s\S]*?)<\/details>/) || [])[1] || '';
+  assert.match(panel, /<button type="button" class="picker-done" data-action="close-picker">Done<\/button>/, 'Done button in the panel');
+  assert.ok(panel.indexOf('picker-done') > panel.indexOf('id="country-picker-list"'), 'Done button after the list (bottom of panel)');
+  assert.equal(cssVal('.picker-done', 'position'), 'sticky', '.picker-done sticky');
+  assert.equal(cssVal('.picker-done', 'bottom'), '0', '.picker-done bottom: 0');
+  assert.ok(cssVal('.picker-done', 'background') || cssVal('.picker-done', 'background-color'), '.picker-done has its own (opaque) background');
+});
+test('p3_1.picker.done_closes_and_returns_focus_keeping_selection', () => {
+  const p = makePage('?countries=poland,uk');
+  let focused = 0; p.summary.focus = () => { focused++; };
+  p.picker.open = true;
+  const ev = clickEv(doneBtn(p)); p.fireRaw('click', ev);
+  assert.equal(p.picker.open, false, 'Done closes the picker');
+  assert.equal(focused, 1, 'focus returns to the summary');
+  assert.equal(ev.defaultPrevented, true);
+  assert.deepEqual(checkedCodes(p), ['poland', 'uk'], 'selection kept (Done is not Cancel)');
+  assert.equal(new URLSearchParams(p.ctx.location.search).get('countries') || 'poland,uk', 'poland,uk', 'URL selection kept');
+});
+test('p3_1.picker.outside_click_closes_open_picker', () => {
+  const p = makePage('?countries=poland');
+  let focused = 0; p.summary.focus = () => { focused++; };
+  p.picker.open = true;
+  p.fireRaw('click', clickEv(new Element('div', { id: 'changelog-list' })));
+  assert.equal(p.picker.open, false, 'click outside closes the picker');
+  assert.deepEqual(checkedCodes(p), ['poland'], 'selection kept');
+});
+test('p3_1.picker.outside_click_still_runs_other_handlers', () => {
+  const p = makePage('?countries=poland,uk');
+  p.summary.focus = () => {};
+  p.picker.open = true;
+  p.removeChip('uk');
+  assert.equal(p.picker.open, false, 'chip click (outside the picker) also closes it');
+  assert.deepEqual(checkedCodes(p), ['poland'], 'chip removal still happened');
+});
+test('p3_1.picker.clicks_inside_or_on_summary_do_not_close', () => {
+  const p = makePage('');
+  p.picker.open = true;
+  p.fireRaw('click', clickEv(p.summary));
+  assert.equal(p.picker.open, true, 'summary toggle click left to the browser');
+  p.fireRaw('click', clickEv(new HTMLInputElement('input', { id: 'country-filter', parent: p.picker })));
+  assert.equal(p.picker.open, true, 'click on the panel filter input');
+  p.fireRaw('click', clickEv(new HTMLInputElement('input', { type: 'checkbox', classes: ['country-check'], parent: p.pickerList })));
+  assert.equal(p.picker.open, true, 'click on a checkbox');
+});
+test('p3_1.picker.outside_click_when_closed_is_a_noop', () => {
+  const p = makePage('?countries=poland');
+  let focused = 0; p.summary.focus = () => { focused++; };
+  p.picker.open = false;
+  p.fireRaw('click', clickEv(new Element('div')));
+  assert.equal(p.picker.open, false);
+  assert.equal(focused, 0, 'no focus stealing');
+});
+
 console.log(`\n${pass} passed, ${fail} failed`);
 if (fail) process.exit(1);test('xss.rule: PayrollFilters.highlight(..., state.search) passes; raw ${state.search}/${hlNeedle} fail', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pa-validate-'));

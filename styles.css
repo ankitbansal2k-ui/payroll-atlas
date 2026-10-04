@@ -1462,6 +1462,13 @@
     .country-check { width: 18px; height: 18px; flex: none; accent-color: var(--blue-accent); }
     .country-group label:has(.country-check:disabled) { color: var(--text-secondary); cursor: not-allowed; }
     .country-group.is-hidden, .country-group label.is-hidden { display: none; }
+    .picker-done {
+      position: sticky; bottom: 0; display: block; width: 100%; box-sizing: border-box; min-height: 44px; margin-top: 0.5rem;
+      padding: 0.5rem 1rem; background: var(--card-bg); color: var(--blue-accent); border: 1px solid var(--blue-accent);
+      border-radius: 8px; font: inherit; font-weight: 700; cursor: pointer;
+    }
+    .picker-done:hover { background: var(--navy); }
+    .picker-done:focus-visible { outline: 2px solid var(--blue-accent); outline-offset: 2px; }
     .country-cap-hint { margin: 0 0 0.5rem; color: var(--text-secondary); font-size: 0.85rem; }
     .country-cap-hint[hidden] { display: none; }
     .country-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; max-width: 100%; min-width: 0; margin: -1rem 0 1.5rem; }
@@ -1496,7 +1503,7 @@
     .print-only { display: none; }
 
     @media print {
-      header, .region-tabs, .changelog-filters, #country-picker, .chip-remove, .chip-clear,
+      header, .region-tabs, .changelog-filters, #country-picker, .picker-done, .chip-remove, .chip-clear,
       #export-csv, #print-page, .list-actions, .filter-clear, .coverage-map, .footer-links, .item-chevron,
       .final-cta, .hero-cta-row, .coverage-legend, .coverage-list-details { display: none !important; }
       body { background: #fff !important; color: #000 !important; font-size: 11pt; }

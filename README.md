@@ -16,6 +16,7 @@ It is a static site with no build step and no backend. Everything the page needs
 | `privacy.html`, `terms.html` | **Generated** from `scripts/templates/` and `scripts/operator.json`. Edit those, not the HTML |
 | `404.html`, `legal.css` | Error page and the shared stylesheet for legal and generated pages |
 | `countries.html`, `countries/*.html` | **Generated.** One static, text-only page per country (and an index) so search engines can read the entries. Do not edit by hand |
+| `keyfacts.html` | **Generated.** Index of the countries in `data/facts.json`, grouped by region, each linking to its Key facts box. Linked from the header nav and footer of every page. Do not edit by hand |
 | `data/glossary.json`, `glossary.html` | Glossary terms, and the **generated** glossary page built from them (see "The glossary") |
 | `data/facts.json` | Country key facts (minimum wage, social security, tax bands, pay frequency) shown as the "Key facts" box on the generated country pages (see "Country key facts") |
 | `fonts/`, `vendor/`, `design/` | Self-hosted fonts, libraries and map data, icons and favicon |
@@ -70,7 +71,7 @@ All content is the `CHANGES` array in `app.js`, one object per line:
 
 ### The glossary
 
-`data/glossary.json` is an array of fact-checked abbreviations and local terms. `node scripts/build-pages.mjs` turns it into `glossary.html` (A to Z, with a jump list, one anchor `#term-<slug>` per term, listed in `sitemap.xml` with the newest `checked` date as `lastmod`) and links terms on the generated country pages. The Glossary link is in the footer of every generated page, `index.html` and the legal pages. The interactive changelog (`app.js`) does not link terms.
+`data/glossary.json` is an array of fact-checked abbreviations and local terms. `node scripts/build-pages.mjs` turns it into `glossary.html` (A to Z, with a jump list, one anchor `#term-<slug>` per term, listed in `sitemap.xml` with the newest `checked` date as `lastmod`) and links terms on the generated country pages. The Glossary link is in the header and footer of every generated page and the legal pages, and in the `index.html` top nav (Home, Changelog, Key facts, Glossary; the last two are normal links to separate pages). In the changelog country picker, the sticky Done button closes the picker, keeps the selection and returns focus to the picker button; clicking outside an open picker also closes it. The interactive changelog (`app.js`) does not link terms.
 
 ```json
 {"term":"PRSI","countries":["ireland"],

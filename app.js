@@ -838,6 +838,9 @@
     document.addEventListener('click', e => {
       const t = e.target;
       if (!(t instanceof Element)) return;
+      // A click outside an open country picker closes it; other handlers still run and focus is not moved.
+      const openPicker = document.getElementById('country-picker');
+      if (openPicker && openPicker.open && !t.closest('#country-picker')) openPicker.open = false;
       const nav = t.closest('a.nav-link[data-view]');
       if (nav) { e.preventDefault(); showView(nav.dataset.view); return; }
       const tab = t.closest('.region-tab[data-region]');
@@ -855,7 +858,14 @@
       }
       const action = t.closest('[data-action]');
       if (!action) return;
-      if (action.dataset.action === 'export-csv') { e.preventDefault(); exportCsv(); }
+      if (action.dataset.action === 'close-picker') {
+        e.preventDefault();
+        const picker = document.getElementById('country-picker');
+        const summary = document.getElementById('country-picker-summary');
+        if (picker) picker.open = false;
+        if (summary) summary.focus();
+      }
+      else if (action.dataset.action === 'export-csv') { e.preventDefault(); exportCsv(); }
       else if (action.dataset.action === 'print') { e.preventDefault(); window.print(); }
       else if (action.dataset.action === 'clear-filter') { e.preventDefault(); clearFilter(); }
       else if (action.dataset.action === 'show-region') { e.preventDefault(); showWholeRegion(); }

@@ -123,7 +123,7 @@ function hiddenCheck(file, markup, sels) {
 const INDEX_HIDDEN = [
   'header',              // logo, nav links, country select, search form
   '.region-tabs', '.changelog-filters', '#country-picker', '.chip-remove', '.chip-clear',
-  '#export-csv', '#print-page', '.filter-clear', '.coverage-map', '.footer-links', '.item-chevron',
+  '#export-csv', '#print-page', '.picker-done', '.filter-clear', '.coverage-map', '.footer-links', '.item-chevron',
   '.final-cta', '.hero-cta-row'
 ];
 
@@ -275,6 +275,19 @@ test('p2_8.print_prints_fact_source_urls', () => {
   const rs = printRules('legal.css');
   const hit = rs.find(r => r.selectors.some(s => /^\.fact-source\b.*a.*::after$/.test(s)) && /attr\(\s*href\s*\)/.test(r.decls.content || ''));
   assert.ok(hit, 'need e.g. .fact-source a[href^="http"]::after { content: " (" attr(href) ")" } so the printed page shows where each fact comes from');
+});
+
+// ---------- P3-1: new nav links and the picker Done button do not print ----------
+test('p3_1.print_new_nav_and_done_button_hidden', () => {
+  // SPA: Key facts / Glossary links sit inside <header> (hidden in print); Done is inside #country-picker (hidden) and also hidden itself (see INDEX_HIDDEN).
+  const hdr = h => h.slice(h.indexOf('<header'), h.indexOf('</header>'));
+  assert.ok(hdr(indexHtml).includes('href="keyfacts.html"'), 'index.html header has the Key facts link');
+  assert.ok(hdr(indexHtml).includes('href="glossary.html"'), 'index.html header has the Glossary link');
+  assert.ok(fs.existsSync(path.join(ROOT, 'keyfacts.html')), 'keyfacts.html not generated');
+  const kf = read('keyfacts.html');
+  assert.ok(hdr(kf).includes('href="keyfacts.html">Key facts</a>'), 'keyfacts.html header has Key facts link (hidden by the legal.css print rule for header)');
+  assert.ok(kf.includes('<link rel="stylesheet" href="legal.css">'));
+  assert.ok(!kf.includes('data-action="print"'));
 });
 
 console.log(`\n${pass} passed, ${fail} failed`);

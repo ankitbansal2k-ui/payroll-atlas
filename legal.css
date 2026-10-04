@@ -17,7 +17,7 @@ li { margin-bottom: 0.4rem; }
 footer { padding-top: 1.5rem; padding-bottom: 2.5rem; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.9rem; }
 
 /* Generated country pages */
-header { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
+header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 0.5rem 1rem; }
 header .nav { font-weight: 400; font-size: 0.9rem; color: var(--muted); }
 .crumbs { font-size: 0.85rem; color: var(--muted); margin-bottom: 0.75rem; }
 .crumbs a { color: var(--muted); }
