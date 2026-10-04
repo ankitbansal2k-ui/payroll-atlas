@@ -11,7 +11,8 @@ const CATEGORIES = new Set(['payroll', 'reporting']);
 const REGIONS = new Set(['europe', 'apac', 'menat', 'latam', 'africa']);
 const seen = new Map();
 const names = new Map();
-const TODAY = new Date().toISOString().slice(0, 10);
+// "Not in the future" means not after UTC today + 1 day, so authors up to UTC+14 can date work with their local day.
+const TODAY = new Date(Date.now() + 864e5).toISOString().slice(0, 10);
 const VERIFIED = (js.match(/new Date\('(\d{4}-\d{2}-\d{2})T/) || [])[1];
 if (!VERIFIED) err('app.js: could not find the LAST_VERIFIED date');
 const isIsoDay = s => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s) && new Date(s + 'T00:00:00Z').toISOString().startsWith(s);
@@ -29,7 +30,7 @@ function periodOf(v) {
 // A badge "restates the date" when, after an optional leading Effective/In force/Confirmed for (day/month dates only)/Applies to/From,
 // it equals the formatted effective date (short or long month), or when it is just a status label.
 // Uses filters.js, the code the site renders with (required, as in build-pages.mjs).
-const { formatEffective, STATUS_LABELS, statusOf } = createRequire(import.meta.url)('../filters.js');
+const { formatEffective, STATUS_LABELS, statusOf, slugify } = createRequire(import.meta.url)('../filters.js');
 const LONG_MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 function restatesDate(badge, effective, entry) {
   const b = badge.trim().toLowerCase();
@@ -76,10 +77,10 @@ for (const [i, c] of CHANGES.entries()) {
   // ('YYYY-MM-DD', 'YYYY-MM' or 'YYYY'), or null when no single start date applies (current rates,
   // drafts without a date). added: the day the entry was first published.
   if (!isIsoDay(c.added)) err(`${id}: added must be YYYY-MM-DD`);
-  else if (c.added > TODAY) err(`${id}: added ${c.added} is in the future`);
+  else if (c.added > TODAY) err(`${id}: added ${c.added} is in the future (later than ${TODAY})`);
   if ('updated' in c) {
     if (!isIsoDay(c.updated)) err(`${id}: updated must be YYYY-MM-DD`);
-    else if (c.updated > TODAY) err(`${id}: updated ${c.updated} is in the future`);
+    else if (c.updated > TODAY) err(`${id}: updated ${c.updated} is in the future (later than ${TODAY})`);
     else if (isIsoDay(c.added) && c.updated <= c.added) err(`${id}: updated must be after added`);
   }
   if (c.effective !== null) {
@@ -196,6 +197,83 @@ try {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(String(r.since))) err(`${at}: since must be YYYY-MM-DD`);
   });
 } catch (e) { err('data/requests.json: ' + e.message); }
+
+// Glossary (data/glossary.json): fact-checked abbreviations that the generated country pages link to.
+// Rules are documented in README.md ("The glossary").
+{
+  const isWordChar = ch => ch !== undefined && /^[\p{L}\p{N}]$/u.test(ch);
+  // Whole word, case-sensitive, literal: no Unicode letter or digit directly before or after (no regex from the term).
+  const hasWord = (text, word) => {
+    for (let i = text.indexOf(word); i !== -1; i = text.indexOf(word, i + 1)) {
+      const before = Array.from(text.slice(Math.max(0, i - 2), i)).pop();
+      const after = text.codePointAt(i + word.length);
+      if (!isWordChar(before) && !isWordChar(after === undefined ? undefined : String.fromCodePoint(after))) return true;
+    }
+    return false;
+  };
+  // Only the fields build-pages.mjs links on country pages count: lead, employer and employee bullets, note (not title, not example).
+  const entryText = e => [e.detail && e.detail.lead, ...((e.detail && e.detail.employer) || []), ...((e.detail && e.detail.employee) || []), e.detail && e.detail.note].filter(x => typeof x === 'string').join(' \n ');
+  let gl = null;
+  try { gl = JSON.parse(fs.readFileSync(new URL('../data/glossary.json', import.meta.url), 'utf8')); } catch (e) { err('data/glossary.json: glossary file missing or not valid JSON (' + e.message + ')'); }
+  if (gl !== null && !Array.isArray(gl)) err('data/glossary.json: glossary must be an array');
+  else if (gl !== null) {
+    const seenNames = [];
+    const seenSlugs = new Map();
+    const KEYS = new Set(['term', 'aliases', 'countries', 'expansion', 'definition', 'sourceUrl', 'sourceLabel', 'checked']);
+    const CTRL = /[\u0000-\u001F\u007F-\u009F\u2028\u2029]/;
+    gl.forEach((t, i) => {
+      if (!t || typeof t !== 'object' || Array.isArray(t)) { err(`data/glossary.json[${i}]: glossary entry must be an object`); return; }
+      const at = `data/glossary.json[${i}] (${typeof t.term === 'string' ? t.term : '?'}): glossary`;
+      for (const k of Object.keys(t)) if (!KEYS.has(k)) err(`${at} unknown field "${k}" (allowed: ${[...KEYS].join(', ')})`);
+      if (typeof t.term !== 'string' || !t.term || t.term.trim() !== t.term) { err(`${at} term must be a non-empty trimmed string`); return; }
+      // Plain text: no markup characters and no control characters (including line breaks) in any text field.
+      const plain = (label, v) => {
+        if (/[<>]/.test(v)) err(`${at} ${label} must be plain text (no < or >)`);
+        if (CTRL.test(v)) err(`${at} ${label} must not contain control characters or line breaks`);
+      };
+      plain('term', t.term);
+      for (const k of ['expansion', 'definition', 'sourceLabel']) {
+        if (typeof t[k] !== 'string' || !t[k].trim()) err(`${at} ${k} must be a non-empty string`);
+        else plain(k, t[k]);
+      }
+      if (typeof t.definition === 'string') {
+        if (t.definition.length > 300) err(`${at} definition is ${t.definition.length} characters (max 300)`);
+        const words = t.definition.trim() ? t.definition.trim().split(/\s+/).length : 0;
+        if (words > 40) err(`${at} definition is ${words} words (max 40)`);
+        if (words < 3) err(`${at} definition is ${words} word(s) (min 3)`);
+      }
+      const countriesOk = Array.isArray(t.countries) && t.countries.every(c => typeof c === 'string' && Object.prototype.hasOwnProperty.call(countryToRegion, c));
+      if (!countriesOk) err(`${at} countries must be an array of known country codes ([] = general)`);
+      else if (new Set(t.countries).size !== t.countries.length) err(`${at} countries must not list a country twice`);
+      if (t.aliases !== undefined) {
+        if (!Array.isArray(t.aliases) || !t.aliases.every(a => typeof a === 'string' && a && a.trim() === a)) err(`${at} aliases must be an array of trimmed, non-empty strings`);
+        else t.aliases.forEach(a => plain('alias "' + a + '"', a));
+      }
+      let urlOk = typeof t.sourceUrl === 'string' && /^https:\/\/[^\s<>"]+$/.test(t.sourceUrl);
+      if (urlOk) { try { const u = new URL(t.sourceUrl); if (u.protocol !== 'https:' || !u.hostname || u.username || u.password) urlOk = false; } catch { urlOk = false; } }
+      if (!urlOk) err(`${at} sourceUrl must be an https URL without a user name or password`);
+      if (typeof t.sourceLabel === 'string' && !/^Source: .+ - .+/.test(t.sourceLabel)) err(`${at} sourceLabel must look like "Source: <Publisher> - <page title>"`);
+      if (!isIsoDay(t.checked)) err(`${at} checked must be a real YYYY-MM-DD date`);
+      else if (t.checked > TODAY) err(`${at} checked ${t.checked} is in the future (later than ${TODAY})`);
+      // Each term is a page anchor (term-<slug>): the slug must exist and be unique across the whole glossary.
+      const slug = slugify(t.term);
+      if (!slug) err(`${at} term "${t.term}" has an empty slug (it needs ASCII letters or digits for its page anchor)`);
+      else if (seenSlugs.has(slug)) err(`${at} duplicate slug "${slug}" (terms "${seenSlugs.get(slug)}" and "${t.term}" would share one anchor)`);
+      else seenSlugs.set(slug, t.term);
+      const names = [t.term, ...(Array.isArray(t.aliases) ? t.aliases.filter(a => typeof a === 'string') : [])];
+      // Unique term/alias wherever country scopes overlap ([] = general = overlaps everything).
+      for (const name of names) {
+        const clash = seenNames.find(s => s.name === name && (!s.c.length || !countriesOk || !t.countries.length || s.c.some(c => t.countries.includes(c))));
+        if (clash) err(`${at} duplicate term or alias "${name}" (also used by "${clash.term}" in an overlapping country scope)`);
+        seenNames.push({ name, term: t.term, c: countriesOk ? t.countries : [] });
+      }
+      // No orphans: every term must be used (whole word) in a linkable field (lead, employer, employee, note) of some entry in its country scope.
+      if (countriesOk && !CHANGES.some(e => (!t.countries.length || t.countries.includes(e.country)) && names.some(n => hasWord(entryText(e), n)))) {
+        err(`${at} orphan term: neither "${t.term}" nor an alias appears in the lead, employer, employee or note text of any entry for its countries`);
+      }
+    });
+  }
+}
 
 const perRegion = {};
 for (const r of Object.values(countryToRegion)) perRegion[r] = (perRegion[r] || 0) + 1;

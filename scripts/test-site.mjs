@@ -537,4 +537,271 @@ test('p2_3.thin_coverage_generated', () => {
   assert.deepEqual(got, want, 'rendered thin-coverage names must exactly equal computed 1-entry countries');
 });
 
+// ---------- P2-7: glossary (data, validator, generated pages) ----------
+// Contract: data/glossary.json = array of {term, expansion, definition, countries, aliases?, sourceUrl, sourceLabel, checked}.
+// - term: non-empty trimmed string; term+aliases unique (case-sensitive) among entries whose country scopes overlap
+//   ([] = general = overlaps everything). countries: codes from countryToRegion ([] = general).
+// - expansion/definition/sourceLabel: plain text, no '<' or '>'; definition <=300 chars and <=40 words.
+// - sourceUrl https://; sourceLabel /^Source: .+ - .+/; checked real YYYY-MM-DD, not after today.
+// - No orphans: term or an alias occurs whole-word (case-sensitive, no adjacent Unicode letter/digit) in at least
+//   one CHANGES entry text (title, lead, employer, employee, example, note) whose country is in countries (any if []).
+// validate.mjs: fails (non-zero) with a message containing "glossary" (and "duplicate" for clashes).
+// build-pages: glossary.html (A-Z by term, id="term-<slugify(term)>" per entry, shows term, expansion, definition,
+//   <a href="countries/<slug>.html"> per scoped country, <a href="sourceUrl">); listed in sitemap.xml; footer link
+//   <a href="[../]glossary.html">Glossary</a> on every generated page. Country pages: each entry lead paragraph is
+//   exactly `<p>${linkTerms(lead, glossary, country)}</p>` (default href '../glossary.html').
+// SPA decision: app.js does NOT link terms; it keeps PayrollFilters.highlight only, so <a class="term"> and <mark>
+//   never nest. Glossary links live on generated country pages.
+const GLOSS_FILE = path.join(ROOT, 'data/glossary.json');
+const loadGloss = () => { assert.ok(fs.existsSync(GLOSS_FILE), 'data/glossary.json missing'); return JSON.parse(fs.readFileSync(GLOSS_FILE, 'utf8')); };
+const CODES = new Set(Object.keys(loadSite().countryToRegion || {}));
+const entryText = e => [e.detail.lead, ...(e.detail.employer || []), ...(e.detail.employee || []), e.detail.note].filter(Boolean).join(' \n '); // round 2: only the fields that are linked (not title, not example)
+const wordRe = t => new RegExp('(?<![\\p{L}\\p{N}])' + t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?![\\p{L}\\p{N}])', 'u');
+test('p2_7.glossary.schema', () => {
+  const g = loadGloss();
+  assert.ok(Array.isArray(g) && g.length >= 10, 'glossary must have >=10 verified terms');
+  const today = new Date(Date.now() + 864e5).toISOString().slice(0, 10); // UTC today + 1 day (tolerates authors up to UTC+14)
+  for (const t of g) {
+    const at = `glossary ${t && t.term}`;
+    assert.ok(typeof t.term === 'string' && t.term && t.term.trim() === t.term, at + ': term');
+    for (const k of ['expansion', 'definition', 'sourceLabel']) assert.ok(typeof t[k] === 'string' && t[k].trim() && !/[<>]/.test(t[k]), `${at}: ${k} plain non-empty`);
+    assert.ok(t.definition.length <= 300 && t.definition.trim().split(/\s+/).length <= 40, at + ': definition too long');
+    assert.ok(Array.isArray(t.countries) && t.countries.every(c => CODES.has(c)), at + ': countries');
+    assert.ok(t.aliases === undefined || (Array.isArray(t.aliases) && t.aliases.every(a => typeof a === 'string' && a.trim())), at + ': aliases');
+    assert.match(t.sourceUrl, /^https:\/\/[^\s<>"]+$/, at);
+    assert.match(t.sourceLabel, /^Source: .+ - .+/, at);
+    assert.ok(isDay(t.checked) && t.checked <= today, at + ': checked');
+  }
+});
+test('p2_7.glossary.unique_and_no_orphans', () => {
+  const g = loadGloss(), seen = [];
+  for (const t of g) for (const name of [t.term, ...(t.aliases || [])]) {
+    const clash = seen.find(s => s.name === name && (!s.c.length || !t.countries.length || s.c.some(c => t.countries.includes(c))));
+    assert.ok(!clash, `duplicate term/alias ${name}`);
+    seen.push({ name, c: t.countries });
+  }
+  for (const t of g) {
+    const res = [t.term, ...(t.aliases || [])].map(wordRe);
+    assert.ok(CHANGES.some(e => (!t.countries.length || t.countries.includes(e.country)) && res.some(r => r.test(entryText(e)))), `orphan glossary term ${t.term}`);
+  }
+});
+test('p2_7.validate_rejects_bad_glossary', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pa-p27-'));
+  try {
+    fs.mkdirSync(path.join(tmp, 'scripts')); fs.mkdirSync(path.join(tmp, 'data'));
+    for (const f of ['scripts/validate.mjs', 'scripts/load.mjs', 'filters.js', 'index.html', 'app.js', 'vercel.json', '_headers', 'data/requests.json']) fs.copyFileSync(path.join(ROOT, f), path.join(tmp, f));
+    if (fs.existsSync(path.join(ROOT, '.well-known'))) fs.cpSync(path.join(ROOT, '.well-known'), path.join(tmp, '.well-known'), { recursive: true });
+    const run = () => { try { execFileSync(process.execPath, ['scripts/validate.mjs'], { cwd: tmp, encoding: 'utf8', stdio: 'pipe' }); return { ok: true, out: '' }; } catch (e) { return { ok: false, out: String(e.stdout) + String(e.stderr) }; } };
+    const e0 = CHANGES[0];
+    const word = e0.detail.lead.match(/(?<![\p{L}\p{N}])[A-Za-z]{4,}(?![\p{L}\p{N}])/u)[0];
+    const good = { term: word, expansion: 'Fixture', definition: 'A fixture term.', countries: [e0.country], sourceUrl: 'https://example.org/x', sourceLabel: 'Source: Example - Fixture', checked: '2026-01-01' };
+    const write = arr => fs.writeFileSync(path.join(tmp, 'data/glossary.json'), typeof arr === 'string' ? arr : JSON.stringify(arr));
+    write([good]);
+    const r0 = run(); assert.ok(r0.ok, 'valid fixture glossary must pass: ' + r0.out.slice(0, 300));
+    const { expansion: _x, ...missing } = good;
+    const bad = {
+      http: { ...good, sourceUrl: 'http://example.org/x' },
+      html: { ...good, definition: 'A <b>bold</b> term.' },
+      long: { ...good, definition: 'x '.repeat(160).trim() },
+      code: { ...good, countries: ['atlantis'] },
+      future: { ...good, checked: '2099-01-01' },
+      baddate: { ...good, checked: '2026-02-30' },
+      label: { ...good, sourceLabel: 'Example' },
+      orphan: { ...good, term: 'Zzqxglossaryorphan' },
+      missing,
+    };
+    for (const [k, v] of Object.entries(bad)) {
+      write([v]); const r = run();
+      assert.ok(!r.ok && /glossary/i.test(r.out), `validate.mjs must reject glossary case "${k}"`);
+    }
+    write([good, { ...good, expansion: 'Dup' }]);
+    let r = run(); assert.ok(!r.ok && /glossary/i.test(r.out) && /duplicate/i.test(r.out), 'duplicate term in same scope rejected');
+    write([good, { ...good, term: e0.title.match(/[A-Za-z]{3,}/)[0], aliases: [word], countries: [] }]);
+    r = run(); assert.ok(!r.ok && /duplicate/i.test(r.out), 'alias clashing with a term in overlapping (general) scope rejected');
+    write('"not an array"'); r = run(); assert.ok(!r.ok && /glossary/i.test(r.out), 'non-array rejected');
+  } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+});
+test('p2_7.glossary_page', () => {
+  const g = loadGloss();
+  assert.ok(fs.existsSync(path.join(ROOT, 'glossary.html')), 'glossary.html not generated');
+  const h = read('glossary.html');
+  const ids = [...h.matchAll(/\sid="term-([^"]+)"/g)].map(m => m[1]);
+  const want = [...g].sort((a, b) => a.term.localeCompare(b.term, 'en', { sensitivity: 'base' })).map(t => P2.slugify(t.term));
+  assert.deepEqual(ids, want, 'one id="term-<slug>" per term, A-Z order');
+  const names = new Map(CHANGES.map(e => [e.country, e.name]));
+  for (const t of g) {
+    const i = h.indexOf(`id="term-${P2.slugify(t.term)}"`), j = h.indexOf('id="term-', i + 5), block = h.slice(i, j < 0 ? undefined : j);
+    for (const k of ['term', 'expansion', 'definition']) assert.ok(block.includes(escH(t[k])), `${t.term}: ${k} shown`);
+    assert.ok(block.includes(`href="${escH(t.sourceUrl)}"`), `${t.term}: source link`);
+    for (const c of t.countries) assert.ok(block.includes(`href="countries/${P2.slugify(names.get(c) || c)}.html"`), `${t.term}: link to ${c} page`);
+  }
+  assert.ok(!/\son[a-z]+=|<script(?![^>]*\ssrc=)|\sstyle=/i.test(h), 'CSP: no inline handlers/scripts/styles');
+  assert.match(read('sitemap.xml'), /<loc>[^<]*\/glossary\.html<\/loc>/, 'glossary.html in sitemap');
+  for (const f of ['countries.html', 'upcoming.html', 'glossary.html', `countries/${countryFiles.find(f => f.endsWith('.html'))}`])
+    assert.match((read(f).match(/<footer[\s\S]*?<\/footer>/) || [''])[0], /<a href="(\.\.\/)?glossary\.html">Glossary<\/a>/, `${f}: footer Glossary link`);
+});
+test('p2_7.country_pages_link_terms', () => {
+  const g = loadGloss();
+  assert.match(read('scripts/build-pages.mjs'), /linkTerms\(/, 'build-pages uses filters.js linkTerms');
+  let linked = 0;
+  for (const e of CHANGES) {
+    const file = `countries/${P2.slugify(e.name)}.html`, h = read(file);
+    const art = (h.match(new RegExp(`<article class="entry" id="${e.section}">([\\s\\S]*?)</article>`)) || [])[1];
+    assert.ok(art, `${file}#${e.section}`);
+    const want = `<p>${P2.linkTerms(e.detail.lead, g, e.country)}</p>`;
+    assert.ok(art.includes(want), `${e.country}/${e.section}: lead must be ${want.slice(0, 160)}`);
+    // Bullets and note are linked too, but a term already linked earlier in the same card (lead first) is not linked again.
+    let rest = g.filter(t => !want.includes(`#term-${P2.slugify(t.term)}"`));
+    const next = text => { const h = P2.linkTerms(text, rest, e.country); rest = rest.filter(t => !h.includes(`#term-${P2.slugify(t.term)}"`)); return h; };
+    for (const [label, items] of [['For the employer', e.detail.employer || []], ['For the employee', e.detail.employee || []]]) {
+      if (!items.length) continue;
+      const hs = items.map(next);
+      assert.ok(art.includes(`<h3>${label}</h3><ul>${hs.map(h => `<li>${h}</li>`).join('')}</ul>`), `${e.country}/${e.section}: ${label} bullets`);
+      linked += hs.join('').split('<a class="term"').length - 1;
+    }
+    if (e.detail.note) { const nh = next(e.detail.note); assert.ok(art.includes(`<p class="note">${nh}</p>`), `${e.country}/${e.section}: note`); linked += nh.split('<a class="term"').length - 1; }
+    linked += (want.match(/<a class="term"/g) || []).length;
+    assert.ok(!/<a\b[^>]*>(?:(?!<\/a>)[\s\S])*<a\b/.test(art), `${e.section}: nested links`);
+  }
+  assert.ok(linked >= 10, 'expected at least 10 term links across country pages, got ' + linked);
+  const gh = read('glossary.html');
+  for (const m of new Set([...CHANGES.map(e => P2.linkTerms(e.detail.lead, g, e.country)).join('').matchAll(/glossary\.html#(term-[^"]+)"/g)].map(m => m[1])))
+    assert.ok(gh.includes(`id="${m}"`), `dangling glossary anchor ${m}`);
+});
+
+// ---------- P2-7 follow-up: validator hygiene, dates, slugs, markup, coverage ----------
+// Runs scripts/validate.mjs in a temp copy of the site with the given glossary (array or raw string) and optional app.js edit.
+const validateWith = (gloss, appEdit) => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pa-p27b-'));
+  try {
+    fs.mkdirSync(path.join(tmp, 'scripts')); fs.mkdirSync(path.join(tmp, 'data'));
+    for (const f of ['scripts/validate.mjs', 'scripts/load.mjs', 'filters.js', 'index.html', 'vercel.json', '_headers', 'data/requests.json']) fs.copyFileSync(path.join(ROOT, f), path.join(tmp, f));
+    fs.writeFileSync(path.join(tmp, 'app.js'), appEdit ? appEdit(read('app.js')) : read('app.js'));
+    if (fs.existsSync(path.join(ROOT, '.well-known'))) fs.cpSync(path.join(ROOT, '.well-known'), path.join(tmp, '.well-known'), { recursive: true });
+    fs.writeFileSync(path.join(tmp, 'data/glossary.json'), typeof gloss === 'string' ? gloss : JSON.stringify(gloss));
+    try { execFileSync(process.execPath, ['scripts/validate.mjs'], { cwd: tmp, encoding: 'utf8', stdio: 'pipe' }); return { ok: true, out: '' }; } catch (e) { return { ok: false, out: String(e.stdout) + String(e.stderr) }; }
+  } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+};
+const fixtureTerm = () => {
+  const e0 = CHANGES[0];
+  const word = e0.detail.lead.match(/(?<![\p{L}\p{N}])[A-Za-z]{4,}(?![\p{L}\p{N}])/u)[0];
+  return { e0, word, good: { term: word, expansion: 'Fixture', definition: 'A fixture term here.', countries: [e0.country], sourceUrl: 'https://example.org/x', sourceLabel: 'Source: Example - Fixture', checked: '2026-01-01' } };
+};
+const ymd = offsetDays => new Date(Date.now() + offsetDays * 864e5).toISOString().slice(0, 10);
+test('p2_7.validate_slugs', () => {
+  const { e0, word, good } = fixtureTerm();
+  assert.ok(validateWith([good]).ok, 'fixture must pass');
+  const other = CHANGES.find(e => e.country !== e0.country).country;
+  let r = validateWith([good, { ...good, term: word + '.', countries: [other] }]);
+  assert.ok(!r.ok && /glossary/i.test(r.out) && /duplicate slug/i.test(r.out), 'same slug in non-overlapping scopes rejected: ' + r.out.slice(0, 300));
+  r = validateWith([{ ...good, term: 'ВДУ' }]);
+  assert.ok(!r.ok && /glossary/i.test(r.out) && /empty slug/i.test(r.out), 'term with an empty slug rejected: ' + r.out.slice(0, 300));
+});
+test('p2_7.validate_hygiene', () => {
+  const { word, good } = fixtureTerm();
+  const bad = {
+    alias_untrimmed: [{ ...good, aliases: [' x '] }, /aliases/],
+    alias_empty: [{ ...good, aliases: [''] }, /aliases/],
+    alias_markup: [{ ...good, aliases: ['<b>'] }, /alias.*plain text/],
+    alias_not_array: [{ ...good, aliases: 'x' }, /aliases/],
+    newline_definition: [{ ...good, definition: 'A fixture\nterm here.' }, /definition.*control/],
+    control_expansion: [{ ...good, expansion: 'Fix\u0007ture' }, /expansion.*control/],
+    control_label: [{ ...good, sourceLabel: 'Source: Example - Fix\ture' }, /sourceLabel.*control/],
+    term_markup: [{ ...good, term: word + '<i>' }, /term.*plain text/],
+    duplicate_countries: [{ ...good, countries: [good.countries[0], good.countries[0]] }, /countries.*twice/],
+    unknown_key: [{ ...good, extra: 1 }, /unknown field "extra"/],
+    userinfo: [{ ...good, sourceUrl: 'https://user:pw@example.org/x' }, /sourceUrl/],
+    short_definition: [{ ...good, definition: 'Two words' }, /definition.*min 3/],
+  };
+  for (const [k, [entry, re]] of Object.entries(bad)) {
+    const r = validateWith([entry]);
+    assert.ok(!r.ok && /glossary/i.test(r.out) && re.test(r.out), `validate.mjs must reject glossary case "${k}" with a matching message: ` + r.out.slice(0, 400));
+  }
+});
+test('p2_7.validate_date_tolerance', () => {
+  const { good } = fixtureTerm();
+  assert.ok(validateWith([{ ...good, checked: ymd(1) }]).ok, 'checked = UTC today + 1 day must pass');
+  let r = validateWith([{ ...good, checked: ymd(2) }]);
+  assert.ok(!r.ok && /glossary/i.test(r.out) && /in the future/.test(r.out), 'checked = UTC today + 2 days must fail');
+  // The same tolerance applies to the existing added/updated rules.
+  const e0 = CHANGES[0], swap = d => src => src.replace(`added:'${e0.added}'`, `added:'${d}'`);
+  r = validateWith([good], swap(ymd(1)));
+  assert.ok(!/added \S+ is in the future/.test(r.out), 'added = UTC today + 1 day must not be reported as future: ' + r.out.slice(0, 300));
+  r = validateWith([good], swap(ymd(2)));
+  assert.ok(!r.ok && /added \S+ is in the future/.test(r.out), 'added = UTC today + 2 days must fail');
+});
+test('p2_7.glossary_page_extras', () => {
+  const g = loadGloss(), h = read('glossary.html');
+  const newest = g.map(t => t.checked).sort().pop();
+  const longDay = new Date(newest + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+  assert.match(read('sitemap.xml'), new RegExp(`glossary\\.html</loc><lastmod>${newest}</lastmod>`), 'sitemap lastmod = newest checked date');
+  assert.ok(h.includes(`definitions last checked ${longDay}`), 'meta line uses the newest checked date');
+  const nav = (h.match(/<nav class="az"[^>]*>([\s\S]*?)<\/nav>/) || [])[1];
+  assert.ok(nav, 'A-Z jump list present');
+  const idSet = new Set([...h.matchAll(/\sid="(term-[^"]+)"/g)].map(m => m[1]));
+  const navLinks = [...nav.matchAll(/<a href="#(term-[^"]+)">([^<]*)<\/a>/g)];
+  assert.equal(navLinks.length, g.length, 'one jump link per term');
+  for (const t of g) {
+    const m = navLinks.find(x => x[1] === 'term-' + P2.slugify(t.term));
+    assert.ok(m, `jump link for ${t.term}`);
+    assert.equal(m[2], escH(t.term), `${t.term}: jump link text is escaped`);
+    assert.ok(idSet.has(m[1]), `${t.term}: jump target exists`);
+  }
+  for (const f of ['privacy.html', 'terms.html'])
+    assert.match((read(f).match(/<footer[\s\S]*?<\/footer>/) || [''])[0], /<a href="glossary\.html">Glossary<\/a>/, `${f}: footer Glossary link`);
+});
+test('p2_7.country_pages_known_links_and_markup', () => {
+  const g = loadGloss(), page = n => read(`countries/${n}.html`);
+  const prsi = g.find(t => t.term === 'PRSI');
+  assert.ok(page('ireland').includes(`<a class="term" href="../glossary.html#term-prsi"><abbr title="${escH(prsi.expansion)}">PRSI</abbr><span class="visually-hidden"> (${escH(prsi.expansion)})</span></a>`), 'ireland: PRSI links to the glossary with its expansion');
+  assert.ok(page('united-kingdom').includes('href="../glossary.html#term-paye"'), 'united-kingdom: PAYE links');
+  assert.ok(page('qatar').includes('href="../glossary.html#term-wps-qatar"') && !page('qatar').includes('#term-wps-bahrain'), 'qatar: WPS links to the Qatar entry only');
+  assert.ok(page('bahrain').includes('href="../glossary.html#term-wps-bahrain"') && !page('bahrain').includes('#term-wps-qatar'), 'bahrain: WPS links to the Bahrain entry only');
+  assert.ok(!/href="[^"]*#term-ni"/.test(page('ireland')), 'scoped acronyms do not link in other countries');
+  // Every link has the exact accessible markup: abbr title plus the same expansion as visually hidden text.
+  let all = '';
+  for (const f of countryFiles.filter(f => f.endsWith('.html'))) all += read(`countries/${f}`);
+  const total = all.split('<a class="term"').length - 1, good = (all.match(/<a class="term" href="\.\.\/glossary\.html#term-[a-z0-9-]+"><abbr title="([^"]*)">[^<]*<\/abbr><span class="visually-hidden"> \(\1\)<\/span><\/a>/g) || []).length;
+  assert.ok(total > 0 && good === total, `all ${total} term links must carry the expansion as visible-to-assistive-tech text (${good} do)`);
+  assert.match(read('legal.css'), /\.visually-hidden\s*\{[^}]*clip/, 'legal.css defines .visually-hidden');
+  // Headings and titles are never linked.
+  for (const m of all.matchAll(/<h([1-6])\b[^>]*>([\s\S]*?)<\/h\1>/g)) assert.ok(!/class="term"/.test(m[2]), 'term link inside a heading: ' + m[2].slice(0, 120));
+  assert.ok(!/<a class="term"[^>]*\sstyle=/.test(all), 'no inline styles on term links');
+});
+test('p2_7.validate_orphan_fields', () => {
+  // A word that occurs only in an entry's title (or only in its example) is an orphan: those fields are never linked.
+  const words = t => t.match(/(?<![\p{L}\p{N}])[A-Za-z]{5,}(?![\p{L}\p{N}])/gu) || [];
+  const linkedText = e => entryText(e);
+  const find = field => {
+    for (const e of CHANGES) {
+      const src = field === 'title' ? e.title : e.detail.example;
+      for (const w of words(src || '')) {
+        if (CHANGES.some(x => x.country === e.country && new RegExp('(?<![\\p{L}\\p{N}])' + w + '(?![\\p{L}\\p{N}])', 'u').test(linkedText(x)))) continue;
+        return { country: e.country, word: w };
+      }
+    }
+    return null;
+  };
+  const { good } = fixtureTerm();
+  for (const field of ['title', 'example']) {
+    const hit = find(field);
+    assert.ok(hit, `fixture: data has a word that occurs only in an entry ${field}`);
+    const r = validateWith([{ ...good, term: hit.word, countries: [hit.country] }]);
+    assert.ok(!r.ok && /glossary/i.test(r.out) && /orphan/i.test(r.out), `a term found only in the ${field} must be rejected as an orphan: ` + r.out.slice(0, 300));
+  }
+});
+test('p2_7.readme_example_validates', () => {
+  const sec = read('README.md').split('### The glossary')[1].split('\n## ')[0];
+  const example = JSON.parse(sec.match(/```json\n([\s\S]*?)\n```/)[1]);
+  const r = validateWith([example]);
+  assert.ok(r.ok, 'the README glossary example must pass validate.mjs: ' + r.out.slice(0, 300));
+  assert.match(sec, /Unknown fields are rejected/); assert.match(sec, /unique across the whole glossary/); assert.match(sec, /UTC today plus one day/);
+});
+test('p2_7.every_term_links_somewhere', () => {
+  const g = loadGloss();
+  let all = '';
+  for (const f of countryFiles.filter(f => f.endsWith('.html'))) all += read(`countries/${f}`);
+  for (const t of g) assert.ok(all.includes(`href="../glossary.html#term-${P2.slugify(t.term)}"`), `glossary term ${t.term} never links from a generated country page`);
+});
+
 console.log(`${passed} site tests passed.`);

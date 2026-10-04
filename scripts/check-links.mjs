@@ -2,6 +2,7 @@
 // BROKEN (404/410/5xx/network) fails the run. BLOCKED (403/429/999, usually bot protection)
 // is listed for manual review but does not fail the run. Links that redirect to a bare homepage are
 // listed as suspect (the page has probably moved).
+import { readFileSync } from 'node:fs';
 import { loadSite } from './load.mjs';
 
 const { CHANGES } = loadSite();
@@ -11,6 +12,12 @@ for (const c of CHANGES) {
   const u = c.detail.sourceUrl;
   if (!urls.has(u)) urls.set(u, []);
   urls.get(u).push(`${c.country}/${c.section}`);
+}
+
+// Glossary sources (data/glossary.json) are checked too.
+for (const t of JSON.parse(readFileSync(new URL('../data/glossary.json', import.meta.url), 'utf8'))) {
+  if (!urls.has(t.sourceUrl)) urls.set(t.sourceUrl, []);
+  urls.get(t.sourceUrl).push(`glossary/${t.term}`);
 }
 
 async function probe(url, method) {
@@ -43,13 +50,20 @@ await Promise.all(Array.from({ length: 6 }, async () => {
 }));
 
 const toHomepage = r => { try { return r.final && new URL(r.final).pathname.length <= 1 && new URL(r.url).pathname.length > 1; } catch { return false; } };
-const bucket = r => (r.status >= 200 && r.status < 400 ? (toHomepage(r) ? 'suspect' : 'ok') : [403, 429, 999].includes(r.status) ? 'blocked' : 'broken');
+// Hosts known to omit an intermediate certificate: browsers repair that, Node cannot, so a certificate-chain error from
+// exactly these hosts is listed for manual review (labelled TLS). Any other host with such an error stays BROKEN.
+// Add a host only after opening the page in a browser and confirming it loads.
+const TLS_CHAIN = ['UNABLE_TO_VERIFY_LEAF_SIGNATURE', 'UNABLE_TO_GET_ISSUER_CERT_LOCALLY'];
+const TLS_HOSTS = new Set(['www.qcb.gov.qa']); // Qatar Central Bank: glossary source for "WPS (Qatar)"
+const hostOf = u => { try { return new URL(u).hostname; } catch { return ''; } };
+const isTlsAllowed = r => TLS_CHAIN.includes(r.error) && TLS_HOSTS.has(hostOf(r.url));
+const bucket = r => (r.status >= 200 && r.status < 400 ? (toHomepage(r) ? 'suspect' : 'ok') : [403, 429, 999].includes(r.status) || isTlsAllowed(r) ? 'blocked' : 'broken');
 const groups = { ok: [], suspect: [], blocked: [], broken: [] };
 for (const r of results) groups[bucket(r)].push(r);
 const show = (title, list) => {
   if (!list.length) return;
   console.log(`\n${title} (${list.length})`);
-  for (const r of list) console.log(` ${r.status || r.error}  ${r.url}\n      used by: ${urls.get(r.url).join(', ')}`);
+  for (const r of list) console.log(` ${isTlsAllowed(r) ? 'TLS (certificate chain; open in a browser)' : r.status || r.error}  ${r.url}\n      used by: ${urls.get(r.url).join(', ')}`);
 };
 console.log(`${urls.size} unique source URLs: ${groups.ok.length} ok, ${groups.suspect.length} redirect to a homepage, ${groups.blocked.length} blocked, ${groups.broken.length} broken`);
 show('BROKEN', groups.broken);

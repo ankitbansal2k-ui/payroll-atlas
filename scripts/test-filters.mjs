@@ -479,5 +479,76 @@ test('p2_6.fold_filter_highlight_agree', () => {
   assert.equal(F.foldForSearch('İA\u{10400}').length, 'İA\u{10400}'.length, 'fold must preserve length');
 });
 
+// ---------- P2-7: glossary term linker (pure) ----------
+// Contract: F.linkTerms(text, glossary, country, href = '../glossary.html') -> HTML string.
+// - text is RAW (unescaped); everything outside links is escHtml-escaped (escape-first, like highlight).
+// - A glossary entry applies when entry.countries is [] (general) or includes `country`.
+// - Matches entry.term and entry.aliases, case-sensitive, whole word: the chars before/after the match
+//   must not be a Unicode letter or digit. Longest match wins at a position; only the FIRST occurrence
+//   of each glossary entry (term or any alias) is linked.
+// - Link markup: <a class="term" href="HREF#term-SLUG"><abbr title="EXPANSION">MATCHED</abbr><span class="visually-hidden"> (EXPANSION)</span></a>
+//   SLUG = slugify(entry.term); EXPANSION and MATCHED escaped. (The hidden span makes the expansion available without hover.)
+// - null/undefined text -> ''; empty/non-array glossary -> escHtml(text).
+const GL = [
+  { term: 'PAYE', expansion: 'Pay As You Earn', definition: 'd', countries: ['uk', 'ireland'], aliases: [] },
+  { term: 'NI', expansion: 'National Insurance', definition: 'd', countries: ['uk'] },
+  { term: 'eSocial', expansion: 'Sistema "eSocial" <BR>', definition: 'd', countries: ['brazil'], aliases: ['e-Social'] },
+  { term: 'AHV', expansion: 'Alters- und Hinterlassenenversicherung', definition: 'd', countries: ['switzerland'] },
+  { term: 'AHV/IV/EO', expansion: 'AHV, IV & EO', definition: 'd', countries: ['switzerland'] },
+  { term: 'IBAN', expansion: 'International Bank Account Number', definition: 'd', countries: [] },
+];
+const LT = (t, c, h) => F.linkTerms(t, GL, c, h);
+const link = (slug, exp, m, h = '../glossary.html') => `<a class="term" href="${h}#term-${slug}"><abbr title="${exp}">${m}</abbr><span class="visually-hidden"> (${exp})</span></a>`;
+test('p2_7.link.export', () => assert.equal(typeof F.linkTerms, 'function', 'filters.js must export linkTerms'));
+test('p2_7.link.basic_first_only', () => {
+  assert.equal(LT('PAYE and PAYE again', 'uk'), `${link('paye', 'Pay As You Earn', 'PAYE')} and PAYE again`);
+  assert.equal(LT('PAYE', 'uk', 'glossary.html'), link('paye', 'Pay As You Earn', 'PAYE', 'glossary.html'));
+});
+test('p2_7.link.whole_word_case_sensitive', () => {
+  assert.equal(LT('PAYEE paye NIC UNI', 'uk'), 'PAYEE paye NIC UNI');
+  assert.equal(LT('(NI), NI.', 'uk'), `(${link('ni', 'National Insurance', 'NI')}), NI.`);
+  assert.equal(LT('ÄNI NIé', 'uk'), 'ÄNI NIé', 'unicode letters are word chars');
+});
+test('p2_7.link.country_scope', () => {
+  assert.equal(LT('NI rates', 'ireland'), 'NI rates', 'NI is scoped to uk');
+  assert.equal(LT('PAYE', 'germany'), 'PAYE');
+  assert.equal(LT('IBAN', 'germany'), link('iban', 'International Bank Account Number', 'IBAN'), 'general term applies everywhere');
+});
+test('p2_7.link.alias_and_longest', () => {
+  assert.equal(LT('Use e-Social; eSocial', 'brazil'), `Use ${link('esocial', 'Sistema &quot;eSocial&quot; &lt;BR&gt;', 'e-Social')}; eSocial`);
+  assert.equal(LT('AHV/IV/EO then AHV', 'switzerland'), `${link('ahv-iv-eo', 'AHV, IV &amp; EO', 'AHV/IV/EO')} then ${link('ahv', 'Alters- und Hinterlassenenversicherung', 'AHV')}`);
+});
+test('p2_7.link.escaping', () => {
+  assert.equal(LT('<b>PAYE</b> & "x"', 'uk'), `&lt;b&gt;${link('paye', 'Pay As You Earn', 'PAYE')}&lt;/b&gt; &amp; &quot;x&quot;`);
+  const evil = [{ term: 'X<Y', expansion: '"><script>', definition: 'd', countries: [] }];
+  const out = F.linkTerms('a X<Y b', evil, 'uk');
+  assert.ok(!/<script|<Y/.test(out), out);
+  assert.equal(F.linkTerms(null, GL, 'uk'), '');
+  assert.equal(F.linkTerms('<i>', [], 'uk'), '&lt;i&gt;');
+  assert.equal(F.linkTerms('PAYE <i>', undefined, 'uk'), 'PAYE &lt;i&gt;');
+});
+test('p2_7.link.no_nested_or_regex_injection', () => {
+  const g = [{ term: 'A.B', expansion: 'e', definition: 'd', countries: [] }, { term: 'PAYE', expansion: 'Pay As You Earn', definition: 'd', countries: [] }];
+  assert.equal(F.linkTerms('AxB', g, 'uk'), 'AxB', 'term text is literal, not a regex');
+  const out = F.linkTerms('PAYE PAYE', [...g, { term: 'Pay', expansion: 'p', definition: 'd', countries: [] }], 'uk');
+  assert.equal((out.match(/<a /g) || []).length, 1, 'expansion text must never be re-linked: ' + out);
+});
+test('p2_7.link.entity_and_html_in_term', () => {
+  const g = [{ term: 'R&D', expansion: 'Research & Development', definition: 'd', countries: [] }];
+  assert.equal(F.linkTerms('R&D and R&amp;D', g, 'uk'), `${link('r-d', 'Research &amp; Development', 'R&amp;D')} and R&amp;amp;D`, 'matches raw text, never inside entities');
+  assert.equal(F.linkTerms('amp &amp; amp', [{ term: 'amp', expansion: 'x', definition: 'd', countries: [] }], 'uk'), `${link('amp', 'x', 'amp')} &amp;amp; amp`);
+});
+test('p2_7.link.overlap_and_dedupe_across_aliases', () => {
+  const g = [{ term: 'USC', expansion: 'Universal Social Charge', definition: 'd', countries: ['ireland'], aliases: ['Universal Social Charge'] }];
+  assert.equal(F.linkTerms('Universal Social Charge (USC)', g, 'ireland'), `${link('usc', 'Universal Social Charge', 'Universal Social Charge')} (USC)`, 'alias + term share one first-occurrence budget');
+  assert.equal(F.linkTerms('', g, 'ireland'), '');
+});
+test('p2_7.link.pure', () => {
+  const g = JSON.parse(JSON.stringify(GL)), before = JSON.stringify(g);
+  F.linkTerms('PAYE NI', g, 'uk'); F.linkTerms('PAYE NI', g, 'uk');
+  assert.equal(JSON.stringify(g), before, 'glossary not mutated');
+  assert.equal(F.linkTerms('PAYE NI', g, 'uk'), F.linkTerms('PAYE NI', g, 'uk'), 'stateless');
+});
+
 console.log(`${n} filter tests passed, ${failed} failed.`);
 if (failed) process.exit(1);

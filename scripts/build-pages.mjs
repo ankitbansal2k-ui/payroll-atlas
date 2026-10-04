@@ -1,5 +1,5 @@
 // Generates the static, crawlable pages from the CHANGES data in index.html:
-//   countries.html, countries/<slug>.html, sitemap.xml, robots.txt, and the canonical links
+//   countries.html, countries/<slug>.html, glossary.html, sitemap.xml, robots.txt, and the canonical links
 //   and privacy.html / terms.html (rendered from scripts/templates using scripts/operator.json).
 // Run: node scripts/build-pages.mjs          (write files)
 //      node scripts/build-pages.mjs --check  (fail if generated files are out of date; used in CI)
@@ -12,7 +12,7 @@ import { loadSite } from './load.mjs';
 import { createRequire } from 'node:module';
 
 // Shared status/date helpers (same code the browser uses).
-const { statusOf, formatEffective, STATUS_LABELS } = createRequire(import.meta.url)('../filters.js');
+const { statusOf, formatEffective, STATUS_LABELS, linkTerms } = createRequire(import.meta.url)('../filters.js');
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const check = process.argv.includes('--check');
@@ -66,6 +66,13 @@ const latest = n => [...CHANGES].sort((a, b) => lastChanged(b).localeCompare(las
 
 // Visitor requests (data/requests.json), reviewed by hand before they are listed. Schema checked in validate.mjs.
 const REQUESTS = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/requests.json'), 'utf8'));
+// Glossary terms (data/glossary.json): linked from country page lead paragraphs and listed on glossary.html. Schema checked in validate.mjs.
+const GLOSSARY = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/glossary.json'), 'utf8'));
+// Each term is a page anchor (term-<slug>), so slugs must exist and be unique (validate.mjs reports this too).
+for (const t of GLOSSARY) if (!slugify(t.term)) throw new Error(`glossary term "${t.term}" has an empty slug`);
+if (new Set(GLOSSARY.map(t => slugify(t.term))).size !== GLOSSARY.length) throw new Error('glossary: duplicate slug');
+// The glossary page and its sitemap entry are dated by the newest 'checked' date, not by the changelog's last-verified date.
+const GLOSS_CHECKED = GLOSSARY.reduce((m, t) => (t.checked > m ? t.checked : m), '0000-00-00');
 const REQ_TYPES = { country: 'New country', rule: 'Missing rule', feature: 'Feature idea' };
 const REQ_STATUS = { requested: 'Requested', researching: 'Researching', added: 'Added' };
 function requestsSection() {
@@ -106,15 +113,27 @@ const head = ({ title, desc, url, depth, noindex }) => `<!DOCTYPE html>
 const header = depth => `  <header><a href="${depth || './'}">Intelligent Payroll</a> <a class="nav" href="${depth}countries.html">All countries</a></header>`;
 const footer = depth => `  <footer>
     <p>For information only, not legal or tax advice. Sources last checked ${VERIFIED}. Found an error? <a href="${ISSUES}" rel="noopener">Tell us</a>.</p>
-    <p><a href="${depth || './'}">Home</a> &middot; <a href="${depth}countries.html">All countries</a> &middot; <a href="${depth}upcoming.html">What's coming</a> &middot; <a href="${depth}suggest.html">Suggest a change</a> &middot; <a href="${depth}feed.xml">RSS feed</a> &middot; <a href="${depth}privacy.html">Privacy</a> &middot; <a href="${depth}terms.html">Terms and disclaimer</a></p>
+    <p><a href="${depth || './'}">Home</a> &middot; <a href="${depth}countries.html">All countries</a> &middot; <a href="${depth}upcoming.html">What's coming</a> &middot; <a href="${depth}glossary.html">Glossary</a> &middot; <a href="${depth}suggest.html">Suggest a change</a> &middot; <a href="${depth}feed.xml">RSS feed</a> &middot; <a href="${depth}privacy.html">Privacy</a> &middot; <a href="${depth}terms.html">Terms and disclaimer</a></p>
   </footer>`;
 
+// items are HTML (already escaped, possibly with glossary links).
 const list2 = (label, items) => items && items.length
-  ? `      <div class="who"><h3>${label}</h3><ul>${items.map(i => `<li>${esc(i)}</li>`).join('')}</ul></div>\n`
+  ? `      <div class="who"><h3>${label}</h3><ul>${items.map(i => `<li>${i}</li>`).join('')}</ul></div>\n`
   : '';
 
 function entryHtml(e) {
   const d = e.detail;
+  // Link each glossary term once per card: the lead first, then employer, employee and note. A term already linked is not linked again.
+  let remaining = GLOSSARY;
+  const linked = text => {
+    const html = linkTerms(text, remaining, e.country);
+    const used = new Set([...html.matchAll(/#term-([a-z0-9-]+)"/g)].map(m => m[1]));
+    if (used.size) remaining = remaining.filter(t => !used.has(slugify(t.term)));
+    return html;
+  };
+  const leadHtml = linked(d.lead);
+  const employerHtml = (d.employer || []).map(linked), employeeHtml = (d.employee || []).map(linked);
+  const noteHtml = d.note ? linked(d.note) : '';
   const badges = [statusChip(e)];
   if (e.badge) badges.push(`<span class="badge-note">${esc(e.badge)}</span>`);
   const fresh = freshness(e);
@@ -123,8 +142,8 @@ function entryHtml(e) {
   return `    <article class="entry" id="${esc(e.section)}">
       <h2>${esc(e.title)}</h2>
       <p class="badges">${badges.join(' ')}</p>
-      <p>${esc(d.lead)}</p>
-${list2('For the employer', d.employer)}${list2('For the employee', d.employee)}${d.example ? `      <p class="example"><strong>In practice:</strong> ${esc(d.example)}</p>\n` : ''}${d.note ? `      <p class="note">${esc(d.note)}</p>\n` : ''}      <p class="source"><a href="${esc(d.sourceUrl)}" rel="noopener">${esc(d.sourceLabel)}</a> &middot; Payroll impact: ${IMPACT[e.impact]} &middot; Last verified ${VERIFIED} &middot; Added ${fmtDay(e.added)}${e.updated ? ` &middot; Updated ${fmtDay(e.updated)}` : ''}</p>
+      <p>${leadHtml}</p>
+${list2('For the employer', employerHtml)}${list2('For the employee', employeeHtml)}${d.example ? `      <p class="example"><strong>In practice:</strong> ${esc(d.example)}</p>\n` : ''}${d.note ? `      <p class="note">${noteHtml}</p>\n` : ''}      <p class="source"><a href="${esc(d.sourceUrl)}" rel="noopener">${esc(d.sourceLabel)}</a> &middot; Payroll impact: ${IMPACT[e.impact]} &middot; Last verified ${VERIFIED} &middot; Added ${fmtDay(e.added)}${e.updated ? ` &middot; Updated ${fmtDay(e.updated)}` : ''}</p>
     </article>`;
 }
 
@@ -199,6 +218,44 @@ ${latest(10).map(e => `      <li><a href="countries/${countries.get(e.country).s
 ${sections}${thinSection}
 
 ${requestsSection()}
+  </main>
+${footer('')}
+</body>
+</html>
+`;
+}
+
+// Glossary: abbreviations used in entries, A-Z. Each term has an anchor (term-<slug>) that country pages link to.
+const escAttr = s => esc(s).replace(/'/g, '&#39;');
+function glossaryPage() {
+  const url = `${SITE}glossary.html`;
+  const terms = [...GLOSSARY].sort((a, b) => a.term.localeCompare(b.term, 'en', { sensitivity: 'base' }) || (a.term < b.term ? -1 : a.term > b.term ? 1 : 0));
+  const desc = clip(`${terms.length} payroll abbreviations and terms explained in plain English, each with a checked official source.`, 158);
+  const body = terms.map(t => {
+    const where = (t.countries || []).map(code => countries.get(code)).filter(Boolean)
+      .map(c => `<a href="countries/${c.slug}.html">${c.flag} ${esc(c.name)}</a>`).join(', ');
+    const aliases = t.aliases && t.aliases.length ? `      <p class="aliases">Also written: ${t.aliases.map(escAttr).join(', ')}</p>\n` : '';
+    return `    <article class="entry gloss" id="term-${slugify(t.term)}">
+      <h2>${escAttr(t.term)}</h2>
+      <p class="expansion">${escAttr(t.expansion)}</p>
+${aliases}      <p>${escAttr(t.definition)}</p>
+      <p class="source">${where ? `Used in: ${where} &middot; ` : ''}<a href="${escAttr(t.sourceUrl)}" rel="noopener">${escAttr(t.sourceLabel)}</a> &middot; Checked ${fmtDay(t.checked)}</p>
+    </article>`;
+  }).join('\n\n');
+  return `${head({ title: 'Glossary: payroll terms and abbreviations | Intelligent Payroll', desc, url, depth: '' })}
+<body>
+${header('')}
+  <main>
+    <h1>Glossary</h1>
+    <p class="meta">${terms.length} terms &middot; definitions last checked ${fmtDay(GLOSS_CHECKED)}</p>
+    <p>Abbreviations and local terms used in the payroll changes we track, in plain English. Each definition links to the page it was checked against. A term that looks the same in another country may mean something different there, so each one lists the countries it applies to. For information only, not legal or tax advice.</p>
+    <nav class="az" aria-label="Jump to a term">
+      <ul>
+${terms.map(t => `        <li><a href="#term-${slugify(t.term)}">${escAttr(t.term)}</a></li>`).join('\n')}
+      </ul>
+    </nav>
+
+${body}
   </main>
 ${footer('')}
 </body>
@@ -358,13 +415,14 @@ function icsCalendar(name, entries) {
 const out = new Map();
 out.set('countries.html', indexPage());
 out.set('suggest.html', suggestPage());
+out.set('glossary.html', glossaryPage());
 out.set('upcoming.html', upcomingPage());
 out.set('calendar.ics', icsCalendar("Intelligent Payroll: what's coming", CHANGES));
 for (const c of icsCountries) out.set(icsName(c), icsCalendar(`Intelligent Payroll: ${c.name}`, c.entries));
 out.set('worker/countries.json', JSON.stringify(Object.fromEntries(list.map(c => [c.code, c.name])), null, 0) + '\n');
 for (const c of list) out.set(`countries/${c.slug}.html`, countryPage(c));
 
-const urls = ['', 'countries.html', ...list.map(c => `countries/${c.slug}.html`), 'upcoming.html', 'suggest.html', 'privacy.html', 'terms.html'];
+const urls = ['', 'countries.html', ...list.map(c => `countries/${c.slug}.html`), 'upcoming.html', 'glossary.html', 'suggest.html', 'privacy.html', 'terms.html'];
 out.set('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.map(u => `  <url><loc>${SITE}${u}</loc><lastmod>${VERIFIED_ISO}</lastmod></url>`).join('\n')}
@@ -439,7 +497,8 @@ for (const f of ['privacy.html', 'terms.html']) {
   if (left) throw new Error(`${f}: unfilled template tokens ${left.join(', ')}`);
   out.set(f, rendered);
 }
-out.set('sitemap.xml', out.get('sitemap.xml').replace(/(privacy|terms)\.html<\/loc><lastmod>[^<]+/g, `$1.html</loc><lastmod>${op.legalUpdated}`));
+out.set('sitemap.xml', out.get('sitemap.xml').replace(/(privacy|terms)\.html<\/loc><lastmod>[^<]+/g, `$1.html</loc><lastmod>${op.legalUpdated}`)
+  .replace(/glossary\.html<\/loc><lastmod>[^<]+/, `glossary.html</loc><lastmod>${GLOSS_CHECKED}`));
 
 // ---- verify index.html social URLs match the canonical host ----
 const problems = [];

@@ -1,0 +1,356 @@
+[
+  {
+    "term": "VDU",
+    "expansion": "Vidutinis darbo užmokestis (Lithuanian) - average wage",
+    "definition": "Lithuania's average wage figure, used to set the base for state social insurance contributions for the year. Personal income tax bands are also expressed as multiples of it, such as 36 VDU and 60 VDU.",
+    "countries": [
+      "lithuania"
+    ],
+    "sourceUrl": "https://www.vmi.lt/evmi/5725",
+    "sourceLabel": "Source: VMI - Apie gyventojų pajamų mokesčio tarifus",
+    "checked": "2026-10-04"
+  },
+  {
+    "term": "MMA",
+    "expansion": "Minimalioji mėnesinė alga (Lithuanian) - minimum monthly wage",
+    "definition": "Lithuania's minimum monthly wage. The Government sets the amount for each year by resolution, together with a minimum hourly rate.",
+    "countries": [
+      "lithuania"
+    ],
+    "sourceUrl": "https://www.vmi.lt/evmi/gyventoju-pajamu-mokescio-pakeitimai-nuo-2026-m.",
+    "sourceLabel": "Source: VMI - Gyventojų pajamų mokesčio pakeitimai nuo 2026 m.",
+    "checked": "2026-10-04"
+  },
+  {
+    "term": "SMIC",
+    "expansion": "Salaire minimum interprofessionnel de croissance (French) - minimum wage",
+    "definition": "France's minimum wage. It is revalued every 1 January and is also raised automatically during the year when consumer prices rise by at least 2% from the level at the last revaluation.",
+    "countries": [
+      "france"
+    ],
+    "aliases": [
+      "Smic"
+    ],
+    "sourceUrl": "https://www.service-public.gouv.fr/particuliers/actualites/A18916",
+    "sourceLabel": "Source: Service-Public.fr - Smic revaluation (June 2026)",
+    "checked": "2026-10-04"
+  },
+  {
+    "term": "PMSS",
+    "expansion": "Monthly value of the plafond de la Sécurité sociale (French social security ceiling)",
+    "definition": "The monthly value of France's social security ceiling (plafond de la Sécurité sociale). The annual value is the PASS. The ceiling is used to work out social contributions on salary, exemption thresholds for severance pay and intern pay.",
+    "countries": [
+      "france"
+    ],
+    "aliases": [
+      "PASS"
+    ],
+    "sourceUrl": "https://www.service-public.gouv.fr/particuliers/actualites/A15386",
+    "sourceLabel": "Source: Service-Public.fr - Plafond de la sécurité sociale 2026",
+    "checked": "2026-10-04"
+  },
+  {
+    "term": "GMMI",
+    "expansion": "Gewaarborgd gemiddeld minimummaandinkomen (GGMMI, Dutch) - guaranteed average minimum monthly income",
+    "definition": "Belgium's guaranteed average minimum monthly income, set by collective labour agreement no. 43. It covers employees aged 18 or over with an employment contract; no wage may be lower. Agreement no. 50 covers students aged 18 to 20.",
+    "countries": [
+      "belgium"
+    ],
+    "aliases": [
+      "GGMMI"
+    ],
+    "sourceUrl": "https://cnt-nar.be/nl/thema-dossiers/minimumloon",
+    "sourceLabel": "Source: Nationale Arbeidsraad (CNT-NAR) - Minimumloon",
+    "checked": "2026-10-04"
+  },
+  {
+    "term": "JMHZ",
+    "expansion": "Jednotné měsíční hlášení zaměstnavatele (Czech) - unified (single) monthly employer report",
+    "definition": "Czechia's unified electronic monthly employer report, in force from 1 January 2026 and phased in through July 2026. It lets employers meet reporting and record-keeping duties to several state bodies, such as ČSSZ, in one submission.",
+    "countries": [
+      "czechia"
+    ],
+    "sourceUrl": "https://www.cssz.gov.cz/web/cz/co-je-jmhz-",
+    "sourceLabel": "Source: ČSSZ - Co je JMHZ",
+    "checked": "2026-10-04"
+  },
+  {
+    "term": "DmfA",
+    "expansion": "Déclaration multifonctionelle / multifunctionele Aangifte - multifunctional declaration",
+    "definition": "Belgium's employer declaration of each employee's wage and working-time data. It replaced the quarterly RSZ declaration from the first quarter of 2003. Sickness insurance, unemployment, pensions, occupational risks, child allowances and annual leave bodies use the same data.",
+    "countries": [
+      "belgium"
+    ],
+    "sourceUrl": "https://www.socialsecurity.be/site_nl/employer/applics/dmfa/general/about.htm",
+    "sourceLabel": "Source: socialsecurity.be - DmfA: algemeen",
+    "checked": "2026-10-04"
+  },
+  {
+    "term": "JOPPD",
+    "expansion": "Obrazac JOPPD - Izvješće o primicima, porezu na dohodak te doprinosima za obvezna osiguranja (Croatian) - report on receipts, income tax and mandatory insurance contributions",
+    "definition": "Croatia's Tax Administration form for reporting receipts, income tax and mandatory insurance contributions. It has been in use since 1 January 2014.",
+    "countries": [
+      "croatia"
+    ],
+    "aliases": [
+      "Obrazac JOPPD"
+    ],
+    "sourceUrl": "https://porezna-uprava.gov.hr/en/joppd/3956",
+    "sourceLabel": "Source: Porezna uprava - Obrazac JOPPD",
+    "checked": "2026-10-04"
+  },
+  {
+    "term": "USC",
+    "expansion": "Universal Social Charge",
+    "definition": "An Irish tax on total income, including employment income. Once total income exceeds the set threshold, USC is charged on the full income at the standard or reduced rate, depending on circumstances. Some types of income are exempt.",
+    "countries": [
+      "ireland"
+    ],
+    "sourceUrl": "https://www.revenue.ie/en/jobs-and-pensions/usc/index.aspx",
+    "sourceLabel": "Source: Revenue - Universal Social Charge (USC)",
+    "checked": "2026-10-04"
+  },
+  {
+    "term": "PAYE",
+    "expansion": "Pay As You Earn",
+    "definition": "The UK system HMRC uses to collect Income Tax and National Insurance from employment. Employers deduct them from employees' pay and report the payments and deductions to HMRC on or before each payday.",
+    "countries": [
+      "uk"
+    ],
+    "sourceUrl": "https://www.gov.uk/paye-for-employers",
+    "sourceLabel": "Source: GOV.UK - PAYE and payroll for employers",
+    "checked": "2026-10-04"
+  },
+  {
+    "term": "SSP",
+    "expansion": "Statutory Sick Pay",
+    "definition": "The UK minimum sick pay that employers must pay to eligible employees who are too ill to work, for up to 28 weeks. Employers may pay more under their own sick pay scheme, but not less.",
+    "countries": [
+      "uk"
+    ],
+    "sourceUrl": "https://www.gov.uk/statutory-sick-pay",
+    "sourceLabel": "Source: GOV.UK - Statutory Sick Pay (SSP): Overview",
+    "checked": "2026-10-04"
+  },
+  {
+    "term": "RSZ",
+    "expansion": "RSZ (Dutch) / ONSS (French) - Belgium's national social security office",
+    "definition": "Belgium's national social security office. Since 1945 it has collected social contributions, gathered and checked employers' wage and working-time data, supported employers with their declarations and contributed to financing the social security system.",
+    "countries": [
+      "belgium"
+    ],
+    "aliases": [
+      "ONSS"
+    ],
+    "sourceUrl": "https://www.rsz.be/wie-zijn-wij",
+    "sourceLabel": "Source: RSZ - Wie zijn wij? (Identiteit)",
+    "checked": "2026-10-04"
+  },
+  {
+    "term": "PRSI",
+    "expansion": "Pay Related Social Insurance",
+    "definition": "Ireland's social insurance contribution, paid by employers and employees. The rate depends on the employee's pay and PRSI class. It is the main source of funding for social welfare payments and is passed to the Department of Social Protection.",
+    "countries": [
+      "ireland"
+    ],
+    "sourceUrl": "https://revenue.ie/en/employing-people/paying-your-employees-tax-to-revenue/prsi.aspx",
+    "sourceLabel": "Source: Revenue - Pay Related Social Insurance (PRSI)",
+    "checked": "2026-10-04"
+  },
+  {
+    "term": "CPF",
+    "expansion": "Central Provident Fund",
+    "definition": "Singapore's Central Provident Fund. Employers pay CPF contributions for employees who are Singapore Citizens or Permanent Residents, at rates that depend on citizenship status, age and wages, and may recover the employee's share from wages.",
+    "countries": [
+      "sg"
+    ],
+    "sourceUrl": "https://www.cpf.gov.sg/employer/employer-obligations/how-much-cpf-contributions-to-pay",
+    "sourceLabel": "Source: CPF Board - How much CPF contributions to pay",
+    "checked": "2026-10-04"
+  },
+  {
+    "term": "EPF",
+    "expansion": "Employees' Provident Fund",
+    "definition": "Malaysia's compulsory retirement savings scheme for employees working in Malaysia. It covers mandatory contributions by all employees, including Malaysian citizens, permanent residents and non-Malaysian citizens. Rates depend on citizenship status, age and monthly wages.",
+    "countries": [
+      "my"
+    ],
+    "sourceUrl": "https://taxsummaries.pwc.com/malaysia/individual/other-taxes",
+    "sourceLabel": "Source: PwC Worldwide Tax Summaries - Malaysia: Other taxes",
+    "checked": "2026-10-04"
+  },
+  {
+    "term": "SSS",
+    "expansion": "Social Security System",
+    "definition": "The Philippines' Social Security System, which collects mandatory contributions under the Social Security Act of 2018 (Republic Act No. 11199). Employer and employee each pay a share of a Monthly Salary Credit (MSC) with a minimum and a maximum.",
+    "countries": [
+      "ph"
+    ],
+    "sourceUrl": "https://www.forvismazars.com/ph/en/insights/hr-payroll-alerts/sss-contribution-rates-increased-to-15",
+    "sourceLabel": "Source: Forvis Mazars Philippines - SSS contribution rates increased to 15%",
+    "checked": "2026-10-04"
+  },
+  {
+    "term": "GOSI",
+    "expansion": "General Organization for Social Insurance",
+    "definition": "Saudi Arabia's social insurance organisation. It applies the Social Insurance Law, follows up compulsory insurance coverage, collects contributions from employers and pays benefits to eligible contributors or their families.",
+    "countries": [
+      "sa"
+    ],
+    "sourceUrl": "https://www.gosi.gov.sa/GOSIOnline/About_Portal&locale=en_US",
+    "sourceLabel": "Source: GOSI - Brief on the General Organization for Social Insurance",
+    "checked": "2026-10-04"
+  },
+  {
+    "term": "WPS (Qatar)",
+    "aliases": [
+      "WPS"
+    ],
+    "countries": [
+      "qa"
+    ],
+    "expansion": "Wage Protection System (also written Wages Protection System)",
+    "definition": "Qatar's centralized system, launched in 2010 as an initiative between Qatar Central Bank and the Ministry of Labour, to manage and verify wage payments from employers to employees under law no. 14 of 2004.",
+    "sourceUrl": "https://www.qcb.gov.qa/en/Pages/Retail-payment-systems.aspx",
+    "sourceLabel": "Source: Qatar Central Bank - Retail payment systems",
+    "checked": "2026-10-04"
+  },
+  {
+    "term": "WPS (Bahrain)",
+    "aliases": [
+      "WPS"
+    ],
+    "countries": [
+      "bh"
+    ],
+    "expansion": "Wages Protection System",
+    "definition": "Bahrain's system that lets employers pay employee wages through banks and financial institutions approved by the Central Bank of Bahrain. The Labour Market Regulatory Authority (LMRA) has launched an enhanced version.",
+    "sourceUrl": "https://blog.lmra.gov.bh/en/?p=7374",
+    "sourceLabel": "Source: LMRA (Bahrain) - LMRA Launches the Enhanced Wages Protection System",
+    "checked": "2026-10-04"
+  },
+  {
+    "term": "UIT",
+    "expansion": "Unidad Impositiva Tributaria (Spanish) - tax reference unit",
+    "definition": "Peru's tax reference unit: a value set each year by supreme decree of the Ministry of Economy and Finance and used as a reference index in tax rules, so thresholds and limits can be expressed as multiples of it.",
+    "countries": [
+      "pe"
+    ],
+    "sourceUrl": "https://busquedas.elperuano.pe/dispositivo/NL/2469116-1",
+    "sourceLabel": "Source: El Peruano - Decreto Supremo que aprueba el valor de la UIT durante el año 2026",
+    "checked": "2026-10-04"
+  },
+  {
+    "term": "IRPF",
+    "expansion": "Imposto sobre a Renda das Pessoas Físicas (Portuguese) - individual income tax",
+    "definition": "Brazil's personal income tax. The Receita Federal publishes a progressive monthly table, with a fixed monthly deduction per dependant and, from January 2026, a reduction that brings tax to zero for lower monthly incomes.",
+    "countries": [
+      "br"
+    ],
+    "sourceUrl": "https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/tabelas/2026",
+    "sourceLabel": "Source: Receita Federal - Tabelas 2026",
+    "checked": "2026-10-04"
+  },
+  {
+    "term": "INSS",
+    "expansion": "Instituto Nacional do Seguro Social (Portuguese) - National Social Security Institute",
+    "definition": "Brazil's national social security institute. Its monthly contribution table sets progressive contribution rates up to a maximum contribution base for employees, domestic employees and casual workers (trabalhadores avulsos).",
+    "countries": [
+      "br"
+    ],
+    "sourceUrl": "https://www.gov.br/inss/pt-br/direitos-e-deveres/inscricao-e-contribuicao/tabela-de-contribuicao-mensal",
+    "sourceLabel": "Source: INSS (gov.br) - Tabela de contribuição mensal",
+    "checked": "2026-10-04"
+  },
+  {
+    "term": "RMV",
+    "expansion": "Remuneración Mínima Vital (Spanish) - minimum wage",
+    "definition": "Peru's minimum wage for workers under the private-sector labour regime. It is changed by supreme decree, here following consensus reached in the Consejo Nacional de Trabajo y Promoción del Empleo.",
+    "countries": [
+      "pe"
+    ],
+    "sourceUrl": "https://busquedas.elperuano.pe/dispositivo/EX/2559163-1",
+    "sourceLabel": "Source: El Peruano - Decreto Supremo Nº 015-2026-TR",
+    "checked": "2026-10-04"
+  },
+  {
+    "term": "SMVM",
+    "expansion": "Salario Mínimo, Vital y Móvil (Spanish) - minimum, living and adjustable wage",
+    "definition": "Argentina's national minimum wage, set by the Consejo Nacional del Empleo, la Productividad y el Salario Mínimo, Vital y Móvil. It covers workers under Ley 20.744, the agricultural regime and the national public administration, with monthly and hourly amounts.",
+    "countries": [
+      "ar"
+    ],
+    "sourceUrl": "https://www.argentina.gob.ar/normativa/nacional/norma-429565/texto",
+    "sourceLabel": "Source: Argentina.gob.ar - Resolución 4/2026",
+    "checked": "2026-10-04"
+  },
+  {
+    "term": "AFP",
+    "expansion": "Administradora de Fondos de Pensiones (Spanish) - pension fund administrator",
+    "definition": "In Chile's mandatory individual-capitalisation pension system, the administrator where workers deposit their mandatory pension savings. The pension funds belong to the members and are separate from the administrator's own capital.",
+    "countries": [
+      "cl"
+    ],
+    "sourceUrl": "https://www.spensiones.cl/portal/institucional/594/w3-propertyvalue-9897.html",
+    "sourceLabel": "Source: Superintendencia de Pensiones (Chile) - Sistema de AFP",
+    "checked": "2026-10-04"
+  },
+  {
+    "term": "KiwiSaver",
+    "expansion": "KiwiSaver - New Zealand's voluntary, work-based retirement savings scheme",
+    "definition": "New Zealand's voluntary, work-based retirement savings scheme. Employers deduct employee contributions from pay and must also make a compulsory minimum employer contribution, unless they already contribute to another superannuation fund.",
+    "countries": [
+      "nz"
+    ],
+    "sourceUrl": "https://www.ird.govt.nz/kiwisaver/kiwisaver-individuals/how-kiwisaver-works",
+    "sourceLabel": "Source: Inland Revenue - How KiwiSaver works",
+    "checked": "2026-10-04"
+  },
+  {
+    "term": "MPF",
+    "expansion": "Mandatory Provident Fund",
+    "definition": "Hong Kong's Mandatory Provident Fund system, launched in December 2000 under the Mandatory Provident Fund Schemes Ordinance. It is the second pillar of Hong Kong's retirement protection framework.",
+    "countries": [
+      "hk"
+    ],
+    "sourceUrl": "https://www.mpfa.org.hk/en/mpf-system",
+    "sourceLabel": "Source: MPFA - MPF System",
+    "checked": "2026-10-04"
+  },
+  {
+    "term": "PPh 21",
+    "expansion": "Pajak Penghasilan Pasal 21 (Indonesian) - Article 21 income tax",
+    "definition": "Indonesia's income tax withheld on income from work, services or activities, including salaries and wages. Employers withhold it from employees' pay.",
+    "countries": [
+      "id"
+    ],
+    "sourceUrl": "https://pajak.go.id/en/node/34300",
+    "sourceLabel": "Source: Direktorat Jenderal Pajak - PPh Pasal 21/26",
+    "checked": "2026-10-04"
+  },
+  {
+    "term": "a-melding",
+    "expansion": "The a-melding - monthly report to NAV, SSB and the Tax Administration (Norwegian)",
+    "definition": "Norway's monthly employer report to NAV, Statistics Norway (SSB) and the Tax Administration. It covers income, employment, withholding tax, employer's national insurance contributions and financial activity tax.",
+    "countries": [
+      "norway"
+    ],
+    "sourceUrl": "https://www.skatteetaten.no/en/business-and-organisation/employer/the-a-melding/",
+    "sourceLabel": "Source: Skatteetaten - The a-melding",
+    "checked": "2026-10-04"
+  },
+  {
+    "term": "Höchstbeitragsgrundlage",
+    "expansion": "Höchstbeitragsgrundlage (German) - maximum contribution base",
+    "definition": "Austria's income threshold up to which social insurance contributions must be paid. Contributions are due only on the part of income below it, set as a monthly and daily amount.",
+    "countries": [
+      "austria"
+    ],
+    "aliases": [
+      "maximum contribution base"
+    ],
+    "sourceUrl": "https://www.oesterreich.gv.at/de/lexicon/H/Seite.991498",
+    "sourceLabel": "Source: oesterreich.gv.at - Höchstbeitragsgrundlage",
+    "checked": "2026-10-04"
+  }
+]

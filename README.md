@@ -16,6 +16,7 @@ It is a static site with no build step and no backend. Everything the page needs
 | `privacy.html`, `terms.html` | **Generated** from `scripts/templates/` and `scripts/operator.json`. Edit those, not the HTML |
 | `404.html`, `legal.css` | Error page and the shared stylesheet for legal and generated pages |
 | `countries.html`, `countries/*.html` | **Generated.** One static, text-only page per country (and an index) so search engines can read the entries. Do not edit by hand |
+| `data/glossary.json`, `glossary.html` | Glossary terms, and the **generated** glossary page built from them (see "The glossary") |
 | `fonts/`, `vendor/`, `design/` | Self-hosted fonts, libraries and map data, icons and favicon |
 | `og-image.png`, `robots.txt`, `sitemap.xml` | Sharing image and search files (`robots.txt` and `sitemap.xml` are generated) |
 | `scripts/` | `validate.mjs` (data checks), `check-links.mjs` (source URL checks), `build-pages.mjs` (generates the static pages) |
@@ -48,7 +49,7 @@ All content is the `CHANGES` array in `app.js`, one object per line:
 - Every entry shows a **status chip** (In force / Upcoming / Draft — not yet law / Ongoing) followed by the date formatted from `effective` (`1 Jan 2026`, `Sep 2026` or `2026`). Both come from `statusOf()` and `formatEffective()` in `filters.js`, used by the changelog, the generated pages, the feed, the calendar and the CSV Status column. Status: `draft:true` gives Draft, `upcoming:true` gives Upcoming, `effective:null` gives Ongoing, otherwise In force.
 - `badge` (optional) is a short free-text note shown after the date, only when it adds something the date cannot say (for example `Phased from 1 Jan 2026`, `Effective 1 Jan 2026 (retroactive)`, `Confirmed for 2026/27`). Leave it out when it would just repeat the date or status: the validator rejects badges such as `Effective 1 Jan 2026`, `From Sep 2026` or `In force` ("restates the date").
 - `effective` is the start of the change in machine-readable form, only of the change, only as precise as the source states it (`'2026-01-01'`, `'2026-04'` or `'2026'`). For a phased change use the first phase. Use `null` only when no single start date applies (for example "current rates", or a draft with no date yet). Tax years count from their known start (UK `2026/27` is `'2026-04-06'`).
-- `added` is the day the entry was first published (`YYYY-MM-DD`). Do not change it when you edit an entry.
+- `added` is the day the entry was first published (`YYYY-MM-DD`; not later than UTC today plus one day). Do not change it when you edit an entry.
 - `updated` (optional, `YYYY-MM-DD`): set it when you make a change readers should notice (new rate, new date, corrected figure), not for typo fixes. It moves the entry to the top of the RSS feed (`feed.xml`) and the "Latest changes" list on `countries.html`.
 - "New" and "Updated" labels appear on entries whose `added` or `updated` date falls in the 14 days up to and including the last-verified date (never after it) (`FRESH_DAYS` in `app.js`). Entries that were on the site at launch (on or before `FRESH_LABELS_AFTER`) never get a label.
 - The validator checks that `effective` is a real date (and, when a badge is present, that its year appears in the badge or lead), and that `upcoming` agrees with it relative to the last-verified date: a change starting after that date must be `upcoming:true`, one that started before it must be `upcoming:false` (unless it is a draft). After moving the last-verified date forward, run the validator and flip the entries it names.
@@ -65,6 +66,27 @@ All content is the `CHANGES` array in `app.js`, one object per line:
 3. Prefer government pages. Use PwC Worldwide Tax Summaries, KPMG, EY, Deloitte or BDO only when a government page cannot be retrieved, and never news sites, blogs or HR vendors.
 4. Examples must be arithmetic that follows from the sourced numbers.
 5. If a country has nothing verifiable, leave it with fewer entries rather than guessing.
+
+### The glossary
+
+`data/glossary.json` is an array of fact-checked abbreviations and local terms. `node scripts/build-pages.mjs` turns it into `glossary.html` (A to Z, with a jump list, one anchor `#term-<slug>` per term, listed in `sitemap.xml` with the newest `checked` date as `lastmod`) and links terms on the generated country pages. The Glossary link is in the footer of every generated page, `index.html` and the legal pages. The interactive changelog (`app.js`) does not link terms.
+
+```json
+{"term":"PRSI","countries":["ireland"],
+ "expansion":"Pay Related Social Insurance",
+ "definition":"Ireland's social insurance contribution, paid by employers and employees. The rate depends on the employee's pay and PRSI class.",
+ "sourceUrl":"https://revenue.ie/en/employing-people/paying-your-employees-tax-to-revenue/prsi.aspx",
+ "sourceLabel":"Source: Revenue - Pay Related Social Insurance (PRSI)","checked":"2026-10-04"}
+```
+
+- Allowed fields: `term`, `aliases` (optional), `countries`, `expansion`, `definition`, `sourceUrl`, `sourceLabel`, `checked`. Unknown fields are rejected.
+- `term` is a non-empty, trimmed string; `aliases` (optional) are trimmed, non-empty alternative spellings that link to the same entry. Matching is literal, case-sensitive and whole-word (no letter or digit directly before or after), the longest match wins, and only the first occurrence per term is linked.
+- Every term is a page anchor, so its slug (lower-case ASCII letters and digits, e.g. `AHV/IV/EO` gives `ahv-iv-eo`) must not be empty and must be **unique across the whole glossary**, even for terms in different countries. When one acronym means different things in different countries, give each entry its own term and share the acronym as an alias: `WPS (Qatar)` and `WPS (Bahrain)` both have the alias `WPS`, scoped to `qa` and `bh`.
+- `countries` lists country codes (as in `countryToRegion`, no duplicates) where the term applies; `[]` means general (every country). A scoped term only links on those countries' pages, so ambiguous acronyms such as `NI` never link in the wrong country. A scope must be supported by the stored source: do not list a country the source does not cover.
+- `expansion`, `definition` and `sourceLabel` are plain text: no `<` or `>`, no control characters or line breaks. The definition has 3 to 40 words and at most 300 characters. `sourceUrl` is `https://` without a user name or password; `sourceLabel` follows `Source: <Publisher> - <page title>`; `checked` is a real `YYYY-MM-DD` date. Check every definition against the page in `sourceUrl` and say no more than that page does.
+- "Not in the future" (`checked`, and `added`/`updated` on entries) means not later than UTC today plus one day, so authors up to UTC+14 can use their local date.
+- A term or alias may appear only once in any overlapping country scope (a general term overlaps everything), and every term must occur as a whole word in the lead, employer, employee or note text of at least one entry within its countries (no orphan terms: titles and examples do not count, because they are not linked). `node scripts/validate.mjs` enforces all of this; failures name "glossary".
+- On a country page each term is linked once per entry card, in this order: lead, employer bullets, employee bullets, note. Headings, titles and the example are never linked. Links read `<a class="term"><abbr title="...">TERM</abbr><span class="visually-hidden"> (expansion)</span></a>`, so the expansion is available without hover. Every glossary term must link at least once from some country page; the tests check this. Backlog: `TSD` (Estonia) is researched but not listed, because it only occurs in an entry title.
 
 ## Legal pages
 
@@ -94,7 +116,7 @@ The site is static: no accounts, no cookies, no storage, no third-party requests
 node scripts/validate.mjs      # schema, duplicates, selectors vs regions (fast; also runs in CI)
 node scripts/build-pages.mjs   # regenerate country pages, sitemap and robots.txt from the data
 node scripts/build-pages.mjs --check   # fail if generated files are stale (runs in CI)
-node scripts/check-links.mjs   # fetches every sourceUrl (about a minute)
+node scripts/check-links.mjs   # fetches every entry and glossary sourceUrl (about a minute)
 ```
 
 ### Git hook (once per clone)
@@ -107,7 +129,7 @@ sh scripts/hooks/install.sh
 
 It runs `validate.mjs` and `build-pages.mjs --check` before every commit and blocks the commit if the data is invalid, a PDF, archive or file over 1 MB is tracked, or the generated pages are stale. Do not bypass it with `--no-verify`. Keep research downloads outside the repository.
 
-`check-links.mjs` fails on broken links, and lists links that redirect to a homepage (the page has probably moved) or are blocked by bot protection (check those by hand). A GitHub Action runs it on the 1st of every month and `validate.mjs` on every push.
+`check-links.mjs` fails on broken links, and lists links that redirect to a homepage (the page has probably moved) or are blocked by bot protection (check those by hand). A certificate-chain error (server omits an intermediate certificate, which browsers repair and Node does not) is downgraded to a manual check, labelled `TLS`, only for hosts in the `TLS_HOSTS` allowlist at the top of the script (currently `www.qcb.gov.qa`); any other host with such an error counts as broken. The glossary `sourceUrl`s are checked too. A GitHub Action runs it on the 1st of every month and `validate.mjs` on every push.
 
 ## Fortnightly update routine (every other Sunday evening, Central European Time)
 

@@ -175,6 +175,63 @@
     return n.toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
   }
 
+  const WORD_CHAR = /^[\p{L}\p{N}]$/u;
+  function isWordCharAt(text, i, before) {
+    if (before) {
+      if (i <= 0) return false;
+      const cp = Array.from(text.slice(Math.max(0, i - 2), i)).pop();
+      return WORD_CHAR.test(cp);
+    }
+    if (i >= text.length) return false;
+    return WORD_CHAR.test(String.fromCodePoint(text.codePointAt(i)));
+  }
+
+  // HTML for RAW text with the first whole-word occurrence of each applicable glossary entry wrapped in
+  // <a class="term" href="HREF#term-SLUG"><abbr title="EXPANSION">MATCH</abbr><span class="visually-hidden"> (EXPANSION)</span></a>.
+  // Everything else is escaped.
+  // An entry applies when its countries list is empty or includes `country`. The term and its aliases are
+  // matched literally and case-sensitively (no regex is built from glossary text); the longest name wins at a
+  // position, and a name whose entry is already linked is left as plain text. Never mutates its inputs.
+  function linkTerms(text, glossary, country, href) {
+    if (text === null || text === undefined) return '';
+    const raw = String(text);
+    if (!Array.isArray(glossary) || !glossary.length || !raw) return escHtml(raw);
+    const base = typeof href === 'string' ? href : '../glossary.html';
+    const names = [];
+    glossary.forEach((e, idx) => {
+      if (!e || typeof e.term !== 'string' || !e.term) return;
+      if (Array.isArray(e.countries) && e.countries.length && !e.countries.includes(country)) return;
+      const slug = slugify(e.term);
+      if (!slug) return;
+      for (const name of [e.term, ...(Array.isArray(e.aliases) ? e.aliases : [])]) {
+        if (typeof name === 'string' && name) names.push({ name, idx, slug, expansion: String(e.expansion === undefined || e.expansion === null ? '' : e.expansion) });
+      }
+    });
+    if (!names.length) return escHtml(raw);
+    names.sort((a, b) => b.name.length - a.name.length);
+    const used = new Set();
+    let out = '', plainFrom = 0, i = 0;
+    while (i < raw.length) {
+      let hit = null;
+      if (!isWordCharAt(raw, i, true)) {
+        for (const n of names) {
+          if (raw.startsWith(n.name, i) && !isWordCharAt(raw, i + n.name.length, false)) { hit = n; break; }
+        }
+      }
+      if (!hit) { i++; continue; }
+      const end = i + hit.name.length;
+      if (!used.has(hit.idx)) {
+        used.add(hit.idx);
+        // The expansion is also in visually hidden text so it is available without hover (touch, keyboard, screen readers).
+        const exp = escHtml(hit.expansion);
+        out += escHtml(raw.slice(plainFrom, i)) + '<a class="term" href="' + escHtml(base) + '#term-' + hit.slug + '"><abbr title="' + exp + '">' + escHtml(raw.slice(i, end)) + '</abbr><span class="visually-hidden"> (' + exp + ')</span></a>';
+        plainFrom = end;
+      }
+      i = end;
+    }
+    return out + escHtml(raw.slice(plainFrom));
+  }
+
   // One CSV cell: neutralise spreadsheet formulas, quote when needed.
   function csvCell(v) {
     if (v === null || v === undefined) return '';
@@ -219,7 +276,7 @@
   // CSS class for a country's map shape/legend swatch, from its entry count.
   function depthClass(n) { return `depth-${depthBucket(n)}`; }
 
-  const api = { MAX_COUNTRIES, WHENS, STATUS_LABELS, statusOf, formatEffective, CATEGORY_LABELS, WHEN_LABELS, parseCountries, serializeCountries, readSelection, readUrlState, applyFilters, slugify, csvCell, toCsv, csvFilename, coverageDepth, depthBucket, depthClass, highlight, foldForSearch, SEARCH_MAX_LENGTH };
+  const api = { MAX_COUNTRIES, WHENS, STATUS_LABELS, statusOf, formatEffective, CATEGORY_LABELS, WHEN_LABELS, parseCountries, serializeCountries, readSelection, readUrlState, applyFilters, slugify, csvCell, toCsv, csvFilename, coverageDepth, depthBucket, depthClass, highlight, linkTerms, foldForSearch, SEARCH_MAX_LENGTH };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else if (typeof window !== 'undefined') window.PayrollFilters = api;
 })();

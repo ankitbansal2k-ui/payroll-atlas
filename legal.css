@@ -80,12 +80,23 @@ code { font-size: 0.85em; word-break: break-all; }
 .badge-note { display: inline-block; font-size: 0.8rem; font-style: italic; color: var(--muted); }
 .visually-hidden { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 
+/* P2-7: glossary term links (dotted underline instead of the default abbr underline) */
+abbr { text-decoration: none; }
+a.term { color: var(--text); text-decoration: underline dotted var(--accent); text-underline-offset: 0.2em; }
+a.term:hover, a.term:focus-visible { color: var(--accent); text-decoration-style: solid; }
+.az ul { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.4rem 0.9rem; }
+.az li { margin: 0; }
+.az a { font-size: 0.9rem; }
+.expansion { color: var(--muted); font-size: 0.9rem; margin-bottom: 0.5rem; }
+.aliases { color: var(--muted); font-size: 0.85rem; margin-bottom: 0.5rem; }
+
 /* CP5: print / save as PDF */
 @media print {
-  header, .cta, .chips, footer p:last-child { display: none !important; }
+  header, .cta, .chips, .az, footer p:last-child { display: none !important; }
   body { background: #fff; color: #000; font-size: 11pt; }
   .entry { break-inside: avoid; background: #fff; border-color: #ccc; color: #000; }
   .entry *, main * { color: #000 !important; }
   .status-chip { background: transparent !important; border: 1px solid #000; }
+  a.term { color: #000 !important; text-decoration: underline dotted #000 !important; }
   .source a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 9pt; word-break: break-all; }
 }
