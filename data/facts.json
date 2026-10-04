@@ -1165,5 +1165,365 @@
         "checked": "2026-10-04"
       }
     ]
+  },
+  {
+    "code": "norway",
+    "asOf": "2026-10-04",
+    "currency": "NOK",
+    "facts": [
+      {
+        "key": "minimumWage",
+        "label": "Minimum wage (legal minimums in nine sectors only)",
+        "value": "No set minimum wage in other sectors; legal minimum wages apply in nine sectors through generalised collective agreements (allmenngjøring), and wages elsewhere are agreed individually or in collective agreements",
+        "note": "Sector rates (e.g. construction, cleaning, hospitality) are on the source page. The page also presents a new sector, automotive, with minimums from 15 June 2026 (e.g. NOK 208 an hour for unskilled workers aged 18 or over).",
+        "sourceUrl": "https://arbeidstilsynet.no/en/working-conditions/pay-and-minimum-rates-of-pay/minimum-wage",
+        "sourceLabel": "Source: Arbeidstilsynet (Norwegian Labour Inspection Authority) - Minimum wage",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "ssEmployer",
+        "label": "Employer's national insurance contribution (arbeidsgiveravgift) 2026, general trades",
+        "value": "Zone I 14.1%; Ia 10.6% (14.1% above the NOK 850,000 exemption amount); II 10.6%; III 6.4%; IV 5.1%; IVa 7.9%; V 0%",
+        "note": "The source says there were no changes to zones or rates from 2025 to 2026 (issued 6 January 2026). Different rules apply to central government, health trusts, sector-excluded activities and firms in financial difficulty. Rates vary by where the employer is located.",
+        "sourceUrl": "https://www.skatteetaten.no/rettskilder/type/skattedirektoratets-meldinger/arbeidsgiveravgift-til-folketrygden-for-2026/",
+        "sourceLabel": "Source: Skatteetaten - Arbeidsgiveravgift til folketrygden for 2026",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "ssEmployee",
+        "label": "Employee national insurance contribution (trygdeavgift) 2026",
+        "value": "7.6% on wage income; lower limit NOK 99,650",
+        "note": "Other rates listed in the same table: fishing, trapping and childcare 7.6%; other business income 10.8%; pension income 5.1%. The source does not state an upper income limit.",
+        "sourceUrl": "https://www.skatteetaten.no/en/rettskilder/type/uttalelser/uttalelser/forskuddsutskrivingen-2026/",
+        "sourceLabel": "Source: Skatteetaten - Forskuddsutskrivingen 2026",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "taxBands",
+        "label": "Bracket tax (trinnskatt) 2026",
+        "value": "1.7% on income above NOK 226,100; 4.0% above 318,300; 13.7% above 725,050; 16.8% above 980,100; 17.8% above 1,467,200",
+        "note": "Applies to personal income (personinntekt) in addition to 22% tax on ordinary income and trygdeavgift. Personal allowance (class 1) NOK 114,540. Finnmark and parts of Troms have a lower fellesskatt rate (4.75% instead of 8.25%).",
+        "bands": [
+          {
+            "from": "NOK 0",
+            "to": "NOK 226,100",
+            "rate": "0% trinnskatt"
+          },
+          {
+            "from": "NOK 226,101",
+            "to": "NOK 318,300",
+            "rate": "1.7%"
+          },
+          {
+            "from": "NOK 318,301",
+            "to": "NOK 725,050",
+            "rate": "4.0%"
+          },
+          {
+            "from": "NOK 725,051",
+            "to": "NOK 980,100",
+            "rate": "13.7%"
+          },
+          {
+            "from": "NOK 980,101",
+            "to": "NOK 1,467,200",
+            "rate": "16.8%"
+          },
+          {
+            "from": "NOK 1,467,201",
+            "to": null,
+            "rate": "17.8%"
+          }
+        ],
+        "sourceUrl": "https://www.skatteetaten.no/en/rettskilder/type/uttalelser/uttalelser/forskuddsutskrivingen-2026/",
+        "sourceLabel": "Source: Skatteetaten - Forskuddsutskrivingen 2026",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "other",
+        "label": "National Insurance basic amount (grunnbeløp, G)",
+        "value": "NOK 136,549 from 1 May 2026, up from NOK 130,160 (an increase of 4.91%)",
+        "validFrom": "2026-05-01",
+        "note": "The source says the amount is formally adopted on 22 May 2026. Benefits adjusted through G rise by the same 4.91% from 1 May.",
+        "sourceUrl": "https://www.nav.no/regulering-2026",
+        "sourceLabel": "Source: Nav - Regulering av grunnbeløpet og pengestøtter fra 1. mai 2026",
+        "checked": "2026-10-04"
+      }
+    ]
+  },
+  {
+    "code": "finland",
+    "asOf": "2026-10-04",
+    "currency": "EUR",
+    "facts": [
+      {
+        "key": "minimumWage",
+        "label": "Minimum wage (no statutory national minimum)",
+        "value": "There is no minimum wage law in Finland; minimum wages are set in the collective agreement of each sector, and universally binding agreements apply to all employers in the sector",
+        "note": "If no collective agreement applies, pay is agreed in the employment contract, or the Employment Contracts Act requires a usual and reasonable wage.",
+        "sourceUrl": "https://tyosuojelu.fi/en/employment-relationship/pay",
+        "sourceLabel": "Source: Occupational Safety and Health Administration (tyosuojelu.fi) - Pay",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "ssEmployer",
+        "label": "Employer statutory social insurance contributions 2026",
+        "value": "TyEL pension contribution averages 24.40% of pay, of which the employer share averages 17.10%; unemployment insurance 0.31% or 1.23% depending on total payroll; employer social security (health insurance) contribution 1.91%",
+        "note": "Contributions for 2026 per ETK leaflet; the 1.91% social security contribution is payable to the tax authority when the employee is insured in Finland. Workers' compensation and group life premiums vary by insurer and are not covered here.",
+        "sourceUrl": "https://www.etk.fi/wp-content/uploads/2026/01/lakisaateiset-sosiaalivakuutusmaksut-suomessa-2026-suomi-1.pdf",
+        "sourceLabel": "Source: Finnish Centre for Pension (ETK) - Lakisääteiset sosiaalivakuutusmaksut Suomessa 2026",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "ssEmployee",
+        "label": "Employee statutory social insurance contributions 2026",
+        "value": "TyEL pension 7.30% of pay and unemployment insurance 0.89% of pay, both withheld by the employer; the insured person's health insurance contribution is 1.98%",
+        "note": "Per ETK leaflet for 2026. The employer withholds the TyEL and unemployment shares from pay. The 1.98% (medical care and daily allowance contributions) is the insured person's health insurance contribution, payable to the tax authority.",
+        "sourceUrl": "https://www.etk.fi/wp-content/uploads/2026/01/lakisaateiset-sosiaalivakuutusmaksut-suomessa-2026-suomi-1.pdf",
+        "sourceLabel": "Source: Finnish Centre for Pension (ETK) - Lakisääteiset sosiaalivakuutusmaksut Suomessa 2026",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "taxBands",
+        "label": "State income tax scale on earned income 2026",
+        "value": "12.64% up to EUR 22,000; 19.00% on EUR 22,000-32,600; 30.25% on 32,600-40,100; 33.25% on 40,100-52,100; 37.50% above EUR 52,100 (taxable earned income)",
+        "note": "State tax only; the source says municipal and church tax are levied separately on earned income. Tax credits are not covered. The source gives tax at each lower limit (EUR 2,780.80; 4,794.80; 7,063.55; 11,053.55).",
+        "bands": [
+          {
+            "from": "EUR 0",
+            "to": "EUR 22,000",
+            "rate": "12.64%"
+          },
+          {
+            "from": "EUR 22,001",
+            "to": "EUR 32,600",
+            "rate": "19.00% (plus EUR 2,780.80 at EUR 22,000)"
+          },
+          {
+            "from": "EUR 32,601",
+            "to": "EUR 40,100",
+            "rate": "30.25% (plus EUR 4,794.80 at EUR 32,600)"
+          },
+          {
+            "from": "EUR 40,101",
+            "to": "EUR 52,100",
+            "rate": "33.25% (plus EUR 7,063.55 at EUR 40,100)"
+          },
+          {
+            "from": "EUR 52,101",
+            "to": null,
+            "rate": "37.50% (plus EUR 11,053.55 at EUR 52,100)"
+          }
+        ],
+        "sourceUrl": "https://www.vero.fi/henkiloasiakkaat/verokortti-ja-veroilmoitus/tulot/ansiotulot/",
+        "sourceLabel": "Source: Verohallinto (Finnish Tax Administration) - Ansiotulot",
+        "checked": "2026-10-04"
+      }
+    ]
+  },
+  {
+    "code": "hungary",
+    "asOf": "2026-10-04",
+    "currency": "HUF",
+    "facts": [
+      {
+        "key": "minimumWage",
+        "label": "Minimum wage (minimálbér) and guaranteed minimum wage (garantált bérminimum)",
+        "value": "Minimum wage HUF 322,800 a month (HUF 1,856 an hour) for full-time work; guaranteed minimum wage HUF 373,200 a month (HUF 2,145 an hour) for jobs requiring at least secondary education or qualification",
+        "validFrom": "2026-01-01",
+        "note": "Government Decree 426/2025 (XII. 23.), applicable from 1 January 2026. Weekly and daily rates are also set: HUF 74,210 and 14,850 (minimum); HUF 85,800 and 17,160 (guaranteed).",
+        "sourceUrl": "https://njt.jog.gov.hu/jogszabaly/2025-426-20-22.2",
+        "sourceLabel": "Source: Nemzeti Jogszabálytár (Magyar Közlöny) - 426/2025. (XII. 23.) Korm. rendelet a kötelező legkisebb munkabér (minimálbér) és a garantált bérminimum megállapításáról",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "ssEmployer",
+        "label": "Social contribution tax (szociális hozzájárulási adó) paid by the employer",
+        "value": "13% of the tax base",
+        "note": "NAV information booklet published 16 January 2026: the rate of the tax is 13% of the tax base. Other rates apply to some items (for example long-term investment contract income at 0%, 8% or 13%). Tax base rules, exemptions and other employer charges are not covered.",
+        "sourceUrl": "https://nav.gov.hu/pfile/file?path=%2Fugyfeliranytu%2Fnezzen-utana%2Finf_fuz%2F2026%2F49.-A-szocialis-hozzajarulasi-ado-2026.-01.-16",
+        "sourceLabel": "Source: NAV (Nemzeti Adó- és Vámhivatal) - A szociális hozzájárulási adó (információs füzet)",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "ssEmployee",
+        "label": "Social security contribution paid by the insured person (járulék)",
+        "value": "Társadalombiztosítási járulék 18.5%; the 10% pension contribution is payable only for jobseekers receiving allowance and by church legal entities for church personnel in church service",
+        "note": "NAV page \"Fizetendő járulékok 2026. január 1-jétől\" (dated 5 January 2026) lists the contributions payable by the insured person from 1 July 2020. Contribution base and special cases are not covered.",
+        "sourceUrl": "https://nav.gov.hu/ugyfeliranytu/adokulcsok_jarulekmertekek/fizetendo_jar",
+        "sourceLabel": "Source: NAV (Nemzeti Adó- és Vámhivatal) - Fizetendő járulékok 2026. január 1-jétől",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "taxBands",
+        "label": "Personal income tax (szja) rate",
+        "value": "15% of the tax base, unless the Act provides otherwise",
+        "note": "Szja Act (1995. évi CXVII.) section 8 (1), consolidated text on the Nemzeti Jogszabálytár dated 1 October 2026. NAV's rate table also lists 15% from 2016 for the consolidated tax base. Allowances and credits are not covered.",
+        "bands": [
+          {
+            "from": "HUF 0",
+            "to": null,
+            "rate": "15%"
+          }
+        ],
+        "sourceUrl": "https://njt.jog.gov.hu/jogszabaly/1995-117-00-00",
+        "sourceLabel": "Source: Nemzeti Jogszabálytár - 1995. évi CXVII. törvény a személyi jövedelemadóról",
+        "checked": "2026-10-04"
+      }
+    ]
+  },
+  {
+    "code": "greece",
+    "asOf": "2026-10-04",
+    "currency": "EUR",
+    "facts": [
+      {
+        "key": "minimumWage",
+        "label": "Statutory minimum monthly salary (white-collar) and daily wage (blue-collar)",
+        "value": "EUR 920.00 a month for white-collar workers and EUR 41.09 a day for blue-collar workers, from 1 April 2026 (Ministerial Decision 8934/27.3.2026, Gazette B 1759)",
+        "validFrom": "2026-04-01",
+        "note": "Seniority increments: white-collar 10% every three years up to 30% (nine years); blue-collar 5% every three years up to 30% (eighteen years). Contracts may not provide pay below the statutory minimum.",
+        "sourceUrl": "https://ypergasias.gov.gr/en/labour-relations/collective-employment-relations/minimum-wage/",
+        "sourceLabel": "Source: Ministry of Labour and Social Affairs (Greece) - Minimum Wage",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "ssEmployer",
+        "label": "Employer social security contribution rate (e-EFKA), coverage package 101",
+        "value": "21.79% of earnings (package code 101 \"ΜΙΚΤΑ, ΙΚΑ-ΤΕΑΜ\"), valid from 1 January 2025",
+        "note": "Table of coverage packages (ΚΠΚ) in e-EFKA circular 38/2024: package 101 shows insured 13.37%, employer 21.79%, total 35.16%. Other packages differ (e.g. 102: employer 22.79%).",
+        "sourceUrl": "https://www.e-efka.gov.gr/sites/default/files/2024-12/%CE%95%CE%93%CE%9A.%2038_2024_%CE%9C%CE%95%CE%99%CE%A9%CE%A3%CE%97%20%CE%91%CE%A3%CE%A6.%20%CE%95%CE%99%CE%A3%CE%A6%CE%9F%CE%A1%CE%A9%CE%9D%20%CE%99%CE%94%CE%99%CE%A9%CE%A4.%20%CE%94%CE%99%CE%9A%CE%91%CE%99%CE%9F%CE%A5%202025%20(971%CE%A546%CE%9C%CE%91%CE%A0%CE%A3-348).pdf",
+        "sourceLabel": "Source: e-EFKA - Εγκύκλιος 38/2024, Μείωση ασφαλιστικών εισφορών κλάδου υγειονομικής περίθαλψης από 01.01.2025 (πίνακας ΚΠΚ)",
+        "checked": "2026-10-04",
+        "validFrom": "2025-01-01"
+      },
+      {
+        "key": "ssEmployee",
+        "label": "Employee social security contribution rate (e-EFKA), coverage package 101",
+        "value": "13.37% of earnings (package code 101 \"ΜΙΚΤΑ, ΙΚΑ-ΤΕΑΜ\"), valid from 1 January 2025",
+        "note": "Same table of coverage packages (ΚΠΚ) in e-EFKA circular 38/2024. Other packages differ (e.g. 105: insured 16.82%; 103: 10.37%).",
+        "sourceUrl": "https://www.e-efka.gov.gr/sites/default/files/2024-12/%CE%95%CE%93%CE%9A.%2038_2024_%CE%9C%CE%95%CE%99%CE%A9%CE%A3%CE%97%20%CE%91%CE%A3%CE%A6.%20%CE%95%CE%99%CE%A3%CE%A6%CE%9F%CE%A1%CE%A9%CE%9D%20%CE%99%CE%94%CE%99%CE%A9%CE%A4.%20%CE%94%CE%99%CE%9A%CE%91%CE%99%CE%9F%CE%A5%202025%20(971%CE%A546%CE%9C%CE%91%CE%A0%CE%A3-348).pdf",
+        "sourceLabel": "Source: e-EFKA - Εγκύκλιος 38/2024, Μείωση ασφαλιστικών εισφορών κλάδου υγειονομικής περίθαλψης από 01.01.2025 (πίνακας ΚΠΚ)",
+        "checked": "2026-10-04",
+        "validFrom": "2025-01-01"
+      },
+      {
+        "key": "ssCeiling",
+        "label": "Maximum insurable monthly earnings (EFKA)",
+        "value": "EUR 7,761.94 a month from 1 January 2026",
+        "validFrom": "2026-01-01",
+        "note": "Set by Ministry of Labour document Δ.15/Δ΄/1865/23-01-2026 (Gazette B 318/29-01-2026), per e-EFKA. The minimum monthly base for full-time employees is EUR 920.00 from 1 April 2026.",
+        "sourceUrl": "https://www.e-efka.gov.gr/el/sychnes-eroteseis/asphalisi-eisphores/asphalismenoi/misthotoi-0/genikes-eroteseis",
+        "sourceLabel": "Source: e-EFKA - Γενικές ερωτήσεις (Μισθωτοί)",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "taxBands",
+        "label": "Income tax scale on employment and pension income, tax years 2026 onwards (base scale)",
+        "value": "9% on the first EUR 10,000; 20% on the next 10,000; 26% on the next 10,000; 34% on the next 10,000; 39% on 40,001-60,000; 44% above EUR 60,000",
+        "note": "Base rates of the first column; the source lists lower rates by number of dependent children and for young people (up to 25: zero up to EUR 20,000; 26 to 30: 9% on the second band). Tax credits are not covered.",
+        "bands": [
+          {
+            "from": "EUR 0",
+            "to": "EUR 10,000",
+            "rate": "9%"
+          },
+          {
+            "from": "EUR 10,001",
+            "to": "EUR 20,000",
+            "rate": "20%"
+          },
+          {
+            "from": "EUR 20,001",
+            "to": "EUR 30,000",
+            "rate": "26%"
+          },
+          {
+            "from": "EUR 30,001",
+            "to": "EUR 40,000",
+            "rate": "34%"
+          },
+          {
+            "from": "EUR 40,001",
+            "to": "EUR 60,000",
+            "rate": "39%"
+          },
+          {
+            "from": "EUR 60,001",
+            "to": null,
+            "rate": "44%"
+          }
+        ],
+        "sourceUrl": "https://minfin.gov.gr/en/tax-policy/tax-guide/income-taxation/",
+        "sourceLabel": "Source: Ministry of Economy and Finance (Greece) - Income Taxation",
+        "checked": "2026-10-04"
+      }
+    ]
+  },
+  {
+    "code": "switzerland",
+    "asOf": "2026-10-04",
+    "currency": "CHF",
+    "facts": [
+      {
+        "key": "minimumWage",
+        "label": "Cantonal minimum wage: Geneva (gross hourly)",
+        "value": "CHF 24.59 gross per hour from 1 January 2026 (up from CHF 24.48); agriculture and floriculture CHF 18.07 per hour",
+        "validFrom": "2026-01-01",
+        "note": "Canton of Geneva only; adjusted yearly to the consumer price index. Minimum wages of other cantons and sector agreements are not covered here.",
+        "sourceUrl": "https://www.ge.ch/actualite/salaire-minimum-genevois-2026-etablira-2459-fr-heure-1-10-2025",
+        "sourceLabel": "Source: République et canton de Genève - Le salaire minimum genevois 2026 s'établira à 24.59 fr. de l'heure",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "ssEmployer",
+        "label": "Employer contributions AHV/IV/EO and ALV (first pillar)",
+        "value": "AHV 4.35% + IV 0.7% + EO 0.25% = 5.3% of income; ALV (unemployment) 1.1% on income parts up to CHF 148,200",
+        "validFrom": "2026-01-01",
+        "note": "BSV table, status 1 January 2026. Occupational pension (BVG) rates vary by pension fund; accident premiums are set by each insurer; family allowance contributions are shown as a range (1.025 to 2.75% of wages outside agriculture). None of these is covered.",
+        "sourceUrl": "https://sozialversicherungen.admin.ch/de/d/6877/download",
+        "sourceLabel": "Source: Bundesamt für Sozialversicherungen (BSV) - Schweizerische Sozialversicherungen, synoptische Tabelle der anwendbaren Beitrags- und Prämiensätze (Stand 1.1.2026)",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "ssEmployee",
+        "label": "Employee contributions AHV/IV/EO and ALV (first pillar)",
+        "value": "AHV 4.35% + IV 0.7% + EO 0.25% = 5.3% of income; ALV (unemployment) 1.1% on income parts up to CHF 148,200",
+        "validFrom": "2026-01-01",
+        "note": "Same rates as the employer row of the BSV table, status 1 January 2026 (total with employer: 10.6% AHV/IV/EO and 2.2% ALV). Pension fund and accident insurance contributions are not covered.",
+        "sourceUrl": "https://sozialversicherungen.admin.ch/de/d/6877/download",
+        "sourceLabel": "Source: Bundesamt für Sozialversicherungen (BSV) - Schweizerische Sozialversicherungen, synoptische Tabelle der anwendbaren Beitrags- und Prämiensätze (Stand 1.1.2026)",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "ssCeiling",
+        "label": "ALV (unemployment insurance) income ceiling",
+        "value": "CHF 148,200: ALV 1.1% each for employer and employee applies to income parts up to this amount",
+        "validFrom": "2026-01-01",
+        "note": "The BSV table shows AHV/IV/EO contributions as a percentage of income without an income ceiling. The same table gives CHF 148,200 per year as the maximum insured earnings for accident insurance.",
+        "sourceUrl": "https://sozialversicherungen.admin.ch/de/d/6877/download",
+        "sourceLabel": "Source: Bundesamt für Sozialversicherungen (BSV) - Schweizerische Sozialversicherungen, synoptische Tabelle der anwendbaren Beitrags- und Prämiensätze (Stand 1.1.2026)",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "other",
+        "label": "Minimum occupational pension (BVG) age credits",
+        "value": "7% (age 25-34), 10% (35-44), 15% (45-54), 18% (55-65) of the coordinated salary, which lies between CHF 26,460 and CHF 90,720",
+        "validFrom": "2026-01-01",
+        "note": "Minimum rates; contribution rates vary from one pension fund to another. The employer's contribution must be at least as high as the employees' (BSV table, status 1 January 2026).",
+        "sourceUrl": "https://sozialversicherungen.admin.ch/de/d/6877/download",
+        "sourceLabel": "Source: Bundesamt für Sozialversicherungen (BSV) - Schweizerische Sozialversicherungen, synoptische Tabelle der anwendbaren Beitrags- und Prämiensätze (Stand 1.1.2026)",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "other",
+        "label": "Direct federal tax (direkte Bundessteuer) tariff 2026, single persons",
+        "value": "Annual tax for single persons: CHF 400.80 on taxable income of CHF 50,000; CHF 2,684.35 on CHF 100,000; above the last table row (CHF 950,000) a uniform 11.5%",
+        "note": "Form 58c, ESTV tariff 2026 (ESTV / DVS 01.2026), column \"Alleinstehende\". A separate column applies to married couples and single-parent families, with tax reduced by CHF 263 per child or supported person. Income is rounded down to CHF 100. Cantonal and municipal taxes are not covered.",
+        "sourceUrl": "https://www.estv.admin.ch/dam/de/sd-web/gnde9CmEsalK/dbst-tairfe-58c-2026-dfi.pdf",
+        "sourceLabel": "Source: Eidgenössische Steuerverwaltung (ESTV) - Tarife 2026, Tabelle für die Berechnung der direkten Bundessteuer der natürlichen Personen (Form. 58c)",
+        "checked": "2026-10-04"
+      }
+    ]
   }
 ]

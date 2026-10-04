@@ -824,7 +824,7 @@ test('p2_7.every_term_links_somewhere', () => {
 //   all text and attribute values escaped with & < > " '): see renderFacts() below. Dates are long en-GB ("1 January 2026").
 // legal.css: .table-scroll {overflow-x:auto} (tables scroll inside it, not the page), .key-facts {overflow-wrap:anywhere}.
 const FACTS_FILE = path.join(ROOT, 'data/facts.json');
-const FACT_COUNTRIES = { uk: 'GBP', germany: 'EUR', france: 'EUR', netherlands: 'EUR', spain: 'EUR', italy: 'EUR', poland: 'PLN', belgium: 'EUR', sweden: 'SEK', ireland: 'EUR', austria: 'EUR', czechia: 'CZK', romania: 'RON', portugal: 'EUR', denmark: 'DKK' }; // batches 1 to 3; update when the next batch lands
+const FACT_COUNTRIES = { uk: 'GBP', germany: 'EUR', france: 'EUR', netherlands: 'EUR', spain: 'EUR', italy: 'EUR', poland: 'PLN', belgium: 'EUR', sweden: 'SEK', ireland: 'EUR', austria: 'EUR', czechia: 'CZK', romania: 'RON', portugal: 'EUR', denmark: 'DKK', norway: 'NOK', finland: 'EUR', hungary: 'HUF', greece: 'EUR', switzerland: 'CHF' }; // batches 1 to 4; update when the next batch lands
 const longDay = iso => new Date(iso + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
 const squash = h => h.replace(/>\s+</g, '><');
 const renderFacts = c => {
@@ -1113,7 +1113,7 @@ test('p2_8.check_links_and_readme', () => {
   for (const re of [/Unknown fields are rejected/, /UTC today plus one day/, /365 days/, /No limit/, /id="key-facts"|#key-facts/, /Check the source before use/]) assert.match(sec, re);
 });
 
-// ----- P2-8 real data: data/facts.json (batches 1 to 3: 15 European countries) -----
+// ----- P2-8 real data: data/facts.json (batches 1 to 4: 20 European countries) -----
 const loadFacts = () => { assert.ok(fs.existsSync(FACTS_FILE), 'data/facts.json missing'); return JSON.parse(fs.readFileSync(FACTS_FILE, 'utf8')); };
 const pageSlug = new Map(CHANGES.map(e => [e.country, P2.slugify(e.name)]));
 test('p2_8.data.covers_exactly_the_fact_countries_with_sources', () => {
@@ -1141,7 +1141,7 @@ test('p2_8.data.covers_exactly_the_fact_countries_with_sources', () => {
 test('p2_8.pages.key_facts_only_for_fact_countries', () => {
   loadFacts();
   const want = new Set(Object.keys(FACT_COUNTRIES).map(code => `${pageSlug.get(code)}.html`));
-  assert.equal(want.size, 15);
+  assert.equal(want.size, 20);
   for (const f of countryFiles.filter(f => f.endsWith('.html'))) {
     const h = read(`countries/${f}`);
     if (want.has(f)) {

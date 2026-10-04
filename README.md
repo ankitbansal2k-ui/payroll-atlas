@@ -143,8 +143,11 @@ The site is static: no accounts, no cookies, no storage, no third-party requests
 node scripts/validate.mjs      # schema, duplicates, selectors vs regions (fast; also runs in CI)
 node scripts/build-pages.mjs   # regenerate country pages, sitemap and robots.txt from the data
 node scripts/build-pages.mjs --check   # fail if generated files are stale (runs in CI)
-node scripts/check-links.mjs   # fetches every entry, glossary and key-facts sourceUrl (about a minute)
+node scripts/check-links.mjs   # fetches every entry, glossary and key-facts sourceUrl (well under a minute)
+node scripts/check-links.mjs facts/   # only the URLs used by labels starting with that text (here: key facts)
 ```
+
+Each URL has one 30-second time budget (status request, fallback request and retry together) and the response body is never downloaded, so large PDFs do not slow the run. A server that does not answer in time is listed under BLOCKED as SLOW and does not fail the run: open it in a browser. Set `LINKS_TIMING=1` to print the slowest URLs.
 
 ### Git hook (once per clone)
 
