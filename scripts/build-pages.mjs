@@ -98,7 +98,45 @@ ${body}`;
 }
 
 // ---- templates ----
-const head = ({ title, desc, url, depth, noindex }) => `<!DOCTYPE html>
+// ---- on-page SEO helpers ----
+// Titles: at most TITLE_MAX characters; descriptions DESC_MIN..DESC_MAX. Enforced by seoProblems() below (--check, warnings when writing).
+const TITLE_MAX = 70, DESC_MIN = 70, DESC_MAX = 158, BRAND = 'Intelligent Payroll';
+const YEAR = VERIFIED_ISO.slice(0, 4);
+const trimTail = s => s.replace(/[\s.,;:–—-]+$/, '');
+// Cut at a word boundary so the result is at most `max` characters; no ellipsis.
+const clipWords = (s, max) => { if (s.length <= max) return s; let cut = s.slice(0, Math.max(0, max)); if (!/\s/.test(s[max])) cut = cut.replace(/\s*\S*$/, ''); return trimTail(cut); };
+// Country description: "<n> tracked payroll change(s) in <Name>: <T><F>. Sources linked, checked <D>."
+// T = first entry title, clipped at a word boundary to fit DESC_MAX (budget computed with the longer F), then trailing stopwords/connectors
+// are dropped ("rises to", "indexed by"). If clipping removed more than 40% of the title or less than 12 characters remain, T is omitted
+// ("<n> tracked ... in <Name><F>. [Payroll law changes, updated every two weeks.] Sources linked ..."). F names the Key facts box, without repeating
+// "minimum wage" when T already says it.
+const STOP = new Set('to by from for with of in on at and or new the a an up as than into per under over earning who that is are be will between after before when'.split(' '));
+function countryDescription(n, nm, hasFacts, firstTitle) {
+  const lead = `${n} tracked payroll ${n === 1 ? 'change' : 'changes'} in ${nm}`;
+  const FULL = ', plus minimum wage, contributions and tax bands', SHORT = ', plus contributions and tax bands';
+  const end = `. Sources linked, checked ${VERIFIED}.`;
+  const title = trimTail(firstTitle);
+  let t = clipWords(title, DESC_MAX - (lead.length + 2) - ((hasFacts ? FULL.length : 0) + end.length));
+  if (t.length < title.length) {
+    let w = t.split(' ');
+    while (w.length && STOP.has(w.at(-1).toLowerCase().replace(/[^a-z]/g, ''))) w.pop();
+    t = trimTail(w.join(' '));
+    if (t.length < 12 || t.length < 0.6 * title.length) t = '';
+  }
+  const f = hasFacts ? (/minimum wage/i.test(t) ? SHORT : FULL) : '';
+  let d = t ? `${lead}: ${t}${f}${end}` : `${lead}${f}${end}`;
+  if (d.length < DESC_MIN) d = `${lead}${f}. Payroll law changes, updated every two weeks. Sources linked, checked ${VERIFIED}.`;
+  return d;
+}
+// Title with the brand suffix, or without it when the suffix would push it over TITLE_MAX.
+const withBrand = base => { const full = `${base} | ${BRAND}`; return full.length <= TITLE_MAX ? full : base; };
+// JSON-LD: compact JSON in a data block; < > & and the JS line separators are written as \uXXXX so no data can close the script element.
+const ldJson = nodes => JSON.stringify({ '@context': 'https://schema.org', '@graph': nodes }).replace(/[<>&\u2028\u2029]/g, c => '\\u' + c.charCodeAt(0).toString(16).padStart(4, '0'));
+const ldScript = nodes => `<script type="application/ld+json">${ldJson(nodes)}</script>`;
+// Breadcrumb trail: Home first, then [name, absolute url] pairs; the last one is the page itself.
+const breadcrumbs = trail => ({ '@type': 'BreadcrumbList', itemListElement: [['Home', SITE], ...trail].map(([name, item], i) => ({ '@type': 'ListItem', position: i + 1, name, item })) });
+
+const head = ({ title, desc, url, depth, noindex, graph }) => `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -115,6 +153,9 @@ const head = ({ title, desc, url, depth, noindex }) => `<!DOCTYPE html>
   <meta property="og:url" content="${esc(url)}">
   <meta property="og:image" content="${SITE}og-image.png">
   <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="${esc(title)}">
+  <meta name="twitter:description" content="${esc(desc)}">
+  ${ldScript(graph)}
   <link rel="icon" type="image/svg+xml" href="${depth}design/assets/favicons/favicon.svg">
   <link rel="alternate" type="application/atom+xml" title="Intelligent Payroll: latest payroll changes" href="${depth}feed.xml">
   <link rel="stylesheet" href="${depth}legal.css">
@@ -193,23 +234,33 @@ function countryPage(c) {
   const ordered = [...c.entries.filter(e => !e.upcoming), ...c.entries.filter(e => e.upcoming)];
   const url = `${SITE}countries/${c.slug}.html`;
   const n = c.entries.length;
-  const desc = clip(`${n} payroll ${n === 1 ? 'change' : 'changes'} tracked in ${c.name}: ${ordered[0].title}. Sources linked, last verified ${VERIFIED}.`, 158);
+  const hasFacts = FACTS_BY_CODE.has(c.code);
+  // Title: "<Name> payroll <YEAR>: key facts and law changes" with a Key facts box, else "<Name> payroll law changes <YEAR>"; brand suffix only if it fits.
+  // the clipped name only differs from the real name for abnormal names (markup characters, runs of spaces, names too long for a title); real country names pass through unchanged.
+  const nm = clipWords(c.name.replace(/[<>]/g, '').replace(/\s+/g, ' ').trim(), TITLE_MAX - (hasFacts ? 39 : 25) - YEAR.length);
+  const title = withBrand(hasFacts ? `${nm} payroll ${YEAR}: key facts and law changes` : `${nm} payroll law changes ${YEAR}`);
+  // Description: count, first entry title (clipped at a word boundary to fit DESC_MAX), what the page adds, last-verified date.
+  const desc = countryDescription(n, nm, hasFacts, ordered[0].title);
+  const graph = [breadcrumbs([['All countries', `${SITE}countries.html`], [c.name, url]])];
+  const introLinks = hasFacts
+    ? ` <a href="#key-facts">Key facts</a> for ${esc(c.name)} are below; <a href="../keyfacts.html">key facts for other countries</a>. See the <a href="../glossary.html">Glossary</a> for abbreviations.`
+    : ` See the <a href="../glossary.html">Glossary</a> for abbreviations.`;
   const region = REGIONS[c.region];
   const siblings = list.filter(x => x.region === c.region && x.code !== c.code);
   const partial = n < 2 ? `    <p class="partial">Partial coverage: we currently track ${n} change for this country. Know of another? <a href="../suggest.html">Tell us</a>.</p>\n` : '';
-  return `${head({ title: `${c.name}: payroll law changes | Intelligent Payroll`, desc, url, depth: '../' })}
+  return `${head({ title, desc, url, depth: '../', graph })}
 <body>
 ${header('../')}
   <main>
-    <p class="crumbs"><a href="../countries.html">All countries</a> &rsaquo; ${region}</p>
+    <p class="crumbs"><a href="../">Home</a> &rsaquo; <a href="../countries.html">All countries</a> &rsaquo; ${esc(c.name)}</p>
     <h1>${c.flag} ${esc(c.name)}: payroll law changes</h1>
     <p class="meta">${n} tracked ${n === 1 ? 'change' : 'changes'} &middot; ${region} &middot; sources last checked ${VERIFIED}</p>
-    <p>Statutory and legislative payroll changes in ${esc(c.name)}, each linked to the page it was checked against. For information only, not legal or tax advice: confirm details with the source before acting. See the <a href="../terms.html">terms</a>.</p>
+    <p>Statutory and legislative payroll changes in ${esc(c.name)}, each linked to the page it was checked against. For information only, not legal or tax advice: confirm details with the source before acting. See the <a href="../terms.html">terms</a>.${introLinks}</p>
     <p><a class="cta" href="../?country=${encodeURIComponent(c.code)}">Open in the interactive changelog</a>${icsCountries.includes(c) ? ` <a class="cta secondary" href="${SITE.replace(/^https:/, 'webcal:')}countries/${c.slug}.ics">Subscribe to ${esc(c.name)} calendar</a> <a href="${c.slug}.ics">Download (.ics)</a>` : ''}</p>
 ${factsHtml(c)}${partial}
 ${ordered.map(entryHtml).join('\n\n')}
 
-    <h2 class="more">More ${region} countries</h2>
+    <h2 class="more">Related countries in ${region}</h2>
     <p>Missing a rule for ${esc(c.name)}? <a href="../suggest.html">Suggest a change</a>.</p>
 
     <p class="chips">${siblings.map(s => `<a href="${s.slug}.html">${s.flag} ${esc(s.name)}</a>`).join(' ')}</p>
@@ -241,7 +292,7 @@ ${cs.map(c => `      <li><a href="countries/${c.slug}.html">${c.flag} ${esc(c.na
 ${thin.map(c => `        <li><a href="countries/${c.slug}.html">${c.flag} ${esc(c.name)}</a> <span class="count">1 entry</span></li>`).join('\n')}
       </ul>
     </section>` : '';
-  return `${head({ title: 'All countries | Intelligent Payroll', desc, url, depth: '' })}
+  return `${head({ title: 'All countries | Intelligent Payroll', desc, url, depth: '', graph: [breadcrumbs([['All countries', url]])] })}
 <body>
 ${header('')}
   <main>
@@ -280,12 +331,12 @@ function keyfactsPage() {
 ${cs.map(c => `      <li><a href="countries/${c.slug}.html#key-facts">${c.flag} ${esc(c.name)}</a> <span class="count">${esc(FACTS_BY_CODE.get(c.code).currency)}</span></li>`).join('\n')}
     </ul>`;
   }).filter(Boolean).join('\n\n');
-  return `${head({ title: 'Key facts by country | Intelligent Payroll', desc, url, depth: '' })}
+  return `${head({ title: 'Key facts by country | Intelligent Payroll', desc, url, depth: '', graph: [breadcrumbs([['Key facts', url]])] })}
 <body>
 ${header('')}
   <main>
     <h1>Key facts by country</h1>
-    <p>Pick a country to see its key payroll facts, such as minimum wage and tax rates. Each fact links to its official or professional source and shows the as of date it is valid from or was last checked. Rules change, so always confirm with the source.</p>
+    <p>Pick a country to see its key payroll facts, such as minimum wage and tax rates. Each fact links to its official or professional source and shows the as of date it is valid from or was last checked. Rules change, so always confirm with the source. Looking for another country? See <a href="countries.html">all countries</a>.</p>
 
 ${sections}
   </main>
@@ -297,6 +348,7 @@ ${footer('')}
 
 // Glossary: abbreviations used in entries, A-Z. Each term has an anchor (term-<slug>) that country pages link to.
 const escAttr = s => esc(s).replace(/'/g, '&#39;');
+const glossaryGraph = (terms, url) => ({ '@type': 'DefinedTermSet', name: 'Payroll terms and abbreviations', url, hasDefinedTerm: terms.map(t => ({ '@type': 'DefinedTerm', name: t.term, description: t.definition, inDefinedTermSet: url, url: `${url}#term-${slugify(t.term)}` })) });
 function glossaryPage() {
   const url = `${SITE}glossary.html`;
   const terms = [...GLOSSARY].sort((a, b) => a.term.localeCompare(b.term, 'en', { sensitivity: 'base' }) || (a.term < b.term ? -1 : a.term > b.term ? 1 : 0));
@@ -312,13 +364,13 @@ ${aliases}      <p>${escAttr(t.definition)}</p>
       <p class="source">${where ? `Used in: ${where} &middot; ` : ''}<a href="${escAttr(t.sourceUrl)}" rel="noopener">${escAttr(t.sourceLabel)}</a> &middot; Checked ${fmtDay(t.checked)}</p>
     </article>`;
   }).join('\n\n');
-  return `${head({ title: 'Glossary: payroll terms and abbreviations | Intelligent Payroll', desc, url, depth: '' })}
+  return `${head({ title: 'Glossary: payroll terms and abbreviations | Intelligent Payroll', desc, url, depth: '', graph: [breadcrumbs([['Glossary', url]]), glossaryGraph(terms, url)] })}
 <body>
 ${header('')}
   <main>
     <h1>Glossary</h1>
     <p class="meta">${terms.length} terms &middot; definitions last checked ${fmtDay(GLOSS_CHECKED)}</p>
-    <p>Abbreviations and local terms used in the payroll changes we track, in plain English. Each definition links to the page it was checked against. A term that looks the same in another country may mean something different there, so each one lists the countries it applies to. For information only, not legal or tax advice.</p>
+    <p>Abbreviations and local terms used in the payroll changes we track, in plain English. Each definition links to the page it was checked against. A term that looks the same in another country may mean something different there, so each one lists the countries it applies to. Browse <a href="countries.html">all countries</a> to see the terms in context. For information only, not legal or tax advice.</p>
     <nav class="az" aria-label="Jump to a term">
       <ul>
 ${terms.map(t => `        <li><a href="#term-${slugify(t.term)}">${escAttr(t.term)}</a></li>`).join('\n')}
@@ -338,7 +390,7 @@ function suggestPage() {
   const url = `${SITE}suggest.html`;
   const options = Object.entries(REGIONS).map(([key, label]) =>
     `          <optgroup label="${label}">\n${list.filter(c => c.region === key).map(c => `            <option value="${c.code}">${esc(c.name)}</option>`).join('\n')}\n          </optgroup>`).join('\n');
-  return `${head({ title: 'Suggest a change | Intelligent Payroll', desc: 'Ask for a country, report a missing or wrong payroll rule, or suggest a feature for Intelligent Payroll.', url, depth: '' })
+  return `${head({ title: 'Suggest a change | Intelligent Payroll', desc: 'Ask for a country, report a missing or wrong payroll rule, or suggest a feature for Intelligent Payroll.', url, depth: '', graph: [breadcrumbs([['Suggest a change', url]])] })
     .replace("form-action 'none'", "form-action 'self'; script-src 'self'")
     .replace('</head>', '  <script src="suggest.js" defer></script>\n</head>')}
 <body>
@@ -420,7 +472,7 @@ function upcomingPage() {
 ${g.items.map(e => { const c = countries.get(e.country); return `      <li><span class="when">${esc(whenLabel(e.effective))}</span> <a href="countries/${c.slug}.html#${esc(e.section)}">${e.flag} ${esc(e.name)}: ${esc(e.title)}</a> <span class="count">${REGIONS[c.region]}${e.impact === 'high' ? ' &middot; <strong>high impact</strong>' : ''}</span> ${statusChip(e)}</li>`; }).join('\n')}
     </ul>`).join('\n\n');
   const desc = clip(`${upcomingAll.length} upcoming payroll law changes across ${new Set(upcomingAll.map(e => e.country)).size} countries, by month, each linked to its source. Calendar (.ics) download included.`, 158);
-  return `${head({ title: "What's coming: upcoming payroll changes | Intelligent Payroll", desc, url, depth: '' })}
+  return `${head({ title: "What's coming: upcoming payroll changes | Intelligent Payroll", desc, url, depth: '', graph: [breadcrumbs([["What's coming", url]])] })}
 <body>
 ${header('')}
   <main>
@@ -563,7 +615,8 @@ const fill = tpl => tpl
   .replaceAll('{{RIGHTS_REQUEST}}', rightsRequest).replaceAll('{{HOSTING_SENTENCE}}', hostingSentence)
   .replaceAll('{{AUTHORITY}}', authority).replaceAll('{{GOVERNING_LAW}}', esc(op.governingLaw));
 for (const f of ['privacy.html', 'terms.html']) {
-  const rendered = fill(fs.readFileSync(path.join(ROOT, 'scripts/templates', f), 'utf8'));
+  const crumb = f === 'privacy.html' ? 'Privacy notice' : 'Terms of use and disclaimer';
+  const rendered = fill(fs.readFileSync(path.join(ROOT, 'scripts/templates', f), 'utf8')).replaceAll('{{JSONLD}}', () => ldScript([breadcrumbs([[crumb, SITE + f]])]));
   const left = rendered.match(/\{\{[A-Z_]+\}\}/g);
   if (left) throw new Error(`${f}: unfilled template tokens ${left.join(', ')}`);
   out.set(f, rendered);
@@ -576,6 +629,63 @@ const problems = [];
 for (const [re, label] of [[/property="og:url" content="([^"]+)"/, 'og:url'], [/property="og:image" content="([^"]+)"/, 'og:image'], [/name="twitter:image" content="([^"]+)"/, 'twitter:image']]) {
   const m = html.match(re);
   if (!m || !m[1].startsWith(SITE)) problems.push(`index.html ${label} does not start with ${SITE}`);
+}
+
+// ---- on-page SEO checks: index.html plus every generated public page (404.html is noindex and excluded) ----
+const decodeEnt = x => x.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&');
+const normWs = x => decodeEnt(x.replace(/<[^>]*>/g, '')).replace(/\s+/g, ' ').trim();
+const faqVisible = h => [...h.matchAll(/<details class="faq-item">\s*<summary>([\s\S]*?)<\/summary>\s*<p>([\s\S]*?)<\/p>\s*<\/details>/g)].map(m => [normWs(m[1]), normWs(m[2])]);
+function seoProblems(pages) {
+  const bad = [], titles = new Map(), descs = new Map();
+  for (const [f, h, url] of pages) {
+    const one = (re, what) => { const m = [...h.matchAll(re)]; if (m.length !== 1) { bad.push(`${f}: expected exactly one ${what}, found ${m.length}`); return null; } return decodeEnt(m[0][1]); };
+    const title = one(/<title>([^<]*)<\/title>/g, '<title>'), desc = one(/<meta name="description" content="([^"]*)">/g, 'meta description');
+    const canon = one(/<link rel="canonical" href="([^"]*)">/g, 'canonical link');
+    const og = k => one(new RegExp(`<meta property="${k}" content="([^"]*)">`, 'g'), k), tw = k => one(new RegExp(`<meta name="${k}" content="([^"]*)">`, 'g'), k);
+    const ogT = og('og:title'), ogD = og('og:description'), ogU = og('og:url'), twT = tw('twitter:title'), twD = tw('twitter:description');
+    if (title !== null) {
+      if (title.length > TITLE_MAX || !title.length) bad.push(`${f}: title is ${title.length} characters (max ${TITLE_MAX})`);
+      if (titles.has(title)) bad.push(`duplicate title "${title}" on ${titles.get(title)} and ${f}`); else titles.set(title, f);
+    }
+    if (desc !== null) {
+      if (desc.length < DESC_MIN || desc.length > DESC_MAX) bad.push(`${f}: description is ${desc.length} characters (must be ${DESC_MIN} to ${DESC_MAX})`);
+      if (/[<>]/.test(desc) || !desc.endsWith('.') || desc !== desc.trim()) bad.push(`${f}: description must be plain text ending with a period`);
+      if (descs.has(desc)) bad.push(`duplicate description on ${descs.get(desc)} and ${f}`); else descs.set(desc, f);
+    }
+    if (canon !== null && canon !== url) bad.push(`${f}: canonical must be ${url}`);
+    if (ogU !== null && ogU !== canon) bad.push(`${f}: og:url must equal the canonical`);
+    if (ogT !== null && ogT !== title) bad.push(`${f}: og:title must equal the <title>`);
+    if (twT !== null && twT !== title) bad.push(`${f}: twitter:title must equal the <title>`);
+    if (ogD !== null && ogD !== desc) bad.push(`${f}: og:description must equal the description`);
+    if (twD !== null && twD !== desc) bad.push(`${f}: twitter:description must equal the description`);
+    const h1 = (h.match(/<h1[\s>]/g) || []).length;
+    if (h1 !== 1) bad.push(`${f}: expected exactly one <h1>, found ${h1}`);
+    const blocks = [...h.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)];
+    if (blocks.length !== 1) bad.push(`${f}: expected exactly one JSON-LD block, found ${blocks.length}`);
+    else if (f === 'index.html') {
+      let g = null;
+      try { const o = JSON.parse(blocks[0][1]); if (o['@context'] === 'https://schema.org' && Array.isArray(o['@graph'])) g = o['@graph']; } catch {}
+      if (!g) bad.push('index.html: JSON-LD must be valid JSON with @context https://schema.org and an @graph array');
+      else {
+        const ws = g.find(n => n['@type'] === 'WebSite'), org = g.find(n => n['@type'] === 'Organization'), faq = g.find(n => n['@type'] === 'FAQPage');
+        if (!ws || ws.url !== SITE || ws.name !== BRAND || ws.description !== desc) bad.push('index.html: WebSite JSON-LD must carry the site name, url and the meta description');
+        if (!org || org.url !== SITE || org.name !== BRAND) bad.push('index.html: Organization JSON-LD must carry the site name and url');
+        const ld = faq ? (faq.mainEntity || []).map(q => [normWs(String(q.name)), normWs(String(q.acceptedAnswer && q.acceptedAnswer.text))]) : null;
+        if (!ld || JSON.stringify(ld) !== JSON.stringify(faqVisible(h))) bad.push('index.html: FAQPage JSON-LD does not match the visible FAQ');
+      }
+    }
+  }
+  // The "Which countries are covered?" answer must state the real per-region counts.
+  const counts = {}; for (const r of Object.values(countryToRegion)) counts[r] = (counts[r] || 0) + 1;
+  const ans = (faqVisible(html).find(([q]) => q === 'Which countries are covered?') || [])[1] || '';
+  const want = `${Object.keys(countryToRegion).length} countries today, across Europe (${counts.europe}), APAC (${counts.apac}), MENAT (${counts.menat}), LATAM (${counts.latam}), and Africa (${counts.africa}).`;
+  if (!ans.startsWith(want)) bad.push(`index.html: FAQ "Which countries are covered?" must start with: ${want}`);
+  return bad;
+}
+{
+  const pages = [['index.html', html, SITE]];
+  for (const [f, content] of out) if (/\.html$/.test(f)) pages.push([f, content, SITE + f]);
+  problems.push(...seoProblems(pages));
 }
 
 // ---- write or check ----

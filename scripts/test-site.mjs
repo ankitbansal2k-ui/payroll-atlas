@@ -29,6 +29,8 @@ const isMonth = v => typeof v === 'string' && /^\d{4}-(0[1-9]|1[0-2])$/.test(v);
 const isYear = v => typeof v === 'string' && /^\d{4}$/.test(v);
 const lastChanged = e => (e.updated && e.updated > e.added ? e.updated : e.added);
 const key = e => `${e.country}/${e.section}`;
+// P4-1: the only inline <script> allowed on any page is JSON-LD data (type="application/ld+json"); every other inline script stays forbidden.
+const INLINE_SCRIPT = /<script(?![^>]*\ssrc=)(?!\stype="application\/ld\+json">)/i;
 const decode = s => s.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&');
 
 // Country page slugs and anchors, discovered from generated files.
@@ -635,7 +637,7 @@ test('p2_7.glossary_page', () => {
     assert.ok(block.includes(`href="${escH(t.sourceUrl)}"`), `${t.term}: source link`);
     for (const c of t.countries) assert.ok(block.includes(`href="countries/${P2.slugify(names.get(c) || c)}.html"`), `${t.term}: link to ${c} page`);
   }
-  assert.ok(!/\son[a-z]+=|<script(?![^>]*\ssrc=)|\sstyle=/i.test(h), 'CSP: no inline handlers/scripts/styles');
+  assert.ok(!/\son[a-z]+=|\sstyle=/i.test(h) && !INLINE_SCRIPT.test(h), 'CSP: no inline handlers/scripts/styles (JSON-LD data blocks excepted)');
   assert.match(read('sitemap.xml'), /<loc>[^<]*\/glossary\.html<\/loc>/, 'glossary.html in sitemap');
   for (const f of ['countries.html', 'upcoming.html', 'glossary.html', `countries/${countryFiles.find(f => f.endsWith('.html'))}`])
     assert.match((read(f).match(/<footer[\s\S]*?<\/footer>/) || [''])[0], /<a href="(\.\.\/)?glossary\.html">Glossary<\/a>/, `${f}: footer Glossary link`);
@@ -1035,7 +1037,7 @@ test('p2_8.render_fixture_markup', () => {
     assert.ok(q.includes('Check the source before use. For information only, not legal or tax advice.'), 'disclaimer');
     // A fact without bands is value text only: no table in spain.
     assert.ok(!/<table\b/.test(s.page('spain')), 'no table when bands are absent');
-    assert.ok(!/\sstyle=|<script(?![^>]*\ssrc=)|<[a-z][^>]*\son[a-z]+=/i.test(h), 'CSP: no inline styles, scripts or handlers');
+    assert.ok(!/\sstyle=|<[a-z][^>]*\son[a-z]+=/i.test(h) && !INLINE_SCRIPT.test(h), 'CSP: no inline styles, scripts or handlers (JSON-LD data blocks excepted)');
     assert.ok(!/<a\b[^>]*>(?:(?!<\/a>)[\s\S])*<a\b/.test(h), 'no nested links');
   } finally { s.done(); }
 });
@@ -1306,7 +1308,7 @@ test('p3_1.keyfacts_page_exists_with_head', () => {
   assert.match(h, /<link rel="canonical" href="https:\/\/www\.intelligentpayroll\.eu\/keyfacts\.html">/);
   assert.match(h, /<link rel="stylesheet" href="legal\.css">/);
   assert.match(h, /Content-Security-Policy/, 'standard head() CSP');
-  assert.ok(!/\son[a-z]+=|<script|\sstyle=/i.test(h), 'CSP: no inline handlers/scripts/styles');
+  assert.ok(!/\son[a-z]+=|\sstyle=/i.test(h) && !INLINE_SCRIPT.test(h), 'CSP: no inline handlers/scripts/styles (JSON-LD data blocks excepted)');
   const intro = (h.match(/<main>[\s\S]*?<\/main>/) || [''])[0].replace(/<[^>]*>/g, ' ');
   assert.match(intro, /sources?/i, 'intro mentions sources');
   assert.match(intro, /as of/i, 'intro explains as-of dates');
@@ -1385,6 +1387,466 @@ test('p3_1.index_header_nav_links', () => {
     assert.ok(!/data-view/.test(x.attrs), `${t}: no data-view (real navigation)`);
   }
   assert.match(a[0].attrs, /data-view="view-home"/); assert.match(a[1].attrs, /data-view="view-changelog"/);
+});
+
+// ---------- P4-1: on-page SEO (titles, descriptions, JSON-LD, FAQ wording, internal links, sitemap) ----------
+// CONTRACT
+//  Titles (generated from data, never typed per country; YEAR = year of the last-verified date in app.js; TITLE_MAX = 70):
+//    country with a Key facts box : "<Name> payroll <YEAR>: key facts and law changes | Intelligent Payroll"
+//    country without              : "<Name> payroll law changes <YEAR> | Intelligent Payroll"
+//    If that string is longer than TITLE_MAX the " | Intelligent Payroll" suffix is dropped (deterministic fallback; the
+//    brief's 65-character limit cannot hold: the mandated home title is 66 and "Poland payroll 2026: key facts and law changes | ..." is 68).
+//    home (index.html)            : "Payroll law changes by country: free tracker | Intelligent Payroll"
+//    other generated pages keep their current titles (countries, upcoming, glossary, keyfacts, suggest, privacy, terms).
+//  Country description (exact): "<n> tracked payroll change(s) in <Name>: <T><F>. Sources linked, checked <D>."
+//    n = entries for the country; "change" when n is 1 else "changes"; T = title of the first entry in page order (non-upcoming first), trailing
+//    space/.,;:-dash stripped, then clipped at a word boundary so the whole description is <= 158 characters (no ellipsis);
+//    F = ", plus minimum wage, contributions and tax bands" only when the country has a Key facts box; D = last-verified date as "1 October 2026".
+//  Every public page (index.html + all generated pages; 404.html excluded, it is noindex): exactly one <title> <= 70 chars, one meta description of
+//    70..158 chars that is plain text (no < or >) and ends with ".", one canonical equal to the page URL, exactly one <h1>; og:title/og:description/
+//    twitter:title/twitter:description equal title/description; og:url equals the canonical; titles unique, descriptions unique.
+//    index.html description is shortened to <= 158 and privacy.html description likewise (both are longer today).
+//    build-pages.mjs --check enforces all of this on the generated pages in memory plus index.html, with messages:
+//      "<file>: title is N characters (max 70)", "<file>: description is N characters (must be 70 to 158)", "<file>: expected exactly one <h1>, found N",
+//      "duplicate title", "duplicate description", "<file>: og:title must equal the <title>" (likewise og:description, twitter:title, twitter:description),
+//      "<file>: canonical must be <url>", "index.html: FAQPage JSON-LD does not match the visible FAQ".
+//  JSON-LD: exactly one <script type="application/ld+json">JSON</script> per public page, in <head>, compact JSON of the form
+//    {"@context":"https://schema.org","@graph":[node,...]}. Characters < > & U+2028 U+2029 are written as \uXXXX escapes (so the raw block has none of them).
+//    index.html: graph = WebSite {@type,name:"Intelligent Payroll",url:SITE,description:<meta description>} + Organization {@type,name,url} (no other keys)
+//      + FAQPage {mainEntity:[{@type:Question,name,acceptedAnswer:{@type:Answer,text}}]} equal (whitespace-normalised, same order) to the visible
+//      <details class="faq-item"> question/answer text. No BreadcrumbList on the home page.
+//    generated pages (not 404): graph has one BreadcrumbList; ListItem keys exactly @type,position,name,item (positions 1..n, item absolute canonical-origin URL):
+//      country: Home > All countries > <Name>; countries.html: Home > All countries; upcoming: Home > What's coming; glossary: Home > Glossary;
+//      keyfacts: Home > Key facts; suggest: Home > Suggest a change; privacy: Home > Privacy notice; terms: Home > Terms of use and disclaimer.
+//    glossary.html additionally: DefinedTermSet {@type,name:"Payroll terms and abbreviations",url:glossary URL,hasDefinedTerm:[DefinedTerm...]},
+//      DefinedTerm keys exactly @type,name(=term),description(=definition),inDefinedTermSet(=glossary URL),url(=glossary URL#term-<slug>), page (A-Z) order.
+//    No Dataset (or any other) claims on country pages; Organization has no logo/sameAs.
+//  validate.mjs: an inline <script> is rejected unless its type is exactly application/ld+json (message still contains "inline <script>");
+//    each ld+json block in index.html must be valid JSON with @context https://schema.org (message contains "JSON-LD").
+//  FAQ "Which countries are covered?" answer: "<N> countries today, across Europe (a), APAC (b), MENAT (c), LATAM (d), and Africa (e). <sentence naming the
+//    Countries picker, the Key facts and Glossary menu items>" with N, a..e computed from countryToRegion; the stale "country selector in the header" is gone.
+//  Country page intro (paragraphs between </h1> and the Key facts box / first entry): always <a href="../glossary.html">Glossary</a> once; only when the
+//    country has facts also <a href="#key-facts">Key facts</a> once and a link to ../keyfacts.html once. Related-countries heading becomes
+//    <h2 class="more">Related countries in <Region></h2>. keyfacts.html and glossary.html <main> each link to countries.html.
+//  sitemap.xml lists exactly the public pages (index + generated, incl. keyfacts.html) each with an ISO lastmod, never 404.html; robots.txt names the sitemap.
+const SITE_URL = 'https://www.intelligentpayroll.eu/';
+const TITLE_MAX = 70, DESC_MIN = 70, DESC_MAX = 158;
+const YEAR = VER22.slice(0, 4);
+const fmtLong = iso => new Date(iso + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+const publicPages = () => ['index.html', ...allGenerated()];
+const urlOfPage = f => (f === 'index.html' ? SITE_URL : SITE_URL + f);
+const normWs = s => decode(String(s).replace(/<[^>]*>/g, '')).replace(/\s+/g, ' ').trim();
+const oneOf = (h, re, what, f) => { const m = [...h.matchAll(re)]; assert.equal(m.length, 1, `${f}: expected exactly one ${what}, found ${m.length}`); return decode(m[0][1]); };
+const seoOf = (h, f) => ({
+  title: oneOf(h, /<title>([^<]*)<\/title>/g, '<title>', f),
+  desc: oneOf(h, /<meta name="description" content="([^"]*)">/g, 'meta description', f),
+  canonical: oneOf(h, /<link rel="canonical" href="([^"]*)">/g, 'canonical link', f),
+  ogTitle: oneOf(h, /<meta property="og:title" content="([^"]*)">/g, 'og:title', f),
+  ogDesc: oneOf(h, /<meta property="og:description" content="([^"]*)">/g, 'og:description', f),
+  ogUrl: oneOf(h, /<meta property="og:url" content="([^"]*)">/g, 'og:url', f),
+  twTitle: oneOf(h, /<meta name="twitter:title" content="([^"]*)">/g, 'twitter:title', f),
+  twDesc: oneOf(h, /<meta name="twitter:description" content="([^"]*)">/g, 'twitter:description', f),
+  h1s: (h.match(/<h1[\s>]/g) || []).length,
+});
+const trimTail = s => s.replace(/[\s.,;:–—-]+$/, '');
+const clipWords = (s, max) => { if (s.length <= max) return s; let cut = s.slice(0, max); if (!/\s/.test(s[max])) cut = cut.replace(/\s*\S*$/, ''); return trimTail(cut); };
+const expectedTitle = (name, hasFacts, year = YEAR) => {
+  const base = hasFacts ? `${name} payroll ${year}: key facts and law changes` : `${name} payroll law changes ${year}`;
+  const full = `${base} | Intelligent Payroll`;
+  return full.length <= TITLE_MAX ? full : base;
+};
+const expectedDesc = (entriesOfCountry, hasFacts, verifiedIso = VER22) => {
+  const ordered = [...entriesOfCountry.filter(e => !e.upcoming), ...entriesOfCountry.filter(e => e.upcoming)];
+  const n = entriesOfCountry.length;
+  const lead = `${n} tracked payroll ${n === 1 ? 'change' : 'changes'} in ${entriesOfCountry[0].name}`;
+  const FULL = ', plus minimum wage, contributions and tax bands', SHORT = ', plus contributions and tax bands', end = `. Sources linked, checked ${fmtLong(verifiedIso)}.`;
+  // Review rule: clip T at a word boundary, drop trailing stopwords/connectors; omit T if >40% of the title was lost or <12 chars remain.
+  const STOPS = ['to', 'by', 'from', 'for', 'with', 'of', 'in', 'on', 'at', 'and', 'or', 'new', 'the', 'a', 'an', 'up', 'as', 'than', 'into', 'per', 'under', 'over', 'earning', 'who', 'that', 'is', 'are', 'be', 'will', 'between', 'after', 'before', 'when'];
+  const title = trimTail(ordered[0].title);
+  let t = clipWords(title, DESC_MAX - (lead.length + 2) - ((hasFacts ? FULL.length : 0) + end.length));
+  if (t.length < title.length) {
+    const w = t.split(' ');
+    while (w.length && STOPS.includes(w.at(-1).toLowerCase().replace(/[^a-z]/g, ''))) w.pop();
+    t = trimTail(w.join(' '));
+    if (t.length < 12 || t.length < 0.6 * title.length) t = '';
+  }
+  const f = hasFacts ? (/minimum wage/i.test(t) ? SHORT : FULL) : '';
+  const d = t ? `${lead}: ${t}${f}${end}` : `${lead}${f}${end}`;
+  return d.length < DESC_MIN ? `${lead}${f}. Payroll law changes, updated every two weeks. Sources linked, checked ${fmtLong(verifiedIso)}.` : d;
+};
+const factCodes = () => new Set(JSON.parse(read('data/facts.json')).map(f => f.code));
+const ldBlocks = h => [...h.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(m => m[1]);
+const ldGraph = (h, f) => {
+  const b = ldBlocks(h);
+  assert.equal(b.length, 1, `${f}: expected exactly one application/ld+json block, found ${b.length}`);
+  const o = JSON.parse(b[0]);
+  assert.equal(o['@context'], 'https://schema.org', `${f}: @context`);
+  assert.ok(Array.isArray(o['@graph']) && o['@graph'].length >= 1, `${f}: @graph array`);
+  return o['@graph'];
+};
+const byType = (g, t) => g.filter(n => n['@type'] === t);
+const keysOf = o => Object.keys(o).sort().join(',');
+const ldStrings = (v, out = []) => { if (typeof v === 'string') out.push(v); else if (v && typeof v === 'object') for (const x of Object.values(v)) ldStrings(x, out); return out; };
+const slugToCode = new Map(CHANGES.map(e => [P2.slugify(e.name), e.country]));
+const countryEntries = code => CHANGES.filter(e => e.country === code);
+const inTemp = (s, file, fn) => { const p = path.join(s.dir, file); fs.writeFileSync(p, fn(fs.readFileSync(p, 'utf8'))); };
+
+test('p4_1.country_titles_and_descriptions_follow_the_formulas', () => {
+  const withFacts = factCodes();
+  assert.ok(withFacts.size === 20, 'precondition: 20 fact countries');
+  let seenFull = 0;
+  for (const f of countryFiles.filter(f => f.endsWith('.html'))) {
+    const code = slugToCode.get(f.replace(/\.html$/, '')); assert.ok(code, `${f}: country`);
+    const s = seoOf(read(`countries/${f}`), f), es = countryEntries(code), has = withFacts.has(code);
+    assert.equal(s.title, expectedTitle(es[0].name, has), `${f}: title`);
+    assert.equal(s.desc, expectedDesc(es, has), `${f}: description`);
+    assert.ok(s.title.length <= TITLE_MAX && s.desc.length >= DESC_MIN && s.desc.length <= DESC_MAX, `${f}: lengths ${s.title.length}/${s.desc.length}`);
+    if (s.title.endsWith('| Intelligent Payroll')) seenFull++;
+  }
+  assert.ok(seenFull > 0, 'short country names keep the brand suffix');
+  // The brief's own example query: Poland (facts) is "Poland payroll 2026: key facts and law changes | Intelligent Payroll" (68 chars, within TITLE_MAX).
+  assert.equal(seoOf(read('countries/poland.html'), 'poland').title, `Poland payroll ${YEAR}: key facts and law changes | Intelligent Payroll`);
+});
+test('p4_1.country_description_clipping_rules_hold_for_long_titles', () => {
+  // On real data: no ellipsis and exactly one final period, whatever was clipped.
+  for (const f of countryFiles.filter(f => f.endsWith('.html'))) {
+    const code = slugToCode.get(f.replace(/\.html$/, '')), es = countryEntries(code);
+    const d = seoOf(read(`countries/${f}`), f).desc, first = [...es.filter(e => !e.upcoming), ...es.filter(e => e.upcoming)][0].title;
+    assert.ok(!d.includes('…') && /\.$/.test(d) && !/\.\.$/.test(d), `${f}: no ellipsis, single final period`);
+  }
+  // Pure helper check of the contract's clipping rule.
+  assert.equal(clipWords('alpha beta gamma delta', 12), 'alpha beta');
+  assert.equal(clipWords('alpha beta gamma delta', 10), 'alpha beta');
+  assert.equal(clipWords('alpha beta gamma delta', 11), 'alpha beta');
+  assert.equal(clipWords('alpha beta, gamma', 11), 'alpha beta');
+});
+// Independent of the generator rule: the finished sentence must read cleanly on every real country page.
+test('p4_1.country_descriptions_read_cleanly_on_all_pages', () => {
+  const files = countryFiles.filter(f => f.endsWith('.html')); assert.equal(files.length, 75);
+  for (const f of files) {
+    const d = seoOf(read(`countries/${f}`), f).desc;
+    assert.match(d, /^\d+ tracked payroll changes? in .+\. Sources linked, checked \d{1,2} \w+ \d{4}\.$/, `${f}: shape: ${d}`);
+    assert.ok(!/\b(to|by|from|for|with|of|in|on|at|and|or|new|the|a|an|up)\s*(,|:|;)\s*plus/i.test(d), `${f}: cut mid-phrase before ", plus": ${d}`);
+    assert.ok((d.match(/minimum wage/gi) || []).length <= 1, `${f}: "minimum wage" repeated: ${d}`);
+    assert.ok(!/\b(to|by|from|for|with|of|in|on|at|and|or|new|the|a|an|up)\.\s+Sources/i.test(d), `${f}: ends mid-phrase: ${d}`);
+    assert.ok(d.length >= DESC_MIN && d.length <= DESC_MAX, `${f}: length ${d.length}`);
+  }
+});
+test('p4_1.country_page_crumb_is_home_all_countries_name', () => {
+  for (const f of countryFiles.filter(f => f.endsWith('.html'))) {
+    const h = read(`countries/${f}`), m = h.match(/<p class="crumbs">([^]*?)<\/p>/);
+    assert.ok(m, `${f}: crumbs`);
+    assert.match(m[1], /^<a href="\.\.\/">Home<\/a> &rsaquo; <a href="\.\.\/countries\.html">All countries<\/a> &rsaquo; [^<]+$/, `${f}: crumb markup`);
+    assert.equal(decode(m[1].split('&rsaquo; ').pop()), h.match(/<h1>[^ ]+ ([^<]*): payroll law changes<\/h1>/) ? decode(h.match(/<h1>[^ ]+ ([^<]*): payroll law changes<\/h1>/)[1]) : null, `${f}: last crumb is the country name`);
+  }
+});
+test('p4_1.home_and_other_generated_pages_keep_short_unique_titles', () => {
+  const want = {
+    'index.html': 'Payroll law changes by country: free tracker | Intelligent Payroll',
+    'countries.html': 'All countries | Intelligent Payroll',
+    'upcoming.html': "What's coming: upcoming payroll changes | Intelligent Payroll",
+    'glossary.html': 'Glossary: payroll terms and abbreviations | Intelligent Payroll',
+    'keyfacts.html': 'Key facts by country | Intelligent Payroll',
+    'suggest.html': 'Suggest a change | Intelligent Payroll',
+    'privacy.html': 'Privacy notice | Intelligent Payroll',
+    'terms.html': 'Terms of use and disclaimer | Intelligent Payroll',
+  };
+  for (const [f, t] of Object.entries(want)) assert.equal(seoOf(read(f), f).title, t, `${f}: title`);
+});
+test('p4_1.every_public_page_meets_the_seo_rules_and_is_unique', () => {
+  const pages = publicPages(); assert.ok(pages.length > 80, `public pages: ${pages.length}`);
+  const titles = new Map(), descs = new Map();
+  for (const f of pages) {
+    const h = read(f), s = seoOf(h, f), url = urlOfPage(f);
+    assert.ok(s.title.length > 0 && s.title.length <= TITLE_MAX && s.title === s.title.trim(), `${f}: title is ${s.title.length} characters (max ${TITLE_MAX}): ${s.title}`);
+    assert.ok(s.desc.length >= DESC_MIN && s.desc.length <= DESC_MAX, `${f}: description is ${s.desc.length} characters (must be ${DESC_MIN} to ${DESC_MAX})`);
+    assert.ok(!/[<>]/.test(s.desc) && /\.$/.test(s.desc) && s.desc === s.desc.trim(), `${f}: description is plain text ending with a period`);
+    assert.equal(s.canonical, url, `${f}: canonical`);
+    assert.equal(s.h1s, 1, `${f}: expected exactly one <h1>, found ${s.h1s}`);
+    assert.equal(s.ogTitle, s.title, `${f}: og:title equals title`); assert.equal(s.twTitle, s.title, `${f}: twitter:title equals title`);
+    assert.equal(s.ogDesc, s.desc, `${f}: og:description equals description`); assert.equal(s.twDesc, s.desc, `${f}: twitter:description equals description`);
+    assert.equal(s.ogUrl, url, `${f}: og:url equals canonical`);
+    assert.ok(!titles.has(s.title), `duplicate title "${s.title}" on ${titles.get(s.title)} and ${f}`); titles.set(s.title, f);
+    assert.ok(!descs.has(s.desc), `duplicate description on ${descs.get(s.desc)} and ${f}`); descs.set(s.desc, f);
+  }
+});
+test('p4_1.404_is_noindex_and_outside_the_seo_set', () => {
+  const h = read('404.html');
+  assert.match(h, /<meta name="robots" content="noindex">/);
+  assert.ok(!publicPages().includes('404.html'));
+  assert.ok(!/404\.html/.test(read('sitemap.xml')), '404.html is not in the sitemap');
+  assert.ok(!/Page not found/.test(read('sitemap.xml')));
+});
+
+// --- the generator enforces the SEO rules (build-pages.mjs --check), exercised in a temp copy ---
+test('p4_1.check_rejects_bad_titles_descriptions_headings_and_duplicates', () => {
+  const s = factsSite();
+  try {
+    const real = JSON.parse(read('data/facts.json'));
+    let r = s.build(real); assert.ok(r.ok, r.out.slice(0, 400));
+    r = s.run('build-pages.mjs', '--check'); assert.ok(r.ok, 'baseline --check passes: ' + r.out.slice(0, 400));
+    const orig = fs.readFileSync(path.join(s.dir, 'index.html'), 'utf8');
+    const attempt = (name, fn, re) => {
+      fs.writeFileSync(path.join(s.dir, 'index.html'), fn(orig));
+      const x = s.run('build-pages.mjs', '--check');
+      assert.ok(!x.ok && re.test(x.out), `${name}: --check must fail with ${re}: ` + x.out.slice(0, 500));
+    };
+    const setTitle = t => h => h.replace(/<title>[^<]*<\/title>/, `<title>${t}</title>`);
+    const setDesc = d => h => h.replace(/(<meta name="description" content=")[^"]*"/, `$1${d}"`);
+    attempt('title too long', setTitle('x'.repeat(TITLE_MAX + 1)), /index\.html: title is 71 characters \(max 70\)/);
+    attempt('duplicate title', setTitle('All countries | Intelligent Payroll'), /duplicate title/);
+    attempt('description too short', setDesc('Too short.'), /index\.html: description is 10 characters \(must be 70 to 158\)/);
+    attempt('description too long', setDesc('d'.repeat(159)), /index\.html: description is 159 characters \(must be 70 to 158\)/);
+    attempt('duplicate description', setDesc(seoOf(read('countries.html'), 'c').desc), /duplicate description/);
+    attempt('second h1', h => h.replace('</h1>', '</h1><h1>Another</h1>'), /index\.html: expected exactly one <h1>, found 2/);
+    attempt('og:title differs', h => h.replace(/(<meta property="og:title" content=")[^"]*"/, '$1Different"'), /index\.html: og:title must equal the <title>/);
+    attempt('twitter:description differs', h => h.replace(/(<meta name="twitter:description" content=")[^"]*"/, '$1Different but long enough to look like a real description of the page, honestly."'), /index\.html: twitter:description must equal the description/);
+    fs.writeFileSync(path.join(s.dir, 'index.html'), orig);
+    r = s.run('build-pages.mjs', '--check'); assert.ok(r.ok, 'restored index passes again: ' + r.out.slice(0, 300));
+  } finally { s.done(); }
+});
+
+// --- formulas follow the data, not a hand-typed list (fixture: other facts, other year) ---
+test('p4_1.titles_and_descriptions_are_generated_from_data_in_a_fixture', () => {
+  const setYear = js => js.replace(/(new Date\(')\d{4}-\d{2}-\d{2}(T)/, (_, a, b) => `${a}2027-02-03${b}`);
+  const s = factsSite(undefined, { appEdit: setYear });
+  try {
+    let r = s.build(richFixture()); assert.ok(r.ok, r.out.slice(0, 400));
+    const has = new Set(['france', 'spain']);
+    for (const f of s.pages()) {
+      const code = slugToCode.get(f.replace(/\.html$/, '')), es = countryEntries(code);
+      const x = seoOf(fs.readFileSync(path.join(s.dir, 'countries', f), 'utf8'), f);
+      assert.equal(x.title, expectedTitle(es[0].name, has.has(code), '2027'), `${f}: title uses the last-verified year 2027 and the facts of THIS data set`);
+      assert.equal(x.desc, expectedDesc(es, has.has(code), '2027-02-03'), `${f}: description`);
+    }
+    assert.ok(seoOf(s.page('poland'), 'poland').title.includes('payroll law changes 2027'), 'poland has no facts in the fixture');
+    assert.ok(seoOf(s.page('spain'), 'spain').desc.includes('minimum wage, contributions and tax bands'));
+    r = s.run('build-pages.mjs'); assert.ok(r.ok);
+    const a = Object.fromEntries(s.pages().map(f => [f, fs.readFileSync(path.join(s.dir, 'countries', f), 'utf8')]));
+    s.run('build-pages.mjs'); for (const f of s.pages()) assert.equal(fs.readFileSync(path.join(s.dir, 'countries', f), 'utf8'), a[f], `${f}: deterministic`);
+  } finally { s.done(); }
+});
+
+// --- JSON-LD ---
+test('p4_1.jsonld_home_has_website_organization_and_faqpage_only', () => {
+  const h = read('index.html'), g = ldGraph(h, 'index.html');
+  assert.deepEqual(g.map(n => n['@type']).sort(), ['FAQPage', 'Organization', 'WebSite']);
+  const [ws] = byType(g, 'WebSite'), [org] = byType(g, 'Organization');
+  assert.equal(keysOf(ws), '@type,description,name,url');
+  assert.equal(ws.name, 'Intelligent Payroll'); assert.equal(ws.url, SITE_URL); assert.equal(ws.description, seoOf(h, 'index.html').desc);
+  assert.equal(keysOf(org), '@type,name,url', 'Organization: no logo, no sameAs, nothing else');
+  assert.equal(org.name, 'Intelligent Payroll'); assert.equal(org.url, SITE_URL);
+  assert.equal(byType(g, 'BreadcrumbList').length, 0, 'no breadcrumb on the home page');
+});
+const faqVisible = h => [...h.matchAll(/<details class="faq-item">\s*<summary>([\s\S]*?)<\/summary>\s*<p>([\s\S]*?)<\/p>\s*<\/details>/g)].map(m => [normWs(m[1]), normWs(m[2])]);
+test('p4_1.jsonld_faq_matches_the_visible_faq_exactly', () => {
+  const h = read('index.html'), vis = faqVisible(h);
+  assert.ok(vis.length >= 7, `visible FAQ items: ${vis.length}`);
+  const [faq] = byType(ldGraph(h, 'index.html'), 'FAQPage');
+  assert.equal(keysOf(faq), '@type,mainEntity');
+  const ld = faq.mainEntity.map(q => {
+    assert.equal(q['@type'], 'Question'); assert.equal(keysOf(q), '@type,acceptedAnswer,name');
+    assert.equal(q.acceptedAnswer['@type'], 'Answer'); assert.equal(keysOf(q.acceptedAnswer), '@type,text');
+    return [q.name.replace(/\s+/g, ' ').trim(), q.acceptedAnswer.text.replace(/\s+/g, ' ').trim()];
+  });
+  assert.deepEqual(ld, vis, 'JSON-LD questions/answers equal the visible FAQ text, same order');
+  for (const [q, a] of vis) { assert.ok(ld.some(x => x[0] === q), `visible question missing from JSON-LD: ${q}`); assert.ok(ld.some(x => x[1] === a), `visible answer missing from JSON-LD: ${a}`); }
+});
+test('p4_1.check_flags_faq_jsonld_drift_in_either_direction', () => {
+  const s = factsSite();
+  try {
+    let r = s.build(JSON.parse(read('data/facts.json'))); assert.ok(r.ok, r.out.slice(0, 300));
+    const orig = fs.readFileSync(path.join(s.dir, 'index.html'), 'utf8');
+    // visible text changes, JSON-LD does not
+    fs.writeFileSync(path.join(s.dir, 'index.html'), orig.replace("Yes. There's no account", 'Yes. There is no account'));
+    assert.notEqual(fs.readFileSync(path.join(s.dir, 'index.html'), 'utf8'), orig, 'fixture edit applied');
+    r = s.run('build-pages.mjs', '--check'); assert.ok(!r.ok && /index\.html: FAQPage JSON-LD does not match the visible FAQ/.test(r.out), 'visible-only edit: ' + r.out.slice(0, 400));
+    // JSON-LD changes, visible text does not
+    fs.writeFileSync(path.join(s.dir, 'index.html'), orig.replace(/(<script type="application\/ld\+json">)([\s\S]*?)(<\/script>)/, (_, a, json, c) => {
+      const o = JSON.parse(json); byType(o['@graph'], 'FAQPage')[0].mainEntity[0].acceptedAnswer.text += ' Extra claim.'; return a + JSON.stringify(o) + c;
+    }));
+    r = s.run('build-pages.mjs', '--check'); assert.ok(!r.ok && /index\.html: FAQPage JSON-LD does not match the visible FAQ/.test(r.out), 'JSON-LD-only edit: ' + r.out.slice(0, 400));
+    // a visible question removed entirely
+    fs.writeFileSync(path.join(s.dir, 'index.html'), orig.replace(/<details class="faq-item">[\s\S]*?<\/details>\s*/, ''));
+    r = s.run('build-pages.mjs', '--check'); assert.ok(!r.ok && /FAQPage JSON-LD does not match/.test(r.out), 'removed question: ' + r.out.slice(0, 400));
+  } finally { s.done(); }
+});
+const CRUMB_NAMES = { 'countries.html': ['All countries'], 'upcoming.html': ["What's coming"], 'glossary.html': ['Glossary'], 'keyfacts.html': ['Key facts'], 'suggest.html': ['Suggest a change'], 'privacy.html': ['Privacy notice'], 'terms.html': ['Terms of use and disclaimer'] };
+test('p4_1.jsonld_breadcrumbs_on_every_generated_page', () => {
+  const pages = allGenerated(); assert.ok(pages.length > 80);
+  for (const f of pages) {
+    const g = ldGraph(read(f), f), [bc, ...more] = byType(g, 'BreadcrumbList');
+    assert.ok(bc && more.length === 0, `${f}: exactly one BreadcrumbList`);
+    const isCountry = f.startsWith('countries/');
+    const names = isCountry ? ['All countries', countryEntries(slugToCode.get(f.slice(10, -5)))[0].name] : CRUMB_NAMES[f];
+    assert.ok(names && names.every(Boolean), `${f}: expected crumb names`);
+    const want = [['Home', SITE_URL], ...names.map((n, i) => [n, i === names.length - 1 ? urlOfPage(f) : SITE_URL + 'countries.html'])];
+    const got = bc.itemListElement.map((it, i) => {
+      assert.equal(keysOf(it), '@type,item,name,position', `${f}: ListItem keys`);
+      assert.equal(it['@type'], 'ListItem'); assert.equal(it.position, i + 1, `${f}: positions run 1..n`);
+      return [it.name, it.item];
+    });
+    assert.deepEqual(got, want, `${f}: breadcrumb trail`);
+  }
+  assert.equal(seoOf(read('countries/poland.html'), 'p').canonical, ldGraph(read('countries/poland.html'), 'p')[0].itemListElement.at(-1).item);
+});
+test('p4_1.jsonld_glossary_defined_terms_match_data', () => {
+  const gl = JSON.parse(read('data/glossary.json')), h = read('glossary.html'), g = ldGraph(h, 'glossary.html');
+  const [set] = byType(g, 'DefinedTermSet'); assert.ok(set, 'DefinedTermSet');
+  const url = SITE_URL + 'glossary.html';
+  assert.equal(keysOf(set), '@type,hasDefinedTerm,name,url'); assert.equal(set.name, 'Payroll terms and abbreviations'); assert.equal(set.url, url);
+  const sorted = [...gl].sort((a, b) => a.term.localeCompare(b.term, 'en', { sensitivity: 'base' }) || (a.term < b.term ? -1 : a.term > b.term ? 1 : 0));
+  assert.equal(set.hasDefinedTerm.length, gl.length, 'one DefinedTerm per glossary term');
+  const ids = new Set([...h.matchAll(/\sid="([^"]+)"/g)].map(m => m[1]));
+  set.hasDefinedTerm.forEach((t, i) => {
+    assert.equal(t['@type'], 'DefinedTerm'); assert.equal(keysOf(t), '@type,description,inDefinedTermSet,name,url');
+    assert.equal(t.name, sorted[i].term, 'name = term, A-Z order'); assert.equal(t.description, sorted[i].definition, 'description = definition');
+    assert.equal(t.inDefinedTermSet, url); assert.equal(t.url, `${url}#term-${P2.slugify(sorted[i].term)}`);
+    assert.ok(ids.has(`term-${P2.slugify(sorted[i].term)}`), `${t.name}: anchor exists on the page`);
+  });
+  for (const f of publicPages().filter(f => f !== 'glossary.html')) assert.equal(byType(ldGraph(read(f), f), 'DefinedTermSet').length, 0, `${f}: no DefinedTermSet`);
+});
+test('p4_1.jsonld_is_safe_absolute_and_claims_nothing_invented', () => {
+  for (const f of publicPages()) {
+    const h = read(f), b = ldBlocks(h); assert.equal(b.length, 1, `${f}: one JSON-LD block`);
+    assert.ok(!/[<>&\u2028\u2029]/.test(b[0]), `${f}: raw JSON-LD block must have < > & U+2028 U+2029 escaped as \\uXXXX`);
+    assert.ok(!INLINE_SCRIPT.test(h), `${f}: no other inline script`);
+    const g = ldGraph(h, f);
+    for (const n of g) assert.ok(['WebSite', 'Organization', 'FAQPage', 'BreadcrumbList', 'DefinedTermSet'].includes(n['@type']), `${f}: unexpected node type ${n['@type']} (no Dataset or other invented claims)`);
+    const strings = ldStrings(g);
+    for (const x of strings) assert.ok(!/^http:\/\//i.test(x), `${f}: http URL ${x}`);
+    const walk = (v) => { if (Array.isArray(v)) v.forEach(walk); else if (v && typeof v === 'object') for (const [k, x] of Object.entries(v)) { if (['url', 'item', 'inDefinedTermSet'].includes(k)) assert.ok(typeof x === 'string' && x.startsWith(SITE_URL), `${f}: ${k} must be an absolute URL on ${SITE_URL}: ${x}`); walk(x); } };
+    walk(g);
+    assert.ok(!/"(logo|sameAs|Dataset|aggregateRating|review|offers)"/.test(b[0]), `${f}: no logo/sameAs/Dataset/rating claims`);
+  }
+});
+test('p4_1.jsonld_survives_hostile_data_and_is_deterministic', () => {
+  const U2028 = String.fromCharCode(0x2028), U2029 = String.fromCharCode(0x2029);
+  const EVIL = `France</script><script>alert(1)</script>${U2028}${U2029} & <!--`;
+  const appEdit = js => js.replaceAll("name:'France'", `name:'France</script><script>alert(1)</script>\\u2028\\u2029 & <!--'`)
+    .replace("title:'SMIC revalued twice", "title:'</SCRIPT><b>x</b>\\u2028 SMIC revalued twice");
+  const s = factsSite(undefined, { appEdit });
+  try {
+    const evilTerm = { term: 'X</script><script>alert(1)</script>', expansion: 'e', definition: `d </script> ${U2028} ${U2029} & <b>`, countries: [], sourceUrl: 'https://example.org/x', sourceLabel: 'Source: A - B', checked: '2026-10-01' };
+    let r = s.build(richFixture()); assert.ok(r.ok, r.out.slice(0, 500));
+    fs.writeFileSync(path.join(s.dir, 'data/glossary.json'), JSON.stringify([evilTerm]));
+    r = s.run('build-pages.mjs'); assert.ok(r.ok, r.out.slice(0, 500));
+    const files = [...s.pages().map(f => `countries/${f}`), 'glossary.html', 'keyfacts.html', 'countries.html', 'upcoming.html'];
+    for (const f of files) {
+      const h = fs.readFileSync(path.join(s.dir, f), 'utf8'), b = ldBlocks(h);
+      assert.equal(b.length, 1, `${f}: one block`); assert.ok(!/[<>&\u2028\u2029]/.test(b[0]), `${f}: block escaped`);
+      assert.ok(!INLINE_SCRIPT.test(h), `${f}: hostile data did not create a second inline script`);
+      assert.ok(!/<script>alert/i.test(h), `${f}: no injected script element`);
+    }
+    const franceFile = s.pages().find(f => /^france-/.test(f));
+    assert.ok(franceFile, 'hostile country page generated');
+    const bc = byType(ldGraph(fs.readFileSync(path.join(s.dir, 'countries', franceFile), 'utf8'), franceFile), 'BreadcrumbList')[0];
+    assert.equal(bc.itemListElement.at(-1).name, EVIL, 'hostile name round-trips through JSON.parse unchanged');
+    const gset = byType(ldGraph(fs.readFileSync(path.join(s.dir, 'glossary.html'), 'utf8'), 'glossary.html'), 'DefinedTermSet')[0];
+    assert.equal(gset.hasDefinedTerm.length, 1); assert.equal(gset.hasDefinedTerm[0].name, evilTerm.term); assert.equal(gset.hasDefinedTerm[0].description, evilTerm.definition);
+    // deterministic + --check covers the JSON-LD
+    const snap = () => Object.fromEntries(files.map(f => [f, fs.readFileSync(path.join(s.dir, f), 'utf8')]));
+    const a = snap(); s.run('build-pages.mjs'); assert.deepEqual(snap(), a, 'second build byte-identical');
+    r = s.run('build-pages.mjs', '--check'); assert.ok(r.ok, r.out.slice(0, 400));
+    inTemp(s, 'glossary.html', h => h.replace(/"name":"Glossary"/, '"name":"Glossary tampered"'));
+    r = s.run('build-pages.mjs', '--check'); assert.ok(!r.ok && /glossary\.html is out of date/.test(r.out), '--check flags a tampered JSON-LD block: ' + r.out.slice(0, 300));
+  } finally { s.done(); }
+});
+
+// --- validate.mjs: only JSON-LD may be inline ---
+test('p4_1.validate_allows_only_jsonld_inline_scripts', () => {
+  const s = factsSite();
+  try {
+    const run = () => s.run('validate.mjs');
+    const orig = fs.readFileSync(path.join(s.dir, 'index.html'), 'utf8');
+    const put = (html) => fs.writeFileSync(path.join(s.dir, 'index.html'), html);
+    const addHead = tag => put(orig.replace('</head>', `${tag}\n</head>`));
+    let r = run(); assert.ok(r.ok, 'baseline: ' + r.out.slice(0, 300));
+    assert.equal(ldBlocks(orig).length, 1, 'real index.html carries its JSON-LD block');
+    const ok = '<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","name":"x","url":"https://www.intelligentpayroll.eu/"}]}</script>';
+    put(orig.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/, ok)); r = run(); assert.ok(r.ok, 'a valid ld+json block passes: ' + r.out.slice(0, 300));
+    for (const [name, tag] of Object.entries({
+      plain: '<script>alert(1)</script>',
+      js_type: '<script type="text/javascript">alert(1)</script>',
+      module: '<script type="module">alert(1)</script>',
+      json_type: '<script type="application/json">{}</script>',
+      ld_lookalike: '<script type="application/ld+json2">{}</script>',
+      ld_with_extra_type_text: '<script type="text/plain application/ld+json">{}</script>',
+      ld_with_handler: '<script type="application/ld+json" onload="alert(1)">{}</script>',
+    })) {
+      addHead(tag); r = run();
+      assert.ok(!r.ok && /inline <script>|inline event handler/.test(r.out), `${name}: must be rejected: ` + r.out.slice(0, 300));
+    }
+    // A valid JSON-LD block does not excuse a second, executable one.
+    put(orig.replace('</head>', '<script>alert(1)</script>\n</head>')); r = run(); assert.ok(!r.ok && /inline <script>/.test(r.out), 'ld+json present + plain inline script: still rejected');
+    // JSON-LD content must parse and carry the schema.org context.
+    put(orig.replace(/(<script type="application\/ld\+json">)[\s\S]*?(<\/script>)/, '$1{ not json $2')); r = run(); assert.ok(!r.ok && /JSON-LD/.test(r.out), 'invalid JSON-LD rejected: ' + r.out.slice(0, 300));
+    put(orig.replace(/(<script type="application\/ld\+json">)[\s\S]*?(<\/script>)/, '$1{"@context":"https://evil.example/","@graph":[]}$2')); r = run(); assert.ok(!r.ok && /JSON-LD/.test(r.out), 'wrong @context rejected: ' + r.out.slice(0, 300));
+    put(orig); r = run(); assert.ok(r.ok);
+  } finally { s.done(); }
+});
+
+// --- FAQ wording ---
+test('p4_1.faq_countries_answer_uses_current_wording_and_data_counts', () => {
+  const { countryToRegion } = loadSite();
+  const counts = {}; for (const r of Object.values(countryToRegion)) counts[r] = (counts[r] || 0) + 1;
+  const vis = faqVisible(read('index.html')), hit = vis.find(([q]) => q === 'Which countries are covered?'); assert.ok(hit, 'FAQ item exists');
+  const a = hit[1];
+  const m = a.match(/^(\d+) countries today, across Europe \((\d+)\), APAC \((\d+)\), MENAT \((\d+)\), LATAM \((\d+)\), and Africa \((\d+)\)\./);
+  assert.ok(m, 'sentence shape: ' + a);
+  assert.deepEqual(m.slice(1).map(Number), [Object.keys(countryToRegion).length, counts.europe, counts.apac, counts.menat, counts.latam, counts.africa], 'numbers equal region counts from countryToRegion');
+  assert.equal(Number(m[1]), m.slice(2).reduce((x, y) => x + Number(y), 0), 'regions add up to the total');
+  assert.ok(/Countries picker/.test(a) && /Key facts/.test(a) && /Glossary/.test(a), 'mentions the Countries picker, Key facts and Glossary menu items: ' + a);
+  assert.ok(!/country selector in the header/i.test(a) && !/see the full list/i.test(a), 'stale wording removed');
+  const idx = read('index.html');
+  assert.ok(/<summary id="country-picker-summary">Countries<\/summary>/.test(idx), 'a Countries picker exists');
+  assert.ok(/<a href="keyfacts\.html" class="nav-link">Key facts<\/a>/.test(idx) && /<a href="glossary\.html" class="nav-link">Glossary<\/a>/.test(idx), 'Key facts and Glossary menu items exist');
+});
+
+// --- internal linking ---
+const introOf = h => { const a = h.indexOf('</h1>'), ends = ['<section class="key-facts"', '<p class="partial">', '<article class="entry"'].map(x => h.indexOf(x)).filter(i => i > a); return h.slice(a, Math.min(...ends)); };
+test('p4_1.country_intro_links_key_facts_only_with_facts_and_glossary_always', () => {
+  const withFacts = factCodes(), count = (s, x) => s.split(x).length - 1;
+  for (const f of countryFiles.filter(f => f.endsWith('.html'))) {
+    const h = read(`countries/${f}`), intro = introOf(h), has = withFacts.has(slugToCode.get(f.replace(/\.html$/, '')));
+    assert.equal(count(intro, '<a href="../glossary.html">Glossary</a>'), 1, `${f}: intro links the Glossary once`);
+    assert.equal(count(intro, '<a href="#key-facts">Key facts</a>'), has ? 1 : 0, `${f}: intro Key facts anchor link iff facts`);
+    assert.equal(count(intro, 'href="../keyfacts.html"'), has ? 1 : 0, `${f}: intro link to ../keyfacts.html iff facts`);
+    assert.equal(/id="key-facts"/.test(h), has);
+    for (const m of intro.matchAll(/href="([^"]+)"/g)) {
+      const href = m[1]; if (/^(https?:|webcal:)/.test(href) || href.startsWith('../?') || href.endsWith('.ics')) continue;
+      if (href.startsWith('#')) assert.ok(pageIds.get(`countries/${f}`).has(href.slice(1)), `${f}: ${href} exists`);
+      else assert.ok(fs.existsSync(path.join(ROOT, 'countries', href.split('#')[0])), `${f}: link target ${href} exists`);
+    }
+  }
+});
+test('p4_1.related_countries_in_region_and_back_links_resolve', () => {
+  const { countryToRegion } = loadSite(), names = new Map(CHANGES.map(e => [e.country, e.name]));
+  for (const f of countryFiles.filter(f => f.endsWith('.html'))) {
+    const code = slugToCode.get(f.replace(/\.html$/, '')), region = REGION_OF[countryToRegion[code]], h = read(`countries/${f}`);
+    assert.ok(h.includes(`<h2 class="more">Related countries in ${region}</h2>`), `${f}: heading "Related countries in ${region}"`);
+    const chips = (h.match(/<p class="chips">([\s\S]*?)<\/p>/) || [])[1] || '';
+    const hrefs = [...chips.matchAll(/<a href="([^"]+)">/g)].map(m => m[1]);
+    const want = [...new Set(CHANGES.filter(e => countryToRegion[e.country] === countryToRegion[code] && e.country !== code).map(e => e.country))].map(c => `${P2.slugify(names.get(c))}.html`).sort();
+    assert.deepEqual([...hrefs].sort(), want, `${f}: chips are the other countries of ${region}`);
+    for (const x of hrefs) assert.ok(countryFiles.includes(x), `${f}: ${x} exists`);
+  }
+  for (const f of ['keyfacts.html', 'glossary.html']) {
+    const main = (read(f).match(/<main>[\s\S]*?<\/main>/) || [''])[0];
+    assert.ok(main.includes('href="countries.html"'), `${f}: main content links back to countries.html`);
+    for (const m of main.matchAll(/href="(countries\/[^"]+)"/g)) assert.ok(resolves(m[1]), `${f}: ${m[1]} resolves`);
+  }
+});
+
+// --- sitemap and robots ---
+test('p4_1.sitemap_lists_exactly_the_public_pages_with_lastmod_and_robots_points_to_it', () => {
+  const x = read('sitemap.xml'), entries = [...x.matchAll(/<url><loc>([^<]+)<\/loc><lastmod>([^<]+)<\/lastmod><\/url>/g)];
+  assert.equal(entries.length, (x.match(/<url>/g) || []).length, 'every <url> has loc and lastmod');
+  assert.deepEqual(entries.map(e => e[1]).sort(), publicPages().map(urlOfPage).sort(), 'sitemap = index + every generated page (incl. keyfacts.html), nothing else (no 404.html)');
+  for (const [, loc, mod] of entries) assert.ok(isDay(mod), `${loc}: lastmod ${mod}`);
+  assert.equal(entries.find(e => e[1] === SITE_URL + 'keyfacts.html')[2], VER22, 'keyfacts.html lastmod = last verified date');
+  const rb = read('robots.txt');
+  assert.match(rb, /^Sitemap: https:\/\/www\.intelligentpayroll\.eu\/sitemap\.xml$/m); assert.ok(!/^\s*Disallow:\s*\/\s*$/m.test(rb), 'robots.txt does not block the site');
 });
 
 console.log(`${passed} site tests passed.`);

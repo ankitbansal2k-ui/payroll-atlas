@@ -212,7 +212,7 @@ test('index.script_order: filters.js before app.js, no inline script', () => {
   const i = html.indexOf('<script src="filters.js"></script>'), j = html.indexOf('<script src="app.js"></script>');
   assert.ok(i >= 0, 'index.html has no <script src="filters.js">');
   assert.ok(j > i, 'filters.js must load before app.js');
-  assert.ok(!/<script(?![^>]*\bsrc=)[^>]*>/i.test(html), 'inline <script> found');
+  assert.ok(!/<script(?![^>]*\bsrc=)(?!\s+type="application\/ld\+json"\s*>)[^>]*>/i.test(html), 'inline <script> found (JSON-LD data blocks are the only allowed exception)');
 });
 
 test('wiring.uses_applyFilters / readUrlState (app.js text)', () => {

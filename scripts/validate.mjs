@@ -153,7 +153,17 @@ for (const [n, opts] of selects.entries()) {
   scan('index.html', html);
   scan('app.js', js);
   if (/<style[\s>]/i.test(html)) err('index.html: inline <style> block (use styles.css)');
-  if (/<script(?![^>]*\ssrc=)[^>]*>/i.test(html)) err('index.html: inline <script> block (use a script file)');
+  // Only JSON-LD data blocks may be inline: the type must be exactly application/ld+json and the tag must carry nothing else.
+  const LD_OPEN = /^<script type="application\/ld\+json">$/i;
+  const ldBodies = [];
+  for (const m of html.matchAll(/<script(?![^>]*\ssrc=)[^>]*>([\s\S]*?)<\/script>|<script(?![^>]*\ssrc=)[^>]*>/gi)) {
+    if (LD_OPEN.test(m[0].slice(0, m[0].indexOf('>') + 1))) ldBodies.push(m[1] || '');
+    else err('index.html: inline <script> block (use a script file; only type="application/ld+json" data blocks may be inline)');
+  }
+  for (const body of ldBodies) {
+    try { const o = JSON.parse(body); if (!o || o['@context'] !== 'https://schema.org') err('index.html: JSON-LD block must have "@context": "https://schema.org"'); }
+    catch { err('index.html: JSON-LD block is not valid JSON'); }
+  }
   const csp = (html.match(/http-equiv="Content-Security-Policy" content="([^"]*)"/) || [])[1] || '';
   if (!csp) err('index.html: Content-Security-Policy meta tag is missing');
   if (/unsafe-inline|unsafe-eval/.test(csp)) err('index.html: CSP must not allow unsafe-inline or unsafe-eval');
