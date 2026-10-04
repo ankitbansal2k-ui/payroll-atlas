@@ -1,5 +1,5 @@
 // Generates the static, crawlable pages from the CHANGES data in index.html:
-//   countries.html, countries/<slug>.html, glossary.html, sitemap.xml, robots.txt, and the canonical links
+//   countries.html, countries/<slug>.html (with the Key facts box from data/facts.json), glossary.html, sitemap.xml, robots.txt, and the canonical links
 //   and privacy.html / terms.html (rendered from scripts/templates using scripts/operator.json).
 // Run: node scripts/build-pages.mjs          (write files)
 //      node scripts/build-pages.mjs --check  (fail if generated files are out of date; used in CI)
@@ -68,6 +68,16 @@ const latest = n => [...CHANGES].sort((a, b) => lastChanged(b).localeCompare(las
 const REQUESTS = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/requests.json'), 'utf8'));
 // Glossary terms (data/glossary.json): linked from country page lead paragraphs and listed on glossary.html. Schema checked in validate.mjs.
 const GLOSSARY = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/glossary.json'), 'utf8'));
+// Country key facts (data/facts.json): the "Key facts" box on a country page, only for countries listed there. Schema checked in validate.mjs.
+const FACTS = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/facts.json'), 'utf8'));
+if (!Array.isArray(FACTS)) throw new Error('data/facts.json: must be an array');
+const FACTS_BY_CODE = new Map();
+for (const f of FACTS) {
+  if (!countries.has(f.code)) throw new Error(`data/facts.json: unknown country code "${f.code}"`);
+  if (FACTS_BY_CODE.has(f.code)) throw new Error(`data/facts.json: duplicate code "${f.code}"`);
+  for (const x of f.facts || []) if (typeof x.sourceUrl !== 'string' || !/^https:\/\//.test(x.sourceUrl)) throw new Error(`data/facts.json: ${f.code}/${x.key}: sourceUrl must start with https://`);
+  FACTS_BY_CODE.set(f.code, f);
+}
 // Each term is a page anchor (term-<slug>), so slugs must exist and be unique (validate.mjs reports this too).
 for (const t of GLOSSARY) if (!slugify(t.term)) throw new Error(`glossary term "${t.term}" has an empty slug`);
 if (new Set(GLOSSARY.map(t => slugify(t.term))).size !== GLOSSARY.length) throw new Error('glossary: duplicate slug');
@@ -147,6 +157,38 @@ ${list2('For the employer', employerHtml)}${list2('For the employee', employeeHt
     </article>`;
 }
 
+// Escapes & < > " ' (the facts text and URLs come from a data file, so every value is escaped).
+const escF = s => esc(s).replace(/'/g, '&#39;');
+// "Key facts" box: label, value, optional valid-from date and note, optional tax-band table, source link with as-of and checked dates.
+function factsHtml(c) {
+  const data = FACTS_BY_CODE.get(c.code);
+  if (!data) return '';
+  const fact = f => `      <div class="fact" data-key="${escF(f.key)}">
+        <dt class="fact-label">${escF(f.label)}</dt>
+        <dd class="fact-body">
+          <p class="fact-value">${escF(f.value)}</p>${f.validFrom ? `
+          <p class="fact-from">Valid from ${fmtDay(f.validFrom)}</p>` : ''}${f.note ? `
+          <p class="fact-note">${escF(f.note)}</p>` : ''}${f.bands ? `
+          <div class="table-scroll" tabindex="0" role="region" aria-label="${escF(f.label)} table"><table class="tax-bands"><caption>${escF(f.label)} (${escF(data.currency)})</caption>
+            <thead><tr><th scope="col">From</th><th scope="col">To</th><th scope="col">Rate</th></tr></thead>
+            <tbody>
+${f.bands.map(b => `              <tr><td>${escF(b.from)}</td><td>${b.to === null ? 'No limit' : escF(b.to)}</td><td>${escF(b.rate)}</td></tr>`).join('\n')}
+            </tbody>
+          </table></div>` : ''}
+          <p class="fact-source"><a href="${escF(f.sourceUrl)}" rel="noopener">${escF(f.sourceLabel)}</a> &middot; As of ${fmtDay(data.asOf)} &middot; Checked ${fmtDay(f.checked)}</p>
+        </dd>
+      </div>`;
+  return `    <section class="key-facts" aria-labelledby="key-facts">
+      <h2 id="key-facts">Key facts</h2>
+      <p class="meta">Currency: ${escF(data.currency)}</p>
+      <p class="fact-disclaimer">Check the source before use. For information only, not legal or tax advice.</p>
+      <dl class="facts">
+${data.facts.map(fact).join('\n')}
+      </dl>
+    </section>
+`;
+}
+
 function countryPage(c) {
   const ordered = [...c.entries.filter(e => !e.upcoming), ...c.entries.filter(e => e.upcoming)];
   const url = `${SITE}countries/${c.slug}.html`;
@@ -164,7 +206,7 @@ ${header('../')}
     <p class="meta">${n} tracked ${n === 1 ? 'change' : 'changes'} &middot; ${region} &middot; sources last checked ${VERIFIED}</p>
     <p>Statutory and legislative payroll changes in ${esc(c.name)}, each linked to the page it was checked against. For information only, not legal or tax advice: confirm details with the source before acting. See the <a href="../terms.html">terms</a>.</p>
     <p><a class="cta" href="../?country=${encodeURIComponent(c.code)}">Open in the interactive changelog</a>${icsCountries.includes(c) ? ` <a class="cta secondary" href="${SITE.replace(/^https:/, 'webcal:')}countries/${c.slug}.ics">Subscribe to ${esc(c.name)} calendar</a> <a href="${c.slug}.ics">Download (.ics)</a>` : ''}</p>
-${partial}
+${factsHtml(c)}${partial}
 ${ordered.map(entryHtml).join('\n\n')}
 
     <h2 class="more">More ${region} countries</h2>

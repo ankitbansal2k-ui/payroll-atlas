@@ -1,4 +1,4 @@
-// Checks every entry's sourceUrl. Run: node scripts/check-links.mjs
+// Checks every entry's, glossary term's and country fact's sourceUrl. Run: node scripts/check-links.mjs
 // BROKEN (404/410/5xx/network) fails the run. BLOCKED (403/429/999, usually bot protection)
 // is listed for manual review but does not fail the run. Links that redirect to a bare homepage are
 // listed as suspect (the page has probably moved).
@@ -18,6 +18,14 @@ for (const c of CHANGES) {
 for (const t of JSON.parse(readFileSync(new URL('../data/glossary.json', import.meta.url), 'utf8'))) {
   if (!urls.has(t.sourceUrl)) urls.set(t.sourceUrl, []);
   urls.get(t.sourceUrl).push(`glossary/${t.term}`);
+}
+
+// Country key facts sources (data/facts.json) are checked too, labelled facts/<code>/<key>.
+for (const c of JSON.parse(readFileSync(new URL('../data/facts.json', import.meta.url), 'utf8'))) {
+  for (const f of c.facts) {
+    if (!urls.has(f.sourceUrl)) urls.set(f.sourceUrl, []);
+    urls.get(f.sourceUrl).push(`facts/${c.code}/${f.key}`);
+  }
 }
 
 async function probe(url, method) {

@@ -15,7 +15,25 @@ const names = new Map();
 const TODAY = new Date(Date.now() + 864e5).toISOString().slice(0, 10);
 const VERIFIED = (js.match(/new Date\('(\d{4}-\d{2}-\d{2})T/) || [])[1];
 if (!VERIFIED) err('app.js: could not find the LAST_VERIFIED date');
-const isIsoDay = s => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s) && new Date(s + 'T00:00:00Z').toISOString().startsWith(s);
+const isIsoDay = s => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(Date.parse(s + 'T00:00:00Z')) && new Date(s + 'T00:00:00Z').toISOString().startsWith(s);
+// Text that is shown on pages must be plain: no control characters or line breaks, no zero-width or other invisible
+// format characters, and no bidirectional overrides or isolates (they can make text read differently from what is stored).
+const BAD_RANGES = [[0x00, 0x1F], [0x7F, 0x9F], [0x2028, 0x2029], [0x200B, 0x200F], [0x202A, 0x202E], [0x2060, 0x2060], [0x2066, 0x2069], [0xFEFF, 0xFEFF]];
+const hasBadChar = s => { for (const ch of s) { const c = ch.codePointAt(0); if (BAD_RANGES.some(([a, b]) => c >= a && c <= b)) return true; } return false; };
+const BAD_CHARS_MSG = 'must not contain control characters, line breaks or invisible/bidirectional formatting characters';
+// Source URL for a link on a page: https, visible ASCII only (no quotes, angle brackets or backticks), no user name or password,
+// and a public-looking host name (not localhost, not an IP address).
+function urlProblem(u) {
+  if (typeof u !== 'string' || !u.startsWith('https://')) return 'must be an https URL';
+  for (const ch of u) { const c = ch.codePointAt(0); if (c < 0x21 || c > 0x7E || [0x22, 0x27, 0x3C, 0x3E, 0x60].includes(c)) return 'must use only visible ASCII characters and no quotes, angle brackets or backticks'; }
+  let x; try { x = new URL(u); } catch { return 'must be a valid URL'; }
+  if (x.protocol !== 'https:' || !x.hostname) return 'must be an https URL';
+  if (x.username || x.password) return 'must not contain a user name or password';
+  const h = x.hostname.toLowerCase();
+  if (h.startsWith('[') || /^[0-9.]+$/.test(h)) return 'must use a host name, not an IP address';
+  if (h === 'localhost' || h.endsWith('.localhost') || !h.includes('.')) return 'must use a public host name (not localhost or a single-label name)';
+  return null;
+}
 // 'YYYY' | 'YYYY-MM' | 'YYYY-MM-DD' -> { start, end } as YYYY-MM-DD strings, or null if malformed.
 function periodOf(v) {
   if (typeof v !== 'string') return null;
@@ -220,7 +238,6 @@ try {
     const seenNames = [];
     const seenSlugs = new Map();
     const KEYS = new Set(['term', 'aliases', 'countries', 'expansion', 'definition', 'sourceUrl', 'sourceLabel', 'checked']);
-    const CTRL = /[\u0000-\u001F\u007F-\u009F\u2028\u2029]/;
     gl.forEach((t, i) => {
       if (!t || typeof t !== 'object' || Array.isArray(t)) { err(`data/glossary.json[${i}]: glossary entry must be an object`); return; }
       const at = `data/glossary.json[${i}] (${typeof t.term === 'string' ? t.term : '?'}): glossary`;
@@ -229,7 +246,7 @@ try {
       // Plain text: no markup characters and no control characters (including line breaks) in any text field.
       const plain = (label, v) => {
         if (/[<>]/.test(v)) err(`${at} ${label} must be plain text (no < or >)`);
-        if (CTRL.test(v)) err(`${at} ${label} must not contain control characters or line breaks`);
+        if (hasBadChar(v)) err(`${at} ${label} ${BAD_CHARS_MSG}`);
       };
       plain('term', t.term);
       for (const k of ['expansion', 'definition', 'sourceLabel']) {
@@ -249,9 +266,8 @@ try {
         if (!Array.isArray(t.aliases) || !t.aliases.every(a => typeof a === 'string' && a && a.trim() === a)) err(`${at} aliases must be an array of trimmed, non-empty strings`);
         else t.aliases.forEach(a => plain('alias "' + a + '"', a));
       }
-      let urlOk = typeof t.sourceUrl === 'string' && /^https:\/\/[^\s<>"]+$/.test(t.sourceUrl);
-      if (urlOk) { try { const u = new URL(t.sourceUrl); if (u.protocol !== 'https:' || !u.hostname || u.username || u.password) urlOk = false; } catch { urlOk = false; } }
-      if (!urlOk) err(`${at} sourceUrl must be an https URL without a user name or password`);
+      const tUrl = urlProblem(t.sourceUrl);
+      if (tUrl) err(`${at} sourceUrl ${tUrl}`);
       if (typeof t.sourceLabel === 'string' && !/^Source: .+ - .+/.test(t.sourceLabel)) err(`${at} sourceLabel must look like "Source: <Publisher> - <page title>"`);
       if (!isIsoDay(t.checked)) err(`${at} checked must be a real YYYY-MM-DD date`);
       else if (t.checked > TODAY) err(`${at} checked ${t.checked} is in the future (later than ${TODAY})`);
@@ -271,6 +287,88 @@ try {
       if (countriesOk && !CHANGES.some(e => (!t.countries.length || t.countries.includes(e.country)) && names.some(n => hasWord(entryText(e), n)))) {
         err(`${at} orphan term: neither "${t.term}" nor an alias appears in the lead, employer, employee or note text of any entry for its countries`);
       }
+    });
+  }
+}
+
+// Country key facts (data/facts.json): rendered as the "Key facts" box on the generated country pages.
+// Rules are documented in README.md ("Country key facts").
+{
+  const FACT_KEYS = ['minimumWage', 'ssEmployer', 'ssEmployee', 'ssCeiling', 'taxBands', 'payFrequency', 'other'];
+  const COUNTRY_FIELDS = new Set(['code', 'asOf', 'currency', 'facts']);
+  const FACT_FIELDS = new Set(['key', 'label', 'value', 'validFrom', 'note', 'bands', 'sourceUrl', 'sourceLabel', 'checked']);
+  const BAND_FIELDS = new Set(['from', 'to', 'rate']);
+  const has = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
+  const isObj = v => v !== null && typeof v === 'object' && !Array.isArray(v);
+  // Non-empty, trimmed, plain text (no markup characters, no control characters or line breaks), optionally length-limited.
+  const textProblem = (label, v, max) => {
+    if (typeof v !== 'string' || !v.trim() || v.trim() !== v) return `${label} must be a non-empty trimmed string`;
+    if (/[<>]/.test(v)) return `${label} must be plain text (no < or >)`;
+    if (hasBadChar(v)) return `${label} ${BAD_CHARS_MSG}`;
+    if (max && v.length > max) return `${label} is ${v.length} characters (max ${max})`;
+    return null;
+  };
+  const utcToday = new Date().toISOString().slice(0, 10);
+  const ageDays = iso => Math.floor((Date.parse(utcToday + 'T00:00:00Z') - Date.parse(iso + 'T00:00:00Z')) / 864e5);
+  let facts = null;
+  try { facts = JSON.parse(fs.readFileSync(new URL('../data/facts.json', import.meta.url), 'utf8')); } catch (e) { err('data/facts.json: facts file missing or not valid JSON (' + e.message + ')'); }
+  if (facts !== null && !Array.isArray(facts)) err('data/facts.json: facts must be an array of countries');
+  else if (facts !== null) {
+    const seenCodes = new Set();
+    facts.forEach((c, i) => {
+      if (!isObj(c)) { err(`data/facts.json[${i}]: facts entry must be an object`); return; }
+      const at = `data/facts.json[${i}] (${typeof c.code === 'string' ? c.code : '?'})`;
+      for (const k of Object.keys(c)) if (!COUNTRY_FIELDS.has(k)) err(`${at}: unknown field "${k}" (allowed: ${[...COUNTRY_FIELDS].join(', ')})`);
+      if (typeof c.code !== 'string' || !has(countryToRegion, c.code)) err(`${at}: code must be a known country code (as in countryToRegion)`);
+      else if (seenCodes.has(c.code)) err(`${at}: duplicate code "${c.code}"`);
+      else seenCodes.add(c.code);
+      if (!isIsoDay(c.asOf)) err(`${at}: asOf must be a real YYYY-MM-DD date`);
+      else if (c.asOf > TODAY) err(`${at}: asOf ${c.asOf} is in the future (later than ${TODAY})`);
+      if (typeof c.currency !== 'string' || !/^[A-Z]{3}$/.test(c.currency)) err(`${at}: currency must be a 3-letter upper-case ISO 4217 code`);
+      if (!Array.isArray(c.facts) || !c.facts.length) { err(`${at}: facts must be a non-empty array`); return; }
+      const keys = new Set();
+      c.facts.forEach((f, j) => {
+        if (!isObj(f)) { err(`${at}: fact[${j}] must be an object`); return; }
+        const fat = `${at}: fact[${j}] (${typeof f.key === 'string' ? f.key : '?'}):`;
+        for (const k of Object.keys(f)) if (!FACT_FIELDS.has(k)) err(`${fat} unknown field "${k}" (allowed: ${[...FACT_FIELDS].join(', ')})`);
+        if (typeof f.key !== 'string' || !FACT_KEYS.includes(f.key)) err(`${fat} key must be one of ${FACT_KEYS.join(', ')}`);
+        else if (f.key !== 'other') {
+          if (keys.has(f.key)) err(`${fat} duplicate key "${f.key}" (only "other" may repeat within a country)`);
+          keys.add(f.key);
+        }
+        for (const [k, max] of [['label', 200], ['value', 300]]) { const p = textProblem(k, f[k], max); if (p) err(`${fat} ${p}`); }
+        if (has(f, 'note')) { const p = textProblem('note', f.note, 300); if (p) err(`${fat} ${p}`); }
+        if (has(f, 'validFrom') && !isIsoDay(f.validFrom)) err(`${fat} validFrom must be a real YYYY-MM-DD date`);
+        // Rates reset every year: a validFrom more than 400 days back suggests a newer figure may exist (warning only).
+        else if (has(f, 'validFrom') && ageDays(f.validFrom) > 400) console.warn(`WARNING: ${fat} facts validFrom ${f.validFrom} is more than 400 days ago (key ${f.key}); rates reset annually, so re-check the source.`);
+        const fUrl = urlProblem(f.sourceUrl);
+        if (fUrl) err(`${fat} sourceUrl ${fUrl}`);
+        const sl = textProblem('sourceLabel', f.sourceLabel, 200);
+        if (sl) err(`${fat} ${sl}`);
+        else if (!/^Source: .+ - .+/.test(f.sourceLabel)) err(`${fat} sourceLabel must look like "Source: <Publisher> - <page title>"`);
+        if (!isIsoDay(f.checked)) err(`${fat} checked must be a real YYYY-MM-DD date`);
+        else if (f.checked > TODAY) err(`${fat} checked ${f.checked} is in the future (later than ${TODAY})`);
+        else if (ageDays(f.checked) > 365) console.warn(`WARNING: ${fat} facts checked ${f.checked} is more than 365 days ago; re-check it against the source.`);
+        if (has(f, 'bands')) {
+          if (f.key !== 'taxBands') err(`${fat} bands are only allowed on a taxBands fact`);
+          else if (!Array.isArray(f.bands) || !f.bands.length) err(`${fat} bands must be a non-empty array`);
+          else if (f.bands.length > 20) err(`${fat} bands has ${f.bands.length} rows (max 20)`);
+          else f.bands.forEach((b, k) => {
+            const bat = `${fat} band[${k}]`;
+            if (!isObj(b)) { err(`${bat} must be an object`); return; }
+            for (const key of Object.keys(b)) if (!BAND_FIELDS.has(key)) err(`${bat} unknown field "${key}" (allowed: from, to, rate)`);
+            for (const key of ['from', 'to', 'rate']) {
+              if (key === 'to' && b.to === null) { // null = no upper limit, shown as "No limit"; only the last band can have none
+                if (k !== f.bands.length - 1) err(`${bat} to is null (no limit) but only the last band may have no upper limit`);
+                continue;
+              }
+              if (!has(b, key)) { err(`${bat} ${key} is missing`); continue; }
+              const p = textProblem(key, b[key], 60);
+              if (p) err(`${bat} ${p}`);
+            }
+          });
+        }
+      });
     });
   }
 }

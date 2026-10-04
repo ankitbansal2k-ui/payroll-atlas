@@ -246,5 +246,36 @@ test('p2_6.search_hit_screen_and_print', () => {
   assert.ok(!isDark(bg), `print background must not be dark, got ${bg}`);
 });
 
+// ---------- P2-8: "Key facts" box on generated country pages is printed ----------
+// Contract (see test-site.mjs p2_8.*): <section class="key-facts"> holding <div class="fact"> blocks, <p class="fact-source"> with the
+// source link, and tax bands in <div class="table-scroll"><table class="tax-bands">. legal.css @media print must keep all of it.
+test('p2_8.print_keeps_key_facts', () => {
+  const rs = printRules('legal.css');
+  const SELS = ['.key-facts', '.fact', '.fact-source', '.table-scroll', '.tax-bands'];
+  for (const s of SELS) assert.notEqual(val(declOf(rs, s, 'display')), 'none', `${s} must not be hidden in print`);
+  // Hidden-in-print rules (header, .cta, .chips, .az, footer p:last-child) must not swallow the box by a broad selector.
+  for (const r of rs.filter(r => val(r.decls.display) === 'none')) for (const s of r.selectors)
+    assert.ok(!/key-facts|\.fact|table-scroll|tax-bands|^(main|section|dl|dd|dt|table|p)$/.test(s), `print rule hides the fact box: ${s}`);
+  // The selectors the print rules use must exist in the generated markup (they do once facts.json has countries).
+  for (const s of ['.key-facts', '.fact', '.fact-source']) assert.ok(existsIn(legalMarkup, s), `generated country pages contain ${s}`);
+});
+test('p2_8.print_box_is_white_and_unsplit', () => {
+  const rs = printRules('legal.css');
+  const bg = val(declOf(rs, '.key-facts', 'background')) || val(declOf(rs, '.key-facts', 'background-color'));
+  assert.ok(isWhite(bg) || ['none', 'transparent'].includes(bg), `print .key-facts background must be white/none (the screen card is dark and text is forced black), got ${bg}`);
+  const bi = val(declOf(rs, '.fact', 'break-inside')) || val(declOf(rs, '.fact', 'page-break-inside'));
+  assert.equal(bi, 'avoid', '.fact must have break-inside: avoid so a fact is not split across pages');
+  // A scroll container clips in print: the whole table must show.
+  const ov = val(declOf(rs, '.table-scroll', 'overflow')) || val(declOf(rs, '.table-scroll', 'overflow-x'));
+  assert.equal(ov, 'visible', '.table-scroll must be overflow: visible in print so no band is cut off');
+  // Table borders must be visible on white paper.
+  assert.ok(rs.some(r => r.selectors.some(s => /\.tax-bands\s+(th|td)|\.tax-bands\s+(th|td)\b|\.tax-bands$/.test(s)) && /border|outline/.test(Object.keys(r.decls).join(' '))), 'print rule giving .tax-bands cells a visible border (e.g. .tax-bands th, .tax-bands td { border: 1px solid #000 })');
+});
+test('p2_8.print_prints_fact_source_urls', () => {
+  const rs = printRules('legal.css');
+  const hit = rs.find(r => r.selectors.some(s => /^\.fact-source\b.*a.*::after$/.test(s)) && /attr\(\s*href\s*\)/.test(r.decls.content || ''));
+  assert.ok(hit, 'need e.g. .fact-source a[href^="http"]::after { content: " (" attr(href) ")" } so the printed page shows where each fact comes from');
+});
+
 console.log(`\n${pass} passed, ${fail} failed`);
 if (fail) process.exit(1);

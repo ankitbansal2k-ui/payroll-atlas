@@ -315,7 +315,7 @@ test('xss.rule: validate.mjs flags unescaped ${countries}/${state}/${selection};
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pa-validate-'));
   try {
     fs.mkdirSync(path.join(tmp, 'scripts')); fs.mkdirSync(path.join(tmp, 'data'));
-    for (const f of ['scripts/validate.mjs', 'scripts/load.mjs', 'filters.js', 'index.html', 'vercel.json', '_headers', 'data/requests.json']) fs.copyFileSync(path.join(ROOT, f), path.join(tmp, f));
+    for (const f of ['scripts/validate.mjs', 'scripts/load.mjs', 'filters.js', 'index.html', 'vercel.json', '_headers', 'data/requests.json', 'data/facts.json']) fs.copyFileSync(path.join(ROOT, f), path.join(tmp, f));
     if (fs.existsSync(path.join(ROOT, '.well-known'))) fs.cpSync(path.join(ROOT, '.well-known'), path.join(tmp, '.well-known'), { recursive: true });
     const run = js => {
       fs.writeFileSync(path.join(tmp, 'app.js'), js);
@@ -1274,7 +1274,7 @@ if (fail) process.exit(1);test('xss.rule: PayrollFilters.highlight(..., state.se
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pa-validate-'));
   try {
     fs.mkdirSync(path.join(tmp, 'scripts')); fs.mkdirSync(path.join(tmp, 'data'));
-    for (const f of ['scripts/validate.mjs', 'scripts/load.mjs', 'filters.js', 'index.html', 'vercel.json', '_headers', 'data/requests.json']) fs.copyFileSync(path.join(ROOT, f), path.join(tmp, f));
+    for (const f of ['scripts/validate.mjs', 'scripts/load.mjs', 'filters.js', 'index.html', 'vercel.json', '_headers', 'data/requests.json', 'data/facts.json']) fs.copyFileSync(path.join(ROOT, f), path.join(tmp, f));
     if (fs.existsSync(path.join(ROOT, '.well-known'))) fs.cpSync(path.join(ROOT, '.well-known'), path.join(tmp, '.well-known'), { recursive: true });
     const run = js => {
       fs.writeFileSync(path.join(tmp, 'app.js'), js);

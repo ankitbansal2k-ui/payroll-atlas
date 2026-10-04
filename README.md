@@ -17,6 +17,7 @@ It is a static site with no build step and no backend. Everything the page needs
 | `404.html`, `legal.css` | Error page and the shared stylesheet for legal and generated pages |
 | `countries.html`, `countries/*.html` | **Generated.** One static, text-only page per country (and an index) so search engines can read the entries. Do not edit by hand |
 | `data/glossary.json`, `glossary.html` | Glossary terms, and the **generated** glossary page built from them (see "The glossary") |
+| `data/facts.json` | Country key facts (minimum wage, social security, tax bands, pay frequency) shown as the "Key facts" box on the generated country pages (see "Country key facts") |
 | `fonts/`, `vendor/`, `design/` | Self-hosted fonts, libraries and map data, icons and favicon |
 | `og-image.png`, `robots.txt`, `sitemap.xml` | Sharing image and search files (`robots.txt` and `sitemap.xml` are generated) |
 | `scripts/` | `validate.mjs` (data checks), `check-links.mjs` (source URL checks), `build-pages.mjs` (generates the static pages) |
@@ -88,6 +89,32 @@ All content is the `CHANGES` array in `app.js`, one object per line:
 - A term or alias may appear only once in any overlapping country scope (a general term overlaps everything), and every term must occur as a whole word in the lead, employer, employee or note text of at least one entry within its countries (no orphan terms: titles and examples do not count, because they are not linked). `node scripts/validate.mjs` enforces all of this; failures name "glossary".
 - On a country page each term is linked once per entry card, in this order: lead, employer bullets, employee bullets, note. Headings, titles and the example are never linked. Links read `<a class="term"><abbr title="...">TERM</abbr><span class="visually-hidden"> (expansion)</span></a>`, so the expansion is available without hover. Every glossary term must link at least once from some country page; the tests check this. Backlog: `TSD` (Estonia) is researched but not listed, because it only occurs in an entry title.
 
+### Country key facts
+
+`data/facts.json` is an array with one object per country. `node scripts/build-pages.mjs` turns each into a "Key facts" box (`<section class="key-facts">` with the heading `id="key-facts"`, so `#key-facts` links to it) on that country's generated page, between the introduction and the first entry. Countries that are not listed get no box at all, and a fact that could not be verified is simply left out. Every box carries the line "Check the source before use. For information only, not legal or tax advice." and every fact shows its source link, the country's "As of" date and the date the fact was last checked.
+
+```json
+{"code":"ireland","asOf":"2026-10-04","currency":"EUR",
+ "facts":[
+  {"key":"minimumWage","label":"National minimum wage","value":"EUR 13.50 per hour for experienced adult workers",
+   "validFrom":"2026-01-01","note":"Lower rates apply to workers under 20.",
+   "sourceUrl":"https://example.gov/minimum-wage","sourceLabel":"Source: Example Ministry - National minimum wage","checked":"2026-10-04"},
+  {"key":"taxBands","label":"Income tax bands (single person)","value":"20% up to EUR 44,000; 40% above",
+   "bands":[{"from":"EUR 0","to":"EUR 44,000","rate":"20%"},{"from":"EUR 44,001","to":null,"rate":"40%"}],
+   "sourceUrl":"https://example.gov/tax-bands","sourceLabel":"Source: Example Revenue - Income tax rates and bands","checked":"2026-10-04"}
+ ]}
+```
+
+- Country fields: `code` (a country code from `countryToRegion`, unique in the file), `asOf` (real `YYYY-MM-DD` date the figures describe), `currency` (three upper-case letters, ISO 4217) and `facts` (a non-empty array). Unknown fields are rejected, on the country, on each fact and on each band.
+- Fact fields: `key` (one of `minimumWage`, `ssEmployer`, `ssEmployee`, `ssCeiling`, `taxBands`, `payFrequency`, `other`; each key once per country, except `other`, which may repeat), `label`, `value`, optional `validFrom`, optional `note`, optional `bands`, `sourceUrl`, `sourceLabel`, `checked`.
+- `label`, `value`, `note` and the band strings are plain text: trimmed, no `<` or `>`, no control characters or line breaks. `label` and `sourceLabel` have at most 200 characters, `value` and `note` at most 300. Zero-width and other invisible characters and bidirectional overrides are rejected like control characters (in the glossary too). `value` is the figure as the source states it, with unit and period. Where a system is too complex for bands (for example regional minimum wages), use a text `value` and a `note` instead of `bands`.
+- `validFrom` (optional) is a real `YYYY-MM-DD` date and may be in the future, for a rate announced for later. It is shown as "Valid from 1 January 2026".
+- `bands` (optional, only on `taxBands`, 1 to 20 rows) are objects `{from, to, rate}` of strings up to 60 characters. `to: null` means no upper limit and is shown as "No limit"; only the last band may have it. Start each band one unit above the previous `to` when the source does so (for example `£12,570` then `£12,571`). Bands render as a table with a caption inside a scroll container (`.table-scroll`), so a wide table scrolls by itself and never the page; the container is keyboard-focusable and labelled (`role="region"`, `aria-label` "<label> table").
+- `sourceUrl` is `https://` without a user name or password (the build refuses anything else) and only visible ASCII (no quotes, angle brackets or backticks), with a public host name: no IP addresses, no `localhost`; `sourceLabel` follows `Source: <Publisher> - <page title>`. Use an official source (tax authority, social-security institution, labour ministry, official gazette) or a major professional body, and check each value against that page.
+- `asOf` and `checked` must not be in the future: not later than UTC today plus one day, so authors up to UTC+14 can use their local date.
+- `node scripts/validate.mjs` enforces all of this (failures name "facts") and prints a `WARNING` for every fact whose `checked` date is more than 365 days old and for every `validFrom` more than 400 days back (rates reset every year); the warning never fails the run, so re-check the source and update `checked`. `node scripts/check-links.mjs` also fetches every fact source, labelled `facts/<code>/<key>`.
+- In print (and save as PDF) the box is kept, on white, with each fact unbroken and the source address printed after each link.
+
 ## Legal pages
 
 The privacy notice and terms are written in `scripts/templates/privacy.html` and `terms.html`. Facts that change live in `scripts/operator.json`:
@@ -116,7 +143,7 @@ The site is static: no accounts, no cookies, no storage, no third-party requests
 node scripts/validate.mjs      # schema, duplicates, selectors vs regions (fast; also runs in CI)
 node scripts/build-pages.mjs   # regenerate country pages, sitemap and robots.txt from the data
 node scripts/build-pages.mjs --check   # fail if generated files are stale (runs in CI)
-node scripts/check-links.mjs   # fetches every entry and glossary sourceUrl (about a minute)
+node scripts/check-links.mjs   # fetches every entry, glossary and key-facts sourceUrl (about a minute)
 ```
 
 ### Git hook (once per clone)

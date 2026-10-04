@@ -3,7 +3,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
 import os from 'node:os';
@@ -339,7 +339,7 @@ test('p2_4.validate_rejects_infrastructure', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pa-p24-'));
   try {
     fs.mkdirSync(path.join(tmp, 'scripts')); fs.mkdirSync(path.join(tmp, 'data'));
-    for (const f of ['scripts/validate.mjs', 'scripts/load.mjs', 'filters.js', 'index.html', 'vercel.json', '_headers', 'data/requests.json']) fs.copyFileSync(path.join(ROOT, f), path.join(tmp, f));
+    for (const f of ['scripts/validate.mjs', 'scripts/load.mjs', 'filters.js', 'index.html', 'vercel.json', '_headers', 'data/requests.json', 'data/facts.json']) fs.copyFileSync(path.join(ROOT, f), path.join(tmp, f));
     if (fs.existsSync(path.join(ROOT, '.well-known'))) fs.cpSync(path.join(ROOT, '.well-known'), path.join(tmp, '.well-known'), { recursive: true });
     const run = () => { try { execFileSync(process.execPath, ['scripts/validate.mjs'], { cwd: tmp, encoding: 'utf8', stdio: 'pipe' }); return ''; } catch (e) { return String(e.stdout) + String(e.stderr); } };
     const base = read('app.js');
@@ -428,7 +428,7 @@ test('p2_2.validate_restating_badge', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pa-p22-'));
   try {
     fs.mkdirSync(path.join(tmp, 'scripts')); fs.mkdirSync(path.join(tmp, 'data'));
-    for (const f of ['scripts/validate.mjs', 'scripts/load.mjs', 'filters.js', 'index.html', 'vercel.json', '_headers', 'data/requests.json']) fs.copyFileSync(path.join(ROOT, f), path.join(tmp, f));
+    for (const f of ['scripts/validate.mjs', 'scripts/load.mjs', 'filters.js', 'index.html', 'vercel.json', '_headers', 'data/requests.json', 'data/facts.json']) fs.copyFileSync(path.join(ROOT, f), path.join(tmp, f));
     if (fs.existsSync(path.join(ROOT, '.well-known'))) fs.cpSync(path.join(ROOT, '.well-known'), path.join(tmp, '.well-known'), { recursive: true });
     const run = () => { try { return execFileSync(process.execPath, ['scripts/validate.mjs'], { cwd: tmp, encoding: 'utf8', stdio: 'pipe' }); } catch (e) { return String(e.stdout) + String(e.stderr); } };
     const base = read('app.js');
@@ -478,7 +478,7 @@ test('p2_2.validate_effective_year_in_text', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pa-p22y-'));
   try {
     fs.mkdirSync(path.join(tmp, 'scripts')); fs.mkdirSync(path.join(tmp, 'data'));
-    for (const f of ['scripts/validate.mjs', 'scripts/load.mjs', 'filters.js', 'index.html', 'vercel.json', '_headers', 'data/requests.json']) fs.copyFileSync(path.join(ROOT, f), path.join(tmp, f));
+    for (const f of ['scripts/validate.mjs', 'scripts/load.mjs', 'filters.js', 'index.html', 'vercel.json', '_headers', 'data/requests.json', 'data/facts.json']) fs.copyFileSync(path.join(ROOT, f), path.join(tmp, f));
     if (fs.existsSync(path.join(ROOT, '.well-known'))) fs.cpSync(path.join(ROOT, '.well-known'), path.join(tmp, '.well-known'), { recursive: true });
     const run = () => { try { return execFileSync(process.execPath, ['scripts/validate.mjs'], { cwd: tmp, encoding: 'utf8', stdio: 'pipe' }); } catch (e) { return String(e.stdout) + String(e.stderr); } };
     // A synthetic entry whose year 2031 appears only in sourceUrl/sourceLabel must be rejected.
@@ -589,7 +589,7 @@ test('p2_7.validate_rejects_bad_glossary', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pa-p27-'));
   try {
     fs.mkdirSync(path.join(tmp, 'scripts')); fs.mkdirSync(path.join(tmp, 'data'));
-    for (const f of ['scripts/validate.mjs', 'scripts/load.mjs', 'filters.js', 'index.html', 'app.js', 'vercel.json', '_headers', 'data/requests.json']) fs.copyFileSync(path.join(ROOT, f), path.join(tmp, f));
+    for (const f of ['scripts/validate.mjs', 'scripts/load.mjs', 'filters.js', 'index.html', 'app.js', 'vercel.json', '_headers', 'data/requests.json', 'data/facts.json']) fs.copyFileSync(path.join(ROOT, f), path.join(tmp, f));
     if (fs.existsSync(path.join(ROOT, '.well-known'))) fs.cpSync(path.join(ROOT, '.well-known'), path.join(tmp, '.well-known'), { recursive: true });
     const run = () => { try { execFileSync(process.execPath, ['scripts/validate.mjs'], { cwd: tmp, encoding: 'utf8', stdio: 'pipe' }); return { ok: true, out: '' }; } catch (e) { return { ok: false, out: String(e.stdout) + String(e.stderr) }; } };
     const e0 = CHANGES[0];
@@ -675,7 +675,7 @@ const validateWith = (gloss, appEdit) => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pa-p27b-'));
   try {
     fs.mkdirSync(path.join(tmp, 'scripts')); fs.mkdirSync(path.join(tmp, 'data'));
-    for (const f of ['scripts/validate.mjs', 'scripts/load.mjs', 'filters.js', 'index.html', 'vercel.json', '_headers', 'data/requests.json']) fs.copyFileSync(path.join(ROOT, f), path.join(tmp, f));
+    for (const f of ['scripts/validate.mjs', 'scripts/load.mjs', 'filters.js', 'index.html', 'vercel.json', '_headers', 'data/requests.json', 'data/facts.json']) fs.copyFileSync(path.join(ROOT, f), path.join(tmp, f));
     fs.writeFileSync(path.join(tmp, 'app.js'), appEdit ? appEdit(read('app.js')) : read('app.js'));
     if (fs.existsSync(path.join(ROOT, '.well-known'))) fs.cpSync(path.join(ROOT, '.well-known'), path.join(tmp, '.well-known'), { recursive: true });
     fs.writeFileSync(path.join(tmp, 'data/glossary.json'), typeof gloss === 'string' ? gloss : JSON.stringify(gloss));
@@ -802,6 +802,473 @@ test('p2_7.every_term_links_somewhere', () => {
   let all = '';
   for (const f of countryFiles.filter(f => f.endsWith('.html'))) all += read(`countries/${f}`);
   for (const t of g) assert.ok(all.includes(`href="../glossary.html#term-${P2.slugify(t.term)}"`), `glossary term ${t.term} never links from a generated country page`);
+});
+
+// ---------- P2-8: country fact sheets (data/facts.json, validator, "Key facts" box on generated country pages) ----------
+// CONTRACT
+// data/facts.json = array of
+//   {code, asOf, currency, facts:[{key, label, value, validFrom?, note?, bands?, sourceUrl, sourceLabel, checked}]}
+// - code: own key of countryToRegion, unique in the file. asOf: real YYYY-MM-DD, not after UTC today + 1 day.
+//   currency: 3 uppercase ASCII letters (ISO 4217 shape). facts: non-empty array.
+// - key: one of minimumWage|ssEmployer|ssEmployee|ssCeiling|taxBands|payFrequency|other; unique per country except 'other'.
+// - label, value: non-empty trimmed plain text (no '<' '>' and no control chars/line breaks); value <= 300 chars.
+// - validFrom?: real YYYY-MM-DD (may be in the future: a rate announced for later). note?: non-empty plain text <= 300 chars.
+// - bands? (only on key 'taxBands'): non-empty array (max 20) of {from:string, to:string|null, rate:string}; strings are
+//   non-empty trimmed plain text <= 60 chars; no other fields.
+// - sourceUrl: https, no userinfo. sourceLabel: /^Source: .+ - .+/ plain text. checked: real day, not after UTC today + 1 day.
+// - Unknown fields are rejected at both levels. A fact whose `checked` is more than 365 days before UTC today produces a
+//   WARNING (stdout/stderr, exit code still 0) that names "facts"; the validator never fails for age.
+// - validate.mjs fails (non-zero) with a message containing "facts" when data/facts.json is missing, not JSON, or invalid.
+// build-pages.mjs, country page: a section only for countries present in facts.json; none otherwise (no empty box).
+//   Placed after the <h1> and before the first <article class="entry">. Exact markup (whitespace between tags is free;
+//   all text and attribute values escaped with & < > " '): see renderFacts() below. Dates are long en-GB ("1 January 2026").
+// legal.css: .table-scroll {overflow-x:auto} (tables scroll inside it, not the page), .key-facts {overflow-wrap:anywhere}.
+const FACTS_FILE = path.join(ROOT, 'data/facts.json');
+const BATCH1 = { uk: 'GBP', germany: 'EUR', france: 'EUR', netherlands: 'EUR', spain: 'EUR' }; // update when batch 2 lands
+const longDay = iso => new Date(iso + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+const squash = h => h.replace(/>\s+</g, '><');
+const renderFacts = c => {
+  const fact = f => `<div class="fact" data-key="${f.key}"><dt class="fact-label">${escH(f.label)}</dt><dd class="fact-body">`
+    + `<p class="fact-value">${escH(f.value)}</p>`
+    + (f.validFrom ? `<p class="fact-from">Valid from ${longDay(f.validFrom)}</p>` : '')
+    + (f.note ? `<p class="fact-note">${escH(f.note)}</p>` : '')
+    + (f.bands ? `<div class="table-scroll" tabindex="0" role="region" aria-label="${escH(f.label)} table"><table class="tax-bands"><caption>${escH(f.label)} (${escH(c.currency)})</caption>`
+      + `<thead><tr><th scope="col">From</th><th scope="col">To</th><th scope="col">Rate</th></tr></thead><tbody>`
+      + f.bands.map(b => `<tr><td>${escH(b.from)}</td><td>${b.to === null ? 'No limit' : escH(b.to)}</td><td>${escH(b.rate)}</td></tr>`).join('')
+      + `</tbody></table></div>` : '')
+    + `<p class="fact-source"><a href="${escH(f.sourceUrl)}" rel="noopener">${escH(f.sourceLabel)}</a> &middot; As of ${longDay(c.asOf)} &middot; Checked ${longDay(f.checked)}</p>`
+    + `</dd></div>`;
+  return `<section class="key-facts" aria-labelledby="key-facts"><h2 id="key-facts">Key facts</h2>`
+    + `<p class="meta">Currency: ${escH(c.currency)}</p>`
+    + `<p class="fact-disclaimer">Check the source before use. For information only, not legal or tax advice.</p>`
+    + `<dl class="facts">${c.facts.map(fact).join('')}</dl></section>`;
+};
+
+// A throw-away copy of the site (validator + page generator inputs). facts: array | raw string | undefined (= no file).
+const factsSite = (facts, { appEdit } = {}) => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'pa-p28-'));
+  fs.mkdirSync(path.join(dir, 'scripts')); fs.mkdirSync(path.join(dir, 'data')); fs.mkdirSync(path.join(dir, 'worker'));
+  for (const f of ['scripts/validate.mjs', 'scripts/load.mjs', 'scripts/build-pages.mjs', 'scripts/operator.json', 'filters.js', 'index.html', 'vercel.json', '_headers', 'data/requests.json', 'data/facts.json', 'data/glossary.json']) fs.copyFileSync(path.join(ROOT, f), path.join(dir, f));
+  fs.cpSync(path.join(ROOT, 'scripts/templates'), path.join(dir, 'scripts/templates'), { recursive: true });
+  fs.writeFileSync(path.join(dir, 'app.js'), appEdit ? appEdit(read('app.js')) : read('app.js'));
+  if (fs.existsSync(path.join(ROOT, '.well-known'))) fs.cpSync(path.join(ROOT, '.well-known'), path.join(dir, '.well-known'), { recursive: true });
+  const site = {
+    dir,
+    setFacts: v => { const p = path.join(dir, 'data/facts.json'); if (v === undefined) fs.rmSync(p, { force: true }); else fs.writeFileSync(p, typeof v === 'string' ? v : JSON.stringify(v)); },
+    run: (script, ...args) => { const r = spawnSync(process.execPath, ['scripts/' + script, ...args], { cwd: dir, encoding: 'utf8' }); return { ok: r.status === 0, out: String(r.stdout) + String(r.stderr) }; },
+    validate: v => { site.setFacts(v); return site.run('validate.mjs'); },
+    build: (v, ...args) => { site.setFacts(v); return site.run('build-pages.mjs', ...args); },
+    page: slug => fs.readFileSync(path.join(dir, 'countries', slug + '.html'), 'utf8'),
+    pages: () => fs.readdirSync(path.join(dir, 'countries')).filter(f => f.endsWith('.html')),
+    done: () => fs.rmSync(dir, { recursive: true, force: true }),
+  };
+  return site;
+};
+const fixFact = (o = {}) => ({ key: 'minimumWage', label: 'Minimum wage', value: 'EUR 1,000 gross per month, full-time', sourceUrl: 'https://example.org/min', sourceLabel: 'Source: Example Ministry - Minimum wage', checked: '2026-10-01', ...o });
+const fixCountry = (o = {}) => ({ code: 'france', asOf: '2026-01-01', currency: 'EUR', facts: [fixFact()], ...o });
+const fixBands = () => [{ from: '0', to: '10,000', rate: '0%' }, { from: '10,001', to: '30,000', rate: '11%' }, { from: '30,001', to: null, rate: '30%' }];
+// Rich fixture: bands, validFrom, note, repeated 'other', apostrophe/ampersand text, a second country.
+const richFixture = () => [
+  fixCountry({
+    facts: [
+      fixFact({ validFrom: '2026-01-01', note: 'Revalued every 1 January & during the year.' }),
+      fixFact({ key: 'ssEmployer', label: "Employer's social security", value: "About 40% of gross pay (employer's share)", sourceUrl: 'https://example.org/ss?a=1&b=2' }),
+      fixFact({ key: 'taxBands', label: 'Income tax bands', value: 'Progressive: 0% to 30% of taxable income per year', bands: fixBands(), validFrom: '2026-01-01' }),
+      fixFact({ key: 'other', label: 'Other one', value: 'First other fact' }),
+      fixFact({ key: 'other', label: 'Other two', value: 'Second other fact' }),
+    ],
+  }),
+  fixCountry({ code: 'spain', asOf: '2026-03-01', currency: 'EUR', facts: [fixFact({ key: 'payFrequency', label: 'Usual pay frequency', value: 'Monthly (14 payments a year are common)' })] }),
+];
+
+test('p2_8.validate_accepts_valid_facts', () => {
+  const s = factsSite();
+  try {
+    let r = s.validate(richFixture()); assert.ok(r.ok, 'rich valid fixture must pass: ' + r.out.slice(0, 500));
+    r = s.validate([]); assert.ok(r.ok, 'an empty array is valid: ' + r.out.slice(0, 300));
+    r = s.validate([fixCountry({ facts: [fixFact({ value: 'x'.repeat(300), note: 'n'.repeat(300), validFrom: '2099-01-01' })] })]);
+    assert.ok(r.ok, 'value/note of exactly 300 chars and a future validFrom must pass: ' + r.out.slice(0, 300));
+    r = s.validate([fixCountry({ facts: [fixFact({ key: 'taxBands', label: 'Income tax bands', value: 'Progressive, see source' })] })]); assert.ok(r.ok, 'a taxBands fact without bands (text value only) must pass: ' + r.out.slice(0, 300));
+    r = s.validate([fixCountry({ asOf: ymd(1), facts: [fixFact({ checked: ymd(1) })] })]); assert.ok(r.ok, 'asOf/checked = UTC today + 1 day must pass: ' + r.out.slice(0, 300));
+  } finally { s.done(); }
+});
+test('p2_8.validate_rejects_missing_or_unparseable_facts_file', () => {
+  const s = factsSite();
+  try {
+    let r = s.validate(undefined);
+    assert.ok(!r.ok && /facts/i.test(r.out), 'a missing data/facts.json must fail and name "facts": ' + r.out.slice(0, 300));
+    r = s.validate('{not json'); assert.ok(!r.ok && /facts/i.test(r.out), 'invalid JSON must fail and name "facts"');
+    r = s.validate('"text"'); assert.ok(!r.ok && /facts/i.test(r.out) && /array/i.test(r.out), 'non-array must fail');
+    r = s.validate('{"code":"france"}'); assert.ok(!r.ok && /facts/i.test(r.out) && /array/i.test(r.out), 'object instead of array must fail');
+  } finally { s.done(); }
+});
+test('p2_8.validate_rejects_bad_facts', () => {
+  const s = factsSite();
+  const f = fixFact, c = fixCountry;
+  const F = o => [c({ facts: [f(o)] })];
+  const noKey = (obj, k) => { const { [k]: _, ...rest } = obj; return rest; };
+  const cases = {
+    entry_not_object: [[1], /facts.*must be an object/i],
+    entry_array: [[[]], /facts.*must be an object/i],
+    country_unknown_field: [[c({ extra: 1 })], /unknown field "extra"/],
+    code_unknown: [[c({ code: 'atlantis' })], /code must be a known country code/],
+    code_proto: [[c({ code: 'constructor' })], /code must be a known country code/],
+    code_case: [[c({ code: 'France' })], /code must be a known country code/],
+    code_missing: [[noKey(c(), 'code')], /code must be a known country code/],
+    duplicate_code: [[c(), c()], /duplicate code "france"/],
+    asOf_missing: [[noKey(c(), 'asOf')], /asOf/],
+    asOf_not_real: [[c({ asOf: '2026-02-30' })], /asOf/],
+    asOf_format: [[c({ asOf: '2026-1-1' })], /asOf/],
+    asOf_future: [[c({ asOf: ymd(2) })], /asOf.*in the future/],
+    currency_lower: [[c({ currency: 'eur' })], /currency/],
+    currency_long: [[c({ currency: 'EURO' })], /currency/],
+    currency_digit: [[c({ currency: 'E1R' })], /currency/],
+    currency_number: [[c({ currency: 978 })], /currency/],
+    currency_missing: [[noKey(c(), 'currency')], /currency/],
+    facts_not_array: [[c({ facts: 'x' })], /facts must be a non-empty array/],
+    facts_empty: [[c({ facts: [] })], /facts must be a non-empty array/],
+    fact_not_object: [[c({ facts: [1] })], /fact.*must be an object/i],
+    fact_unknown_field: [F({ extra: 1 }), /unknown field "extra"/],
+    fact_stray_asOf: [F({ asOf: '2026-01-01' }), /unknown field "asOf"/],
+    key_unknown: [F({ key: 'salary' }), /key must be one of/],
+    key_missing: [[c({ facts: [noKey(f(), 'key')] })], /key must be one of/],
+    key_proto: [F({ key: 'constructor' }), /key must be one of/],
+    duplicate_key: [[c({ facts: [f(), f({ label: 'Second' })] })], /duplicate key "minimumWage"/],
+    label_empty: [F({ label: '' }), /label/],
+    label_untrimmed: [F({ label: ' Minimum wage' }), /label/],
+    label_markup: [F({ label: 'Minimum <b>wage</b>' }), /label.*plain text/],
+    label_control: [F({ label: 'Minimum\nwage' }), /label.*control/],
+    value_missing: [[c({ facts: [noKey(f(), 'value')] })], /value/],
+    value_empty: [F({ value: '  ' }), /value/],
+    value_markup: [F({ value: 'EUR 1 <script>alert(1)</script>' }), /value.*plain text/],
+    value_gt: [F({ value: 'more > less' }), /value.*plain text/],
+    value_newline: [F({ value: 'EUR 1\nEUR 2' }), /value.*control/],
+    value_tab: [F({ value: 'EUR\t1' }), /value.*control/],
+    value_ls: [F({ value: 'EUR 1' }), /value.*control/],
+    value_long: [F({ value: 'x'.repeat(301) }), /value.*300/],
+    value_not_string: [F({ value: 1000 }), /value/],
+    validFrom_not_real: [F({ validFrom: '2026-13-01' }), /validFrom/],
+    validFrom_month: [F({ validFrom: '2026-01' }), /validFrom/],
+    validFrom_empty: [F({ validFrom: '' }), /validFrom/],
+    note_empty: [F({ note: '' }), /note/],
+    note_markup: [F({ note: 'See <a href="x">this</a>' }), /note.*plain text/],
+    note_control: [F({ note: 'a\u0007b' }), /note.*control/],
+    note_long: [F({ note: 'n'.repeat(301) }), /note.*300/],
+    url_http: [F({ sourceUrl: 'http://example.org/x' }), /sourceUrl/],
+    url_userinfo: [F({ sourceUrl: 'https://user:pw@example.org/x' }), /sourceUrl/],
+    url_js: [F({ sourceUrl: 'javascript:alert(1)' }), /sourceUrl/],
+    url_space: [F({ sourceUrl: 'https://example.org/a b' }), /sourceUrl/],
+    url_quote: [F({ sourceUrl: 'https://example.org/a"b' }), /sourceUrl/],
+    url_missing: [[c({ facts: [noKey(f(), 'sourceUrl')] })], /sourceUrl/],
+    label_source_pattern: [F({ sourceLabel: 'Example Ministry' }), /sourceLabel/],
+    label_source_markup: [F({ sourceLabel: 'Source: Example - <b>x</b>' }), /sourceLabel.*plain text/],
+    label_source_control: [F({ sourceLabel: 'Source: Example - Min\twage' }), /sourceLabel.*control/],
+    label_source_missing: [[c({ facts: [noKey(f(), 'sourceLabel')] })], /sourceLabel/],
+    checked_missing: [[c({ facts: [noKey(f(), 'checked')] })], /checked/],
+    checked_not_real: [F({ checked: '2026-02-30' }), /checked/],
+    checked_future: [F({ checked: ymd(2) }), /checked.*in the future/],
+    bands_on_wrong_key: [F({ bands: fixBands() }), /bands.*taxBands/],
+    bands_not_array: [F({ key: 'taxBands', bands: 'x' }), /bands/],
+    bands_empty: [F({ key: 'taxBands', bands: [] }), /bands/],
+    bands_too_many: [F({ key: 'taxBands', bands: Array.from({ length: 21 }, (_, i) => ({ from: String(i), to: String(i + 1), rate: '1%' })) }), /bands.*20/],
+    band_not_object: [F({ key: 'taxBands', bands: [1] }), /band.*must be an object/i],
+    band_missing_rate: [F({ key: 'taxBands', bands: [{ from: '0', to: null }] }), /band.*rate/],
+    band_missing_from: [F({ key: 'taxBands', bands: [{ to: null, rate: '1%' }] }), /band.*from/],
+    band_missing_to: [F({ key: 'taxBands', bands: [{ from: '0', rate: '1%' }] }), /band.*to/],
+    band_number: [F({ key: 'taxBands', bands: [{ from: 0, to: null, rate: '1%' }] }), /band.*from/],
+    band_empty_string: [F({ key: 'taxBands', bands: [{ from: '0', to: '', rate: '1%' }] }), /band.*to/],
+    band_markup: [F({ key: 'taxBands', bands: [{ from: '0', to: null, rate: '<b>1%</b>' }] }), /band.*rate.*plain text/],
+    band_control: [F({ key: 'taxBands', bands: [{ from: '0\n', to: null, rate: '1%' }] }), /band.*from/],
+    band_long: [F({ key: 'taxBands', bands: [{ from: '0', to: null, rate: 'x'.repeat(61) }] }), /band.*rate.*60/],
+    band_unknown_field: [F({ key: 'taxBands', bands: [{ from: '0', to: null, rate: '1%', extra: 1 }] }), /unknown field "extra"/],
+  };
+  try {
+    assert.ok(s.validate([c()]).ok, 'baseline fixture must pass');
+    for (const [name, [data, re]] of Object.entries(cases)) {
+      const r = s.validate(data);
+      assert.ok(!r.ok && /facts/i.test(r.out) && re.test(r.out), `validate.mjs must reject facts case "${name}" with a message naming "facts" and matching ${re}: ` + r.out.slice(0, 400));
+    }
+  } finally { s.done(); }
+});
+test('p2_8.validate_allows_repeated_other_only', () => {
+  const s = factsSite();
+  try {
+    const two = key => [fixCountry({ facts: [fixFact({ key, label: 'One' }), fixFact({ key, label: 'Two' })] })];
+    assert.ok(s.validate(two('other')).ok, "two 'other' facts in one country are allowed");
+    for (const key of ['minimumWage', 'ssEmployer', 'ssEmployee', 'ssCeiling', 'taxBands', 'payFrequency']) {
+      const r = s.validate(two(key));
+      assert.ok(!r.ok && /facts/i.test(r.out) && new RegExp(`duplicate key "${key}"`).test(r.out), `duplicate ${key} must be rejected: ` + r.out.slice(0, 300));
+    }
+    // The same key in two different countries is fine.
+    assert.ok(s.validate([fixCountry(), fixCountry({ code: 'spain' })]).ok, 'same key in different countries is fine');
+  } finally { s.done(); }
+});
+test('p2_8.validate_warns_when_stale_but_passes', () => {
+  const s = factsSite();
+  try {
+    let r = s.validate([fixCountry({ facts: [fixFact({ checked: ymd(-370) })] })]);
+    assert.ok(r.ok, 'stale facts must not fail validation: ' + r.out.slice(0, 300));
+    assert.ok(/WARNING/.test(r.out) && /facts/i.test(r.out.split('\n').filter(l => /WARNING/.test(l)).join('\n')) && /365/.test(r.out), 'a fact checked >365 days ago must produce a WARNING line naming "facts" and 365: ' + r.out.slice(0, 400));
+    r = s.validate([fixCountry({ facts: [fixFact({ checked: ymd(-360) })] })]);
+    assert.ok(r.ok && !/WARNING.*facts/i.test(r.out), 'a fact checked 360 days ago must not warn: ' + r.out.slice(0, 300));
+    r = s.validate([fixCountry({ facts: [fixFact({ checked: ymd(0) })] })]);
+    assert.ok(r.ok && !/WARNING.*facts/i.test(r.out), 'a fresh fact must not warn');
+  } finally { s.done(); }
+});
+test('p2_8.render_fixture_markup', () => {
+  const s = factsSite();
+  try {
+    const data = richFixture();
+    const r = s.build(data); assert.ok(r.ok, 'build must succeed: ' + r.out.slice(0, 400));
+    const h = s.page('france'), q = squash(h);
+    assert.equal((h.match(/id="key-facts"/g) || []).length, 1, 'exactly one id="key-facts"');
+    assert.ok(q.includes(renderFacts(data[0])), 'france: key facts section must match the contract exactly. Expected:\n' + renderFacts(data[0]).slice(0, 900));
+    assert.ok(squash(s.page('spain')).includes(renderFacts(data[1])), 'spain: key facts section must match the contract');
+    // Placement: after the h1, before the first entry article.
+    const sec = q.indexOf('<section class="key-facts"'), h1 = q.indexOf('</h1>'), art = q.indexOf('<article class="entry"');
+    assert.ok(h1 > 0 && sec > h1 && sec < art, 'section sits between the <h1> and the first entry');
+    // Facts keep file order; both "other" facts render; bands table has caption + scroll container.
+    assert.deepEqual([...q.matchAll(/<div class="fact" data-key="(\w+)">/g)].map(m => m[1]), ['minimumWage', 'ssEmployer', 'taxBands', 'other', 'other']);
+    assert.ok(/<div class="table-scroll" tabindex="0" role="region" aria-label="Income tax bands table"><table class="tax-bands"><caption>Income tax bands \(EUR\)<\/caption>/.test(q), 'table inside a focusable, labelled .table-scroll region with a caption');
+    assert.equal((q.match(/<table\b/g) || []).length, 1, 'one table (only the taxBands fact has bands)');
+    assert.ok(q.includes('<td>30,001</td><td>No limit</td><td>30%</td>'), "to:null renders 'No limit'");
+    assert.ok(q.includes('Check the source before use. For information only, not legal or tax advice.'), 'disclaimer');
+    // A fact without bands is value text only: no table in spain.
+    assert.ok(!/<table\b/.test(s.page('spain')), 'no table when bands are absent');
+    assert.ok(!/\sstyle=|<script(?![^>]*\ssrc=)|<[a-z][^>]*\son[a-z]+=/i.test(h), 'CSP: no inline styles, scripts or handlers');
+    assert.ok(!/<a\b[^>]*>(?:(?!<\/a>)[\s\S])*<a\b/.test(h), 'no nested links');
+  } finally { s.done(); }
+});
+test('p2_8.render_only_for_listed_countries', () => {
+  const s = factsSite();
+  try {
+    let r = s.build(richFixture()); assert.ok(r.ok, r.out.slice(0, 300));
+    const withBox = s.pages().filter(f => /key-facts|Key facts/.test(fs.readFileSync(path.join(s.dir, 'countries', f), 'utf8')));
+    assert.deepEqual(withBox.sort(), ['france.html', 'spain.html'], 'only listed countries get a box');
+    for (const f of ['countries.html', 'glossary.html', 'upcoming.html', 'index.html']) {
+      const p = path.join(s.dir, f); if (fs.existsSync(p)) assert.ok(!/id="key-facts"/.test(fs.readFileSync(p, 'utf8')), `${f}: no fact box`);
+    }
+    r = s.build([]); assert.ok(r.ok, r.out.slice(0, 300));
+    for (const f of s.pages()) assert.ok(!/key-facts|Key facts|fact-disclaimer/.test(fs.readFileSync(path.join(s.dir, 'countries', f), 'utf8')), `${f}: empty facts.json renders no box at all`);
+  } finally { s.done(); }
+});
+test('p2_8.render_escapes_everything', () => {
+  const s = factsSite();
+  try {
+    const evil = '<img src=x onerror=alert(1)>';
+    const data = [fixCountry({
+      currency: 'EUR',
+      facts: [
+        fixFact({ label: 'A <script>alert(1)</script> "label"', value: evil + ' & "q" \'s\'', note: '<b>note</b> & \'n\'', sourceLabel: 'Source: <i>X</i> - "Y"', sourceUrl: 'https://example.org/a"onmouseover="x&y=1' }),
+        fixFact({ key: 'taxBands', label: 'Bands', value: 'v', bands: [{ from: '<u>0</u>', to: '"1"', rate: '<b>1%</b>' }, { from: '2', to: null, rate: '&' }] }),
+      ],
+    })];
+    const r = s.build(data); assert.ok(r.ok, 'build (without validate) must succeed on hostile text: ' + r.out.slice(0, 400));
+    const h = s.page('france');
+    const q = squash(h), box = q.slice(q.indexOf('<section class="key-facts"'), q.indexOf('</section>', q.indexOf('<section class="key-facts"')));
+    assert.ok(q.includes('<section class="key-facts"'), 'the Key facts section is rendered for the listed country');
+    assert.ok(box.length > 100 && !/<(img|script|b|i|u)\b/i.test(box), 'no raw tags from data inside the box');
+    assert.ok(!/<[a-z][^>]*\sonerror=/i.test(h) && !/<[a-z][^>]*\sonmouseover=/i.test(h), 'no injected event-handler attributes');
+    assert.ok(squash(h).includes(renderFacts(data[0])), 'every text and attribute value is escaped (& < > " \')');
+    assert.ok(h.includes('href="https://example.org/a&quot;onmouseover=&quot;x&amp;y=1"'), 'href is attribute-escaped');
+    // A non-https source URL is never rendered as a link (build either refuses or omits it).
+    const bad = [fixCountry({ facts: [fixFact({ sourceUrl: 'javascript:alert(1)' })] })];
+    const rb = s.build(bad);
+    if (rb.ok) assert.ok(!/href="javascript:/i.test(s.page('france')), 'javascript: URL must not become a link');
+  } finally { s.done(); }
+});
+test('p2_8.build_deterministic_and_check_tracks_facts', () => {
+  const s = factsSite();
+  try {
+    let r = s.build(richFixture()); assert.ok(r.ok, r.out.slice(0, 300));
+    const snap = () => Object.fromEntries(s.pages().map(f => [f, fs.readFileSync(path.join(s.dir, 'countries', f), 'utf8')]));
+    const a = snap();
+    r = s.run('build-pages.mjs'); assert.ok(r.ok); assert.deepEqual(snap(), a, 'second build is byte-identical');
+    r = s.run('build-pages.mjs', '--check'); assert.ok(r.ok, '--check passes right after a build: ' + r.out.slice(0, 300));
+    const changed = richFixture(); changed[0].facts[0].value = 'EUR 1,001 gross per month, full-time';
+    s.setFacts(changed);
+    r = s.run('build-pages.mjs', '--check'); assert.ok(!r.ok && /countries\/france\.html is out of date/.test(r.out) && !/spain\.html is out of date/.test(r.out), '--check must flag only the changed country page: ' + r.out.slice(0, 300));
+    // Removing a country from facts.json makes its box stale.
+    s.setFacts([richFixture()[1]]);
+    r = s.run('build-pages.mjs', '--check'); assert.ok(!r.ok && /countries\/france\.html is out of date/.test(r.out), '--check flags a page whose box was removed');
+  } finally { s.done(); }
+});
+test('p2_8.css_scrolls_tables_inside_container', () => {
+  const css = read('legal.css').replace(/\/\*[\s\S]*?\*\//g, '');
+  assert.match(css, /\.table-scroll\s*\{[^}]*overflow-x\s*:\s*auto/, 'legal.css: .table-scroll { overflow-x: auto } so a wide table scrolls inside its own box');
+  assert.match(css, /\.table-scroll\s*\{[^}]*max-width\s*:\s*100%/, 'legal.css: .table-scroll { max-width: 100% }');
+  assert.match(css, /\.key-facts[^{]*\{[^}]*overflow-wrap\s*:\s*(anywhere|break-word)/, 'legal.css: .key-facts { overflow-wrap: anywhere } so long values and URLs do not widen the page');
+  assert.match(css, /\.tax-bands[^{]*\{[^}]*border-collapse/, 'legal.css styles .tax-bands (readable on the dark UI)');
+});
+test('p2_8.check_links_and_readme', () => {
+  const cl = read('scripts/check-links.mjs');
+  assert.ok(/data\/facts\.json/.test(cl) && /facts\//.test(cl), 'check-links.mjs probes every facts sourceUrl (labelled facts/<code>/<key>)');
+  const readme = read('README.md');
+  assert.ok(readme.includes('### Country key facts'), 'README documents the schema under "### Country key facts"');
+  const sec = readme.split('### Country key facts')[1].split(/\n##+ /)[0];
+  const example = JSON.parse(sec.match(/```json\n([\s\S]*?)\n```/)[1]);
+  assert.ok(example.facts.some(f => f.bands), 'README example shows a taxBands fact with bands');
+  const s = factsSite();
+  try { const r = s.validate([example]); assert.ok(r.ok, 'the README example must pass validate.mjs: ' + r.out.slice(0, 400)); } finally { s.done(); }
+  for (const re of [/Unknown fields are rejected/, /UTC today plus one day/, /365 days/, /No limit/, /id="key-facts"|#key-facts/, /Check the source before use/]) assert.match(sec, re);
+});
+
+// ----- P2-8 real data: data/facts.json (batch 1: UK, Germany, France, Netherlands, Spain) -----
+const loadFacts = () => { assert.ok(fs.existsSync(FACTS_FILE), 'data/facts.json missing'); return JSON.parse(fs.readFileSync(FACTS_FILE, 'utf8')); };
+const pageSlug = new Map(CHANGES.map(e => [e.country, P2.slugify(e.name)]));
+test('p2_8.data.covers_exactly_batch1_with_sources', () => {
+  const facts = loadFacts(), today = ymd(1);
+  assert.ok(Array.isArray(facts));
+  assert.deepEqual(facts.map(c => c.code).sort(), Object.keys(BATCH1).sort(), 'facts.json covers exactly the batch-1 countries (update BATCH1 in this test when batch 2 lands)');
+  for (const c of facts) {
+    assert.ok(CODES.has(c.code), `${c.code}: known country code`);
+    assert.equal(c.currency, BATCH1[c.code], `${c.code}: currency`);
+    assert.ok(isDay(c.asOf) && c.asOf <= today, `${c.code}: asOf`);
+    assert.ok(Array.isArray(c.facts) && c.facts.length >= 1, `${c.code}: at least one verified fact`);
+    const keys = c.facts.map(f => f.key).filter(k => k !== 'other');
+    assert.equal(new Set(keys).size, keys.length, `${c.code}: no duplicate key except 'other'`);
+    for (const f of c.facts) {
+      const at = `${c.code}/${f.key}`;
+      assert.ok(['minimumWage', 'ssEmployer', 'ssEmployee', 'ssCeiling', 'taxBands', 'payFrequency', 'other'].includes(f.key), at + ': key');
+      assert.ok(typeof f.label === 'string' && f.label.trim() && typeof f.value === 'string' && f.value.trim(), at + ': label and value');
+      assert.match(f.sourceUrl, /^https:\/\/[^\s<>"]+$/, at + ': every fact has an https source');
+      assert.match(f.sourceLabel, /^Source: .+ - .+/, at + ': sourceLabel');
+      assert.ok(isDay(f.checked) && f.checked <= today, at + ': checked');
+      if (f.bands) assert.equal(f.key, 'taxBands', at + ': bands only on taxBands');
+    }
+  }
+});
+test('p2_8.pages.key_facts_only_for_batch1', () => {
+  loadFacts();
+  const want = new Set(Object.keys(BATCH1).map(code => `${pageSlug.get(code)}.html`));
+  assert.equal(want.size, 5);
+  for (const f of countryFiles.filter(f => f.endsWith('.html'))) {
+    const h = read(`countries/${f}`);
+    if (want.has(f)) {
+      assert.equal((h.match(/id="key-facts"/g) || []).length, 1, `${f}: one #key-facts heading`);
+      assert.ok(h.includes('<h2 id="key-facts">Key facts</h2>'), `${f}: heading`);
+    } else assert.ok(!/key-facts|Key facts|fact-disclaimer|class="fact"/.test(h), `${f}: must not render a fact box`);
+  }
+  for (const f of ['countries.html', 'glossary.html', 'upcoming.html']) assert.ok(!/id="key-facts"/.test(read(f)), `${f}: no fact box`);
+});
+test('p2_8.pages.match_data_exactly', () => {
+  const facts = loadFacts();
+  for (const c of facts) {
+    const file = `countries/${pageSlug.get(c.code)}.html`, q = squash(read(file));
+    assert.ok(q.includes(renderFacts(c)), `${file}: Key facts section must match data/facts.json per the contract`);
+    const sec = q.indexOf('<section class="key-facts"');
+    assert.ok(q.indexOf('</h1>') < sec && sec < q.indexOf('<article class="entry"'), `${file}: box between <h1> and first entry`);
+    const src = (q.slice(sec, q.indexOf('</section>', sec)).match(/<div class="fact" /g) || []).length;
+    assert.equal(src, c.facts.length, `${file}: one .fact per fact`);
+    assert.ok(!/\sstyle=/.test(q.slice(sec, q.indexOf('</section>', sec))), `${file}: no inline style in the box`);
+  }
+});
+test('p2_8.pages.build_deterministic_with_real_data', () => {
+  const real = loadFacts(), s = factsSite();
+  try {
+    let r = s.build(real); assert.ok(r.ok, r.out.slice(0, 400));
+    const first = Object.fromEntries(s.pages().map(f => [f, fs.readFileSync(path.join(s.dir, 'countries', f), 'utf8')]));
+    s.build(real);
+    for (const f of s.pages()) { assert.equal(fs.readFileSync(path.join(s.dir, 'countries', f), 'utf8'), first[f], `${f}: second build identical`); assert.equal(first[f], read('countries/' + f), `${f}: matches the committed page`); }
+    r = s.run('build-pages.mjs', '--check'); assert.ok(r.ok, r.out.slice(0, 300));
+    r = s.run('validate.mjs');
+    // A stale warning is expected exactly when some real fact is older than the validator's limits (checked > 365 days, validFrom > 400 days), so this test never fails merely because time passed.
+    const expectWarn = real.some(c => c.facts.some(f => f.checked < ymd(-365) || (f.validFrom && f.validFrom < ymd(-400))));
+    assert.ok(r.ok, 'real facts validate: ' + r.out.slice(0, 400));
+    assert.equal(/WARNING.*facts/i.test(r.out), expectWarn, 'a facts WARNING appears iff a real fact is stale: ' + r.out.slice(0, 400));
+  } finally { s.done(); }
+});
+
+// ----- P2-8 review round: hidden/bidi characters, length caps, band order, URL hosts, staleness of validFrom, placement -----
+const bidiAndInvisible = [0x202A, 0x202B, 0x202C, 0x202D, 0x202E, 0x2066, 0x2067, 0x2068, 0x2069, 0x200B, 0x200C, 0x200D, 0x200E, 0x200F, 0x2060, 0xFEFF];
+test('p2_8.validate_rejects_invisible_and_bidi_characters', () => {
+  const s = factsSite();
+  try {
+    for (const cp of bidiAndInvisible) {
+      const ch = String.fromCharCode(cp), hex = cp.toString(16).toUpperCase();
+      const cases = {
+        label: [fixFact({ label: 'Min' + ch + 'imum wage' }), /label.*control/],
+        value: [fixFact({ value: 'EUR 1' + ch + '000' }), /value.*control/],
+        note: [fixFact({ note: 'a' + ch + 'b' }), /note.*control/],
+        sourceLabel: [fixFact({ sourceLabel: 'Source: Example - Min' + ch + 'wage' }), /sourceLabel.*control/],
+        band: [fixFact({ key: 'taxBands', bands: [{ from: '0', to: null, rate: '1' + ch + '%' }] }), /band.*rate.*control/],
+      };
+      for (const [name, [fact, re]] of Object.entries(cases)) {
+        const r = s.validate([fixCountry({ facts: [fact] })]);
+        assert.ok(!r.ok && /facts/i.test(r.out) && re.test(r.out), `U+${hex} in facts ${name} must be rejected: ` + r.out.slice(0, 300));
+      }
+    }
+    // The same characters are rejected in glossary text fields.
+    const gl = JSON.parse(read('data/glossary.json'));
+    for (const cp of bidiAndInvisible) {
+      const ch = String.fromCharCode(cp);
+      for (const field of ['expansion', 'definition', 'sourceLabel', 'term']) {
+        const bad = gl.map((t, i) => (i === 0 ? { ...t, [field]: t[field].slice(0, 1) + ch + t[field].slice(1) } : t));
+        s.setFacts([fixCountry()]);
+        fs.writeFileSync(path.join(s.dir, 'data/glossary.json'), JSON.stringify(bad));
+        const r = s.run('validate.mjs');
+        assert.ok(!r.ok && /glossary/i.test(r.out) && /control/.test(r.out), `U+${cp.toString(16).toUpperCase()} in glossary ${field} must be rejected: ` + r.out.slice(0, 300));
+      }
+    }
+  } finally { s.done(); }
+});
+test('p2_8.validate_label_caps_and_band_order', () => {
+  const s = factsSite();
+  const c = fixCountry, f = fixFact;
+  try {
+    let r = s.validate([c({ facts: [f({ label: 'L'.repeat(200), sourceLabel: 'Source: A - ' + 'x'.repeat(188) })] })]);
+    assert.ok(r.ok, 'label and sourceLabel of exactly 200 characters pass: ' + r.out.slice(0, 300));
+    r = s.validate([c({ facts: [f({ label: 'L'.repeat(201) })] })]); assert.ok(!r.ok && /facts/i.test(r.out) && /label.*200/.test(r.out), 'label over 200 rejected: ' + r.out.slice(0, 300));
+    r = s.validate([c({ facts: [f({ sourceLabel: 'Source: A - ' + 'x'.repeat(189) })] })]); assert.ok(!r.ok && /facts/i.test(r.out) && /sourceLabel.*200/.test(r.out), 'sourceLabel over 200 rejected: ' + r.out.slice(0, 300));
+    const tb = bands => [c({ facts: [f({ key: 'taxBands', label: 'Income tax bands', bands })] })];
+    r = s.validate(tb([{ from: '0', to: null, rate: '1%' }, { from: '5', to: '9', rate: '2%' }]));
+    assert.ok(!r.ok && /facts/i.test(r.out) && /band.*to.*last/.test(r.out), 'a to:null band that is not last is rejected: ' + r.out.slice(0, 300));
+    r = s.validate(tb([{ from: '0', to: '5', rate: '1%' }, { from: '6', to: null, rate: '2%' }])); assert.ok(r.ok, 'to:null on the last band passes: ' + r.out.slice(0, 300));
+    r = s.validate(tb([{ from: '0', to: '5', rate: '1%' }, { from: '6', to: '9', rate: '2%' }])); assert.ok(r.ok, 'a last band with a limit passes: ' + r.out.slice(0, 300));
+  } finally { s.done(); }
+});
+test('p2_8.validate_rejects_unsafe_source_hosts_and_characters', () => {
+  const s = factsSite();
+  const BAD = {
+    ipv4: 'https://127.0.0.1/x', ipv4_other: 'https://192.168.1.10/x', ipv4_decimal: 'https://2130706433/x', ipv6: 'https://[::1]/x', localhost: 'https://localhost/x',
+    sub_localhost: 'https://app.localhost/x', single_label: 'https://intranet/x', non_ascii_path: 'https://example.org/caf' + String.fromCharCode(0xE9),
+    non_ascii_host: 'https://exa' + String.fromCharCode(0x3BC) + 'ple.org/x', backtick: 'https://example.org/a' + String.fromCharCode(96) + 'b', apostrophe: "https://example.org/a'b",
+  };
+  try {
+    assert.ok(s.validate([fixCountry({ facts: [fixFact({ sourceUrl: 'https://www.example.org/a/b?c=1&d=2#e' })] })]).ok, 'an ordinary https URL passes');
+    const gl = JSON.parse(read('data/glossary.json'));
+    for (const [name, url] of Object.entries(BAD)) {
+      const r = s.validate([fixCountry({ facts: [fixFact({ sourceUrl: url })] })]);
+      assert.ok(!r.ok && /facts/i.test(r.out) && /sourceUrl/.test(r.out), `facts sourceUrl ${name} must be rejected: ` + r.out.slice(0, 300));
+      s.setFacts([fixCountry()]);
+      fs.writeFileSync(path.join(s.dir, 'data/glossary.json'), JSON.stringify(gl.map((t, i) => (i === 0 ? { ...t, sourceUrl: url } : t))));
+      const g = s.run('validate.mjs');
+      assert.ok(!g.ok && /glossary/i.test(g.out) && /sourceUrl/.test(g.out), `glossary sourceUrl ${name} must be rejected: ` + g.out.slice(0, 300));
+      fs.writeFileSync(path.join(s.dir, 'data/glossary.json'), JSON.stringify(gl));
+    }
+  } finally { s.done(); }
+});
+test('p2_8.validate_warns_when_validFrom_is_old', () => {
+  const s = factsSite();
+  try {
+    const warns = o => { const r = s.validate([fixCountry({ facts: [fixFact({ key: 'ssEmployee', ...o })] })]); assert.ok(r.ok, 'an old validFrom never fails validation: ' + r.out.slice(0, 300)); return r.out.split('\n').filter(l => /WARNING/.test(l) && /facts/i.test(l)); };
+    const w = warns({ validFrom: ymd(-401), checked: ymd(0) });
+    assert.ok(w.length === 1 && /validFrom/.test(w[0]) && /ssEmployee/.test(w[0]) && /400/.test(w[0]), 'validFrom 401 days ago warns, naming facts and the key: ' + w.join(' | '));
+    assert.equal(warns({ validFrom: ymd(-399), checked: ymd(0) }).length, 0, 'validFrom 399 days ago does not warn');
+    assert.equal(warns({ validFrom: ymd(30), checked: ymd(0) }).length, 0, 'a future validFrom does not warn');
+    assert.equal(warns({ checked: ymd(0) }).length, 0, 'no validFrom, no warning');
+  } finally { s.done(); }
+});
+test('p2_8.key_facts_precede_partial_coverage_notice', () => {
+  // Keep only the first france entry so the page gets the "Partial coverage" notice.
+  const only1 = js => { let seen = false; return js.split('\n').filter(l => { if (!/^\s*\{country:'france'/.test(l)) return true; if (!seen) { seen = true; return true; } return false; }).join('\n'); };
+  const s = factsSite(undefined, { appEdit: only1 });
+  try {
+    const r = s.build(richFixture()); assert.ok(r.ok, r.out.slice(0, 300));
+    const q = squash(s.page('france')), h1 = q.indexOf('</h1>'), sec = q.indexOf('<section class="key-facts"'), part = q.indexOf('<p class="partial">'), art = q.indexOf('<article class="entry"');
+    assert.ok(part > 0, 'france fixture page shows the partial-coverage notice');
+    assert.ok(h1 > 0 && h1 < sec && sec < part && part < art, 'order: h1, Key facts, partial-coverage notice, first entry');
+  } finally { s.done(); }
 });
 
 console.log(`${passed} site tests passed.`);

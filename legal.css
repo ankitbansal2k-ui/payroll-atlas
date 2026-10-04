@@ -90,6 +90,29 @@ a.term:hover, a.term:focus-visible { color: var(--accent); text-decoration-style
 .expansion { color: var(--muted); font-size: 0.9rem; margin-bottom: 0.5rem; }
 .aliases { color: var(--muted); font-size: 0.85rem; margin-bottom: 0.5rem; }
 
+/* P2-8: country "Key facts" box (data/facts.json). Tables scroll inside .table-scroll, never the page. */
+.table-scroll { overflow-x: auto; max-width: 100%; -webkit-overflow-scrolling: touch; }
+.table-scroll:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.key-facts { overflow-wrap: anywhere; background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem 1.5rem; margin: 1.5rem 0; }
+.key-facts h2 { margin-top: 0; font-size: 1.1rem; line-height: 1.4; }
+.key-facts .meta { margin-bottom: 0.25rem; }
+.fact-disclaimer { color: var(--muted); font-size: 0.9rem; }
+.facts { margin: 0; }
+.fact { padding: 0.9rem 0; border-top: 1px solid var(--border); }
+.fact:first-child { border-top: 0; padding-top: 0; }
+.fact-label { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 0.25rem; }
+.fact-body { margin: 0; }
+.fact-body p { margin-bottom: 0.4rem; }
+.fact-value { font-size: 1.05rem; font-weight: 700; color: var(--text); }
+.fact-from, .fact-note { color: var(--muted); font-size: 0.9rem; }
+.fact-source { font-size: 0.85rem; color: var(--muted); margin-bottom: 0; }
+.tax-bands { border-collapse: collapse; width: 100%; min-width: 20rem; margin: 0.25rem 0 0.75rem; font-size: 0.9rem; }
+.tax-bands caption { text-align: left; caption-side: top; color: var(--muted); font-size: 0.85rem; padding-bottom: 0.4rem; }
+.tax-bands th, .tax-bands td { text-align: left; padding: 0.4rem 0.7rem; border: 1px solid var(--border); font-variant-numeric: tabular-nums; }
+.tax-bands th { background: rgba(45, 212, 163, 0.08); color: var(--text); font-weight: 700; white-space: nowrap; }
+.tax-bands td { color: var(--text); }
+.tax-bands td:nth-child(-n+2) { white-space: nowrap; overflow-wrap: normal; }
+
 /* CP5: print / save as PDF */
 @media print {
   header, .cta, .chips, .az, footer p:last-child { display: none !important; }
@@ -99,4 +122,11 @@ a.term:hover, a.term:focus-visible { color: var(--accent); text-decoration-style
   .status-chip { background: transparent !important; border: 1px solid #000; }
   a.term { color: #000 !important; text-decoration: underline dotted #000 !important; }
   .source a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 9pt; word-break: break-all; }
+  /* P2-8: Key facts box on white paper; each fact stays in one piece, bands are fully visible, source URLs are printed */
+  .key-facts { background: #fff; border-color: #ccc; }
+  .fact { break-inside: avoid; border-color: #ccc; }
+  .table-scroll { overflow: visible; max-width: none; }
+  .tax-bands { min-width: 0; }
+  .tax-bands th, .tax-bands td { border: 1px solid #000; background: #fff; }
+  .fact-source a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 9pt; word-break: break-all; }
 }
