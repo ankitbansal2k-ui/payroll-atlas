@@ -413,5 +413,757 @@
         "checked": "2026-10-04"
       }
     ]
+  },
+  {
+    "code": "italy",
+    "asOf": "2026-10-04",
+    "currency": "EUR",
+    "facts": [
+      {
+        "key": "minimumWage",
+        "label": "Statutory national minimum wage",
+        "value": "No statutory national minimum wage (Eurostat, 1 July 2026); minimum pay is laid down by collective agreements for specific sectors",
+        "note": "Eurostat lists Italy with Denmark, Austria, Finland and Sweden as EU countries without a national minimum wage on 1 July 2026.",
+        "sourceUrl": "https://ec.europa.eu/eurostat/statistics-explained/index.php?title=Minimum_wage_statistics",
+        "sourceLabel": "Source: Eurostat - Minimum wage statistics",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "ssCeiling",
+        "label": "INPS contribution ceiling and floors 2026 (employees)",
+        "value": "Annual ceiling of the contribution and pensionable base €122,295 (for those first insured after 31 December 1995 or who opt for the contributive system); additional 1% employee contribution above €56,224 a year (€4,685 a month); minimum daily pay for contributions €58.13",
+        "validFrom": "2026-01-01",
+        "note": "INPS circular no. 6 of 30 January 2026 on values for employees in private and public schemes. The ceiling is stated as €122,295.40, rounded to €122,295.",
+        "sourceUrl": "https://www.inps.it/content/dam/inps-site/it/scorporati/circolari-e-messaggi/2026/01/Circolare_15151/Allegati/16546_Circolare-numero-6-del-30-01-2026.pdf",
+        "sourceLabel": "Source: INPS - Circolare n. 6 del 30 gennaio 2026: Determinazione per l'anno 2026 del limite minimo di retribuzione giornaliera e aggiornamento degli altri valori",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "taxBands",
+        "label": "National income tax (IRPEF) rates 2026",
+        "value": "23% up to €28,000; 33% from €28,001 to €50,000; 43% over €50,000",
+        "validFrom": "2026-01-01",
+        "note": "National IRPEF only. Regional and municipal surcharges depend on place of residence; deductions and tax credits are not included. For total income above €200,000 the benefit of the lower 33% rate is neutralised (Law 199/2025).",
+        "bands": [
+          {
+            "from": "€0",
+            "to": "€28,000",
+            "rate": "23%"
+          },
+          {
+            "from": "€28,001",
+            "to": "€50,000",
+            "rate": "33%"
+          },
+          {
+            "from": "€50,001",
+            "to": null,
+            "rate": "43%"
+          }
+        ],
+        "sourceUrl": "https://www.agenziaentrate.gov.it/portale/imposta-sul-reddito-delle-persone-fisiche-irpef-/aliquote-e-calcolo-dell-irpef",
+        "sourceLabel": "Source: Agenzia delle Entrate - Aliquote e calcolo dell'Irpef",
+        "checked": "2026-10-04"
+      }
+    ]
+  },
+  {
+    "code": "poland",
+    "asOf": "2026-10-04",
+    "currency": "PLN",
+    "facts": [
+      {
+        "key": "minimumWage",
+        "label": "Minimum monthly wage and minimum hourly rate",
+        "value": "4,806 zł gross per month; minimum hourly rate 31.40 zł (from 1 January 2026)",
+        "validFrom": "2026-01-01",
+        "note": "Set by the Council of Ministers regulation of 11 September 2025 (Dz.U. 2025 item 1242), in force from 1 January 2026.",
+        "sourceUrl": "https://dziennikustaw.gov.pl/D2025000124201.pdf",
+        "sourceLabel": "Source: Dziennik Ustaw - Rozporządzenie Rady Ministrów z dnia 11 września 2025 r. w sprawie wysokości minimalnego wynagrodzenia za pracę (poz. 1242)",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "ssEmployer",
+        "label": "Employer social security contributions (employees on an employment contract)",
+        "value": "Pension 9.76%; disability 6.50%; accident 0.67% to 3.33% (1.67% for small firms employing up to 9 people); Labour Fund 2.45%; Guaranteed Employee Benefits Fund (FGSP) 0.10%",
+        "validFrom": "2026-01-01",
+        "note": "Rates as a percentage of gross pay, as listed on the page for an employee on the 2026 minimum wage. Pension and disability apply only up to the annual cap (see ssCeiling).",
+        "sourceUrl": "https://www.biznes.gov.pl/pl/portal/0083",
+        "sourceLabel": "Source: Biznes.gov.pl - Ile kosztuje zatrudnienie pracownika na umowę o pracę",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "ssEmployee",
+        "label": "Employee social security and health contributions",
+        "value": "Pension 9.76%; disability 1.50%; sickness 2.45%; health insurance 9%",
+        "validFrom": "2026-01-01",
+        "note": "Percentages of gross pay as listed on the page. The three social contributions add up to 13.71% (computed). Health insurance is charged on pay after the employee's social contributions (page's worked example).",
+        "sourceUrl": "https://www.biznes.gov.pl/pl/portal/0083",
+        "sourceLabel": "Source: Biznes.gov.pl - Ile kosztuje zatrudnienie pracownika na umowę o pracę",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "ssCeiling",
+        "label": "Annual cap for pension and disability contributions 2026",
+        "value": "282,600 zł per year (30 times the average monthly wage): no pension or disability contributions once annual pay exceeds this limit",
+        "validFrom": "2026-01-01",
+        "note": "ZUS also gives 282,600 zł for 2026. Sickness, accident, Labour Fund and health contributions are not covered by this cap.",
+        "sourceUrl": "https://www.biznes.gov.pl/pl/portal/0083",
+        "sourceLabel": "Source: Biznes.gov.pl - Ile kosztuje zatrudnienie pracownika na umowę o pracę",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "taxBands",
+        "label": "Personal income tax scale (skala podatkowa) 2026",
+        "value": "12% on annual taxable income up to 120,000 zł, less the amount decreasing tax of 3,600 zł; above 120,000 zł: 10,800 zł plus 32% of the excess",
+        "validFrom": "2026-01-01",
+        "note": "The 3,600 zł reduction equals 12% of the 30,000 zł tax-free amount (per biznes.gov.pl). Health contributions are not deductible. Other regimes (flat 19%, lump sum) for business income are not covered.",
+        "bands": [
+          {
+            "from": "0 zł",
+            "to": "120,000 zł",
+            "rate": "12% minus 3,600 zł"
+          },
+          {
+            "from": "120,001 zł",
+            "to": null,
+            "rate": "10,800 zł + 32% of the excess over 120,000 zł"
+          }
+        ],
+        "sourceUrl": "https://www.podatki.gov.pl/podatki-firmowe/pit/stawki-i-limity",
+        "sourceLabel": "Source: Ministerstwo Finansów (podatki.gov.pl) - Serwis o podatkach: Stawki i limity",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "payFrequency",
+        "label": "Pay frequency",
+        "value": "At least once a month, on a fixed date set in advance, paid in arrears",
+        "note": "The employer must tell the employee in writing about the pay frequency within 7 days of concluding the employment contract.",
+        "sourceUrl": "https://www.biznes.gov.pl/pl/portal/0083",
+        "sourceLabel": "Source: Biznes.gov.pl - Ile kosztuje zatrudnienie pracownika na umowę o pracę",
+        "checked": "2026-10-04"
+      }
+    ]
+  },
+  {
+    "code": "belgium",
+    "asOf": "2026-10-04",
+    "currency": "EUR",
+    "facts": [
+      {
+        "key": "minimumWage",
+        "label": "Guaranteed average minimum monthly income (GGMMI / GMMI, CAO no. 43)",
+        "value": "€2,233.61 gross per month for employees aged 18 and over, from 1 July 2026 (€2,189.81 from 1 April 2026)",
+        "validFrom": "2026-07-01",
+        "note": "Set by collective labour agreement no. 43 of the National Labour Council, as amended by CAO no. 43/18 of 24 March 2026. The 1 July 2026 amount is the indexed figure after the pivot index was exceeded at the end of June 2026.",
+        "sourceUrl": "https://cnt-nar.be/sites/default/files/documents/fr/Tableau-Tabel-Montants%20CCT-CAO%20Bedragen-2026-07-01.pdf",
+        "sourceLabel": "Source: Nationale Arbeidsraad (NAR) - Tabel cao-bedragen bijgewerkt op 01.07.2026 (cao nr. 43/18)",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "ssEmployer",
+        "label": "Employer social security contributions (private sector, basic and wage moderation)",
+        "value": "Basic employer rate 24.92% of gross pay (private sector); plus wage moderation contribution of 5.67% of pay plus 5.67% of the employer contributions due; extra 1.60% (1.69% with wage moderation) for employers with on average 10 or more employees",
+        "note": "From the RSZ/NSSO DmfA instructions 2026/3. The tax shift lowers the basic rate to 19.88% for workers in categories 1 and 3 of the structural reduction. Not covered: manual-worker holiday contributions, special contributions, reductions.",
+        "sourceUrl": "https://www.socialsecurity.be/employer/instructions/dmfa/nl/latest/instructions/socialsecuritycontributions/contributions.html",
+        "sourceLabel": "Source: RSZ/NSSO (socialsecurity.be) - Administratieve instructies RSZ 2026/3: De socialezekerheidsbijdragen",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "ssEmployee",
+        "label": "Employee social security contributions (worker share by branch)",
+        "value": "Pensions 7.50%; health care 3.55%; sickness and invalidity benefits 1.15%; unemployment 0.87% (these four shares add up to 13.07% of gross quarterly pay)",
+        "note": "Worker shares from the RSZ/NSSO instructions 2026/3, applied to gross quarterly pay. The 13.07% total is the sum of the four listed shares (computed here, not stated by the page).",
+        "sourceUrl": "https://www.socialsecurity.be/employer/instructions/dmfa/nl/latest/instructions/socialsecuritycontributions/contributions.html",
+        "sourceLabel": "Source: RSZ/NSSO (socialsecurity.be) - Administratieve instructies RSZ 2026/3: De socialezekerheidsbijdragen",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "taxBands",
+        "label": "Federal personal income tax rates, income year 2026 (assessment year 2027)",
+        "value": "25% up to €16,720; 40% from €16,721 to €29,510; 45% from €29,511 to €51,070; 50% above €51,070",
+        "validFrom": "2026-01-01",
+        "note": "Indexed brackets (art. 130 WIB 92) for net taxable income. Municipal surcharges, the tax-free allowance and withholding scales are not included. Source is a professional publisher's table; FPS Finance pages could not be read.",
+        "bands": [
+          {
+            "from": "€0",
+            "to": "€16,720",
+            "rate": "25%"
+          },
+          {
+            "from": "€16,721",
+            "to": "€29,510",
+            "rate": "40%"
+          },
+          {
+            "from": "€29,511",
+            "to": "€51,070",
+            "rate": "45%"
+          },
+          {
+            "from": "€51,071",
+            "to": null,
+            "rate": "50%"
+          }
+        ],
+        "sourceUrl": "https://assets.contenthub.wolterskluwer.com/api/public/content/3075781-fiscale-grensbedragen-jef-wellens-d6176dd4f9?v=af8fd538",
+        "sourceLabel": "Source: Wolters Kluwer - Overzicht van de belangrijkste fiscale grensbedragen in de personenbelasting (aanslagjaar 2027 - inkomsten 2026)",
+        "checked": "2026-10-04"
+      }
+    ]
+  },
+  {
+    "code": "sweden",
+    "asOf": "2026-10-04",
+    "currency": "SEK",
+    "facts": [
+      {
+        "key": "minimumWage",
+        "label": "Statutory minimum wage",
+        "value": "No statutory minimum wage; wages are often regulated by collective agreements",
+        "note": "The source page is the Swedish Work Environment Authority's guidance for posted workers.",
+        "sourceUrl": "https://www.av.se/en/work-environment-work-and-inspections/foreign-labour-in-sweden/posting-foreign-labour-in-sweden/the-rights-of-posted-workers/",
+        "sourceLabel": "Source: Swedish Work Environment Authority (Arbetsmiljöverket) - The rights of posted workers in Sweden",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "ssEmployer",
+        "label": "Employer contributions (arbetsgivaravgifter) 2026",
+        "value": "Full rate 31.42% of pay (born 1959 or later): sickness 3.55%, parental 2.00%, old-age pension 10.21%, survivors 0.30%, labour market 2.64%, work injury 0.10%, general payroll 12.62%. Born 1938 to 1958: 10.21%. Born 1937 or earlier: none",
+        "validFrom": "2026-01-01",
+        "note": "Temporary reduced rate 20.81% on pay up to 25,000 kr a month, for employees born 2003 to 2007 (the 2026 group), on pay from 1 April 2026 to 30 September 2027. Pay above 25,000 kr a month is charged at the full 31.42%.",
+        "sourceUrl": "https://www.skatteverket.se/foretag/arbetsgivare/arbetsgivaravgifterochskatteavdrag/arbetsgivaravgifter.4.233f91f71260075abe8800020817.html",
+        "sourceLabel": "Source: Skatteverket - Arbetsgivaravgifter",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "ssEmployee",
+        "label": "Employee general pension fee (allmän pensionsavgift) 2026",
+        "value": "7% of earned income, at most 47,100 kr a year; fully offset by a tax reduction of 100% of the fee",
+        "validFrom": "2026-01-01",
+        "note": "The tax reduction cannot exceed the sum of municipal income tax, state income tax, property tax and property fee. The fee is shown on the final tax notice (slutskattebesked).",
+        "sourceUrl": "https://www.skatteverket.se/privat/skatter/beloppochprocent/2026.4.1522bf3f19aea8075ba21.html",
+        "sourceLabel": "Source: Skatteverket - Belopp och procent inkomstår 2026",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "ssCeiling",
+        "label": "Pension-qualifying income ceilings 2026",
+        "value": "Income ceiling for pension-qualifying income 673,038 kr (8.07 income base amounts); highest pension-qualifying income 625,500 kr (7.5 income base amounts); income base amount 83,400 kr",
+        "validFrom": "2026-01-01",
+        "note": "Ceiling for building pension rights, not a cap on employer contributions. Price base amount 2026: 59,200 kr.",
+        "sourceUrl": "https://www.skatteverket.se/privat/skatter/beloppochprocent/2026.4.1522bf3f19aea8075ba21.html",
+        "sourceLabel": "Source: Skatteverket - Belopp och procent inkomstår 2026",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "taxBands",
+        "label": "Income tax 2026 (municipal and state), on taxable earned income",
+        "value": "Municipal income tax on all taxable income (average rate 32.38%, set by each municipality); plus 20% state income tax on taxable earned income above 643,000 kr",
+        "validFrom": "2026-01-01",
+        "note": "Taxable income means earned income after the basic deduction (grundavdrag). The state tax threshold (skiktgräns) is 643,000 kr; the brytpunkt, before the basic deduction, is 660,400 kr (760,500 kr for those aged 66 or over at the start of the year).",
+        "bands": [
+          {
+            "from": "0 kr",
+            "to": "643,000 kr",
+            "rate": "Municipal tax only (average 32.38%)"
+          },
+          {
+            "from": "643,001 kr",
+            "to": null,
+            "rate": "Municipal tax plus 20% state tax"
+          }
+        ],
+        "sourceUrl": "https://www.skatteverket.se/privat/skatter/beloppochprocent/2026.4.1522bf3f19aea8075ba21.html",
+        "sourceLabel": "Source: Skatteverket - Belopp och procent inkomstår 2026",
+        "checked": "2026-10-04"
+      }
+    ]
+  },
+  {
+    "code": "ireland",
+    "asOf": "2026-10-04",
+    "currency": "EUR",
+    "facts": [
+      {
+        "key": "minimumWage",
+        "label": "National minimum wage",
+        "value": "€14.15 per hour for ages 20 and over; age 19: €12.74; age 18: €11.32; under 18: €9.91",
+        "validFrom": "2026-01-01",
+        "note": "In force since 1 January 2026. Sub-minimum rates are 90%, 80% and 70% of the adult rate. Employees of a close relative and statutory apprentices are not entitled to the national minimum wage.",
+        "sourceUrl": "https://www.citizensinformation.ie/en/employment/employment-rights-and-conditions/pay-and-employment/minimum-wage/",
+        "sourceLabel": "Source: Citizens Information - Minimum wage",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "ssEmployee",
+        "label": "Employee PRSI (Class A, private sector)",
+        "value": "0% if weekly earnings are €352 or less; 4.35% on all earnings if over €352 a week from 1 October 2026 (4.2% up to 30 September 2026); tapered credit of up to €12 a week on €352.01 to €424",
+        "validFrom": "2026-10-01",
+        "note": "Class A only; other PRSI classes have different rates. The source says all PRSI contribution rates increase by 0.15% on 1 October 2026.",
+        "sourceUrl": "https://www.citizensinformation.ie/en/social-welfare/irish-social-welfare-system/social-insurance-prsi/paying-social-insurance/",
+        "sourceLabel": "Source: Citizens Information - Paying social insurance (PRSI)",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "ssEmployer",
+        "label": "Employer PRSI (Class A, private sector)",
+        "value": "From 1 October 2026: 9.15% on weekly earnings up to €552; 11.4% if weekly earnings are above €552 (from 1 January 2026 to 30 September 2026: 9% and 11.25%)",
+        "validFrom": "2026-10-01",
+        "note": "Class A only. The €552 weekly threshold applies from 1 January 2026. Other classes and low-earnings subclasses are not covered.",
+        "sourceUrl": "https://www.citizensinformation.ie/en/social-welfare/irish-social-welfare-system/social-insurance-prsi/paying-social-insurance/",
+        "sourceLabel": "Source: Citizens Information - Paying social insurance (PRSI)",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "taxBands",
+        "label": "Income tax rate bands 2026 (single person, no qualifying children)",
+        "value": "20% on the first €44,000; 40% on the balance",
+        "validFrom": "2026-01-01",
+        "note": "Standard rate band for a single or widowed person without qualifying children. Other circumstances have different bands (for example married, one income: €53,000). Tax credits and USC are not included.",
+        "bands": [
+          {
+            "from": "€0",
+            "to": "€44,000",
+            "rate": "20%"
+          },
+          {
+            "from": "€44,001",
+            "to": null,
+            "rate": "40%"
+          }
+        ],
+        "sourceUrl": "https://www.revenue.ie/en/personal-tax-credits-reliefs-and-exemptions/tax-relief-charts/index.aspx",
+        "sourceLabel": "Source: Revenue Commissioners - Tax rates, bands and reliefs",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "other",
+        "label": "Universal Social Charge (USC), standard rates 2026",
+        "value": "First €12,012 at 0.5%; next €16,688 at 2%; next €41,344 at 3%; balance at 8%",
+        "validFrom": "2026-01-01",
+        "note": "Standard rates and thresholds. Cumulative thresholds (computed from the source): €28,700 and €70,044. Reduced rates apply to some people and are shown on a separate Revenue page.",
+        "sourceUrl": "https://www.revenue.ie/en/jobs-and-pensions/usc/standard-rates-thresholds.aspx",
+        "sourceLabel": "Source: Revenue Commissioners - Standard rates and thresholds of USC",
+        "checked": "2026-10-04"
+      }
+    ]
+  },
+  {
+    "code": "austria",
+    "asOf": "2026-10-04",
+    "currency": "EUR",
+    "facts": [
+      {
+        "key": "minimumWage",
+        "label": "Minimum wage (no statutory national minimum)",
+        "value": "Austria has no statutory minimum wage that applies to all employees; minimum wages are set mainly in sector collective agreements (Kollektivverträge), which cannot be undercut by contract. Most agreements provide at least €1,700 gross, 14 times a year",
+        "note": "About 95% of employees are covered by a collective agreement (over 800 agreements). Page last updated 12 August 2025. Rate depends on the applicable Kollektivvertrag.",
+        "sourceUrl": "https://www.sozialministerium.gv.at/Themen/Arbeit/Arbeitsrecht/Entlohnung/Mindestlohn-in-OE.html",
+        "sourceLabel": "Source: Sozialministerium (BMASGPK) - Mindestlohn in Österreich",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "ssEmployer",
+        "label": "Employer social insurance contributions (ASVG, Arbeiter and Angestellte)",
+        "value": "Health 3.78%; accident 1.10%; pension 12.55%; unemployment 2.95%; IESG surcharge 0.10%; housing subsidy contribution 0.50% (Vienna 0.75%); plus employer pension-fund contribution (Betriebliche Vorsorge) 1.53% for contracts begun after 2002",
+        "validFrom": "2026-01-01",
+        "note": "Official table of contribution values, status 1 January 2026 (version of 19 May 2026). Other employer charges (e.g. Dienstgeberbeitrag, Kommunalsteuer, Nachtschwerarbeit, SWF) are not covered here.",
+        "sourceUrl": "https://www.sozialversicherung.at/cdscontent/load?contentid=10008.806858",
+        "sourceLabel": "Source: Dachverband der österreichischen Sozialversicherung - Beitragsrechtliche Werte in der Sozialversicherung 2026",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "ssEmployee",
+        "label": "Employee social insurance contributions (ASVG, Arbeiter and Angestellte)",
+        "value": "Health 3.87%; pension 10.25%; unemployment 2.95% (reduced for low earners: 0% up to €2,225, 1% to €2,427, 2% to €2,630 of the contribution base); Chamber of Labour levy 0.50%; housing subsidy contribution 0.50% (Vienna 0.75%)",
+        "validFrom": "2026-01-01",
+        "note": "Official table, status 1 January 2026. Housing and Chamber of Labour contributions are listed in the same table. Special rules (e.g. older employees, freelance contracts, marginal employment) are not covered.",
+        "sourceUrl": "https://www.sozialversicherung.at/cdscontent/load?contentid=10008.806858",
+        "sourceLabel": "Source: Dachverband der österreichischen Sozialversicherung - Beitragsrechtliche Werte in der Sozialversicherung 2026",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "ssCeiling",
+        "label": "Maximum contribution base (Höchstbeitragsgrundlage) 2026",
+        "value": "€6,930 per month (€231 per day) for health, accident, pension, unemployment and IESG; annual cap for special payments (Sonderzahlungen) €13,860",
+        "validFrom": "2026-01-01",
+        "note": "Official table, status 1 January 2026 (version of 19 May 2026). The same monthly maximum applies to the Chamber of Labour levy and the housing subsidy contribution.",
+        "sourceUrl": "https://www.sozialversicherung.at/cdscontent/load?contentid=10008.806858",
+        "sourceLabel": "Source: Dachverband der österreichischen Sozialversicherung - Beitragsrechtliche Werte in der Sozialversicherung 2026",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "taxBands",
+        "label": "Income tax scale (Einkommensteuertarif) 2026",
+        "value": "Up to €13,539: 0%; over €13,539 to €21,992: 20%; to €36,458: 30%; to €70,365: 40%; to €104,859: 48%; to €1,000,000: 50%; over €1,000,000: 55% (limited until 2029, then 50%)",
+        "validFrom": "2026-01-01",
+        "note": "Marginal rates per annual taxable income; thresholds raised by 1.733% (two-thirds of 2.6% inflation) for 2026, except the top band. Tax credits (Absetzbeträge) and Lohnsteuer withholding mechanics, 13th/14th salary tax rules are not covered.",
+        "bands": [
+          {
+            "from": "€0",
+            "to": "€13,539",
+            "rate": "0%"
+          },
+          {
+            "from": "€13,540",
+            "to": "€21,992",
+            "rate": "20%"
+          },
+          {
+            "from": "€21,993",
+            "to": "€36,458",
+            "rate": "30%"
+          },
+          {
+            "from": "€36,459",
+            "to": "€70,365",
+            "rate": "40%"
+          },
+          {
+            "from": "€70,366",
+            "to": "€104,859",
+            "rate": "48%"
+          },
+          {
+            "from": "€104,860",
+            "to": "€1,000,000",
+            "rate": "50%"
+          },
+          {
+            "from": "€1,000,001",
+            "to": null,
+            "rate": "55%"
+          }
+        ],
+        "sourceUrl": "https://www.bmf.gv.at/themen/steuern/arbeitnehmerveranlagung/steuertarif-steuerabsetzbetraege/steuertarif-steuerabsetzbetraege.html",
+        "sourceLabel": "Source: Bundesministerium für Finanzen (BMF) - Steuertarif",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "other",
+        "label": "Marginal employment threshold (Geringfügigkeitsgrenze) 2026",
+        "value": "€551.10 per month",
+        "validFrom": "2026-01-01",
+        "note": "Indexation of the threshold was suspended for 2026 (para. 810(3) ASVG), per the source.",
+        "sourceUrl": "https://www.sozialversicherung.at/cdscontent/load?contentid=10008.806858",
+        "sourceLabel": "Source: Dachverband der österreichischen Sozialversicherung - Beitragsrechtliche Werte in der Sozialversicherung 2026",
+        "checked": "2026-10-04"
+      }
+    ]
+  },
+  {
+    "code": "czechia",
+    "asOf": "2026-10-04",
+    "currency": "CZK",
+    "facts": [
+      {
+        "key": "minimumWage",
+        "label": "Minimum wage (minimální mzda)",
+        "value": "22,400 Kč per month or 134.40 Kč per hour for a 40-hour working week, from 1 January to 31 December 2026",
+        "validFrom": "2026-01-01",
+        "note": "Pro-rated for shorter agreed weekly hours. Set by MPSV notice No. 356/2025 Sb. (coefficient 0.434 x forecast average wage of 51,497 Kč, rounded).",
+        "sourceUrl": "https://mpsv.gov.cz/minimalni-mzda",
+        "sourceLabel": "Source: MPSV - Minimální mzda",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "ssEmployer",
+        "label": "Employer social security contributions",
+        "value": "Social security 24.8% of assessment base (sickness insurance 2.1%, pension insurance 21.5%, state employment policy contribution 1.2%)",
+        "note": "Higher employer rates: 27.8% for hazardous work (to rise to 28.8% in 2027 and 29.8% from 2028) and 29.8% for paramedics and company fire units. Employer discounts not covered. Health insurance is a separate fact.",
+        "sourceUrl": "https://www.cssz.gov.cz/vyse-a-sazba",
+        "sourceLabel": "Source: ČSSZ - Sazby pojistného",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "ssEmployee",
+        "label": "Employee social security contributions",
+        "value": "Social security 7.1% of assessment base (sickness insurance 0.6%, pension insurance 6.5%)",
+        "note": "Health insurance is a separate fact. Discounts (e.g. for working pensioners) and other special cases are not covered.",
+        "sourceUrl": "https://www.cssz.gov.cz/vyse-a-sazba",
+        "sourceLabel": "Source: ČSSZ - Sazby pojistného",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "ssCeiling",
+        "label": "Maximum assessment base for social security 2026",
+        "value": "2,350,416 Kč per year (48 times the 2026 average wage of 48,967 Kč) for employees and self-employed",
+        "validFrom": "2026-01-01",
+        "note": "Applies to social security contributions only. For health insurance see the separate assessment base fact.",
+        "sourceUrl": "https://www.cssz.gov.cz/-/prehled-nejdulezitejsich-udaju-pro-socialni-zabezpeceni-v-roce-2026",
+        "sourceLabel": "Source: ČSSZ - Přehled nejdůležitějších údajů pro sociální zabezpečení v roce 2026",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "taxBands",
+        "label": "Personal income tax rates 2026 (employment income)",
+        "value": "15% on the part of the tax base up to 36 times the average wage (1,762,812 Kč a year); 23% on the part above that limit",
+        "validFrom": "2026-01-01",
+        "note": "Monthly withholding advance uses 3 times the average wage (146,901 Kč): 15% up to it, 23% above it. Average wage 2026 is 48,967 Kč. Tax credits (slevy na dani) and deductions not covered.",
+        "bands": [
+          {
+            "from": "0 Kč",
+            "to": "1,762,812 Kč",
+            "rate": "15%"
+          },
+          {
+            "from": "1,762,813 Kč",
+            "to": null,
+            "rate": "23%"
+          }
+        ],
+        "sourceUrl": "https://financnisprava.gov.cz/cs/dane/dane/dan-z-prijmu/zamestnanci-zamestnavatele/obecne-informace",
+        "sourceLabel": "Source: Finanční správa - Daň z příjmů: Zaměstnanci - zaměstnavatelé, Obecné informace",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "other",
+        "label": "Health insurance premium (zdravotní pojištění), employees",
+        "value": "13.5% of the assessment base: the employer pays two thirds (9%) and the employee one third (4.5%)",
+        "note": "The employer pays the whole premium to the health insurer and withholds the employee share from pay without consent. Due from the 1st to the 20th day of the following month.",
+        "sourceUrl": "https://www.vzp.cz/platci/informace/povinnosti-platcu-metodika/2-4-platce-pojistneho-zamestnavatel",
+        "sourceLabel": "Source: VZP ČR - 2.4. Plátce pojistného – zaměstnavatel",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "other",
+        "label": "Health insurance assessment base limits, employees",
+        "value": "Minimum base is the minimum wage (22,400 Kč a month from 1 January 2026), so the minimum premium is 3,024 Kč; there is no maximum assessment base (abolished)",
+        "validFrom": "2026-01-01",
+        "note": "Exceptions apply to some employees, for example those for whom the state also pays the premium; the minimum is reduced in proportion for part-month employment.",
+        "sourceUrl": "https://www.vzp.cz/platci/informace/zamestnavatel/vymerovaci-zaklad-a-vypocet-pojistneho",
+        "sourceLabel": "Source: VZP ČR - Vyměřovací základ a výpočet pojistného",
+        "checked": "2026-10-04"
+      }
+    ]
+  },
+  {
+    "code": "romania",
+    "asOf": "2026-10-04",
+    "currency": "RON",
+    "facts": [
+      {
+        "key": "minimumWage",
+        "label": "Guaranteed minimum gross monthly wage (salariul de bază minim brut pe țară)",
+        "value": "4,325 lei gross per month from 1 July 2026, for a normal working time of 166.667 hours a month on average (25.949 lei per hour)",
+        "validFrom": "2026-07-01",
+        "note": "Government Decision (HG) 146/2026 of 12 March 2026, Monitorul Oficial no. 196 of 13 March 2026. The amount excludes bonuses and other additions. It replaces HG 1,506/2024.",
+        "sourceUrl": "https://static.anaf.ro/static/10/Anaf/legislatie/HG_146_2026.pdf",
+        "sourceLabel": "Source: Guvernul României (published by ANAF) - Hotărâre nr. 146/2026 pentru stabilirea salariului de bază minim brut pe țară garantat în plată",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "ssEmployer",
+        "label": "Employer contributions on salaries",
+        "value": "Work insurance contribution (CAM) 2.25% of gross salary income (art. 220^3); employer social insurance (CAS) only in particular working conditions 4% or special working conditions 8% (art. 138)",
+        "note": "Codul fiscal, consolidated text on the ANAF site (last updated by OUG 38/2026). Calculated and paid by the 25th of the month after the salary month (art. 220^6). Exemptions and special sectors not covered.",
+        "sourceUrl": "https://static.anaf.ro/static/10/Anaf/legislatie/Cod_fiscal_norme_2023.htm",
+        "sourceLabel": "Source: ANAF - Legea nr. 227/2015 privind Codul fiscal",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "ssEmployee",
+        "label": "Employee contributions on salaries",
+        "value": "Social insurance (CAS) 25% and health insurance (CASS) 10% of gross salary income, calculated and withheld by the employer",
+        "note": "Codul fiscal art. 138(a), 156, 146 and 168: paid by the 25th of the month after the salary month. The monthly base is the gross salary income (art. 139, 157). Exemptions and special sectors not covered.",
+        "sourceUrl": "https://static.anaf.ro/static/10/Anaf/legislatie/Cod_fiscal_norme_2023.htm",
+        "sourceLabel": "Source: ANAF - Legea nr. 227/2015 privind Codul fiscal",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "taxBands",
+        "label": "Personal income tax on employment income",
+        "value": "Flat 10% income tax rate on taxable salary income",
+        "note": "Codul fiscal art. 64(1)(b): a single rate of 10% on taxable income from salaries and assimilated income. Personal deductions and the rules for other income types are not covered.",
+        "bands": [
+          {
+            "from": "0 lei",
+            "to": null,
+            "rate": "10%"
+          }
+        ],
+        "sourceUrl": "https://static.anaf.ro/static/10/Anaf/legislatie/Cod_fiscal_norme_2023.htm",
+        "sourceLabel": "Source: ANAF - Legea nr. 227/2015 privind Codul fiscal",
+        "checked": "2026-10-04"
+      }
+    ]
+  },
+  {
+    "code": "portugal",
+    "asOf": "2026-10-04",
+    "currency": "EUR",
+    "facts": [
+      {
+        "key": "minimumWage",
+        "label": "Guaranteed minimum monthly remuneration (RMMG / salário mínimo nacional)",
+        "value": "€920 per month, with effect from 1 January 2026 (Decreto-Lei 139/2025 of 29 December; up 5.7%)",
+        "validFrom": "2026-01-01",
+        "note": "Page updated 26 May 2026; the DGERT table lists the 2026 amount as €920.00 and a 5.7% increase. The page does not state the number of annual payments.",
+        "sourceUrl": "https://www.dgert.gov.pt/retribuicao-minima-mensal-garantida-para-2026",
+        "sourceLabel": "Source: DGERT - Retribuição mínima mensal garantida para 2026",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "ssEmployer",
+        "label": "Employer social security contribution rate (Segurança Social)",
+        "value": "23.75% of gross remuneration for profit-making employers; 22.3% for non-profit entities (IPSS and other entities)",
+        "note": "General rates (\"de modo geral\") for employees, per the gov.pt service page updated 7 September 2026; special regimes and reduced rates are not covered. Paid between the 10th and 25th of each month for the previous month.",
+        "sourceUrl": "https://www.gov.pt/servicos/obter-informacoes-sobre-as-contribuicoes-para-a-seguranca-social-pagamento-de-entidade-empregadora-por-trabalhador-por-conta-de-outrem",
+        "sourceLabel": "Source: Instituto da Segurança Social (gov.pt) - Contribuições para a Segurança Social – pagar como trabalhador por conta de outrem",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "ssEmployee",
+        "label": "Employee social security contribution rate (Segurança Social)",
+        "value": "11% of gross remuneration (quotizações), included in the employer's monthly payment to Segurança Social",
+        "note": "General rate, per the gov.pt service page (updated 7 September 2026). Combined global rate is 34.75% for profit-making employers and 33.3% for non-profit entities.",
+        "sourceUrl": "https://www.gov.pt/servicos/obter-informacoes-sobre-as-contribuicoes-para-a-seguranca-social-pagamento-de-entidade-empregadora-por-trabalhador-por-conta-de-outrem",
+        "sourceLabel": "Source: Instituto da Segurança Social (gov.pt) - Contribuições para a Segurança Social – pagar como trabalhador por conta de outrem",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "taxBands",
+        "label": "Income tax (IRS) general rates, taxable income (Código do IRS art. 68)",
+        "value": "Up to €8,342: 12.5%; to €12,587: 15.7%; to €17,838: 21.2%; to €23,089: 24.1%; to €29,397: 31.1%; to €43,090: 34.9%; to €46,566: 43.1%; to €86,634: 44.6%; over €86,634: 48%",
+        "validFrom": "2026-01-01",
+        "note": "Wording of Lei 73-A/2025 of 30 December (the page lists earlier wording as in force until December 2025). The code also lists an average rate per band and splits income above €8,059 into two parts (art. 68(2)). Withholding tables not covered.",
+        "bands": [
+          {
+            "from": "€0",
+            "to": "€8,342",
+            "rate": "12.5%"
+          },
+          {
+            "from": "€8,343",
+            "to": "€12,587",
+            "rate": "15.7%"
+          },
+          {
+            "from": "€12,588",
+            "to": "€17,838",
+            "rate": "21.2%"
+          },
+          {
+            "from": "€17,839",
+            "to": "€23,089",
+            "rate": "24.1%"
+          },
+          {
+            "from": "€23,090",
+            "to": "€29,397",
+            "rate": "31.1%"
+          },
+          {
+            "from": "€29,398",
+            "to": "€43,090",
+            "rate": "34.9%"
+          },
+          {
+            "from": "€43,091",
+            "to": "€46,566",
+            "rate": "43.1%"
+          },
+          {
+            "from": "€46,567",
+            "to": "€86,634",
+            "rate": "44.6%"
+          },
+          {
+            "from": "€86,635",
+            "to": null,
+            "rate": "48%"
+          }
+        ],
+        "sourceUrl": "https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/codigos_tributarios/cirs_rep/Pages/irs68.aspx",
+        "sourceLabel": "Source: Autoridade Tributária e Aduaneira (Portal das Finanças) - Código do IRS, Artigo 68.º Taxas gerais",
+        "checked": "2026-10-04"
+      }
+    ]
+  },
+  {
+    "code": "denmark",
+    "asOf": "2026-10-04",
+    "currency": "DKK",
+    "facts": [
+      {
+        "key": "minimumWage",
+        "label": "Minimum wage (no statutory national minimum)",
+        "value": "Denmark does not have a statutory minimum wage; pay is regulated by collective agreements or negotiated individually",
+        "note": "Written by the Ministry of Employment, updated 19 May 2026. The page says an individual agreement can stipulate a minimum wage for the sector and that unions publish annual wage statistics.",
+        "sourceUrl": "https://businessindenmark.virk.dk/guidance/employment-and-dismissal/pay/",
+        "sourceLabel": "Source: Business in Denmark (Virk, Ministry of Employment) - Pay",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "ssEmployer",
+        "label": "Employer ATP pension contribution (A-rate, monthly-paid employees)",
+        "value": "198 kr per month (employee share 99 kr; total 297 kr) for employees working at least 117 hours a month; 132 kr for 78-116 hours; 66 kr for 39-77 hours; none below 39 hours",
+        "note": "ATP A-rate: fixed amounts, not a percentage of pay. Page updated 19 May 2026; a linked PDF is titled ATP rates valid from 1 January 2024. Public employers may use other rates (B to F). Other employer charges are not covered.",
+        "sourceUrl": "https://virk.dk/vejledning/atp/atp-arbejdsgiver/atp-satser/",
+        "sourceLabel": "Source: Virk (Danish Business Authority) - Gældende satser for ATP-bidrag",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "ssEmployee",
+        "label": "Employee labour market contribution (AM-bidrag)",
+        "value": "AM-bidrag 8% of pay, withheld by the employer; young employees are exempt (see note)",
+        "note": "From 1 January 2026 the employer does not report or pay AM-bidrag up to and including 31 December of the income year the employee turns 17. The employee ATP share is shown in the employer ATP fact.",
+        "sourceUrl": "https://skat.dk/erhverv/ansatte-og-loen/indberet-loen-eindkomst/skat-af-ansattes-loen",
+        "sourceLabel": "Source: Skattestyrelsen (Skat.dk) - Beregn A-skat og am-bidrag af ansattes løn mm.",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "taxBands",
+        "label": "State income tax rates 2026 (bundskat, mellemskat, topskat, toptopskat)",
+        "value": "Bundskat 12.01% on personal income above the personal allowance; mellemskat 7.5% over 641,200 kr; topskat 7.5% over 777,900 kr; toptopskat 5% over 2,592,700 kr (thresholds apply to personal income after AM-bidrag)",
+        "validFrom": "2026-01-01",
+        "note": "Rates in the table are cumulative: each higher tax is added on top of the lower ones for income above its threshold. State taxes only: municipal tax and, for members of the Church of Denmark, church tax are added. Personal allowance amount not covered.",
+        "bands": [
+          {
+            "from": "0 kr",
+            "to": "641,200 kr",
+            "rate": "12.01% (bundskat, above allowance)"
+          },
+          {
+            "from": "641,201 kr",
+            "to": "777,900 kr",
+            "rate": "19.51% (bundskat + 7.5% mellemskat)"
+          },
+          {
+            "from": "777,901 kr",
+            "to": "2,592,700 kr",
+            "rate": "27.01% (+ 7.5% topskat)"
+          },
+          {
+            "from": "2,592,701 kr",
+            "to": null,
+            "rate": "32.01% (+ 5% toptopskat)"
+          }
+        ],
+        "sourceUrl": "https://skat.dk/hjaelp/bundskat-mellemskat-topskat-og-toptopskat",
+        "sourceLabel": "Source: Skattestyrelsen (Skat.dk) - Bundskat, mellemskat, topskat og toptopskat",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "payFrequency",
+        "label": "Pay frequency",
+        "value": "Monthly wages are paid monthly, in arrears; hourly, day and piecework wages are as a rule paid once or twice a month",
+        "note": "Paid to the employee's NemKonto unless otherwise agreed. Page written by the Ministry of Employment, updated 19 May 2026.",
+        "sourceUrl": "https://businessindenmark.virk.dk/guidance/employment-and-dismissal/pay/",
+        "sourceLabel": "Source: Business in Denmark (Virk, Ministry of Employment) - Pay",
+        "checked": "2026-10-04"
+      },
+      {
+        "key": "other",
+        "label": "Average municipal and church tax 2026",
+        "value": "Average municipal tax 25.049% in 2026; average church tax 0.639% across all taxpayers (0.867% for members of the Church of Denmark)",
+        "validFrom": "2026-01-01",
+        "note": "Skatteministeriet table of average municipal and church tax percentages; actual rates differ by municipality. The 0.867% is the average for the roughly 75% of taxpayers who are church members.",
+        "sourceUrl": "https://skm.dk/tal-og-metode/satser/statistik-i-kommunerne/kommuneskatter-gennemsnitsprocenter-2007-2026",
+        "sourceLabel": "Source: Skatteministeriet - Kommuneskatter - gennemsnitsprocenter 2007-2026",
+        "checked": "2026-10-04"
+      }
+    ]
   }
 ]

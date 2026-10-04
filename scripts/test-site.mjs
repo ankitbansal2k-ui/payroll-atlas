@@ -824,7 +824,7 @@ test('p2_7.every_term_links_somewhere', () => {
 //   all text and attribute values escaped with & < > " '): see renderFacts() below. Dates are long en-GB ("1 January 2026").
 // legal.css: .table-scroll {overflow-x:auto} (tables scroll inside it, not the page), .key-facts {overflow-wrap:anywhere}.
 const FACTS_FILE = path.join(ROOT, 'data/facts.json');
-const BATCH1 = { uk: 'GBP', germany: 'EUR', france: 'EUR', netherlands: 'EUR', spain: 'EUR' }; // update when batch 2 lands
+const FACT_COUNTRIES = { uk: 'GBP', germany: 'EUR', france: 'EUR', netherlands: 'EUR', spain: 'EUR', italy: 'EUR', poland: 'PLN', belgium: 'EUR', sweden: 'SEK', ireland: 'EUR', austria: 'EUR', czechia: 'CZK', romania: 'RON', portugal: 'EUR', denmark: 'DKK' }; // batches 1 to 3; update when the next batch lands
 const longDay = iso => new Date(iso + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
 const squash = h => h.replace(/>\s+</g, '><');
 const renderFacts = c => {
@@ -1113,16 +1113,16 @@ test('p2_8.check_links_and_readme', () => {
   for (const re of [/Unknown fields are rejected/, /UTC today plus one day/, /365 days/, /No limit/, /id="key-facts"|#key-facts/, /Check the source before use/]) assert.match(sec, re);
 });
 
-// ----- P2-8 real data: data/facts.json (batch 1: UK, Germany, France, Netherlands, Spain) -----
+// ----- P2-8 real data: data/facts.json (batches 1 to 3: 15 European countries) -----
 const loadFacts = () => { assert.ok(fs.existsSync(FACTS_FILE), 'data/facts.json missing'); return JSON.parse(fs.readFileSync(FACTS_FILE, 'utf8')); };
 const pageSlug = new Map(CHANGES.map(e => [e.country, P2.slugify(e.name)]));
-test('p2_8.data.covers_exactly_batch1_with_sources', () => {
+test('p2_8.data.covers_exactly_the_fact_countries_with_sources', () => {
   const facts = loadFacts(), today = ymd(1);
   assert.ok(Array.isArray(facts));
-  assert.deepEqual(facts.map(c => c.code).sort(), Object.keys(BATCH1).sort(), 'facts.json covers exactly the batch-1 countries (update BATCH1 in this test when batch 2 lands)');
+  assert.deepEqual(facts.map(c => c.code).sort(), Object.keys(FACT_COUNTRIES).sort(), 'facts.json covers exactly the fact-sheet countries (update FACT_COUNTRIES in this test when the next batch lands)');
   for (const c of facts) {
     assert.ok(CODES.has(c.code), `${c.code}: known country code`);
-    assert.equal(c.currency, BATCH1[c.code], `${c.code}: currency`);
+    assert.equal(c.currency, FACT_COUNTRIES[c.code], `${c.code}: currency`);
     assert.ok(isDay(c.asOf) && c.asOf <= today, `${c.code}: asOf`);
     assert.ok(Array.isArray(c.facts) && c.facts.length >= 1, `${c.code}: at least one verified fact`);
     const keys = c.facts.map(f => f.key).filter(k => k !== 'other');
@@ -1138,10 +1138,10 @@ test('p2_8.data.covers_exactly_batch1_with_sources', () => {
     }
   }
 });
-test('p2_8.pages.key_facts_only_for_batch1', () => {
+test('p2_8.pages.key_facts_only_for_fact_countries', () => {
   loadFacts();
-  const want = new Set(Object.keys(BATCH1).map(code => `${pageSlug.get(code)}.html`));
-  assert.equal(want.size, 5);
+  const want = new Set(Object.keys(FACT_COUNTRIES).map(code => `${pageSlug.get(code)}.html`));
+  assert.equal(want.size, 15);
   for (const f of countryFiles.filter(f => f.endsWith('.html'))) {
     const h = read(`countries/${f}`);
     if (want.has(f)) {
