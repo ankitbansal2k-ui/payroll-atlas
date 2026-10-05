@@ -164,7 +164,7 @@ const head = ({ title, desc, url, depth, noindex, graph }) => `<!DOCTYPE html>
 const header = depth => `  <header><a href="${depth || './'}">Intelligent Payroll</a> <a class="nav" href="${depth}countries.html">All countries</a> <a class="nav" href="${depth}keyfacts.html">Key facts</a> <a class="nav" href="${depth}glossary.html">Glossary</a></header>`;
 const footer = depth => `  <footer>
     <p>For information only, not legal or tax advice. Sources last checked ${VERIFIED}. Found an error? <a href="${ISSUES}" rel="noopener">Tell us</a>.</p>
-    <p><a href="${depth || './'}">Home</a> &middot; <a href="${depth}countries.html">All countries</a> &middot; <a href="${depth}upcoming.html">What's coming</a> &middot; <a href="${depth}keyfacts.html">Key facts</a> &middot; <a href="${depth}glossary.html">Glossary</a> &middot; <a href="${depth}suggest.html">Suggest a change</a> &middot; <a href="${depth}feed.xml">RSS feed</a> &middot; <a href="${depth}privacy.html">Privacy</a> &middot; <a href="${depth}terms.html">Terms and disclaimer</a></p>
+    <p><a href="${depth || './'}">Home</a> &middot; <a href="${depth}countries.html">All countries</a> &middot; <a href="${depth}upcoming.html">What's coming</a> &middot; <a href="${depth}keyfacts.html">Key facts</a> &middot; <a href="${depth}minimum-wage-europe.html">Minimum wage</a> &middot; <a href="${depth}glossary.html">Glossary</a> &middot; <a href="${depth}suggest.html">Suggest a change</a> &middot; <a href="${depth}feed.xml">RSS feed</a> &middot; <a href="${depth}privacy.html">Privacy</a> &middot; <a href="${depth}terms.html">Terms and disclaimer</a></p>
   </footer>`;
 
 // items are HTML (already escaped, possibly with glossary links).
@@ -336,10 +336,53 @@ ${cs.map(c => `      <li><a href="countries/${c.slug}.html#key-facts">${c.flag} 
 ${header('')}
   <main>
     <h1>Key facts by country</h1>
-    <p>Pick a country to see its key payroll facts, such as minimum wage and tax rates. Each fact links to its official or professional source and shows the as of date it is valid from or was last checked. Rules change, so always confirm with the source. Looking for another country? See <a href="countries.html">all countries</a>.</p>
+    <p>Pick a country to see its key payroll facts, such as minimum wage and tax rates. Each fact links to its official or professional source and shows the as of date it is valid from or was last checked. Rules change, so always confirm with the source. Looking for another country? See <a href="countries.html">all countries</a>. To compare countries, see the <a href="minimum-wage-europe.html">minimum wage in Europe</a> table.</p>
 
 ${sections}
   </main>
+${footer('')}
+</body>
+</html>
+`;
+}
+
+// Minimum wage in Europe: one comparison table built only from the `headline` of each country's minimumWage fact in data/facts.json
+// (see README "Country key facts"). Countries with headline {statutory:false} are listed below the table instead.
+function minWagePage() {
+  const url = `${SITE}minimum-wage-europe.html`;
+  const items = [];
+  for (const d of FACTS) {
+    const f = (d.facts || []).find(x => x.key === 'minimumWage' && x.headline);
+    if (f) items.push({ d, f, h: f.headline, c: countries.get(d.code) });
+  }
+  items.sort((a, b) => a.c.name.localeCompare(b.c.name));
+  const link = i => `<a href="countries/${i.c.slug}.html#key-facts">${i.c.flag} ${escF(i.c.name)}${i.h.region ? ` (${escF(i.h.region)})` : ''}</a>`;
+  const src = i => `<a href="${escF(i.f.sourceUrl)}" rel="noopener">${escF(i.f.sourceLabel)}</a>`;
+  const cell = (i, p) => (i.h.period === p ? `${escF(i.d.currency)} ${escF(i.h.amount)}` : '—');
+  const rows = items.filter(i => i.h.statutory !== false);
+  const none = items.filter(i => i.h.statutory === false);
+  const title = withBrand(`Minimum wage in Europe ${YEAR}: statutory rates by country`);
+  const desc = `Statutory minimum wage in ${rows.length} European ${rows.length === 1 ? 'country' : 'countries'}, in local currency and not converted, each linked to its source. Checked ${VERIFIED}.`;
+  const table = rows.length ? `    <div class="table-scroll" tabindex="0" role="region" aria-label="Minimum wage by country table"><table class="min-wage"><caption>Statutory minimum wage by country, ${YEAR}: monthly and hourly rates as stated by each source</caption>
+      <thead><tr><th scope="col">Country</th><th scope="col">Currency</th><th scope="col">Monthly</th><th scope="col">Hourly</th><th scope="col">Applies to</th><th scope="col">Valid from</th><th scope="col">Source</th></tr></thead>
+      <tbody>
+${rows.map(i => `        <tr><th scope="row">${link(i)}</th><td>${escF(i.d.currency)}</td><td>${cell(i, 'month')}</td><td>${cell(i, 'hour')}</td><td>${escF(i.h.scope)}</td><td>${i.f.validFrom ? fmtDay(i.f.validFrom) : '—'}</td><td>${src(i)}</td></tr>`).join('\n')}
+      </tbody>
+    </table></div>
+` : '';
+  const noneSection = none.length ? `
+    <h2 id="no-statutory-minimum">No statutory national minimum wage</h2>
+    <ul class="no-min-wage">
+${none.map(i => `      <li>${link(i)}: ${escF(i.f.value)}${i.f.note ? ` <span class="note">${escF(i.f.note)}</span>` : ''} &middot; ${src(i)}</li>`).join('\n')}
+    </ul>
+` : '';
+  return `${head({ title, desc, url, depth: '', graph: [breadcrumbs([['Minimum wage in Europe', url]])] })}
+<body>
+${header('')}
+  <main>
+    <h1>Minimum wage in Europe ${YEAR}</h1>
+    <p>The statutory minimum wage of each country, side by side, as stated by its official or professional source. Amounts are in each country's own currency and are not converted. Each country defines the minimum differently, by hours worked or by the month, and many have age bands or other lower or higher rates, so the "Applies to" column names the rate shown; check the source and the <a href="keyfacts.html">key facts</a> page of the country for the full rules. Looking for another country? See <a href="countries.html">all countries</a>. Monthly figures are not comparable across countries: the number of salary payments per year (12, 13 or 14), working hours and the gross/net basis differ, and the monthly and hourly columns measure different things. Some figures are set by collective agreement or apply to one region; the Applies to column says which. For information only, not legal or tax advice.</p>
+${table}${noneSection}  </main>
 ${footer('')}
 </body>
 </html>
@@ -539,13 +582,14 @@ out.set('countries.html', indexPage());
 out.set('suggest.html', suggestPage());
 out.set('glossary.html', glossaryPage());
 out.set('keyfacts.html', keyfactsPage());
+out.set('minimum-wage-europe.html', minWagePage());
 out.set('upcoming.html', upcomingPage());
 out.set('calendar.ics', icsCalendar("Intelligent Payroll: what's coming", CHANGES));
 for (const c of icsCountries) out.set(icsName(c), icsCalendar(`Intelligent Payroll: ${c.name}`, c.entries));
 out.set('worker/countries.json', JSON.stringify(Object.fromEntries(list.map(c => [c.code, c.name])), null, 0) + '\n');
 for (const c of list) out.set(`countries/${c.slug}.html`, countryPage(c));
 
-const urls = ['', 'countries.html', ...list.map(c => `countries/${c.slug}.html`), 'upcoming.html', 'keyfacts.html', 'glossary.html', 'suggest.html', 'privacy.html', 'terms.html'];
+const urls = ['', 'countries.html', ...list.map(c => `countries/${c.slug}.html`), 'upcoming.html', 'keyfacts.html', 'minimum-wage-europe.html', 'glossary.html', 'suggest.html', 'privacy.html', 'terms.html'];
 out.set('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.map(u => `  <url><loc>${SITE}${u}</loc><lastmod>${VERIFIED_ISO}</lastmod></url>`).join('\n')}
@@ -667,11 +711,10 @@ function seoProblems(pages) {
       try { const o = JSON.parse(blocks[0][1]); if (o['@context'] === 'https://schema.org' && Array.isArray(o['@graph'])) g = o['@graph']; } catch {}
       if (!g) bad.push('index.html: JSON-LD must be valid JSON with @context https://schema.org and an @graph array');
       else {
-        const ws = g.find(n => n['@type'] === 'WebSite'), org = g.find(n => n['@type'] === 'Organization'), faq = g.find(n => n['@type'] === 'FAQPage');
+        const ws = g.find(n => n['@type'] === 'WebSite'), org = g.find(n => n['@type'] === 'Organization');
         if (!ws || ws.url !== SITE || ws.name !== BRAND || ws.description !== desc) bad.push('index.html: WebSite JSON-LD must carry the site name, url and the meta description');
         if (!org || org.url !== SITE || org.name !== BRAND) bad.push('index.html: Organization JSON-LD must carry the site name and url');
-        const ld = faq ? (faq.mainEntity || []).map(q => [normWs(String(q.name)), normWs(String(q.acceptedAnswer && q.acceptedAnswer.text))]) : null;
-        if (!ld || JSON.stringify(ld) !== JSON.stringify(faqVisible(h))) bad.push('index.html: FAQPage JSON-LD does not match the visible FAQ');
+        if (g.some(n => n['@type'] !== 'WebSite' && n['@type'] !== 'Organization') || g.length !== 2) bad.push('index.html: JSON-LD must contain only WebSite and Organization nodes');
       }
     }
   }

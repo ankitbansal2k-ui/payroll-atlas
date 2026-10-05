@@ -113,6 +113,18 @@ a.term:hover, a.term:focus-visible { color: var(--accent); text-decoration-style
 .tax-bands td { color: var(--text); }
 .tax-bands td:nth-child(-n+2) { white-space: nowrap; overflow-wrap: normal; }
 
+/* P4-2: minimum-wage-europe.html comparison table (7 columns scroll inside .table-scroll, never the page) */
+.min-wage thead th { background: rgba(45, 212, 163, 0.08); color: var(--text); font-weight: 700; white-space: nowrap; }
+.min-wage { border-collapse: collapse; width: 100%; min-width: 60rem; margin: 0.25rem 0 0.75rem; font-size: 0.9rem; }
+.min-wage tbody th { font-weight: 700; white-space: nowrap; position: sticky; left: 0; background: var(--bg); }
+.min-wage caption { text-align: left; caption-side: top; color: var(--muted); font-size: 0.85rem; padding-bottom: 0.4rem; }
+.min-wage th, .min-wage td { border: 1px solid var(--border); padding: 0.4rem 0.7rem; text-align: left; vertical-align: top; font-variant-numeric: tabular-nums; }
+.min-wage td { color: var(--text); }
+.min-wage td:nth-child(-n+4) { white-space: nowrap; }
+.min-wage td:nth-child(5) { min-width: 11rem; }
+.min-wage td:last-child { min-width: 16rem; }
+.no-min-wage { overflow-wrap: anywhere; }
+
 /* CP5: print / save as PDF */
 @media print {
   header, .cta, .chips, .az, footer p:last-child { display: none !important; }
@@ -129,4 +141,13 @@ a.term:hover, a.term:focus-visible { color: var(--accent); text-decoration-style
   .tax-bands { min-width: 0; }
   .tax-bands th, .tax-bands td { border: 1px solid #000; background: #fff; }
   .fact-source a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 9pt; word-break: break-all; }
+  /* P4-2: minimum wage table on white paper, all 7 columns fit, rows unbroken, source addresses printed */
+  .min-wage { min-width: 0; font-size: 9pt; }
+  .min-wage th, .min-wage td { border: 1px solid #000; background: #fff; white-space: normal; }
+  .min-wage thead th, .min-wage tbody th, .min-wage td:nth-child(-n+4) { white-space: normal; }
+  .min-wage td:nth-child(5), .min-wage td:last-child { min-width: 0; }
+  .min-wage tbody th { position: static; background: #fff; }
+  .min-wage tr { break-inside: avoid; page-break-inside: avoid; }
+  .min-wage a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 8pt; word-break: break-all; }
+  .no-min-wage li { break-inside: avoid; }
 }

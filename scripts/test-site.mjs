@@ -1291,7 +1291,7 @@ test('p2_8.key_facts_precede_partial_coverage_notice', () => {
 const REPO_ROOT_LINK = /href="https:\/\/github\.com\/ankitbansal2k-ui\/payroll-atlas\/?"/;
 const footerOf = h => (h.match(/<footer[\s\S]*?<\/footer>/) || [''])[0];
 const headerOf = h => (h.match(/<header[\s\S]*?<\/header>/) || [''])[0];
-const allGenerated = () => ['countries.html', 'upcoming.html', 'glossary.html', 'privacy.html', 'terms.html', 'suggest.html', 'keyfacts.html', ...countryFiles.filter(f => f.endsWith('.html')).map(f => `countries/${f}`)].filter(f => fs.existsSync(path.join(ROOT, f)));
+const allGenerated = () => ['countries.html', 'upcoming.html', 'glossary.html', 'privacy.html', 'terms.html', 'suggest.html', 'keyfacts.html', 'minimum-wage-europe.html', ...countryFiles.filter(f => f.endsWith('.html')).map(f => `countries/${f}`)].filter(f => fs.existsSync(path.join(ROOT, f)));
 const REGION_LABELS = ['Europe', 'APAC', 'MENAT', 'LATAM', 'Africa'];
 const REGION_OF = { europe: 'Europe', apac: 'APAC', menat: 'MENAT', latam: 'LATAM', africa: 'Africa' };
 const keyfactsExpect = () => {
@@ -1409,12 +1409,11 @@ test('p3_1.index_header_nav_links', () => {
 //    build-pages.mjs --check enforces all of this on the generated pages in memory plus index.html, with messages:
 //      "<file>: title is N characters (max 70)", "<file>: description is N characters (must be 70 to 158)", "<file>: expected exactly one <h1>, found N",
 //      "duplicate title", "duplicate description", "<file>: og:title must equal the <title>" (likewise og:description, twitter:title, twitter:description),
-//      "<file>: canonical must be <url>", "index.html: FAQPage JSON-LD does not match the visible FAQ".
+//      "<file>: canonical must be <url>", "index.html: JSON-LD must contain only WebSite and Organization nodes" (P4-2: FAQ structured data was removed on purpose; the visible FAQ stays).
 //  JSON-LD: exactly one <script type="application/ld+json">JSON</script> per public page, in <head>, compact JSON of the form
 //    {"@context":"https://schema.org","@graph":[node,...]}. Characters < > & U+2028 U+2029 are written as \uXXXX escapes (so the raw block has none of them).
 //    index.html: graph = WebSite {@type,name:"Intelligent Payroll",url:SITE,description:<meta description>} + Organization {@type,name,url} (no other keys)
-//      + FAQPage {mainEntity:[{@type:Question,name,acceptedAnswer:{@type:Answer,text}}]} equal (whitespace-normalised, same order) to the visible
-//      <details class="faq-item"> question/answer text. No BreadcrumbList on the home page.
+//      and nothing else (P4-2: no FAQPage anywhere; the visible <details class="faq-item"> FAQ stays). No BreadcrumbList on the home page.
 //    generated pages (not 404): graph has one BreadcrumbList; ListItem keys exactly @type,position,name,item (positions 1..n, item absolute canonical-origin URL):
 //      country: Home > All countries > <Name>; countries.html: Home > All countries; upcoming: Home > What's coming; glossary: Home > Glossary;
 //      keyfacts: Home > Key facts; suggest: Home > Suggest a change; privacy: Home > Privacy notice; terms: Home > Terms of use and disclaimer.
@@ -1628,9 +1627,9 @@ test('p4_1.titles_and_descriptions_are_generated_from_data_in_a_fixture', () => 
 });
 
 // --- JSON-LD ---
-test('p4_1.jsonld_home_has_website_organization_and_faqpage_only', () => {
+test('p4_1.jsonld_home_has_website_and_organization_only', () => {
   const h = read('index.html'), g = ldGraph(h, 'index.html');
-  assert.deepEqual(g.map(n => n['@type']).sort(), ['FAQPage', 'Organization', 'WebSite']);
+  assert.deepEqual(g.map(n => n['@type']).sort(), ['Organization', 'WebSite'], 'P4-2: index JSON-LD node types are exactly WebSite and Organization');
   const [ws] = byType(g, 'WebSite'), [org] = byType(g, 'Organization');
   assert.equal(keysOf(ws), '@type,description,name,url');
   assert.equal(ws.name, 'Intelligent Payroll'); assert.equal(ws.url, SITE_URL); assert.equal(ws.description, seoOf(h, 'index.html').desc);
@@ -1639,39 +1638,34 @@ test('p4_1.jsonld_home_has_website_organization_and_faqpage_only', () => {
   assert.equal(byType(g, 'BreadcrumbList').length, 0, 'no breadcrumb on the home page');
 });
 const faqVisible = h => [...h.matchAll(/<details class="faq-item">\s*<summary>([\s\S]*?)<\/summary>\s*<p>([\s\S]*?)<\/p>\s*<\/details>/g)].map(m => [normWs(m[1]), normWs(m[2])]);
-test('p4_1.jsonld_faq_matches_the_visible_faq_exactly', () => {
-  const h = read('index.html'), vis = faqVisible(h);
-  assert.ok(vis.length >= 7, `visible FAQ items: ${vis.length}`);
-  const [faq] = byType(ldGraph(h, 'index.html'), 'FAQPage');
-  assert.equal(keysOf(faq), '@type,mainEntity');
-  const ld = faq.mainEntity.map(q => {
-    assert.equal(q['@type'], 'Question'); assert.equal(keysOf(q), '@type,acceptedAnswer,name');
-    assert.equal(q.acceptedAnswer['@type'], 'Answer'); assert.equal(keysOf(q.acceptedAnswer), '@type,text');
-    return [q.name.replace(/\s+/g, ' ').trim(), q.acceptedAnswer.text.replace(/\s+/g, ' ').trim()];
-  });
-  assert.deepEqual(ld, vis, 'JSON-LD questions/answers equal the visible FAQ text, same order');
-  for (const [q, a] of vis) { assert.ok(ld.some(x => x[0] === q), `visible question missing from JSON-LD: ${q}`); assert.ok(ld.some(x => x[1] === a), `visible answer missing from JSON-LD: ${a}`); }
+test('p4_1.no_page_has_faqpage_structured_data_and_visible_faq_stays', () => {
+  const vis = faqVisible(read('index.html'));
+  assert.ok(vis.length >= 7, `the visible FAQ stays: ${vis.length} items`);
+  for (const f of publicPages()) {
+    const h = read(f);
+    assert.equal(byType(ldGraph(h, f), 'FAQPage').length, 0, `${f}: no FAQPage node`);
+    assert.ok(!/FAQPage|"mainEntity"|"acceptedAnswer"/.test(h), `${f}: no FAQ structured data of any kind`);
+  }
 });
-test('p4_1.check_flags_faq_jsonld_drift_in_either_direction', () => {
+test('p4_1.check_ignores_visible_faq_edits_and_rejects_extra_index_nodes', () => {
   const s = factsSite();
   try {
     let r = s.build(JSON.parse(read('data/facts.json'))); assert.ok(r.ok, r.out.slice(0, 300));
     const orig = fs.readFileSync(path.join(s.dir, 'index.html'), 'utf8');
-    // visible text changes, JSON-LD does not
+    // The FAQ text is free to change: --check no longer compares it with any JSON-LD.
     fs.writeFileSync(path.join(s.dir, 'index.html'), orig.replace("Yes. There's no account", 'Yes. There is no account'));
     assert.notEqual(fs.readFileSync(path.join(s.dir, 'index.html'), 'utf8'), orig, 'fixture edit applied');
-    r = s.run('build-pages.mjs', '--check'); assert.ok(!r.ok && /index\.html: FAQPage JSON-LD does not match the visible FAQ/.test(r.out), 'visible-only edit: ' + r.out.slice(0, 400));
-    // JSON-LD changes, visible text does not
-    fs.writeFileSync(path.join(s.dir, 'index.html'), orig.replace(/(<script type="application\/ld\+json">)([\s\S]*?)(<\/script>)/, (_, a, json, c) => {
-      const o = JSON.parse(json); byType(o['@graph'], 'FAQPage')[0].mainEntity[0].acceptedAnswer.text += ' Extra claim.'; return a + JSON.stringify(o) + c;
-    }));
-    r = s.run('build-pages.mjs', '--check'); assert.ok(!r.ok && /index\.html: FAQPage JSON-LD does not match the visible FAQ/.test(r.out), 'JSON-LD-only edit: ' + r.out.slice(0, 400));
-    // a visible question removed entirely
-    fs.writeFileSync(path.join(s.dir, 'index.html'), orig.replace(/<details class="faq-item">[\s\S]*?<\/details>\s*/, ''));
-    r = s.run('build-pages.mjs', '--check'); assert.ok(!r.ok && /FAQPage JSON-LD does not match/.test(r.out), 'removed question: ' + r.out.slice(0, 400));
+    r = s.run('build-pages.mjs', '--check'); assert.ok(r.ok, 'visible FAQ edit must pass --check: ' + r.out.slice(0, 400));
+    // Anything but WebSite + Organization in the index graph is refused (a FAQPage or any third node).
+    for (const node of [{ '@type': 'FAQPage', mainEntity: [] }, { '@type': 'BreadcrumbList', itemListElement: [] }]) {
+      fs.writeFileSync(path.join(s.dir, 'index.html'), orig.replace(/(<script type="application\/ld\+json">)([\s\S]*?)(<\/script>)/, (_, a, json, c) => { const o = JSON.parse(json); o['@graph'].push(node); return a + JSON.stringify(o) + c; }));
+      r = s.run('build-pages.mjs', '--check'); assert.ok(!r.ok && /index\.html: JSON-LD must contain only WebSite and Organization nodes/.test(r.out), `${node['@type']} node in index.html: ` + r.out.slice(0, 400));
+    }
+    fs.writeFileSync(path.join(s.dir, 'index.html'), orig);
+    r = s.run('build-pages.mjs', '--check'); assert.ok(r.ok, r.out.slice(0, 300));
   } finally { s.done(); }
 });
-const CRUMB_NAMES = { 'countries.html': ['All countries'], 'upcoming.html': ["What's coming"], 'glossary.html': ['Glossary'], 'keyfacts.html': ['Key facts'], 'suggest.html': ['Suggest a change'], 'privacy.html': ['Privacy notice'], 'terms.html': ['Terms of use and disclaimer'] };
+const CRUMB_NAMES = { 'countries.html': ['All countries'], 'upcoming.html': ["What's coming"], 'glossary.html': ['Glossary'], 'keyfacts.html': ['Key facts'], 'minimum-wage-europe.html': ['Minimum wage in Europe'], 'suggest.html': ['Suggest a change'], 'privacy.html': ['Privacy notice'], 'terms.html': ['Terms of use and disclaimer'] };
 test('p4_1.jsonld_breadcrumbs_on_every_generated_page', () => {
   const pages = allGenerated(); assert.ok(pages.length > 80);
   for (const f of pages) {
@@ -1712,7 +1706,7 @@ test('p4_1.jsonld_is_safe_absolute_and_claims_nothing_invented', () => {
     assert.ok(!/[<>&\u2028\u2029]/.test(b[0]), `${f}: raw JSON-LD block must have < > & U+2028 U+2029 escaped as \\uXXXX`);
     assert.ok(!INLINE_SCRIPT.test(h), `${f}: no other inline script`);
     const g = ldGraph(h, f);
-    for (const n of g) assert.ok(['WebSite', 'Organization', 'FAQPage', 'BreadcrumbList', 'DefinedTermSet'].includes(n['@type']), `${f}: unexpected node type ${n['@type']} (no Dataset or other invented claims)`);
+    for (const n of g) assert.ok(['WebSite', 'Organization', 'BreadcrumbList', 'DefinedTermSet'].includes(n['@type']), `${f}: unexpected node type ${n['@type']} (no Dataset or other invented claims)`);
     const strings = ldStrings(g);
     for (const x of strings) assert.ok(!/^http:\/\//i.test(x), `${f}: http URL ${x}`);
     const walk = (v) => { if (Array.isArray(v)) v.forEach(walk); else if (v && typeof v === 'object') for (const [k, x] of Object.entries(v)) { if (['url', 'item', 'inDefinedTermSet'].includes(k)) assert.ok(typeof x === 'string' && x.startsWith(SITE_URL), `${f}: ${k} must be an absolute URL on ${SITE_URL}: ${x}`); walk(x); } };
@@ -1847,6 +1841,377 @@ test('p4_1.sitemap_lists_exactly_the_public_pages_with_lastmod_and_robots_points
   assert.equal(entries.find(e => e[1] === SITE_URL + 'keyfacts.html')[2], VER22, 'keyfacts.html lastmod = last verified date');
   const rb = read('robots.txt');
   assert.match(rb, /^Sitemap: https:\/\/www\.intelligentpayroll\.eu\/sitemap\.xml$/m); assert.ok(!/^\s*Disallow:\s*\/\s*$/m.test(rb), 'robots.txt does not block the site');
+});
+
+// ---------- P4-2: minimum-wage-europe.html (comparison table built ONLY from data/facts.json) + minimumWage `headline` ----------
+// CONTRACT
+//  data/facts.json: a key 'minimumWage' fact may carry an OPTIONAL `headline` (nowhere else; unknown keys rejected):
+//    {amount:"13.90", period:"hour"|"month", scope:"age 21 and over"}      amount form
+//    {statutory:false}                                                      no statutory national minimum
+//  - amount: string matching /^\d{1,3}(,\d{3})*(\.\d{1,2})?$|^\d+(\.\d{1,2})?$/; REQUIRED unless statutory:false. period: "hour"|"month", required with amount.
+//    scope: required with amount, plain text, trimmed, <=60 chars, no < > control/bidi/invisible chars.
+//  - statutory, when present, must be exactly false and then amount, period and scope must be absent.
+//  - Drift guard: the amount must appear in the fact's `value` text. NORMALISATION (deterministic; the same function is applied to the amount and to every value token):
+//      1. tokens = value.match(/\d+(?:[.,]\d+)*/g): maximal digit runs joined by "." or ",". A trailing sentence dot is not part of a token, and "113.90" is ONE token (never a hit for 13.90).
+//      2. separators in a token: if it contains BOTH "." and ",", the LAST separator is the decimal mark and all others are thousands marks; if it contains one kind: two or more = thousands marks;
+//         exactly one = a thousands mark when exactly 3 digits follow it, otherwise the decimal mark.
+//      3. canonical form = integer digits (thousands marks removed, leading zeros dropped) + "." + fraction digits without trailing zeros (no "." when the fraction is empty).
+//      4. hit when canonical(token) === canonical(amount). Spaces and NBSP are NOT separators ("1 221" is the two tokens 1 and 221).
+//    Hits: 13.90 in 13.90, 13,90, 13.9, "EUR 13.90."; 1,867.02 in 1.867,02 and 1,867.02; 1,221 in 1221, 1.221, 1,221.00; 8 in 8.00.
+//    Misses: 13.90 in 113.90, 13.09, 1,390, 1.390, 13.900, 3.90, 13.91, 13, "13 90"; 1,390 in 13.90; 15 in 1.5; 1 in 12.
+//  - Messages (all contain "facts" and start with "headline ..."): "headline is only allowed on a minimumWage fact", "headline must be an object",
+//    "headline unknown field "x"", "headline amount is required unless statutory is false", "headline amount must be digits ...",
+//    "headline amount "13.90" does not appear in value", "headline period ...", "headline scope ..." (plain text / control / 60), "headline statutory ...".
+//  minimum-wage-europe.html (build-pages.mjs): title "Minimum wage in Europe <YEAR>: statutory rates by country | Intelligent Payroll" with the suffix dropped when
+//    longer than 70 (it is 77 long, so the shipped title is the 55-character base: same deterministic rule as the country pages); description 70..158, ends with ".",
+//    contains the number of table rows; canonical SITE+minimum-wage-europe.html; og/twitter; JSON-LD BreadcrumbList Home > "Minimum wage in Europe"; one h1;
+//    in sitemap.xml (lastmod = last verified); standard header (NO new nav item) and footer; footer of every generated page gets
+//    <a href="[../]minimum-wage-europe.html">Minimum wage</a> between Key facts and Glossary; keyfacts.html <main> links to it once; index.html header unchanged,
+//    index.html footer nav (<nav class="footer-links">) gets <a href="minimum-wage-europe.html">Minimum wage</a> right after <a href="glossary.html">Glossary</a> (the only link on index.html).
+//    The page <main> links to keyfacts.html and countries.html.
+//  Body: intro <p> (mentions statutory minimum, "as stated by", "not converted", "hours worked", "check the source"); then, if any row, exactly
+//    <div class="table-scroll" tabindex="0" role="region" aria-label="Minimum wage by country table"><table class="min-wage"><caption>Statutory minimum wage by country, <YEAR>: ...</caption>
+//    <thead><tr><th scope="col">Country</th>Currency Monthly Hourly "Applies to" "Valid from" Source</tr></thead><tbody>rows</tbody></table></div>
+//    row (countries with a minimumWage fact whose headline has no statutory:false, sorted by name.localeCompare):
+//    <tr><th scope="row"><a href="countries/<slug>.html#key-facts">FLAG Name</a></th><td>CUR</td><td>monthly</td><td>hourly</td><td>scope</td><td>valid from</td><td><a href="sourceUrl" rel="noopener">sourceLabel</a></td></tr>
+//    monthly/hourly cell = "CUR amount" (amount exactly as stored) in the column of its period, else "—" (U+2014); valid from = long en-GB date or "—".
+//    Then, if any statutory:false: <h2 id="no-statutory-minimum">No statutory national minimum wage</h2><ul class="no-min-wage"> one
+//    <li><a href="countries/<slug>.html#key-facts">FLAG Name</a>: <value text>[ <span class="note"><note></span>] &middot; <a href="sourceUrl" rel="noopener">sourceLabel</a></li> per country (sorted; the span only when the fact has a note), all text escaped & < > " '.
+const MW_FILE = 'minimum-wage-europe.html';
+const MW_BASE = year => `Minimum wage in Europe ${year}: statutory rates by country`;
+const expectedMwTitle = (year = YEAR) => { const full = `${MW_BASE(year)} | Intelligent Payroll`; return full.length <= TITLE_MAX ? full : MW_BASE(year); };
+const mwInfo = new Map(CHANGES.map(e => [e.country, e]));
+const renderMinWage = facts => {
+  const items = [];
+  for (const c of facts) {
+    const f = c.facts.find(x => x.key === 'minimumWage' && x.headline); if (!f) continue;
+    const e = mwInfo.get(c.code); items.push({ c, f, h: f.headline, name: e.name, flag: e.flag, slug: P2.slugify(e.name) });
+  }
+  items.sort((a, b) => a.name.localeCompare(b.name));
+  const link = i => `<a href="countries/${i.slug}.html#key-facts">${i.flag} ${escH(i.name)}${i.h.region ? ` (${escH(i.h.region)})` : ''}</a>`;
+  const src = i => `<a href="${escH(i.f.sourceUrl)}" rel="noopener">${escH(i.f.sourceLabel)}</a>`;
+  const cell = (i, p) => (i.h.period === p ? `${escH(i.c.currency)} ${escH(i.h.amount)}` : '—');
+  const rows = items.filter(i => i.h.statutory !== false).map(i => `<tr><th scope="row">${link(i)}</th><td>${escH(i.c.currency)}</td><td>${cell(i, 'month')}</td><td>${cell(i, 'hour')}</td><td>${escH(i.h.scope)}</td><td>${i.f.validFrom ? longDay(i.f.validFrom) : '—'}</td><td>${src(i)}</td></tr>`);
+  const none = items.filter(i => i.h.statutory === false).map(i => `<li>${link(i)}: ${escH(i.f.value)}${i.f.note ? ` <span class="note">${escH(i.f.note)}</span>` : ''} &middot; ${src(i)}</li>`);
+  return { rows, none, count: rows.length };
+};
+const MW_THEAD = '<thead><tr><th scope="col">Country</th><th scope="col">Currency</th><th scope="col">Monthly</th><th scope="col">Hourly</th><th scope="col">Applies to</th><th scope="col">Valid from</th><th scope="col">Source</th></tr></thead>';
+const mwParts = html => {
+  const q = squash(html), main = (q.match(/<main>[\s\S]*<\/main>/) || [''])[0];
+  const t = main.match(/<div class="table-scroll" tabindex="0" role="region" aria-label="([^"]*)"><table class="min-wage"><caption>([^<]*)<\/caption>(<thead>[\s\S]*?<\/thead>)<tbody>([\s\S]*?)<\/tbody><\/table><\/div>/);
+  const u = main.match(/<h2 id="no-statutory-minimum">([^<]*)<\/h2>[\s\S]*?<ul class="no-min-wage">([\s\S]*?)<\/ul>/);
+  return { q, main, table: t && { label: t[1], caption: t[2], thead: t[3], rows: t[4].match(/<tr>.*?<\/tr>/g) || [] }, none: u && { heading: u[1], items: u[2].match(/<li>.*?<\/li>/g) || [] } };
+};
+const assertMwMatches = (html, facts, what) => {
+  const want = renderMinWage(facts), got = mwParts(html);
+  if (want.rows.length) { assert.ok(got.table, `${what}: table.min-wage inside .table-scroll`); assert.equal(got.table.thead, MW_THEAD, `${what}: header cells`); assert.deepEqual(got.table.rows, want.rows, `${what}: one row per country with a headline amount, sorted by name, exactly per the contract`); } else assert.ok(!got.table, `${what}: no table without rows`);
+  if (want.none.length) { assert.ok(got.none, `${what}: no-statutory section`); assert.equal(got.none.heading, 'No statutory national minimum wage'); assert.deepEqual(got.none.items, want.none, `${what}: no-statutory items`); } else assert.ok(!got.none, `${what}: no no-statutory section when none`);
+  return got;
+};
+const mwFixture = () => [
+  fixCountry({ facts: [fixFact({ validFrom: '2026-01-01', headline: { amount: '1,000', period: 'month', scope: 'full-time, age 18 and over', region: 'Test & "x"' } })] }),
+  fixCountry({ code: 'spain', facts: [fixFact({ value: 'No statutory national minimum wage; pay is set by collective agreements', note: 'Sectoral agreements set the floors & "minimums".', sourceUrl: 'https://example.org/es?a=1&b=2', sourceLabel: 'Source: Example - No statutory minimum', headline: { statutory: false } })] }),
+];
+const mwSorting = () => [
+  fixCountry({ code: 'spain', currency: 'EUR', facts: [fixFact({ value: 'EUR 8.50 per hour', headline: { amount: '8.50', period: 'hour', scope: 'all employees' } })] }),
+  fixCountry({ code: 'poland', currency: 'PLN', facts: [fixFact({ value: 'No statutory minimum', headline: { statutory: false } })] }),
+  fixCountry({ code: 'germany', currency: 'EUR', facts: [fixFact({ value: 'EUR 13,90 per hour; EUR 2,411 per month', validFrom: '2026-01-01', headline: { amount: '13.90', period: 'hour', scope: 'age 18 and over' } })] }),
+  fixCountry({ code: 'italy', currency: 'EUR', facts: [fixFact({ value: 'No statutory minimum, collective agreements', headline: { statutory: false } })] }),
+  fixCountry({ code: 'france', currency: 'EUR', facts: [fixFact({ value: 'EUR 1,867.02 per month', headline: { amount: '1,867.02', period: 'month', scope: 'full-time' } })] }),
+];
+const hlCountry = (headline, value = 'EUR 13.90 gross per hour (age 21 and over); EUR 1,221 per month', extra = {}) => [fixCountry({ facts: [fixFact({ value, headline, ...extra })] })];
+// Independent reference of the value-text normalisation (contract above), used on the real data.
+const canonNum = t => {
+  const seps = [...t.matchAll(/[.,]/g)].map(m => ({ ch: m[0], at: m.index }));
+  let dec = -1;
+  if (seps.length) { const last = seps.at(-1); if (new Set(seps.map(x => x.ch)).size === 2) dec = last.at; else if (seps.length === 1 && t.length - last.at - 1 !== 3) dec = last.at; }
+  const ip = (dec < 0 ? t : t.slice(0, dec)).replace(/[.,]/g, '').replace(/^0+(?=\d)/, ''), fp = dec < 0 ? '' : t.slice(dec + 1).replace(/0+$/, '');
+  return fp ? `${ip}.${fp}` : ip;
+};
+const amountInValue = (amount, value) => (value.match(/\d+(?:[.,]\d+)*/g) || []).some(t => canonNum(t) === canonNum(amount));
+
+test('p4_2.reference_normalisation_hits_and_misses', () => {
+  for (const [a, v] of [['13.90', 'EUR 13.90 per hour'], ['13.90', '13,90 EUR'], ['13.9', 'EUR 13.90'], ['13.90', 'EUR 13.9'], ['1,867.02', 'EUR 1.867,02 a month'], ['1,867.02', 'EUR 1,867.02'], ['1,221', 'EUR 1221'], ['4806', '4,806 zl'], ['1,221', 'EUR 1,221.00'], ['1,221', 'EUR 1.221'], ['13.90', 'EUR 13.90.'], ['8', 'EUR 8.00 per hour'], ['0.5', 'EUR 0,50'], ['13.90', 'EUR 7.05 and EUR 13.90']]) assert.ok(amountInValue(a, v), `hit expected: ${a} in "${v}"`);
+  for (const [a, v] of [['13.90', 'EUR 113.90'], ['13.90', 'EUR 13.09'], ['13.90', 'EUR 1,390'], ['13.90', 'EUR 3.90'], ['13.90', 'EUR 13.91'], ['13.90', 'EUR 13 per hour'], ['13.90', 'in 2026, no amount'], ['1,221', 'EUR 12,210'], ['1,390', 'EUR 13.90'], ['13.90', 'EUR 1.390'], ['13.90', 'EUR 13.900'], ['15', 'EUR 1.5'], ['1', 'EUR 12'], ['13.90', 'EUR 13 90']]) assert.ok(!amountInValue(a, v), `miss expected: ${a} in "${v}"`);
+});
+
+test('p4_2.validate_accepts_valid_headlines', () => {
+  const s = factsSite();
+  try {
+    const ok = (name, data) => { const r = s.validate(data); assert.ok(r.ok, `${name} must pass: ` + r.out.slice(0, 500)); };
+    ok('hourly amount', hlCountry({ amount: '13.90', period: 'hour', scope: 'age 21 and over' }));
+    ok('monthly with thousands comma', hlCountry({ amount: '1,221', period: 'month', scope: 'full-time' }));
+    ok('amount 13.9 vs value 13.90', hlCountry({ amount: '13.9', period: 'hour', scope: 'x' }));
+    ok('amount vs European comma form', hlCountry({ amount: '13.90', period: 'hour', scope: 'x' }, 'EUR 13,90 brutto per hour'));
+    ok('thousands vs European thousands', hlCountry({ amount: '1,867.02', period: 'month', scope: 'full-time' }, '€1.867,02 per month'));
+    ok('thousands comma vs European dot thousands', hlCountry({ amount: '1,500', period: 'month', scope: 'full-time' }, 'EUR 1.500 per month'));
+    ok('trailing zeros ignored', hlCountry({ amount: '8', period: 'hour', scope: 'x' }, 'EUR 8.00 per hour'));
+    ok('plain integer vs thousands in value', hlCountry({ amount: '4806', period: 'month', scope: 'full-time' }, '4,806 zł gross per month'));
+    ok('scope of exactly 60 chars', hlCountry({ amount: '13.90', period: 'hour', scope: 'x'.repeat(60) }));
+    ok('region (regional minimum)', hlCountry({ amount: '13.90', period: 'hour', scope: 'cantonal minimum', region: 'Geneva' }));
+    ok('region of exactly 40 chars', hlCountry({ amount: '13.90', period: 'hour', scope: 'x', region: 'r'.repeat(40) }));
+    ok('period hour next to hourly wording', hlCountry({ amount: '31.40', period: 'hour', scope: 'x' }, '4,806 zl gross per month; minimum hourly rate 31.40 zl'));
+    ok('period month with a/per month wording', hlCountry({ amount: '1,000', period: 'month', scope: 'x' }, 'EUR 1,000 a month'));
+    ok('statutory false', hlCountry({ statutory: false }, 'No statutory national minimum wage; collective agreements apply'));
+    ok('country without any headline stays valid', [fixCountry()]);
+    ok('mixed fixture', mwFixture());
+    ok('sorting fixture', mwSorting());
+  } finally { s.done(); }
+});
+test('p4_2.validate_rejects_bad_headlines', () => {
+  const s = factsSite();
+  const good = { amount: '13.90', period: 'hour', scope: 'age 21 and over' };
+  const H = (o, value) => hlCountry({ ...good, ...o }, value);
+  const noKey = (o, k) => { const { [k]: _, ...rest } = o; return rest; };
+  const cases = {
+    on_other_key: [[fixCountry({ facts: [fixFact({ key: 'ssEmployer', label: 'Employer', headline: good })] })], /headline is only allowed on a minimumWage fact/],
+    not_object: [hlCountry('13.90'), /headline must be an object/],
+    array: [hlCountry([]), /headline must be an object/],
+    null_value: [hlCountry(null), /headline must be an object/],
+    unknown_key: [H({ extra: 1 }), /headline unknown field "extra"/],
+    unknown_key_currency: [H({ currency: 'EUR' }), /headline unknown field "currency"/],
+    empty_object: [hlCountry({}), /headline amount.*required/],
+    period_scope_only: [hlCountry({ period: 'hour', scope: 'x' }), /headline amount.*required/],
+    amount_number: [H({ amount: 13.9 }), /headline amount/],
+    amount_comma_decimal: [H({ amount: '13,90' }), /headline amount/],
+    amount_three_decimals: [H({ amount: '13.999' }), /headline amount/],
+    amount_bad_thousands: [H({ amount: '1,22' }), /headline amount/],
+    amount_currency: [H({ amount: '€13.90' }), /headline amount/],
+    amount_padded: [H({ amount: ' 13.90' }), /headline amount/],
+    amount_trailing_dot: [H({ amount: '13.' }), /headline amount/],
+    amount_leading_dot: [H({ amount: '.5' }), /headline amount/],
+    amount_exponent: [H({ amount: '1e3' }), /headline amount/],
+    amount_negative: [H({ amount: '-5' }), /headline amount/],
+    amount_empty: [H({ amount: '' }), /headline amount/],
+    amount_markup: [H({ amount: '<b>1</b>' }), /headline amount/],
+    amount_not_in_value_longer_number: [H({ amount: '13.90' }, 'EUR 113.90 per hour'), /headline amount "13\.90" .*value/],
+    amount_not_in_value_digit_swap: [H({ amount: '13.90' }, 'EUR 13.09 per hour'), /headline amount .*value/],
+    amount_not_in_value_thousands: [H({ amount: '13.90' }, 'EUR 1,390 per month'), /headline amount .*value/],
+    amount_not_in_value_other_decimals: [H({ amount: '13.90' }, 'EUR 13.91 per hour'), /headline amount .*value/],
+    amount_not_in_value_decimal_is_not_thousands: [H({ amount: '1,390' }, 'EUR 13.90 per hour'), /headline amount .*value/],
+    amount_not_in_value_thousands_is_not_decimal: [H({ amount: '13.90' }, 'EUR 1.390 per month'), /headline amount .*value/],
+    amount_not_in_value_one_dot_five: [H({ amount: '15' }, 'EUR 1.5 per hour'), /headline amount .*value/],
+    amount_not_in_value_integer: [H({ amount: '13.90' }, 'EUR 13 per hour'), /headline amount .*value/],
+    period_missing: [H({ period: undefined }), /headline period/],
+    period_week: [H({ period: 'week' }), /headline period/],
+    period_case: [H({ period: 'Hour' }), /headline period/],
+    period_number: [H({ period: 1 }), /headline period/],
+    scope_missing: [hlCountry(noKey(good, 'scope')), /headline scope/],
+    scope_empty: [H({ scope: '' }), /headline scope/],
+    scope_untrimmed: [H({ scope: ' all' }), /headline scope/],
+    scope_markup: [H({ scope: 'age <b>21</b>' }), /headline scope.*plain text/],
+    scope_gt: [H({ scope: 'a > b' }), /headline scope.*plain text/],
+    scope_newline: [H({ scope: 'a\nb' }), /headline scope.*control/],
+    scope_long: [H({ scope: 'x'.repeat(61) }), /headline scope.*60/],
+    scope_number: [H({ scope: 21 }), /headline scope/],
+    region_markup: [H({ region: 'a<b' }), /headline region.*plain text/],
+    region_empty: [H({ region: '' }), /headline region/],
+    region_untrimmed: [H({ region: ' Geneva' }), /headline region/],
+    region_newline: [H({ region: 'a\nb' }), /headline region.*control/],
+    region_long: [H({ region: 'r'.repeat(41) }), /headline region.*40/],
+    region_number: [H({ region: 5 }), /headline region/],
+    region_with_statutory: [hlCountry({ statutory: false, region: 'Geneva' }), /headline statutory/],
+    period_hour_but_value_says_month: [hlCountry({ amount: '4,806', period: 'hour', scope: 'x' }, '4,806 zl gross per month; minimum hourly rate 31.40 zl'), /headline period "hour"/],
+    period_month_but_value_says_hour: [H({ period: 'month' }), /headline period "month"/],
+    period_hour_but_value_says_day: [hlCountry({ amount: '40.70', period: 'hour', scope: 'x' }, '40.70 per day or 1,221 per month'), /headline period "hour"/],
+    period_keyword_beyond_next_number: [hlCountry({ amount: '13.90', period: 'hour', scope: 'x' }, 'EUR 13.90 gross, from 1 January 2026, per hour'), /headline period "hour"/],
+    statutory_true: [hlCountry({ statutory: true }), /headline statutory/],
+    statutory_string: [hlCountry({ statutory: 'false' }), /headline statutory/],
+    statutory_with_amount: [hlCountry({ statutory: false, amount: '13.90' }), /headline statutory/],
+    statutory_with_period: [hlCountry({ statutory: false, period: 'hour' }), /headline statutory/],
+    statutory_with_scope: [hlCountry({ statutory: false, scope: 'x' }), /headline statutory/],
+    statutory_with_everything: [hlCountry({ ...good, statutory: false }), /headline statutory/],
+  };
+  try {
+    assert.ok(s.validate(H({})).ok, 'baseline headline passes');
+    for (const [name, [data, re]] of Object.entries(cases)) {
+      const r = s.validate(data);
+      assert.ok(!r.ok && /facts/i.test(r.out) && re.test(r.out), `validate.mjs must reject headline case "${name}" naming "facts" and matching ${re}: ` + r.out.slice(0, 500));
+    }
+    for (const cp of bidiAndInvisible) {
+      const r = s.validate(H({ scope: 'age' + String.fromCharCode(cp) + ' 21' }));
+      assert.ok(!r.ok && /headline scope.*control/.test(r.out), `U+${cp.toString(16).toUpperCase()} in headline scope must be rejected: ` + r.out.slice(0, 300));
+    }
+  } finally { s.done(); }
+});
+
+test('p4_2.page_exists_with_seo_head_jsonld_and_sitemap', () => {
+  assert.ok(fs.existsSync(path.join(ROOT, MW_FILE)), `${MW_FILE} not generated by build-pages.mjs`);
+  const h = read(MW_FILE), s = seoOf(h, MW_FILE), url = SITE_URL + MW_FILE;
+  assert.equal(s.title, expectedMwTitle(), 'title');
+  assert.ok(s.title.startsWith(`Minimum wage in Europe ${YEAR}: statutory rates by country`) && s.title.length <= TITLE_MAX, 'title uses the last-verified YEAR and is <= 70');
+  assert.ok(s.desc.length >= DESC_MIN && s.desc.length <= DESC_MAX && /\.$/.test(s.desc) && !/[<>]/.test(s.desc), `description 70..158, plain, ends with a period (${s.desc.length})`);
+  const rows = renderMinWage(JSON.parse(read('data/facts.json'))).count;
+  assert.ok(new RegExp(`(^|\\D)${rows}(\\D|$)`).test(s.desc), `description names the number of countries in the table (${rows}): ${s.desc}`);
+  assert.equal(s.canonical, url); assert.equal(s.ogUrl, url); assert.equal(s.h1s, 1);
+  assert.equal(s.ogTitle, s.title); assert.equal(s.twTitle, s.title); assert.equal(s.ogDesc, s.desc); assert.equal(s.twDesc, s.desc);
+  assert.match(h, /<h1>Minimum wage in Europe 2026<\/h1>|<h1>Minimum wage in Europe \d{4}<\/h1>/, 'h1');
+  assert.ok(h.includes(`<h1>Minimum wage in Europe ${YEAR}</h1>`), 'h1 carries the year');
+  assert.match(h, /<link rel="stylesheet" href="legal\.css">/); assert.match(h, /Content-Security-Policy/);
+  assert.ok(!/\son[a-z]+=|\sstyle=/i.test(h) && !INLINE_SCRIPT.test(h), 'CSP: no inline handlers/scripts/styles');
+  const bc = byType(ldGraph(h, MW_FILE), 'BreadcrumbList');
+  assert.equal(bc.length, 1);
+  assert.deepEqual(bc[0].itemListElement.map(i => [i.position, i.name, i.item]), [[1, 'Home', SITE_URL], [2, 'Minimum wage in Europe', url]]);
+  assert.match(read('sitemap.xml'), new RegExp(`<loc>${url.replace(/\./g, '\\.')}</loc><lastmod>${VER22}</lastmod>`), 'in sitemap.xml with lastmod = last verified');
+  assert.ok(publicPages().includes(MW_FILE), 'part of the public page set (SEO and uniqueness tests cover it)');
+});
+test('p4_2.page_links_footers_keyfacts_and_no_nav_change', () => {
+  const gen = allGenerated(); assert.ok(gen.includes(MW_FILE));
+  for (const f of gen) {
+    const d = f.startsWith('countries/') ? '../' : '', h = read(f), ft = footerOf(h);
+    const a = `<a href="${d}minimum-wage-europe.html">Minimum wage</a>`;
+    assert.ok(ft.includes(a), `${f}: footer link "Minimum wage"`);
+    assert.ok(ft.indexOf(`<a href="${d}keyfacts.html">Key facts</a>`) < ft.indexOf(a) && ft.indexOf(a) < ft.indexOf(`<a href="${d}glossary.html">Glossary</a>`), `${f}: footer order Key facts, Minimum wage, Glossary`);
+    assert.ok(!/minimum-wage-europe/.test(headerOf(h)), `${f}: no header nav change`);
+  }
+  const idx = read('index.html');
+  assert.ok(!/minimum-wage-europe/.test((idx.match(/<header>[\s\S]*?<\/header>/) || [''])[0]), 'index.html header nav unchanged');
+  assert.match(footerOf(idx), /<a href="glossary\.html">Glossary<\/a>\s*<a href="minimum-wage-europe\.html">Minimum wage<\/a>\s*<a href="suggest\.html">/, 'index.html footer nav: Minimum wage link right after Glossary');
+  assert.equal(idx.split('href="minimum-wage-europe.html"').length - 1, 1, 'index.html links the page exactly once (footer)');
+  const kmain = (read('keyfacts.html').match(/<main>[\s\S]*?<\/main>/) || [''])[0];
+  assert.equal(kmain.split('href="minimum-wage-europe.html"').length - 1, 1, 'keyfacts.html main links to the page once');
+  assert.ok(((kmain.match(/<\/h1>\s*<p>([\s\S]*?)<\/p>/) || ['', ''])[1]).includes('<a href="minimum-wage-europe.html">'), 'keyfacts.html: the intro paragraph (first <p> after the h1) holds the link');
+  const mmain = (read(MW_FILE).match(/<main>[\s\S]*?<\/main>/) || [''])[0];
+  assert.ok(mmain.includes('href="keyfacts.html"') && mmain.includes('href="countries.html"'), 'page main links back to keyfacts.html and countries.html');
+  for (const m of mmain.matchAll(/href="(countries\/[^"]+)"/g)) assert.ok(resolves(m[1]), `${m[1]} resolves`);
+});
+test('p4_2.page_intro_states_figures_are_not_converted', () => {
+  const m = mwParts(read(MW_FILE)), txt = m.main.replace(/<table[\s\S]*?<\/table>/g, ' ').replace(/<[^>]*>/g, ' ');
+  for (const re of [/statutory minimum/i, /as stated by/i, /not converted/i, /hours worked/i, /age bands?/i, /check the source/i, /Monthly figures are not comparable across countries/, /12, 13 or 14/, /working hours and the gross\/net basis/, /collective agreement or apply to one region/]) assert.match(txt, re, `intro text matches ${re}`);
+  assert.equal((m.q.match(/<h1[\s>]/g) || []).length, 1);
+  assert.ok(!/<h[3-6]\b/.test(m.main), 'heading levels: h1 then h2 only');
+});
+
+test('p4_2.data.every_country_has_a_minimum_wage_headline_matching_its_value', () => {
+  const facts = loadFacts(); assert.equal(facts.length, 20);
+  let amounts = 0, none = 0;
+  for (const c of facts) {
+    const f = c.facts.find(x => x.key === 'minimumWage'), at = c.code;
+    assert.ok(f, `${at}: has a minimumWage fact`);
+    assert.ok(f.headline && typeof f.headline === 'object', `${at}: minimumWage fact needs a headline (amount or statutory:false)`);
+    const h = f.headline;
+    for (const k of Object.keys(h)) assert.ok(['amount', 'period', 'scope', 'region', 'statutory'].includes(k), `${at}: headline key ${k}`);
+    if (h.statutory === false) { none++; assert.deepEqual(Object.keys(h), ['statutory'], `${at}: statutory:false carries nothing else`); assert.match(f.value, /\bno\b|\bnot\b|\bwithout\b|\bneither\b/i, `${at}: statutory:false but value does not say there is none: ${f.value}`); }
+    else {
+      amounts++;
+      assert.ok(!('statutory' in h), `${at}: no statutory key with an amount`);
+      assert.match(h.amount, /^\d{1,3}(,\d{3})*(\.\d{1,2})?$|^\d+(\.\d{1,2})?$/, `${at}: amount format`);
+      assert.ok(amountInValue(h.amount, f.value), `${at}: headline amount ${h.amount} must appear in value: ${f.value}`);
+      assert.ok(['hour', 'month'].includes(h.period), `${at}: period`);
+      assert.ok(typeof h.scope === 'string' && h.scope.trim() === h.scope && h.scope.length > 0 && h.scope.length <= 60 && !/[<>]/.test(h.scope), `${at}: scope`);
+    }
+  }
+  assert.equal(amounts + none, 20); assert.ok(amounts >= 8, `most of the 20 countries have a statutory amount: ${amounts} amounts, ${none} statutory:false`);
+});
+test('p4_2.data.page_matches_data_exactly', () => {
+  const facts = loadFacts();
+  assert.ok(fs.existsSync(path.join(ROOT, MW_FILE)), `${MW_FILE} missing`);
+  const got = assertMwMatches(read(MW_FILE), facts, 'real data');
+  assert.equal(got.table.label, 'Minimum wage by country table');
+  assert.ok(got.table.caption.includes(YEAR) && /Statutory minimum wage/.test(got.table.caption), 'caption names the year');
+  const want = renderMinWage(facts);
+  assert.equal(want.rows.length + want.none.length, 20, 'every one of the 20 countries appears exactly once');
+  assert.ok(got.q.indexOf('</table>') < got.q.indexOf('id="no-statutory-minimum"'), 'no-statutory section follows the table');
+  const names = want.rows.map(r => r.match(/#key-facts">[^ ]+ ([^<]*)<\/a>/)[1]);
+  assert.deepEqual(names, [...names].sort((a, b) => a.localeCompare(b)), 'rows sorted by name');
+  assert.ok(!/\sstyle=/.test(got.q));
+});
+
+test('p4_2.fixture_page_is_data_driven_and_deterministic', () => {
+  const setYear = js => js.replace(/(new Date\(')\d{4}-\d{2}-\d{2}(T)/, (_, a, b) => `${a}2027-02-03${b}`);
+  const s = factsSite(undefined, { appEdit: setYear });
+  try {
+    const data = mwFixture(), r = s.build(data); assert.ok(r.ok, r.out.slice(0, 400));
+    const file = path.join(s.dir, MW_FILE); assert.ok(fs.existsSync(file), `${MW_FILE} not generated`);
+    const h = fs.readFileSync(file, 'utf8'), got = assertMwMatches(h, data, 'fixture');
+    assert.equal(got.table.rows.length, 1); assert.equal(got.none.items.length, 1);
+    assert.ok(got.table.rows[0].includes('<td>EUR 1,000</td><td>—</td><td>full-time, age 18 and over</td><td>1 January 2026</td>'), 'monthly cell filled, hourly "—": ' + got.table.rows[0]);
+    assert.ok(got.none.items[0].includes('href="https://example.org/es?a=1&amp;b=2"'), 'source href escaped');
+    assert.ok(got.none.items[0].includes('<span class="note">Sectoral agreements set the floors &amp; &quot;minimums&quot;.</span>'), 'note shown and escaped: ' + got.none.items[0]);
+    assert.ok(!/Poland|Germany|Sweden/.test(got.main), 'no hard-coded countries');
+    const sx = seoOf(h, MW_FILE); assert.equal(sx.title, expectedMwTitle('2027'), 'title uses the fixture year'); assert.ok(/(^|\D)1(\D|$)/.test(sx.desc), 'description names 1 country: ' + sx.desc);
+    assert.match(fs.readFileSync(path.join(s.dir, 'sitemap.xml'), 'utf8'), /minimum-wage-europe\.html<\/loc><lastmod>2027-02-03<\/lastmod>/);
+    assert.ok(fs.readFileSync(path.join(s.dir, 'keyfacts.html'), 'utf8').includes('href="minimum-wage-europe.html"'));
+    const a = h; s.run('build-pages.mjs'); assert.equal(fs.readFileSync(file, 'utf8'), a, 'second build byte-identical');
+    // sorted by name regardless of file order, hourly column used for hour amounts
+    const sorted = mwSorting(); assert.ok(s.build(sorted).ok);
+    const g2 = assertMwMatches(fs.readFileSync(file, 'utf8'), sorted, 'sorting fixture');
+    assert.deepEqual(g2.table.rows.map(x => x.match(/#key-facts">[^ ]+ ([^<]*)<\/a>/)[1]), ['France', 'Germany', 'Spain']);
+    assert.deepEqual(g2.none.items.map(x => x.match(/#key-facts">[^ ]+ ([^<]*)<\/a>/)[1]), ['Italy', 'Poland']);
+    assert.ok(g2.table.rows[1].includes('<td>EUR</td><td>—</td><td>EUR 13.90</td>'), 'germany: hourly column');
+    // no rows and no list: still a valid page without table or list
+    assert.ok(s.build([]).ok); const e = fs.readFileSync(file, 'utf8'); assert.ok(!/<table\b|no-min-wage/.test(e), 'empty facts: no table, no list');
+  } finally { s.done(); }
+});
+test('p4_2.fixture_escapes_hostile_strings', () => {
+  const s = factsSite();
+  try {
+    const evil = '<img src=x onerror=alert(1)>';
+    const data = [
+      fixCountry({ currency: 'EUR', facts: [fixFact({ value: `EUR 1 ${evil} "q" 's' & more`, sourceLabel: 'Source: <i>X</i> - "Y"', sourceUrl: 'https://example.org/a"onmouseover="x&y=1', validFrom: '2026-01-01', headline: { amount: '<b>1</b>', period: 'month', scope: `${evil} & "s" 't'` } })] }),
+      fixCountry({ code: 'spain', facts: [fixFact({ value: `No minimum ${evil} & 'x'`, note: `${evil} & "n" 'm'`, sourceLabel: 'Source: <u>Z</u> - "W"', headline: { statutory: false } })] }),
+    ];
+    const r = s.build(data); assert.ok(r.ok, 'build without validate must not crash on hostile text: ' + r.out.slice(0, 400));
+    const h = fs.readFileSync(path.join(s.dir, MW_FILE), 'utf8');
+    assertMwMatches(h, data, 'hostile');
+    assert.ok(!/<(img|b|i|u)\b/i.test(mwParts(h).main.replace(/<a href="[^"]*"/g, '<a')), 'no raw tags from data');
+    assert.ok(!/<[^>]*\son[a-z]+=/i.test(h), 'no event-handler attribute inside any tag (the escaped text may still contain the words)');
+    assert.ok(h.includes('&lt;img src=x onerror=alert(1)&gt;'), 'hostile text is shown as escaped text');
+    assert.ok(h.includes('href="https://example.org/a&quot;onmouseover=&quot;x&amp;y=1"'), 'href attribute-escaped');
+    // a headline with a missing period shows an em dash in both columns
+    const nop = [fixCountry({ facts: [fixFact({ headline: { amount: '1,000', scope: 'all' } })] })];
+    assert.ok(s.build(nop).ok); assert.ok(mwParts(fs.readFileSync(path.join(s.dir, MW_FILE), 'utf8')).table.rows[0].includes('<td>EUR</td><td>—</td><td>—</td><td>all</td>'), 'missing period: both columns "—"');
+  } finally { s.done(); }
+});
+test('p4_2.check_tracks_the_page', () => {
+  const s = factsSite();
+  try {
+    const real = JSON.parse(read('data/facts.json'));
+    let r = s.build(real); assert.ok(r.ok, r.out.slice(0, 300));
+    r = s.run('build-pages.mjs', '--check'); assert.ok(r.ok, r.out.slice(0, 300));
+    const file = path.join(s.dir, MW_FILE), orig = fs.readFileSync(file, 'utf8');
+    fs.writeFileSync(file, orig.replace('<td>', '<td>tampered ')); r = s.run('build-pages.mjs', '--check');
+    assert.ok(!r.ok && /minimum-wage-europe\.html is out of date/.test(r.out), 'tampered page: ' + r.out.slice(0, 300));
+    fs.rmSync(file); r = s.run('build-pages.mjs', '--check'); assert.ok(!r.ok && /minimum-wage-europe\.html is missing/.test(r.out), 'deleted page: ' + r.out.slice(0, 300));
+    s.run('build-pages.mjs');
+    const changed = JSON.parse(JSON.stringify(real)), f = changed.find(c => c.facts.find(x => x.key === 'minimumWage' && x.headline && x.headline.amount)).facts.find(x => x.key === 'minimumWage');
+    f.headline.scope = 'a changed scope'; s.setFacts(changed);
+    r = s.run('build-pages.mjs', '--check'); assert.ok(!r.ok && /minimum-wage-europe\.html is out of date/.test(r.out), 'changed headline makes the page stale: ' + r.out.slice(0, 300));
+  } finally { s.done(); }
+});
+
+test('p4_2.css_min_wage_table_at_375px', () => {
+  const css = read('legal.css').replace(/\/\*[\s\S]*?\*\//g, '');
+  const screen = css.replace(/@media\s+print\s*\{[\s\S]*$/, '');
+  // Lookbehind (not a consumed '}') so EVERY rule is read, whatever its position in the file.
+  const rule = sel => [...screen.matchAll(/(?<=^|\})\s*([^{}]*)\{([^}]*)\}/g)].filter(m => m[1].split(',').map(x => x.trim().replace(/\s+/g, ' ')).includes(sel)).map(m => m[2]).join(';');
+  const t = rule('.min-wage');
+  assert.match(t, /border-collapse\s*:\s*collapse/, '.min-wage border-collapse'); assert.match(t, /width\s*:\s*100%/, '.min-wage width: 100%');
+  const mw = t.match(/min-width\s*:\s*(\d+(?:\.\d+)?)rem/); assert.ok(mw && Number(mw[1]) >= 34 && Number(mw[1]) <= 64, '.min-wage min-width in rem (34 to 64) so 7 columns scroll inside .table-scroll instead of crushing at 375px');
+  const cells = rule('.min-wage th') + ';' + rule('.min-wage td') + ';' + [...screen.matchAll(/\.min-wage th,\s*\.min-wage td\s*\{([^}]*)\}/g)].map(m => m[1]).join(';');
+  assert.match(cells, /border\s*:\s*1px solid var\(--border\)/); assert.match(cells, /padding\s*:/); assert.match(cells, /text-align\s*:\s*left/); assert.match(cells, /vertical-align\s*:\s*top/); assert.match(cells, /font-variant-numeric\s*:\s*tabular-nums/);
+  assert.match(rule('.min-wage caption'), /text-align\s*:\s*left/, '.min-wage caption');
+  const th = rule('.min-wage tbody th');
+  assert.match(th, /position\s*:\s*sticky/, 'first column sticks on screen'); assert.match(th, /left\s*:\s*0/); assert.match(th, /background\s*:\s*var\(--bg\)/, 'opaque background so scrolled cells do not show through');
+  assert.match(css.match(/@media\s+print\s*\{[\s\S]*$/)[0], /\.min-wage tbody th\s*\{[^}]*position\s*:\s*static/, 'print: no sticky');
+  assert.match(rule('.no-min-wage'), /overflow-wrap\s*:\s*(anywhere|break-word)/, 'long values and URLs in the no-statutory list wrap');
+  assert.match(screen, /(^|\})\s*a\s*\{[^}]*color\s*:\s*var\(--accent\)/, 'links keep the readable accent colour on the dark UI');
+  assert.ok(!/\.min-wage[^{]*\{[^}]*display\s*:\s*none/.test(screen), 'nothing in the table is hidden on screen');
+  assert.match(screen, /\.table-scroll\s*\{[^}]*overflow-x\s*:\s*auto/); assert.match(screen, /\.table-scroll\s*\{[^}]*max-width\s*:\s*100%/);
+  assert.match(read(MW_FILE), /<meta name="viewport" content="width=device-width, initial-scale=1\.0">/);
+});
+test('p4_2.readme_and_example', () => {
+  const readme = read('README.md'), kf = readme.split('### Country key facts')[1].split(/\n##+ /)[0];
+  for (const re of [/`headline`/, /`amount`/, /`period`/, /`scope`/, /`statutory`/, /`region`/, /minimum-wage-europe\.html/, /not converted/i, /appear[s]? in (the )?`value`/]) assert.match(kf, re, `README Country key facts mentions ${re}`);
+  const blocks = [...kf.matchAll(/```json\n([\s\S]*?)\n```/g)].map(m => JSON.parse(m[1]));
+  const withHl = blocks.filter(b => (b.facts || []).some(f => f.headline));
+  assert.ok(withHl.length >= 1, 'a README json example shows a minimumWage headline');
+  const s = factsSite();
+  try { for (const b of blocks) { const r = s.validate([b]); assert.ok(r.ok, 'README example validates: ' + r.out.slice(0, 400)); } } finally { s.done(); }
+  const seo = readme.split('## On-page SEO')[1].split(/\n## /)[0];
+  assert.ok(!/\(WebSite, Organization, FAQPage\)/.test(seo) && !/update the FAQPage/.test(seo) && !/FAQPage JSON-LD does not match/.test(seo), 'README On-page SEO no longer describes FAQ structured data');
+  assert.match(seo, /WebSite, Organization/); assert.match(seo, /minimum-wage-europe/, 'On-page SEO documents the new page title/description');
+  assert.match(seo, /no FAQ|without FAQ|FAQ structured data (was|is) removed|no FAQPage/i, 'README states that the visible FAQ has no structured data');
 });
 
 console.log(`${passed} site tests passed.`);

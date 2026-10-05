@@ -10,6 +10,7 @@
         "value": "21 and over (National Living Wage): £12.71 per hour; 18 to 20: £10.85 per hour; under 18: £8 per hour; apprentice: £8 per hour",
         "validFrom": "2026-04-01",
         "note": "Rates change on 1 April every year.",
+        "headline": { "amount": "12.71", "period": "hour", "scope": "age 21 and over" },
         "sourceUrl": "https://www.gov.uk/national-minimum-wage-rates",
         "sourceLabel": "Source: GOV.UK - National Minimum Wage and National Living Wage rates",
         "checked": "2026-10-04"
@@ -88,6 +89,7 @@
         "value": "€13.90 gross per hour (from 1 January 2026); rising to €14.60 per hour in 2027",
         "validFrom": "2026-01-01",
         "note": "Same page states the Minijob earnings limit is €603 a month in 2026 and €633 a month in 2027.",
+        "headline": { "amount": "13.90", "period": "hour", "scope": "general statutory rate" },
         "sourceUrl": "https://www.bundesregierung.de/breg-de/aktuelles/mindestlohn-steigt-2391010",
         "sourceLabel": "Source: Die Bundesregierung - 13,90 Euro: So hoch liegt der Mindestlohn 2026",
         "checked": "2026-10-04"
@@ -172,6 +174,7 @@
         "value": "€12.31 gross per hour; €1,867.02 gross per month for a full-time (35-hour) job, from 1 June 2026 (previously €12.02 per hour / €1,823.03 per month)",
         "validFrom": "2026-06-01",
         "note": "Revalued by 2.41% on 1 June 2026 (arrêté of 22 May 2026) per the source. Applies in mainland France and the overseas territories listed by the source; Mayotte has a lower rate (€9.56 per hour).",
+        "headline": { "amount": "12.31", "period": "hour", "scope": "general rate (Mayotte is lower)" },
         "sourceUrl": "https://www.service-public.gouv.fr/particuliers/actualites/A18916",
         "sourceLabel": "Source: Service-Public.gouv.fr - Salaire minimum : le Smic va augmenter le 1er juin",
         "checked": "2026-10-04"
@@ -264,6 +267,7 @@
         "value": "Age 21 and over: €14.99 gross per hour from 1 July 2026 (€14.71 from 1 January 2026); youth rates from 1 July 2026: age 20 €11.99, 19 €8.99, 18 €7.50, 17 €5.92, 16 €5.17, 15 €4.50 per hour",
         "validFrom": "2026-07-01",
         "note": "The page also states there are no fixed minimum monthly, weekly or daily wages since 2024: those depend on hours worked. It lists amounts per 1 July 2026 and per 1 January 2026.",
+        "headline": { "amount": "14.99", "period": "hour", "scope": "age 21 and over" },
         "sourceUrl": "https://www.rijksoverheid.nl/themas/werk/minimumloon/bedragen-minimumloon/bedragen-minimumloon-2026",
         "sourceLabel": "Source: Rijksoverheid.nl - Bedragen minimumloon 2026",
         "checked": "2026-10-04"
@@ -337,6 +341,7 @@
         "value": "€40.70 per day or €1,221 per month (depending on whether pay is set by day or by month), annual figure €17,094, with effect from 1 January 2026",
         "validFrom": "2026-01-01",
         "note": "Real Decreto 126/2026 of 18 Feb 2026 (BOE no. 44, 19 Feb 2026): +3.1% on 2025, effect from 1 Jan 2026. Art. 3.1 states an annual figure never below €17,094. The decree does not state a number of annual payments.",
+        "headline": { "amount": "1,221", "period": "month", "scope": "paid monthly; annual minimum EUR 17,094" },
         "sourceUrl": "https://www.boe.es/boe/dias/2026/02/19/pdfs/BOE-A-2026-3815.pdf",
         "sourceLabel": "Source: Boletin Oficial del Estado - Real Decreto 126/2026, por el que se fija el salario minimo interprofesional para 2026",
         "checked": "2026-10-04"
@@ -424,6 +429,7 @@
         "label": "Statutory national minimum wage",
         "value": "No statutory national minimum wage (Eurostat, 1 July 2026); minimum pay is laid down by collective agreements for specific sectors",
         "note": "Eurostat lists Italy with Denmark, Austria, Finland and Sweden as EU countries without a national minimum wage on 1 July 2026.",
+        "headline": { "statutory": false },
         "sourceUrl": "https://ec.europa.eu/eurostat/statistics-explained/index.php?title=Minimum_wage_statistics",
         "sourceLabel": "Source: Eurostat - Minimum wage statistics",
         "checked": "2026-10-04"
@@ -478,6 +484,7 @@
         "value": "4,806 zł gross per month; minimum hourly rate 31.40 zł (from 1 January 2026)",
         "validFrom": "2026-01-01",
         "note": "Set by the Council of Ministers regulation of 11 September 2025 (Dz.U. 2025 item 1242), in force from 1 January 2026.",
+        "headline": { "amount": "4,806", "period": "month", "scope": "gross monthly minimum" },
         "sourceUrl": "https://dziennikustaw.gov.pl/D2025000124201.pdf",
         "sourceLabel": "Source: Dziennik Ustaw - Rozporządzenie Rady Ministrów z dnia 11 września 2025 r. w sprawie wysokości minimalnego wynagrodzenia za pracę (poz. 1242)",
         "checked": "2026-10-04"
@@ -556,6 +563,7 @@
         "value": "€2,233.61 gross per month for employees aged 18 and over, from 1 July 2026 (€2,189.81 from 1 April 2026)",
         "validFrom": "2026-07-01",
         "note": "Set by collective labour agreement no. 43 of the National Labour Council, as amended by CAO no. 43/18 of 24 March 2026. The 1 July 2026 amount is the indexed figure after the pivot index was exceeded at the end of June 2026.",
+        "headline": { "amount": "2,233.61", "period": "month", "scope": "age 18+; CAO 43 guaranteed average income" },
         "sourceUrl": "https://cnt-nar.be/sites/default/files/documents/fr/Tableau-Tabel-Montants%20CCT-CAO%20Bedragen-2026-07-01.pdf",
         "sourceLabel": "Source: Nationale Arbeidsraad (NAR) - Tabel cao-bedragen bijgewerkt op 01.07.2026 (cao nr. 43/18)",
         "checked": "2026-10-04"
@@ -622,6 +630,7 @@
         "label": "Statutory minimum wage",
         "value": "No statutory minimum wage; wages are often regulated by collective agreements",
         "note": "The source page is the Swedish Work Environment Authority's guidance for posted workers.",
+        "headline": { "statutory": false },
         "sourceUrl": "https://www.av.se/en/work-environment-work-and-inspections/foreign-labour-in-sweden/posting-foreign-labour-in-sweden/the-rights-of-posted-workers/",
         "sourceLabel": "Source: Swedish Work Environment Authority (Arbetsmiljöverket) - The rights of posted workers in Sweden",
         "checked": "2026-10-04"
@@ -691,6 +700,7 @@
         "value": "€14.15 per hour for ages 20 and over; age 19: €12.74; age 18: €11.32; under 18: €9.91",
         "validFrom": "2026-01-01",
         "note": "In force since 1 January 2026. Sub-minimum rates are 90%, 80% and 70% of the adult rate. Employees of a close relative and statutory apprentices are not entitled to the national minimum wage.",
+        "headline": { "amount": "14.15", "period": "hour", "scope": "age 20 and over" },
         "sourceUrl": "https://www.citizensinformation.ie/en/employment/employment-rights-and-conditions/pay-and-employment/minimum-wage/",
         "sourceLabel": "Source: Citizens Information - Minimum wage",
         "checked": "2026-10-04"
@@ -759,6 +769,7 @@
         "label": "Minimum wage (no statutory national minimum)",
         "value": "Austria has no statutory minimum wage that applies to all employees; minimum wages are set mainly in sector collective agreements (Kollektivverträge), which cannot be undercut by contract. Most agreements provide at least €1,700 gross, 14 times a year",
         "note": "About 95% of employees are covered by a collective agreement (over 800 agreements). Page last updated 12 August 2025. Rate depends on the applicable Kollektivvertrag.",
+        "headline": { "statutory": false },
         "sourceUrl": "https://www.sozialministerium.gv.at/Themen/Arbeit/Arbeitsrecht/Entlohnung/Mindestlohn-in-OE.html",
         "sourceLabel": "Source: Sozialministerium (BMASGPK) - Mindestlohn in Österreich",
         "checked": "2026-10-04"
@@ -863,6 +874,7 @@
         "value": "22,400 Kč per month or 134.40 Kč per hour for a 40-hour working week, from 1 January to 31 December 2026",
         "validFrom": "2026-01-01",
         "note": "Pro-rated for shorter agreed weekly hours. Set by MPSV notice No. 356/2025 Sb. (coefficient 0.434 x forecast average wage of 51,497 Kč, rounded).",
+        "headline": { "amount": "22,400", "period": "month", "scope": "40-hour working week" },
         "sourceUrl": "https://mpsv.gov.cz/minimalni-mzda",
         "sourceLabel": "Source: MPSV - Minimální mzda",
         "checked": "2026-10-04"
@@ -949,6 +961,7 @@
         "value": "4,325 lei gross per month from 1 July 2026, for a normal working time of 166.667 hours a month on average (25.949 lei per hour)",
         "validFrom": "2026-07-01",
         "note": "Government Decision (HG) 146/2026 of 12 March 2026, Monitorul Oficial no. 196 of 13 March 2026. The amount excludes bonuses and other additions. It replaces HG 1,506/2024.",
+        "headline": { "amount": "4,325", "period": "month", "scope": "normal working time, 166.667 hours a month" },
         "sourceUrl": "https://static.anaf.ro/static/10/Anaf/legislatie/HG_146_2026.pdf",
         "sourceLabel": "Source: Guvernul României (published by ANAF) - Hotărâre nr. 146/2026 pentru stabilirea salariului de bază minim brut pe țară garantat în plată",
         "checked": "2026-10-04"
@@ -1000,6 +1013,7 @@
         "value": "€920 per month, with effect from 1 January 2026 (Decreto-Lei 139/2025 of 29 December; up 5.7%)",
         "validFrom": "2026-01-01",
         "note": "Page updated 26 May 2026; the DGERT table lists the 2026 amount as €920.00 and a 5.7% increase. The page does not state the number of annual payments.",
+        "headline": { "amount": "920", "period": "month", "scope": "general monthly rate" },
         "sourceUrl": "https://www.dgert.gov.pt/retribuicao-minima-mensal-garantida-para-2026",
         "sourceLabel": "Source: DGERT - Retribuição mínima mensal garantida para 2026",
         "checked": "2026-10-04"
@@ -1091,6 +1105,7 @@
         "label": "Minimum wage (no statutory national minimum)",
         "value": "Denmark does not have a statutory minimum wage; pay is regulated by collective agreements or negotiated individually",
         "note": "Written by the Ministry of Employment, updated 19 May 2026. The page says an individual agreement can stipulate a minimum wage for the sector and that unions publish annual wage statistics.",
+        "headline": { "statutory": false },
         "sourceUrl": "https://businessindenmark.virk.dk/guidance/employment-and-dismissal/pay/",
         "sourceLabel": "Source: Business in Denmark (Virk, Ministry of Employment) - Pay",
         "checked": "2026-10-04"
@@ -1176,6 +1191,7 @@
         "label": "Minimum wage (legal minimums in nine sectors only)",
         "value": "No set minimum wage in other sectors; legal minimum wages apply in nine sectors through generalised collective agreements (allmenngjøring), and wages elsewhere are agreed individually or in collective agreements",
         "note": "Sector rates (e.g. construction, cleaning, hospitality) are on the source page. The page also presents a new sector, automotive, with minimums from 15 June 2026 (e.g. NOK 208 an hour for unskilled workers aged 18 or over).",
+        "headline": { "statutory": false },
         "sourceUrl": "https://arbeidstilsynet.no/en/working-conditions/pay-and-minimum-rates-of-pay/minimum-wage",
         "sourceLabel": "Source: Arbeidstilsynet (Norwegian Labour Inspection Authority) - Minimum wage",
         "checked": "2026-10-04"
@@ -1261,6 +1277,7 @@
         "label": "Minimum wage (no statutory national minimum)",
         "value": "There is no minimum wage law in Finland; minimum wages are set in the collective agreement of each sector, and universally binding agreements apply to all employers in the sector",
         "note": "If no collective agreement applies, pay is agreed in the employment contract, or the Employment Contracts Act requires a usual and reasonable wage.",
+        "headline": { "statutory": false },
         "sourceUrl": "https://tyosuojelu.fi/en/employment-relationship/pay",
         "sourceLabel": "Source: Occupational Safety and Health Administration (tyosuojelu.fi) - Pay",
         "checked": "2026-10-04"
@@ -1332,6 +1349,7 @@
         "value": "Minimum wage HUF 322,800 a month (HUF 1,856 an hour) for full-time work; guaranteed minimum wage HUF 373,200 a month (HUF 2,145 an hour) for jobs requiring at least secondary education or qualification",
         "validFrom": "2026-01-01",
         "note": "Government Decree 426/2025 (XII. 23.), applicable from 1 January 2026. Weekly and daily rates are also set: HUF 74,210 and 14,850 (minimum); HUF 85,800 and 17,160 (guaranteed).",
+        "headline": { "amount": "322,800", "period": "month", "scope": "full-time work (guaranteed minimum is higher)" },
         "sourceUrl": "https://njt.jog.gov.hu/jogszabaly/2025-426-20-22.2",
         "sourceLabel": "Source: Nemzeti Jogszabálytár (Magyar Közlöny) - 426/2025. (XII. 23.) Korm. rendelet a kötelező legkisebb munkabér (minimálbér) és a garantált bérminimum megállapításáról",
         "checked": "2026-10-04"
@@ -1383,6 +1401,7 @@
         "value": "EUR 920.00 a month for white-collar workers and EUR 41.09 a day for blue-collar workers, from 1 April 2026 (Ministerial Decision 8934/27.3.2026, Gazette B 1759)",
         "validFrom": "2026-04-01",
         "note": "Seniority increments: white-collar 10% every three years up to 30% (nine years); blue-collar 5% every three years up to 30% (eighteen years). Contracts may not provide pay below the statutory minimum.",
+        "headline": { "amount": "920.00", "period": "month", "scope": "white-collar workers (blue-collar: EUR 41.09 a day)" },
         "sourceUrl": "https://ypergasias.gov.gr/en/labour-relations/collective-employment-relations/minimum-wage/",
         "sourceLabel": "Source: Ministry of Labour and Social Affairs (Greece) - Minimum Wage",
         "checked": "2026-10-04"
@@ -1471,6 +1490,7 @@
         "value": "CHF 24.59 gross per hour from 1 January 2026 (up from CHF 24.48); agriculture and floriculture CHF 18.07 per hour",
         "validFrom": "2026-01-01",
         "note": "Canton of Geneva only; adjusted yearly to the consumer price index. Minimum wages of other cantons and sector agreements are not covered here.",
+        "headline": { "amount": "24.59", "period": "hour", "scope": "cantonal minimum, Geneva only", "region": "Geneva" },
         "sourceUrl": "https://www.ge.ch/actualite/salaire-minimum-genevois-2026-etablira-2459-fr-heure-1-10-2025",
         "sourceLabel": "Source: République et canton de Genève - Le salaire minimum genevois 2026 s'établira à 24.59 fr. de l'heure",
         "checked": "2026-10-04"

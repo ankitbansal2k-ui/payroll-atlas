@@ -48,7 +48,7 @@ function periodOf(v) {
 // A badge "restates the date" when, after an optional leading Effective/In force/Confirmed for (day/month dates only)/Applies to/From,
 // it equals the formatted effective date (short or long month), or when it is just a status label.
 // Uses filters.js, the code the site renders with (required, as in build-pages.mjs).
-const { formatEffective, STATUS_LABELS, statusOf, slugify } = createRequire(import.meta.url)('../filters.js');
+const { formatEffective, STATUS_LABELS, statusOf, slugify, amountInText } = createRequire(import.meta.url)('../filters.js');
 const LONG_MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 function restatesDate(badge, effective, entry) {
   const b = badge.trim().toLowerCase();
@@ -306,7 +306,8 @@ try {
 {
   const FACT_KEYS = ['minimumWage', 'ssEmployer', 'ssEmployee', 'ssCeiling', 'taxBands', 'payFrequency', 'other'];
   const COUNTRY_FIELDS = new Set(['code', 'asOf', 'currency', 'facts']);
-  const FACT_FIELDS = new Set(['key', 'label', 'value', 'validFrom', 'note', 'bands', 'sourceUrl', 'sourceLabel', 'checked']);
+  const FACT_FIELDS = new Set(['key', 'label', 'value', 'validFrom', 'note', 'bands', 'sourceUrl', 'sourceLabel', 'checked', 'headline']);
+  const HEADLINE_FIELDS = new Set(['amount', 'period', 'scope', 'region', 'statutory']);
   const BAND_FIELDS = new Set(['from', 'to', 'rate']);
   const has = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
   const isObj = v => v !== null && typeof v === 'object' && !Array.isArray(v);
@@ -348,6 +349,28 @@ try {
         }
         for (const [k, max] of [['label', 200], ['value', 300]]) { const p = textProblem(k, f[k], max); if (p) err(`${fat} ${p}`); }
         if (has(f, 'note')) { const p = textProblem('note', f.note, 300); if (p) err(`${fat} ${p}`); }
+        // Optional minimum-wage headline for minimum-wage-europe.html: {amount, period, scope} or {statutory:false}.
+        if (has(f, 'headline')) {
+          const h = f.headline, hat = `${fat} headline`;
+          if (f.key !== 'minimumWage') err(`${hat} is only allowed on a minimumWage fact`);
+          else if (!isObj(h)) err(`${hat} must be an object`);
+          else {
+            for (const k of Object.keys(h)) if (!HEADLINE_FIELDS.has(k)) err(`${hat} unknown field "${k}" (allowed: ${[...HEADLINE_FIELDS].join(', ')})`);
+            if (has(h, 'statutory')) {
+              if (h.statutory !== false) err(`${hat} statutory must be exactly false`);
+              else if (['amount', 'period', 'scope', 'region'].some(k => has(h, k))) err(`${hat} statutory false cannot be combined with amount, period, scope or region`);
+            } else {
+              if (!has(h, 'amount')) err(`${hat} amount is required unless statutory is false`);
+              else if (typeof h.amount !== 'string' || !/^\d{1,3}(,\d{3})*(\.\d{1,2})?$|^\d+(\.\d{1,2})?$/.test(h.amount)) err(`${hat} amount must be digits with an optional thousands comma and up to 2 decimals after a point (for example 1,867.02), as a string`);
+              else if (typeof f.value === 'string' && !amountInText(h.amount, f.value)) err(`${hat} amount "${h.amount}" does not appear in value (the headline must repeat a figure stated in value)`);
+              else if (typeof f.value === 'string' && (h.period === 'hour' || h.period === 'month') && !amountInText(h.amount, f.value, h.period)) err(`${hat} period "${h.period}" does not fit value: "${h.amount}" is not stated next to a ${h.period === 'hour' ? 'per hour / hourly' : 'per month / monthly'} wording`);
+              if (h.period !== 'hour' && h.period !== 'month') err(`${hat} period must be "hour" or "month"`);
+              const sp = textProblem('headline scope', h.scope, 60);
+              if (sp) err(`${fat} ${sp}`);
+              if (has(h, 'region')) { const rp = textProblem('headline region', h.region, 40); if (rp) err(`${fat} ${rp}`); }
+            }
+          }
+        }
         if (has(f, 'validFrom') && !isIsoDay(f.validFrom)) err(`${fat} validFrom must be a real YYYY-MM-DD date`);
         // Rates reset every year: a validFrom more than 400 days back suggests a newer figure may exist (warning only).
         else if (has(f, 'validFrom') && ageDays(f.validFrom) > 400) console.warn(`WARNING: ${fat} facts validFrom ${f.validFrom} is more than 400 days ago (key ${f.key}); rates reset annually, so re-check the source.`);

@@ -290,5 +290,26 @@ test('p3_1.print_new_nav_and_done_button_hidden', () => {
   assert.ok(!kf.includes('data-action="print"'));
 });
 
+// ---------- P4-2: minimum-wage-europe.html prints ----------
+// Contract (see test-site.mjs p4_2.*): <div class="table-scroll"><table class="min-wage"> with 7 columns, source links in the last column, legal.css only.
+test('p4_2.print_keeps_min_wage_table_on_white_with_borders_and_urls', () => {
+  assert.ok(fs.existsSync(path.join(ROOT, 'minimum-wage-europe.html')), 'minimum-wage-europe.html not generated');
+  const page = read('minimum-wage-europe.html');
+  for (const s of ['.table-scroll', '.min-wage', '.min-wage th', '.min-wage td']) assert.ok(existsIn(page, s), 'page contains ' + s);
+  assert.ok(page.includes('<link rel="stylesheet" href="legal.css">'));
+  const rs = printRules('legal.css');
+  for (const r of rs.filter(r => val(r.decls.display) === 'none')) for (const s of r.selectors) assert.ok(!/min-wage|table-scroll|^(main|section|table|tr|td|th|ul|li)$/.test(s), 'print rule hides the minimum wage table or list: ' + s);
+  assert.equal(val(declOf(rs, '.table-scroll', 'overflow')) || val(declOf(rs, '.table-scroll', 'overflow-x')), 'visible', 'no clipping of columns in print');
+  assert.ok(/^(0|0rem|none|auto)$/.test(val(declOf(rs, '.min-wage', 'min-width'))), 'print resets the screen min-width of .min-wage so 7 columns fit the paper');
+  const cell = rs.find(r => r.selectors.includes('.min-wage th') && r.selectors.includes('.min-wage td'));
+  assert.ok(cell, 'print rule for .min-wage th, .min-wage td');
+  assert.match(cell.decls.border || '', /#000/, 'visible black cell borders'); assert.ok(isWhite(cell.decls.background || cell.decls['background-color']), 'white cell background');
+  const bi = val(declOf(rs, '.min-wage tr', 'break-inside')) || val(declOf(rs, '.min-wage tr', 'page-break-inside'));
+  assert.equal(bi, 'avoid', 'a row is not split across pages');
+  const hit = rs.find(r => r.selectors.some(s => /^\.min-wage\s+a\[href\^="http"\]::after$/.test(s)) && /attr\(\s*href\s*\)/.test(r.decls.content || ''));
+  assert.ok(hit, 'need .min-wage a[href^="http"]::after { content: " (" attr(href) ")" } so the printed table shows each source address');
+  assert.ok(!existsIn(page, 'script') || !/data-action="print"/.test(page));
+});
+
 console.log(`\n${pass} passed, ${fail} failed`);
 if (fail) process.exit(1);

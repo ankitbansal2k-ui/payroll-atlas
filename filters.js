@@ -276,7 +276,40 @@
   // CSS class for a country's map shape/legend swatch, from its entry count.
   function depthClass(n) { return `depth-${depthBucket(n)}`; }
 
-  const api = { MAX_COUNTRIES, WHENS, STATUS_LABELS, statusOf, formatEffective, CATEGORY_LABELS, WHEN_LABELS, parseCountries, serializeCountries, readSelection, readUrlState, applyFilters, slugify, csvCell, toCsv, csvFilename, coverageDepth, depthBucket, depthClass, highlight, linkTerms, foldForSearch, SEARCH_MAX_LENGTH };
+  // Number normalisation for the minimum-wage headline drift guard (validate.mjs): a token is digits joined by "." or ",".
+  // Both separator kinds: the last separator is the decimal mark. One kind, several times: thousands marks. Exactly one: a thousands
+  // mark when exactly 3 digits follow it, otherwise the decimal mark. Canonical = integer digits (no thousands marks, no leading
+  // zeros) + "." + fraction without trailing zeros. Spaces are not separators.
+  function canonicalNumber(token) {
+    const t = String(token), seps = [...t.matchAll(/[.,]/g)].map(m => ({ ch: m[0], at: m.index }));
+    let dec = -1;
+    if (seps.length) {
+      const last = seps[seps.length - 1];
+      if (new Set(seps.map(x => x.ch)).size === 2) dec = last.at;
+      else if (seps.length === 1 && t.length - last.at - 1 !== 3) dec = last.at;
+    }
+    const ip = (dec < 0 ? t : t.slice(0, dec)).replace(/[.,]/g, '').replace(/^0+(?=\d)/, ''), fp = dec < 0 ? '' : t.slice(dec + 1).replace(/0+$/, '');
+    return fp ? ip + '.' + fp : ip;
+  }
+  // True when some number token in `text` has the same canonical form as `amount`.
+  // With `period` ('hour' | 'month') that token must also sit next to a matching period word: within 40 characters on either side,
+  // but not beyond a ";" or another number, so "4,806 zl gross per month; minimum hourly rate 31.40" does not make 4,806 hourly.
+  const PERIOD_WORDS = { hour: /\b(hour|hourly|per hour|an hour|\/h)\b/i, month: /\b(month|monthly|per month|a month)\b/i };
+  function amountInText(amount, text, period) {
+    const want = canonicalNumber(amount), s = String(text), toks = [...s.matchAll(/\d+(?:[.,]\d+)*/g)];
+    return toks.some((m, i) => {
+      if (canonicalNumber(m[0]) !== want) return false;
+      if (!period) return true;
+      const re = PERIOD_WORDS[period];
+      if (!re) return false;
+      const from = m.index + m[0].length, nextTok = toks[i + 1] ? toks[i + 1].index : s.length, prevEnd = i ? toks[i - 1].index + toks[i - 1][0].length : 0;
+      const after = s.slice(from, Math.min(nextTok, from + 40)).split(';')[0];
+      const before = s.slice(Math.max(prevEnd, m.index - 40), m.index).split(';').pop();
+      return re.test(after) || re.test(before);
+    });
+  }
+
+  const api = { canonicalNumber, amountInText, MAX_COUNTRIES, WHENS, STATUS_LABELS, statusOf, formatEffective, CATEGORY_LABELS, WHEN_LABELS, parseCountries, serializeCountries, readSelection, readUrlState, applyFilters, slugify, csvCell, toCsv, csvFilename, coverageDepth, depthBucket, depthClass, highlight, linkTerms, foldForSearch, SEARCH_MAX_LENGTH };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else if (typeof window !== 'undefined') window.PayrollFilters = api;
 })();
