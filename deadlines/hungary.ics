@@ -1,0 +1,48 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Intelligent Payroll//Payroll deadlines//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Intelligent Payroll: Hungary payroll deadlines
+BEGIN:VEVENT
+UID:hu-pit-advance-payment@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261012
+DTEND;VALUE=DATE:20261013
+RRULE:FREQ=MONTHLY;BYMONTHDAY=12
+SUMMARY:Hungary: Personal income tax advances withheld from employees: decl
+ aration and payment
+DESCRIPTION:The employer declares and pays the income tax advance withheld 
+ by the 12th of the month following the accounted month (NAV: 'hónap 12-é
+ ig' - up to and including the 12th).\nApplies to: Hungarian employers with
+ holding personal income tax advances\nNon-working-day rule: check the sour
+ ce.\n\nSource: https://nav.gov.hu/pfile/file?path=%2Fugyfeliranytu%2Fnezze
+ n-utana%2Finf_fuz%2Frejtett%2FInformacios-fuzetek---Aktualis%2F24.-Bevalla
+ si-adofizetesi-informaciok\nDetails: https://www.intelligentpayroll.eu/dea
+ dlines.html#hungary\n\nFor information only\, not legal or tax advice. Dat
+ es follow the recurring rule stated by the source\; weekends and holidays 
+ are not applied. Sources last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#hungary
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:hu-social-contribution-tax@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261012
+DTEND;VALUE=DATE:20261013
+RRULE:FREQ=MONTHLY;BYMONTHDAY=12
+SUMMARY:Hungary: Social contribution tax: monthly declaration and payment
+DESCRIPTION:The payer assesses social contribution tax monthly and declares
+  and pays it by the 12th of the month following the reference month (NAV: 
+ 'hónap 12-ig' - up to and including the 12th).\nApplies to: Payers of soc
+ ial contribution tax (employers)\nNon-working-day rule: check the source.\
+ n\nSource: https://nav.gov.hu/pfile/file?path=%2Fugyfeliranytu%2Fnezzen-ut
+ ana%2Finf_fuz%2Frejtett%2FInformacios-fuzetek---Aktualis%2F24.-Bevallasi-a
+ dofizetesi-informaciok\nDetails: https://www.intelligentpayroll.eu/deadlin
+ es.html#hungary\n\nFor information only\, not legal or tax advice. Dates f
+ ollow the recurring rule stated by the source\; weekends and holidays are 
+ not applied. Sources last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#hungary
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR

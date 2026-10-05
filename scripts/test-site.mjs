@@ -2668,7 +2668,7 @@ test('p2_12.page_tables_match_data_exactly', () => {
   dlPageChecks(h, list, VER22, 'real');
   for (const m of mainOf(h).matchAll(/href="(countries\/[^"]+)"/g)) assert.ok(resolves(m[1]), `${m[1]} resolves`);
   const weekendCells = [...mainOf(h).matchAll(/<tr id="([^"]+)">[\s\S]*?<\/tr>/g)].filter(m => !m[0].includes('<td>Check the source</td>')).map(m => m[1]);
-  assert.deepEqual(weekendCells.sort(), BATCH1.filter(r => r[5]).map(r => r[0]).concat(['at-lohnabgaben-payment', 'at-kommunalsteuer-payment', 'at-sv-contributions-payment', 'cz-health-insurance-payment', 'pl-zus-contributions-legal-entities', 'pl-zus-contributions-other-payers']).sort(), 'the "Non-working day" cell shows the note exactly for the deadlines that have one');
+  assert.deepEqual(weekendCells.sort(), BATCH1.filter(r => r[5]).map(r => r[0]).concat(['at-lohnabgaben-payment', 'at-kommunalsteuer-payment', 'at-sv-contributions-payment', 'cz-health-insurance-payment', 'pl-zus-contributions-legal-entities', 'pl-zus-contributions-other-payers', 'no-a-melding-monthly', 'fi-incomes-register-separate-report', 'fi-employer-contributions-payment']).sort(), 'the "Non-working day" cell shows the note exactly for the deadlines that have one');
 });
 test('p2_12.footers_nav_keyfacts_and_country_pages_link_to_the_page', () => {
   const gen = allGenerated(); assert.ok(gen.includes('deadlines.html'));

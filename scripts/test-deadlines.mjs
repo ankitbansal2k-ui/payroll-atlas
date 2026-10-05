@@ -273,7 +273,7 @@ await test('legacy_country_param_is_merged_unknown_and_absent_codes_are_ignored'
   assert.ok(shown(p).length > 0 && shown(p).every(s => / italy\//.test(s)), '?country=italy');
   p = makePage({ search: '?countries=uk&country=italy', body: j }); await settle();
   assert.deepEqual([...new Set(shown(p).map(s => s.split(' ')[1].split('/')[0]))].sort(), ['italy', 'uk']);
-  for (const q of ['?countries=atlantis', '?countries=portugal', `?countries=${encodeURIComponent(hostile)},uk,UK`, '?countries=', '?countries=__proto__,constructor']) {
+  for (const q of ['?countries=atlantis', '?countries=atlantis2', `?countries=${encodeURIComponent(hostile)},uk,UK`, '?countries=', '?countries=__proto__,constructor']) {
     p = makePage({ search: q, body: j }); await settle();
     const codes = new Set(shown(p).map(s => s.split(' ')[1].split('/')[0]));
     if (q.includes(',uk,')) assert.deepEqual([...codes], ['uk'], q + ': hostile dropped, uk kept once');

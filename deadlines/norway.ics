@@ -1,0 +1,47 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Intelligent Payroll//Payroll deadlines//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Intelligent Payroll: Norway payroll deadlines
+BEGIN:VEVENT
+UID:no-a-melding-monthly@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261005
+DTEND;VALUE=DATE:20261006
+RRULE:FREQ=MONTHLY;BYMONTHDAY=5
+SUMMARY:Norway: A-melding (monthly payroll report to the Norwegian authorit
+ ies)
+DESCRIPTION:The deadline to submit the a-melding is the 5th of every month\
+ , for the previous month. It reports salary\, other income and advance tax
+  deductions.\nApplies to: Employers reporting salary and other income\nNon
+ -working day: If the 5th falls on a weekend or a holiday\, the deadline is
+  on the first following working day.\n\nSource: https://www.skatteetaten.n
+ o/en/business-and-organisation/employer/the-a-melding/deadlines-and-paymen
+ t/\nDetails: https://www.intelligentpayroll.eu/deadlines.html#norway\n\nFo
+ r information only\, not legal or tax advice. Dates follow the recurring r
+ ule stated by the source\; weekends and holidays are not applied. Sources 
+ last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#norway
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:no-annual-summary-employees@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20270201
+DTEND;VALUE=DATE:20270202
+RRULE:FREQ=YEARLY;BYMONTH=2;BYMONTHDAY=1
+SUMMARY:Norway: Annual summary of income and tax deductions to employees
+DESCRIPTION:Every year by 1 February\, employers must submit an annual summ
+ ary of incomes\, deductions and withholding tax for their employees (for t
+ he previous income year).\nApplies to: Employers with employees\nNon-worki
+ ng-day rule: check the source.\n\nSource: https://www.skatteetaten.no/en/b
+ usiness-and-organisation/employer/the-a-melding/hjelp-til-a-gjore-riktig/s
+ ummary-to-the-employee/\nDetails: https://www.intelligentpayroll.eu/deadli
+ nes.html#norway\n\nFor information only\, not legal or tax advice. Dates f
+ ollow the recurring rule stated by the source\; weekends and holidays are 
+ not applied. Sources last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#norway
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR

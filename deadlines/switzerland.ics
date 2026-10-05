@@ -1,0 +1,46 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Intelligent Payroll//Payroll deadlines//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Intelligent Payroll: Switzerland payroll deadlines
+BEGIN:VEVENT
+UID:ch-ahv-contributions-quarterly@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261010
+DTEND;VALUE=DATE:20261011
+RRULE:FREQ=MONTHLY;INTERVAL=3;BYMONTHDAY=10
+SUMMARY:Switzerland: AHV/IV/EO contributions: quarterly payment (payroll up
+  to CHF 200\,000)
+DESCRIPTION:Employers with an annual payroll up to CHF 200\,000 pay contrib
+ utions quarterly. The latest payment date is always the 10th day after the
+  end of the quarter\, e.g. contributions for the first quarter by 10 April
+ .\nApplies to: Employers with an annual payroll up to CHF 200\,000\nNon-wo
+ rking-day rule: check the source.\n\nSource: https://www.ahv-iv.ch/p/2.01.
+ d\nDetails: https://www.intelligentpayroll.eu/deadlines.html#switzerland\n
+ \nFor information only\, not legal or tax advice. Dates follow the recurri
+ ng rule stated by the source\; weekends and holidays are not applied. Sour
+ ces last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#switzerland
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:ch-ahv-contributions-monthly@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261010
+DTEND;VALUE=DATE:20261011
+RRULE:FREQ=MONTHLY;BYMONTHDAY=10
+SUMMARY:Switzerland: AHV/IV/EO contributions: monthly payment (payroll over
+  CHF 200\,000)
+DESCRIPTION:Employers with an annual payroll above CHF 200\,000 pay contrib
+ utions monthly. The latest payment date is always the 10th day after the e
+ nd of the month.\nApplies to: Employers with an annual payroll above CHF 2
+ 00\,000\nNon-working-day rule: check the source.\n\nSource: https://www.ah
+ v-iv.ch/p/2.01.d\nDetails: https://www.intelligentpayroll.eu/deadlines.htm
+ l#switzerland\n\nFor information only\, not legal or tax advice. Dates fol
+ low the recurring rule stated by the source\; weekends and holidays are no
+ t applied. Sources last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#switzerland
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR

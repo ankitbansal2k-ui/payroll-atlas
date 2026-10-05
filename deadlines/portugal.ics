@@ -1,0 +1,86 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Intelligent Payroll//Payroll deadlines//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Intelligent Payroll: Portugal payroll deadlines
+BEGIN:VEVENT
+UID:pt-irs-retencao-payment@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261020
+DTEND;VALUE=DATE:20261021
+RRULE:FREQ=MONTHLY;BYMONTHDAY=20
+SUMMARY:Portugal: IRS withholding on employment income: payment to the tax 
+ authority
+DESCRIPTION:Amounts withheld on employment income (IRS) must be paid over b
+ y the 20th of the month following the one in which they were deducted.\nAp
+ plies to: Employers withholding IRS on employment income\nNon-working-day 
+ rule: check the source.\n\nSource: https://info.portaldasfinancas.gov.pt/p
+ t/informacao_fiscal/codigos_tributarios/cirs_rep/Pages/irs98.aspx\nDetails
+ : https://www.intelligentpayroll.eu/deadlines.html#portugal\n\nFor informa
+ tion only\, not legal or tax advice. Dates follow the recurring rule state
+ d by the source\; weekends and holidays are not applied. Sources last chec
+ ked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#portugal
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:pt-dmr-monthly@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261010
+DTEND;VALUE=DATE:20261011
+RRULE:FREQ=MONTHLY;BYMONTHDAY=10
+SUMMARY:Portugal: Monthly remuneration declaration (DMR) to the tax authori
+ ty
+DESCRIPTION:Employers file the official declaration of income paid\, tax wi
+ thheld\, mandatory social-protection contributions and union dues by the 1
+ 0th of the month following payment\, for employment income.\nApplies to: E
+ mployers paying employment income\nNon-working-day rule: check the source.
+ \n\nSource: https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/cod
+ igos_tributarios/cirs_rep/Pages/irs119.aspx\nDetails: https://www.intellig
+ entpayroll.eu/deadlines.html#portugal\n\nFor information only\, not legal 
+ or tax advice. Dates follow the recurring rule stated by the source\; week
+ ends and holidays are not applied. Sources last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#portugal
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:pt-employee-income-statement@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20270120
+DTEND;VALUE=DATE:20270121
+RRULE:FREQ=YEARLY;BYMONTH=1;BYMONTHDAY=20
+SUMMARY:Portugal: Annual statement of pay and tax withheld to each employee
+DESCRIPTION:By 20 January each year\, give the taxpayer a document showing 
+ the amounts due in the previous year\, including income in kind\, tax with
+ held and any deductions.\nApplies to: Employers and other payers of income
+  subject to IRS\nNon-working-day rule: check the source.\n\nSource: https:
+ //info.portaldasfinancas.gov.pt/pt/informacao_fiscal/codigos_tributarios/c
+ irs_rep/Pages/irs119.aspx\nDetails: https://www.intelligentpayroll.eu/dead
+ lines.html#portugal\n\nFor information only\, not legal or tax advice. Dat
+ es follow the recurring rule stated by the source\; weekends and holidays 
+ are not applied. Sources last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#portugal
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:pt-ss-contributions-payment@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261025
+DTEND;VALUE=DATE:20261026
+RRULE:FREQ=MONTHLY;BYMONTHDAY=25
+SUMMARY:Portugal: Social security contributions payment (employers)
+DESCRIPTION:Contributions are paid monthly\, based on data made available b
+ y social security\, between day 1 and day 25 of the month after the one th
+ ey relate to. New model phased in during 2026\; mandatory for all employer
+ s from 1 Jan 2027.\nApplies to: Employers declaring remuneration to Portug
+ uese social security\nNon-working-day rule: check the source.\n\nSource: h
+ ttps://files.diariodarepublica.pt/1s/2025/12/23600/0000200005.pdf\nDetails
+ : https://www.intelligentpayroll.eu/deadlines.html#portugal\n\nFor informa
+ tion only\, not legal or tax advice. Dates follow the recurring rule state
+ d by the source\; weekends and holidays are not applied. Sources last chec
+ ked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#portugal
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR

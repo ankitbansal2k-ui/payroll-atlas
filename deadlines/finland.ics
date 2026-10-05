@@ -1,0 +1,52 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Intelligent Payroll//Payroll deadlines//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Intelligent Payroll: Finland payroll deadlines
+BEGIN:VEVENT
+UID:fi-incomes-register-separate-report@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261005
+DTEND;VALUE=DATE:20261006
+RRULE:FREQ=MONTHLY;BYMONTHDAY=5
+SUMMARY:Finland: Employer's separate report to the Incomes Register
+DESCRIPTION:File the employer's separate report on health insurance contrib
+ utions once a month\, by the fifth day of the calendar month following the
+  payday month. Registered employers file it also for months without wages.
+ \nApplies to: Employers paying wages (registered employers also for months
+  with no wages)\nNon-working day: If the deadline falls on a Saturday\, Su
+ nday or other holiday\, the data can be reported on the following business
+  day.\n\nSource: https://www.vero.fi/en/businesses-and-corporations/taxes-
+ and-charges/being-an-employer/how-to-report-wages-and-employers-contributi
+ ons/\nDetails: https://www.intelligentpayroll.eu/deadlines.html#finland\n\
+ nFor information only\, not legal or tax advice. Dates follow the recurrin
+ g rule stated by the source\; weekends and holidays are not applied. Sourc
+ es last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#finland
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:fi-employer-contributions-payment@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261012
+DTEND;VALUE=DATE:20261013
+RRULE:FREQ=MONTHLY;BYMONTHDAY=12
+SUMMARY:Finland: Employer's contributions: monthly return and payment due d
+ ate
+DESCRIPTION:With a monthly tax period\, employer's contributions are filed 
+ and paid by the 12th of the following month (e.g. the March return is due 
+ 12 April). Quarterly or extended periods follow a different cycle.\nApplie
+ s to: Employers with a monthly tax period for employer's contributions\nNo
+ n-working day: If the 12th falls on a Saturday\, Sunday or a public holida
+ y\, the date is extended to the next business day.\n\nSource: https://www.
+ vero.fi/en/About-us/contact-us/forms/filling-instructions/filing-and-payin
+ g-vat-and-other-self-assessed-taxes--detailed-guidance/\nDetails: https://
+ www.intelligentpayroll.eu/deadlines.html#finland\n\nFor information only\,
+  not legal or tax advice. Dates follow the recurring rule stated by the so
+ urce\; weekends and holidays are not applied. Sources last checked 5 Octob
+ er 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#finland
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR

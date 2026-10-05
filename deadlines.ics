@@ -970,4 +970,248 @@ DESCRIPTION:For employers with turnover above SEK 40 million the declaratio
 URL:https://www.intelligentpayroll.eu/deadlines.html#sweden
 TRANSP:TRANSPARENT
 END:VEVENT
+BEGIN:VEVENT
+UID:pt-irs-retencao-payment@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261020
+DTEND;VALUE=DATE:20261021
+RRULE:FREQ=MONTHLY;BYMONTHDAY=20
+SUMMARY:Portugal: IRS withholding on employment income: payment to the tax 
+ authority
+DESCRIPTION:Amounts withheld on employment income (IRS) must be paid over b
+ y the 20th of the month following the one in which they were deducted.\nAp
+ plies to: Employers withholding IRS on employment income\nNon-working-day 
+ rule: check the source.\n\nSource: https://info.portaldasfinancas.gov.pt/p
+ t/informacao_fiscal/codigos_tributarios/cirs_rep/Pages/irs98.aspx\nDetails
+ : https://www.intelligentpayroll.eu/deadlines.html#portugal\n\nFor informa
+ tion only\, not legal or tax advice. Dates follow the recurring rule state
+ d by the source\; weekends and holidays are not applied. Sources last chec
+ ked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#portugal
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:pt-dmr-monthly@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261010
+DTEND;VALUE=DATE:20261011
+RRULE:FREQ=MONTHLY;BYMONTHDAY=10
+SUMMARY:Portugal: Monthly remuneration declaration (DMR) to the tax authori
+ ty
+DESCRIPTION:Employers file the official declaration of income paid\, tax wi
+ thheld\, mandatory social-protection contributions and union dues by the 1
+ 0th of the month following payment\, for employment income.\nApplies to: E
+ mployers paying employment income\nNon-working-day rule: check the source.
+ \n\nSource: https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/cod
+ igos_tributarios/cirs_rep/Pages/irs119.aspx\nDetails: https://www.intellig
+ entpayroll.eu/deadlines.html#portugal\n\nFor information only\, not legal 
+ or tax advice. Dates follow the recurring rule stated by the source\; week
+ ends and holidays are not applied. Sources last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#portugal
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:pt-employee-income-statement@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20270120
+DTEND;VALUE=DATE:20270121
+RRULE:FREQ=YEARLY;BYMONTH=1;BYMONTHDAY=20
+SUMMARY:Portugal: Annual statement of pay and tax withheld to each employee
+DESCRIPTION:By 20 January each year\, give the taxpayer a document showing 
+ the amounts due in the previous year\, including income in kind\, tax with
+ held and any deductions.\nApplies to: Employers and other payers of income
+  subject to IRS\nNon-working-day rule: check the source.\n\nSource: https:
+ //info.portaldasfinancas.gov.pt/pt/informacao_fiscal/codigos_tributarios/c
+ irs_rep/Pages/irs119.aspx\nDetails: https://www.intelligentpayroll.eu/dead
+ lines.html#portugal\n\nFor information only\, not legal or tax advice. Dat
+ es follow the recurring rule stated by the source\; weekends and holidays 
+ are not applied. Sources last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#portugal
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:pt-ss-contributions-payment@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261025
+DTEND;VALUE=DATE:20261026
+RRULE:FREQ=MONTHLY;BYMONTHDAY=25
+SUMMARY:Portugal: Social security contributions payment (employers)
+DESCRIPTION:Contributions are paid monthly\, based on data made available b
+ y social security\, between day 1 and day 25 of the month after the one th
+ ey relate to. New model phased in during 2026\; mandatory for all employer
+ s from 1 Jan 2027.\nApplies to: Employers declaring remuneration to Portug
+ uese social security\nNon-working-day rule: check the source.\n\nSource: h
+ ttps://files.diariodarepublica.pt/1s/2025/12/23600/0000200005.pdf\nDetails
+ : https://www.intelligentpayroll.eu/deadlines.html#portugal\n\nFor informa
+ tion only\, not legal or tax advice. Dates follow the recurring rule state
+ d by the source\; weekends and holidays are not applied. Sources last chec
+ ked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#portugal
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:no-a-melding-monthly@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261005
+DTEND;VALUE=DATE:20261006
+RRULE:FREQ=MONTHLY;BYMONTHDAY=5
+SUMMARY:Norway: A-melding (monthly payroll report to the Norwegian authorit
+ ies)
+DESCRIPTION:The deadline to submit the a-melding is the 5th of every month\
+ , for the previous month. It reports salary\, other income and advance tax
+  deductions.\nApplies to: Employers reporting salary and other income\nNon
+ -working day: If the 5th falls on a weekend or a holiday\, the deadline is
+  on the first following working day.\n\nSource: https://www.skatteetaten.n
+ o/en/business-and-organisation/employer/the-a-melding/deadlines-and-paymen
+ t/\nDetails: https://www.intelligentpayroll.eu/deadlines.html#norway\n\nFo
+ r information only\, not legal or tax advice. Dates follow the recurring r
+ ule stated by the source\; weekends and holidays are not applied. Sources 
+ last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#norway
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:no-annual-summary-employees@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20270201
+DTEND;VALUE=DATE:20270202
+RRULE:FREQ=YEARLY;BYMONTH=2;BYMONTHDAY=1
+SUMMARY:Norway: Annual summary of income and tax deductions to employees
+DESCRIPTION:Every year by 1 February\, employers must submit an annual summ
+ ary of incomes\, deductions and withholding tax for their employees (for t
+ he previous income year).\nApplies to: Employers with employees\nNon-worki
+ ng-day rule: check the source.\n\nSource: https://www.skatteetaten.no/en/b
+ usiness-and-organisation/employer/the-a-melding/hjelp-til-a-gjore-riktig/s
+ ummary-to-the-employee/\nDetails: https://www.intelligentpayroll.eu/deadli
+ nes.html#norway\n\nFor information only\, not legal or tax advice. Dates f
+ ollow the recurring rule stated by the source\; weekends and holidays are 
+ not applied. Sources last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#norway
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:fi-incomes-register-separate-report@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261005
+DTEND;VALUE=DATE:20261006
+RRULE:FREQ=MONTHLY;BYMONTHDAY=5
+SUMMARY:Finland: Employer's separate report to the Incomes Register
+DESCRIPTION:File the employer's separate report on health insurance contrib
+ utions once a month\, by the fifth day of the calendar month following the
+  payday month. Registered employers file it also for months without wages.
+ \nApplies to: Employers paying wages (registered employers also for months
+  with no wages)\nNon-working day: If the deadline falls on a Saturday\, Su
+ nday or other holiday\, the data can be reported on the following business
+  day.\n\nSource: https://www.vero.fi/en/businesses-and-corporations/taxes-
+ and-charges/being-an-employer/how-to-report-wages-and-employers-contributi
+ ons/\nDetails: https://www.intelligentpayroll.eu/deadlines.html#finland\n\
+ nFor information only\, not legal or tax advice. Dates follow the recurrin
+ g rule stated by the source\; weekends and holidays are not applied. Sourc
+ es last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#finland
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:fi-employer-contributions-payment@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261012
+DTEND;VALUE=DATE:20261013
+RRULE:FREQ=MONTHLY;BYMONTHDAY=12
+SUMMARY:Finland: Employer's contributions: monthly return and payment due d
+ ate
+DESCRIPTION:With a monthly tax period\, employer's contributions are filed 
+ and paid by the 12th of the following month (e.g. the March return is due 
+ 12 April). Quarterly or extended periods follow a different cycle.\nApplie
+ s to: Employers with a monthly tax period for employer's contributions\nNo
+ n-working day: If the 12th falls on a Saturday\, Sunday or a public holida
+ y\, the date is extended to the next business day.\n\nSource: https://www.
+ vero.fi/en/About-us/contact-us/forms/filling-instructions/filing-and-payin
+ g-vat-and-other-self-assessed-taxes--detailed-guidance/\nDetails: https://
+ www.intelligentpayroll.eu/deadlines.html#finland\n\nFor information only\,
+  not legal or tax advice. Dates follow the recurring rule stated by the so
+ urce\; weekends and holidays are not applied. Sources last checked 5 Octob
+ er 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#finland
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:hu-pit-advance-payment@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261012
+DTEND;VALUE=DATE:20261013
+RRULE:FREQ=MONTHLY;BYMONTHDAY=12
+SUMMARY:Hungary: Personal income tax advances withheld from employees: decl
+ aration and payment
+DESCRIPTION:The employer declares and pays the income tax advance withheld 
+ by the 12th of the month following the accounted month (NAV: 'hónap 12-é
+ ig' - up to and including the 12th).\nApplies to: Hungarian employers with
+ holding personal income tax advances\nNon-working-day rule: check the sour
+ ce.\n\nSource: https://nav.gov.hu/pfile/file?path=%2Fugyfeliranytu%2Fnezze
+ n-utana%2Finf_fuz%2Frejtett%2FInformacios-fuzetek---Aktualis%2F24.-Bevalla
+ si-adofizetesi-informaciok\nDetails: https://www.intelligentpayroll.eu/dea
+ dlines.html#hungary\n\nFor information only\, not legal or tax advice. Dat
+ es follow the recurring rule stated by the source\; weekends and holidays 
+ are not applied. Sources last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#hungary
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:hu-social-contribution-tax@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261012
+DTEND;VALUE=DATE:20261013
+RRULE:FREQ=MONTHLY;BYMONTHDAY=12
+SUMMARY:Hungary: Social contribution tax: monthly declaration and payment
+DESCRIPTION:The payer assesses social contribution tax monthly and declares
+  and pays it by the 12th of the month following the reference month (NAV: 
+ 'hónap 12-ig' - up to and including the 12th).\nApplies to: Payers of soc
+ ial contribution tax (employers)\nNon-working-day rule: check the source.\
+ n\nSource: https://nav.gov.hu/pfile/file?path=%2Fugyfeliranytu%2Fnezzen-ut
+ ana%2Finf_fuz%2Frejtett%2FInformacios-fuzetek---Aktualis%2F24.-Bevallasi-a
+ dofizetesi-informaciok\nDetails: https://www.intelligentpayroll.eu/deadlin
+ es.html#hungary\n\nFor information only\, not legal or tax advice. Dates f
+ ollow the recurring rule stated by the source\; weekends and holidays are 
+ not applied. Sources last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#hungary
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:ch-ahv-contributions-quarterly@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261010
+DTEND;VALUE=DATE:20261011
+RRULE:FREQ=MONTHLY;INTERVAL=3;BYMONTHDAY=10
+SUMMARY:Switzerland: AHV/IV/EO contributions: quarterly payment (payroll up
+  to CHF 200\,000)
+DESCRIPTION:Employers with an annual payroll up to CHF 200\,000 pay contrib
+ utions quarterly. The latest payment date is always the 10th day after the
+  end of the quarter\, e.g. contributions for the first quarter by 10 April
+ .\nApplies to: Employers with an annual payroll up to CHF 200\,000\nNon-wo
+ rking-day rule: check the source.\n\nSource: https://www.ahv-iv.ch/p/2.01.
+ d\nDetails: https://www.intelligentpayroll.eu/deadlines.html#switzerland\n
+ \nFor information only\, not legal or tax advice. Dates follow the recurri
+ ng rule stated by the source\; weekends and holidays are not applied. Sour
+ ces last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#switzerland
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:ch-ahv-contributions-monthly@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261010
+DTEND;VALUE=DATE:20261011
+RRULE:FREQ=MONTHLY;BYMONTHDAY=10
+SUMMARY:Switzerland: AHV/IV/EO contributions: monthly payment (payroll over
+  CHF 200\,000)
+DESCRIPTION:Employers with an annual payroll above CHF 200\,000 pay contrib
+ utions monthly. The latest payment date is always the 10th day after the e
+ nd of the month.\nApplies to: Employers with an annual payroll above CHF 2
+ 00\,000\nNon-working-day rule: check the source.\n\nSource: https://www.ah
+ v-iv.ch/p/2.01.d\nDetails: https://www.intelligentpayroll.eu/deadlines.htm
+ l#switzerland\n\nFor information only\, not legal or tax advice. Dates fol
+ low the recurring rule stated by the source\; weekends and holidays are no
+ t applied. Sources last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#switzerland
+TRANSP:TRANSPARENT
+END:VEVENT
 END:VCALENDAR
