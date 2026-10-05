@@ -12,6 +12,8 @@ import { loadSite } from './load.mjs';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = f => fs.readFileSync(path.join(ROOT, f), 'utf8');
 const { html: indexHtml, js, CHANGES } = loadSite();
+// P2-12: temp copies of the site that run validate.mjs/build-pages.mjs must also carry the deadlines data and script (validate.mjs reads both).
+const DL_FILES = ['data/deadlines.json', 'deadlines.js'].filter(f => fs.existsSync(path.join(ROOT, f)));
 
 let passed = 0;
 function test(name, fn) {
@@ -341,7 +343,7 @@ test('p2_4.validate_rejects_infrastructure', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pa-p24-'));
   try {
     fs.mkdirSync(path.join(tmp, 'scripts')); fs.mkdirSync(path.join(tmp, 'data'));
-    for (const f of ['scripts/validate.mjs', 'scripts/load.mjs', 'filters.js', 'index.html', 'vercel.json', '_headers', 'data/requests.json', 'data/facts.json']) fs.copyFileSync(path.join(ROOT, f), path.join(tmp, f));
+    for (const f of ['scripts/validate.mjs', 'scripts/load.mjs', 'filters.js', 'index.html', 'vercel.json', '_headers', 'data/requests.json', 'data/facts.json', ...DL_FILES]) fs.copyFileSync(path.join(ROOT, f), path.join(tmp, f));
     if (fs.existsSync(path.join(ROOT, '.well-known'))) fs.cpSync(path.join(ROOT, '.well-known'), path.join(tmp, '.well-known'), { recursive: true });
     const run = () => { try { execFileSync(process.execPath, ['scripts/validate.mjs'], { cwd: tmp, encoding: 'utf8', stdio: 'pipe' }); return ''; } catch (e) { return String(e.stdout) + String(e.stderr); } };
     const base = read('app.js');
@@ -430,7 +432,7 @@ test('p2_2.validate_restating_badge', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pa-p22-'));
   try {
     fs.mkdirSync(path.join(tmp, 'scripts')); fs.mkdirSync(path.join(tmp, 'data'));
-    for (const f of ['scripts/validate.mjs', 'scripts/load.mjs', 'filters.js', 'index.html', 'vercel.json', '_headers', 'data/requests.json', 'data/facts.json']) fs.copyFileSync(path.join(ROOT, f), path.join(tmp, f));
+    for (const f of ['scripts/validate.mjs', 'scripts/load.mjs', 'filters.js', 'index.html', 'vercel.json', '_headers', 'data/requests.json', 'data/facts.json', ...DL_FILES]) fs.copyFileSync(path.join(ROOT, f), path.join(tmp, f));
     if (fs.existsSync(path.join(ROOT, '.well-known'))) fs.cpSync(path.join(ROOT, '.well-known'), path.join(tmp, '.well-known'), { recursive: true });
     const run = () => { try { return execFileSync(process.execPath, ['scripts/validate.mjs'], { cwd: tmp, encoding: 'utf8', stdio: 'pipe' }); } catch (e) { return String(e.stdout) + String(e.stderr); } };
     const base = read('app.js');
@@ -480,7 +482,7 @@ test('p2_2.validate_effective_year_in_text', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pa-p22y-'));
   try {
     fs.mkdirSync(path.join(tmp, 'scripts')); fs.mkdirSync(path.join(tmp, 'data'));
-    for (const f of ['scripts/validate.mjs', 'scripts/load.mjs', 'filters.js', 'index.html', 'vercel.json', '_headers', 'data/requests.json', 'data/facts.json']) fs.copyFileSync(path.join(ROOT, f), path.join(tmp, f));
+    for (const f of ['scripts/validate.mjs', 'scripts/load.mjs', 'filters.js', 'index.html', 'vercel.json', '_headers', 'data/requests.json', 'data/facts.json', ...DL_FILES]) fs.copyFileSync(path.join(ROOT, f), path.join(tmp, f));
     if (fs.existsSync(path.join(ROOT, '.well-known'))) fs.cpSync(path.join(ROOT, '.well-known'), path.join(tmp, '.well-known'), { recursive: true });
     const run = () => { try { return execFileSync(process.execPath, ['scripts/validate.mjs'], { cwd: tmp, encoding: 'utf8', stdio: 'pipe' }); } catch (e) { return String(e.stdout) + String(e.stderr); } };
     // A synthetic entry whose year 2031 appears only in sourceUrl/sourceLabel must be rejected.
@@ -591,7 +593,7 @@ test('p2_7.validate_rejects_bad_glossary', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pa-p27-'));
   try {
     fs.mkdirSync(path.join(tmp, 'scripts')); fs.mkdirSync(path.join(tmp, 'data'));
-    for (const f of ['scripts/validate.mjs', 'scripts/load.mjs', 'filters.js', 'index.html', 'app.js', 'vercel.json', '_headers', 'data/requests.json', 'data/facts.json']) fs.copyFileSync(path.join(ROOT, f), path.join(tmp, f));
+    for (const f of ['scripts/validate.mjs', 'scripts/load.mjs', 'filters.js', 'index.html', 'app.js', 'vercel.json', '_headers', 'data/requests.json', 'data/facts.json', ...DL_FILES]) fs.copyFileSync(path.join(ROOT, f), path.join(tmp, f));
     if (fs.existsSync(path.join(ROOT, '.well-known'))) fs.cpSync(path.join(ROOT, '.well-known'), path.join(tmp, '.well-known'), { recursive: true });
     const run = () => { try { execFileSync(process.execPath, ['scripts/validate.mjs'], { cwd: tmp, encoding: 'utf8', stdio: 'pipe' }); return { ok: true, out: '' }; } catch (e) { return { ok: false, out: String(e.stdout) + String(e.stderr) }; } };
     const e0 = CHANGES[0];
@@ -677,7 +679,7 @@ const validateWith = (gloss, appEdit) => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pa-p27b-'));
   try {
     fs.mkdirSync(path.join(tmp, 'scripts')); fs.mkdirSync(path.join(tmp, 'data'));
-    for (const f of ['scripts/validate.mjs', 'scripts/load.mjs', 'filters.js', 'index.html', 'vercel.json', '_headers', 'data/requests.json', 'data/facts.json']) fs.copyFileSync(path.join(ROOT, f), path.join(tmp, f));
+    for (const f of ['scripts/validate.mjs', 'scripts/load.mjs', 'filters.js', 'index.html', 'vercel.json', '_headers', 'data/requests.json', 'data/facts.json', ...DL_FILES]) fs.copyFileSync(path.join(ROOT, f), path.join(tmp, f));
     fs.writeFileSync(path.join(tmp, 'app.js'), appEdit ? appEdit(read('app.js')) : read('app.js'));
     if (fs.existsSync(path.join(ROOT, '.well-known'))) fs.cpSync(path.join(ROOT, '.well-known'), path.join(tmp, '.well-known'), { recursive: true });
     fs.writeFileSync(path.join(tmp, 'data/glossary.json'), typeof gloss === 'string' ? gloss : JSON.stringify(gloss));
@@ -850,7 +852,7 @@ const renderFacts = c => {
 const factsSite = (facts, { appEdit } = {}) => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'pa-p28-'));
   fs.mkdirSync(path.join(dir, 'scripts')); fs.mkdirSync(path.join(dir, 'data')); fs.mkdirSync(path.join(dir, 'worker'));
-  for (const f of ['scripts/validate.mjs', 'scripts/load.mjs', 'scripts/build-pages.mjs', 'scripts/operator.json', 'filters.js', 'index.html', 'vercel.json', '_headers', 'data/requests.json', 'data/facts.json', 'data/glossary.json']) fs.copyFileSync(path.join(ROOT, f), path.join(dir, f));
+  for (const f of ['scripts/validate.mjs', 'scripts/load.mjs', 'scripts/build-pages.mjs', 'scripts/operator.json', 'filters.js', 'index.html', 'vercel.json', '_headers', 'data/requests.json', 'data/facts.json', 'data/glossary.json', ...DL_FILES]) fs.copyFileSync(path.join(ROOT, f), path.join(dir, f));
   fs.cpSync(path.join(ROOT, 'scripts/templates'), path.join(dir, 'scripts/templates'), { recursive: true });
   fs.writeFileSync(path.join(dir, 'app.js'), appEdit ? appEdit(read('app.js')) : read('app.js'));
   if (fs.existsSync(path.join(ROOT, '.well-known'))) fs.cpSync(path.join(ROOT, '.well-known'), path.join(dir, '.well-known'), { recursive: true });
@@ -858,6 +860,12 @@ const factsSite = (facts, { appEdit } = {}) => {
     dir,
     setFacts: v => { const p = path.join(dir, 'data/facts.json'); if (v === undefined) fs.rmSync(p, { force: true }); else fs.writeFileSync(p, typeof v === 'string' ? v : JSON.stringify(v)); },
     run: (script, ...args) => { const r = spawnSync(process.execPath, ['scripts/' + script, ...args], { cwd: dir, encoding: 'utf8' }); return { ok: r.status === 0, out: String(r.stdout) + String(r.stderr) }; },
+    // P2-12: data/deadlines.json of the temp copy (array | raw string | undefined = no file); the helpers leave the facts untouched.
+    setDeadlines: v => { const p = path.join(dir, 'data/deadlines.json'); if (v === undefined) fs.rmSync(p, { force: true }); else fs.writeFileSync(p, typeof v === 'string' ? v : JSON.stringify(v)); },
+    validateDl: v => { site.setDeadlines(v); return site.run('validate.mjs'); },
+    buildDl: (v, ...args) => { site.setDeadlines(v); return site.run('build-pages.mjs', ...args); },
+    read: f => fs.readFileSync(path.join(dir, f), 'utf8'),
+    exists: f => fs.existsSync(path.join(dir, f)),
     validate: v => { site.setFacts(v); return site.run('validate.mjs'); },
     build: (v, ...args) => { site.setFacts(v); return site.run('build-pages.mjs', ...args); },
     page: slug => fs.readFileSync(path.join(dir, 'countries', slug + '.html'), 'utf8'),
@@ -1291,7 +1299,7 @@ test('p2_8.key_facts_precede_partial_coverage_notice', () => {
 const REPO_ROOT_LINK = /href="https:\/\/github\.com\/ankitbansal2k-ui\/payroll-atlas\/?"/;
 const footerOf = h => (h.match(/<footer[\s\S]*?<\/footer>/) || [''])[0];
 const headerOf = h => (h.match(/<header[\s\S]*?<\/header>/) || [''])[0];
-const allGenerated = () => ['countries.html', 'upcoming.html', 'glossary.html', 'privacy.html', 'terms.html', 'suggest.html', 'keyfacts.html', 'minimum-wage-europe.html', ...countryFiles.filter(f => f.endsWith('.html')).map(f => `countries/${f}`)].filter(f => fs.existsSync(path.join(ROOT, f)));
+const allGenerated = () => ['countries.html', 'upcoming.html', 'glossary.html', 'privacy.html', 'terms.html', 'suggest.html', 'keyfacts.html', 'minimum-wage-europe.html', 'deadlines.html', ...countryFiles.filter(f => f.endsWith('.html')).map(f => `countries/${f}`)].filter(f => fs.existsSync(path.join(ROOT, f)));
 const REGION_LABELS = ['Europe', 'APAC', 'MENAT', 'LATAM', 'Africa'];
 const REGION_OF = { europe: 'Europe', apac: 'APAC', menat: 'MENAT', latam: 'LATAM', africa: 'Africa' };
 const keyfactsExpect = () => {
@@ -1671,7 +1679,7 @@ test('p4_1.check_ignores_visible_faq_edits_and_rejects_extra_index_nodes', () =>
     r = s.run('build-pages.mjs', '--check'); assert.ok(r.ok, r.out.slice(0, 300));
   } finally { s.done(); }
 });
-const CRUMB_NAMES = { 'countries.html': ['All countries'], 'upcoming.html': ["What's coming"], 'glossary.html': ['Glossary'], 'keyfacts.html': ['Key facts'], 'minimum-wage-europe.html': ['Minimum wage in Europe'], 'suggest.html': ['Suggest a change'], 'privacy.html': ['Privacy notice'], 'terms.html': ['Terms of use and disclaimer'] };
+const CRUMB_NAMES = { 'countries.html': ['All countries'], 'upcoming.html': ["What's coming"], 'glossary.html': ['Glossary'], 'keyfacts.html': ['Key facts'], 'minimum-wage-europe.html': ['Minimum wage in Europe'], 'deadlines.html': ['Payroll deadlines'], 'suggest.html': ['Suggest a change'], 'privacy.html': ['Privacy notice'], 'terms.html': ['Terms of use and disclaimer'] };
 test('p4_1.jsonld_breadcrumbs_on_every_generated_page', () => {
   const pages = allGenerated(); assert.ok(pages.length > 80);
   for (const f of pages) {
@@ -2072,7 +2080,7 @@ test('p4_2.page_links_footers_keyfacts_and_no_nav_change', () => {
   }
   const idx = read('index.html');
   assert.ok(!/minimum-wage-europe/.test((idx.match(/<header>[\s\S]*?<\/header>/) || [''])[0]), 'index.html header nav unchanged');
-  assert.match(footerOf(idx), /<a href="glossary\.html">Glossary<\/a>\s*<a href="minimum-wage-europe\.html">Minimum wage<\/a>\s*<a href="suggest\.html">/, 'index.html footer nav: Minimum wage link right after Glossary');
+  assert.match(footerOf(idx), /<a href="glossary\.html">Glossary<\/a>\s*<a href="minimum-wage-europe\.html">Minimum wage<\/a>\s*<a href="deadlines\.html">Deadlines<\/a>\s*<a href="suggest\.html">/, 'index.html footer nav: Minimum wage link right after Glossary, then Deadlines (P2-12)');
   assert.equal(idx.split('href="minimum-wage-europe.html"').length - 1, 1, 'index.html links the page exactly once (footer)');
   const kmain = (read('keyfacts.html').match(/<main>[\s\S]*?<\/main>/) || [''])[0];
   assert.equal(kmain.split('href="minimum-wage-europe.html"').length - 1, 1, 'keyfacts.html main links to the page once');
@@ -2337,6 +2345,580 @@ test('p4_3.check_tracks_the_data_dates', () => {
     r = s.run('build-pages.mjs', '--check'); assert.ok(!r.ok && /minimum-wage-europe\.html is out of date/.test(r.out), 'headline date change: ' + r.out.slice(0, 500));
     s.run('build-pages.mjs'); assert.ok(s.run('build-pages.mjs', '--check').ok, 'rebuilt = green again');
   } finally { s.done(); }
+});
+
+// ---------- P2-12: compliance deadlines (data model, validator, page, JSON, calendar) ----------
+// CONTRACT
+//  DATA  data/deadlines.json = array of flat objects, unknown keys rejected:
+//    id        kebab-case /^[a-z0-9]+(-[a-z0-9]+)*$/, unique
+//    country   key of countryToRegion
+//    title     plain text <=120 (non-empty, trimmed, no < > control/bidi/invisible characters: same helper as facts)
+//    kind      'payment' | 'filing' | 'both'
+//    frequency 'monthly' | 'quarterly' | 'annual'
+//    rule      monthly   {day: 1..28 | 'last', monthOffset: 0|1}
+//              quarterly {day: 1..28 | 'last', monthOffset: 0, months: [4 distinct ints 1..12 in ascending order]}   (months = calendar months in which the due date FALLS)
+//              annual    {day: 1..days-in-month (February at most 28) | 'last', monthOffset: 0, month: 1..12}
+//              unknown rule keys (also a key of another frequency) are rejected
+//    ruleText  plain <=300;  appliesTo? plain <=120;  weekendNote? plain <=200 (what the source says about non-working days; ABSENT = source silent)
+//    sourceUrl https public host, no userinfo (same rules as facts);  sourceLabel 'Source: X - Y' <=200 plain;  checked real date <= UTC today + 1
+//  VALIDATOR scripts/validate.mjs: every message contains "deadlines" and starts "data/deadlines.json[<i>] (<id>): ..." with these texts:
+//    file missing / bad JSON: "deadlines file missing or not valid JSON"; not an array: "deadlines must be an array of deadline objects"; entry: "deadline must be an object"
+//    unknown field "x"; "id must be kebab-case (lower-case letters, digits, single hyphens)"; duplicate id "x"; "country must be a known country code (as in countryToRegion)"
+//    text fields via the facts helper: "<field> must be a non-empty trimmed string" / "<field> must be plain text (no < or >)" / "<field> must not contain control characters, line breaks or invisible/bidirectional formatting characters" / "<field> is N characters (max M)"
+//    "kind must be one of payment, filing, both"; "frequency must be one of monthly, quarterly, annual"; "rule must be an object"; 'rule unknown field "x"';
+//    "rule day ..." (any bad day, incl. annual Feb 29/30, Apr 31, monthly 29..31); "rule monthOffset ..." (monthly 0|1, others exactly 0); "rule months ..." ; "rule month must ..."
+//    sourceUrl / sourceLabel / checked ("checked ... is in the future") exactly like facts. WARNING (exit 0) "... deadlines checked <date> is more than 365 days ago ..." for old checked dates.
+//    validate.mjs also applies the app.js guard rules (XSS template rule, inline handler / style / javascript: scan) to deadlines.js, messages prefixed "deadlines.js".
+//  PAGE  deadlines.html (build-pages.mjs): title "Payroll deadlines by country | Intelligent Payroll"; <h1>Payroll deadlines by country</h1>; description
+//    "<N> recurring payroll filing and payment deadlines across <K> countries, each with its rule and official source. Checked <D>." (singular forms for 1 are free; 70..158 chars, N and K appear);
+//    D = newest `checked` over ALL deadlines (fallback LAST_VERIFIED when there are none): footer note "Sources last checked <D>." and sitemap lastmod = D, like the other data pages (P4-3);
+//    BreadcrumbList Home > "Payroll deadlines"; <main>: h1, intro <p>(s) (see test), a calendar row, <h2 id="upcoming">, the placeholder, then one section per country WITH deadlines (alphabetical by name).
+//    <p><a class="cta" href="webcal://www.intelligentpayroll.eu/deadlines.ics">Subscribe in your calendar app</a> <a class="cta secondary" href="deadlines.ics">Download once (.ics)</a></p>
+//    <h2 id="upcoming">Coming up in the next 12 months</h2><div id="deadlines-upcoming"><noscript><p>... JavaScript ... the tables below list every deadline ...</p></noscript></div>
+//    section: <h2 id="<slug>"><a href="countries/<slug>.html">FLAG Name</a></h2>
+//             <p class="deadline-subscribe"><a class="cta secondary" href="webcal://www.intelligentpayroll.eu/deadlines/<slug>.ics">Subscribe to Name deadlines</a> <a href="deadlines/<slug>.ics">Download (.ics)</a></p>
+//             <div class="table-scroll" tabindex="0" role="region" aria-label="Name payroll deadlines table"><table class="deadlines"><caption>Payroll deadlines in Name</caption>
+//             <thead><tr>Deadline | When | Applies to | Non-working day | Source (all <th scope="col">)</tr></thead><tbody> rows in data order </tbody></table></div>
+//             row: <tr id="<deadline id>"><th scope="row">TITLE <span class="deadline-meta">KIND, frequency</span></th><td>ruleText</td><td>appliesTo or &mdash;(U+2014)</td><td>weekendNote or Check the source</td><td><a href="sourceUrl" rel="noopener">sourceLabel</a></td></tr>
+//             KIND = Payment | Filing | Payment and filing; frequency = monthly | quarterly | annual; every data value HTML-escaped (& < > " ').
+//    After </footer>: <script src="filters.js"></script><script src="deadlines.js"></script> (external only). Footer of every generated page: <a href="[../]deadlines.html">Deadlines</a> between Minimum wage and Glossary; index.html footer: right after Minimum wage.
+//    keyfacts.html intro <p> links href="deadlines.html"; a country page WITH deadlines links, in its intro, <a href="../deadlines.html#<slug>">Payroll deadlines</a> once (none without).
+//  JSON  deadlines.json = JSON.stringify({countries: {<code>: {name, flag, slug}} (only countries with deadlines, by name), deadlines: <data/deadlines.json content>}, null, 0) + '\n'
+//  ICS   deadlines.ics and deadlines/<slug>.ics (only countries with deadlines): see the event tests. LAST_VERIFIED is the DTSTART reference date.
+//  build-pages --check: tracks deadlines.html/.json/.ics, deadlines/*.ics (stale ones: "is no longer generated (delete it)") and sitemap.xml.
+const plainArr = a => JSON.parse(JSON.stringify(a));
+const DL_FILE = 'data/deadlines.json', DL_DOMAIN = 'intelligentpayroll.eu', DL_SITE = SITE_URL;
+const loadDeadlines = () => { assert.ok(fs.existsSync(path.join(ROOT, DL_FILE)), DL_FILE + ' missing'); return JSON.parse(read(DL_FILE)); };
+const dlNames = new Map(CHANGES.map(e => [e.country, { name: e.name, flag: e.flag, slug: P2.slugify(e.name) }]));
+const dlCountries = list => [...new Set(list.map(d => d.country))].sort((a, b) => dlNames.get(a).name.localeCompare(dlNames.get(b).name));
+const dlNewest = (list, fallback) => (list.length ? maxIso(list.map(d => d.checked)) : fallback);
+const DL_KIND = { payment: 'Payment', filing: 'Filing', both: 'Payment and filing' };
+const dlRow = d => `<tr id="${escH(d.id)}"><th scope="row">${escH(d.title)} <span class="deadline-meta">${DL_KIND[d.kind]}, ${d.frequency}</span></th><td>${escH(d.ruleText)}</td><td>${d.appliesTo ? escH(d.appliesTo) : '\u2014'}</td><td>${d.weekendNote ? escH(d.weekendNote) + (d.weekendSourceUrl ? ` <a href="${escH(d.weekendSourceUrl)}" rel="noopener">(source)</a>` : '') : 'Check the source'}</td><td><a href="${escH(d.sourceUrl)}" rel="noopener">${escH(d.sourceLabel)}</a></td></tr>`;
+const dlSection = (code, list) => {
+  const { name, flag, slug } = dlNames.get(code), mine = list.filter(d => d.country === code);
+  return squash(`<h2 id="${slug}"><a href="countries/${slug}.html">${flag} ${escH(name)}</a></h2>`
+    + `<p class="deadline-subscribe"><a class="cta secondary" href="webcal://www.${DL_DOMAIN}/deadlines/${slug}.ics">Subscribe to ${escH(name)} deadlines</a> <a href="deadlines/${slug}.ics">Download (.ics)</a></p>`
+    + `<div class="table-scroll" tabindex="0" role="region" aria-label="${escH(name)} payroll deadlines table"><table class="deadlines"><caption>Payroll deadlines in ${escH(name)}</caption>`
+    + `<thead><tr><th scope="col">Deadline</th><th scope="col">When</th><th scope="col">Applies to</th><th scope="col">Non-working day</th><th scope="col">Source</th></tr></thead><tbody>${mine.map(dlRow).join('')}</tbody></table></div>`);
+};
+const mainOf = h => (h.match(/<main>[\s\S]*?<\/main>/) || [''])[0];
+const dlPageChecks = (h, list, lv, label) => {
+  const main = squash(mainOf(h)), codes = dlCountries(list);
+  let at = -1;
+  for (const c of codes) { const i = main.indexOf(dlSection(c, list)); assert.ok(i > at, `${label}: section for ${c} missing or out of alphabetical order`); at = i; }
+  assert.equal((main.match(/<h2[\s>]/g) || []).length, codes.length + 1, `${label}: one h2 per country plus the upcoming heading`);
+  assert.equal((main.match(/<table\b/g) || []).length, codes.length, `${label}: one table per country`);
+  assert.equal((main.match(/<tr id=/g) || []).length, list.length, `${label}: one row per deadline`);
+  const s = seoOf(h, 'deadlines.html'), D = dlNewest(list, lv);
+  assert.equal(s.title, 'Payroll deadlines by country | Intelligent Payroll', `${label}: title`);
+  assert.ok(s.desc.length >= DESC_MIN && s.desc.length <= DESC_MAX && s.desc.endsWith('.') && !/[<>]/.test(s.desc), `${label}: description ${s.desc.length} chars`);
+  assert.ok(new RegExp(`(^|\\D)${list.length}(\\D|$)`).test(s.desc) && new RegExp(`(^|\\D)${codes.length}(\\D|$)`).test(s.desc), `${label}: description names ${list.length} deadlines and ${codes.length} countries: ${s.desc}`);
+  assert.ok(s.desc.toLowerCase().endsWith('checked ' + fmtLong(D).toLowerCase() + '.'), `${label}: description ends "Checked ${fmtLong(D)}.": ${s.desc}`);
+  assert.ok(footerOf(h).includes('Sources last checked ' + fmtLong(D) + '.'), `${label}: footer note uses the newest checked date`);
+  return { main, s, D };
+};
+// An .ics file (absolute path) -> {raw, lines, events: [{prop: rawValue}]}; same structural rules as checkIcs.
+const icsAt = (abs, label) => {
+  const s = fs.readFileSync(abs).toString('utf8');
+  assert.ok(s.endsWith('\r\n'), `${label}: must end with CRLF`);
+  assert.ok(!/[^\r]\n/.test(s) && !/\r(?!\n)/.test(s), `${label}: bare LF or CR`);
+  const lines = s.slice(0, -2).split('\r\n');
+  lines.forEach((l, n) => assert.ok(Buffer.byteLength(l) <= 75, `${label}: line ${n + 1} is ${Buffer.byteLength(l)} octets`));
+  assert.equal(lines[0], 'BEGIN:VCALENDAR'); assert.equal(lines.at(-1), 'END:VCALENDAR');
+  const logical = []; for (const l of lines) { if (l.startsWith(' ')) logical[logical.length - 1] += l.slice(1); else logical.push(l); }
+  const events = []; let cur = null;
+  for (const l of logical) { if (l === 'BEGIN:VEVENT') { assert.equal(cur, null, 'nested VEVENT'); cur = {}; } else if (l === 'END:VEVENT') { events.push(cur); cur = null; } else if (cur) { const i = l.indexOf(':'); assert.ok(!(l.slice(0, i) in cur), `${label}: duplicate property ${l.slice(0, i)}`); cur[l.slice(0, i)] = l.slice(i + 1); } }
+  assert.equal(cur, null, `${label}: unterminated VEVENT`);
+  assert.equal(new Set(events.map(e => e.UID)).size, events.length, `${label}: duplicate UIDs`);
+  return { raw: s, logical, events };
+};
+const icsEsc = s => String(s).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
+const icsUnesc = s => s.replace(/\\([nN,;\\])/g, (_, c) => (c === 'n' || c === 'N' ? '\n' : c));
+const rruleOf = d => { const bd = d.rule.day === 'last' ? -1 : d.rule.day; return d.frequency === 'monthly' ? `FREQ=MONTHLY;BYMONTHDAY=${bd}` : d.frequency === 'quarterly' ? `FREQ=MONTHLY;INTERVAL=3;BYMONTHDAY=${bd}` : `FREQ=YEARLY;BYMONTH=${d.rule.month};BYMONTHDAY=${bd}`; };
+const nextDay = iso => new Date(Date.parse(iso + 'T00:00:00Z') + 864e5).toISOString().slice(0, 10);
+const eventOf = (d, lv, newest) => {
+  const { name, slug } = dlNames.get(d.country), page = `${DL_SITE}deadlines.html#${slug}`, start = P2.occurrences(d, lv, 1)[0];
+  const desc = `${d.ruleText}${d.appliesTo ? `\nApplies to: ${d.appliesTo}` : ''}\n${d.weekendNote ? `Non-working day: ${d.weekendNote}${d.weekendSourceUrl ? `\nSource for non-working-day rule: ${d.weekendSourceUrl}` : ''}` : 'Non-working-day rule: check the source.'}\n\nSource: ${d.sourceUrl}\nDetails: ${page}\n\nFor information only, not legal or tax advice. Dates follow the recurring rule stated by the source; weekends and holidays are not applied. Sources last checked ${fmtLong(d.checked)}.`;
+  return { UID: `${d.id}@${DL_DOMAIN}`, DTSTAMP: newest.replace(/-/g, '') + 'T000000Z', 'DTSTART;VALUE=DATE': start.replace(/-/g, ''), 'DTEND;VALUE=DATE': nextDay(start).replace(/-/g, ''), RRULE: rruleOf(d), SUMMARY: icsEsc(`${name}: ${d.title}`), DESCRIPTION: icsEsc(desc), URL: page, TRANSP: 'TRANSPARENT' };
+};
+const checkDlEvents = (file, ev, list, lv, newest, label) => {
+  assert.deepEqual(ev.events.map(e => e.UID), list.map(d => `${d.id}@${DL_DOMAIN}`), `${label}: one VEVENT per deadline in data order, UID <id>@${DL_DOMAIN}`);
+  list.forEach((d, i) => {
+    const got = ev.events[i], want = eventOf(d, lv, newest);
+    assert.deepEqual(Object.keys(got).sort(), Object.keys(want).sort(), `${label}/${d.id}: property set`);
+    for (const k of Object.keys(want)) assert.equal(got[k], want[k], `${label}/${d.id}: ${k}`);
+  });
+};
+const checkDlHeader = (ev, calname, label) => {
+  for (const l of ['VERSION:2.0', 'PRODID:-//Intelligent Payroll//Payroll deadlines//EN', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'X-WR-CALNAME:' + icsEsc(calname)]) assert.ok(ev.logical.includes(l), `${label}: header line ${l}`);
+};
+
+// ----- real data -----
+const BATCH1 = [
+  // id, country, kind, frequency, rule, weekendNote present (the verification notes' weekendRuleStated.stated)
+  ['uk-paye-payment', 'uk', 'payment', 'monthly', { day: 22, monthOffset: 1 }, false], ['uk-paye-payment-post', 'uk', 'payment', 'monthly', { day: 19, monthOffset: 1 }, false],
+  ['uk-paye-eps', 'uk', 'filing', 'monthly', { day: 19, monthOffset: 1 }, false], ['uk-p60', 'uk', 'filing', 'annual', { day: 31, monthOffset: 0, month: 5 }, false],
+  ['uk-p11d', 'uk', 'filing', 'annual', { day: 6, monthOffset: 0, month: 7 }, false], ['uk-class1a-payment', 'uk', 'payment', 'annual', { day: 22, monthOffset: 0, month: 7 }, false],
+  ['de-lohnsteuer-anmeldung-monthly', 'germany', 'both', 'monthly', { day: 10, monthOffset: 1 }, false], ['de-lohnsteuer-anmeldung-quarterly', 'germany', 'both', 'quarterly', { day: 10, monthOffset: 0, months: [1, 4, 7, 10] }, false],
+  ['de-lohnsteuer-anmeldung-annual', 'germany', 'both', 'annual', { day: 10, monthOffset: 0, month: 1 }, false], ['de-lohnsteuerbescheinigung', 'germany', 'filing', 'annual', { day: 'last', monthOffset: 0, month: 2 }, false],
+  ['de-uv-jahresmeldung', 'germany', 'filing', 'annual', { day: 16, monthOffset: 0, month: 2 }, false],
+  ['fr-dsn-under50', 'france', 'both', 'monthly', { day: 15, monthOffset: 1 }, true], ['fr-dsn-50plus-same-month', 'france', 'both', 'monthly', { day: 5, monthOffset: 1 }, true],
+  ['fr-dsn-50plus-deferred-pay', 'france', 'payment', 'monthly', { day: 15, monthOffset: 1 }, true], ['fr-cotisations-quarterly-under11', 'france', 'payment', 'quarterly', { day: 15, monthOffset: 0, months: [1, 4, 7, 10] }, false],
+  ['nl-loonaangifte-monthly', 'netherlands', 'both', 'monthly', { day: 'last', monthOffset: 1 }, true], ['nl-loonaangifte-annual', 'netherlands', 'both', 'annual', { day: 'last', monthOffset: 0, month: 1 }, true],
+  ['es-modelo-111-quarterly', 'spain', 'both', 'quarterly', { day: 20, monthOffset: 0, months: [1, 4, 7, 10] }, true], ['es-modelo-111-monthly', 'spain', 'both', 'monthly', { day: 20, monthOffset: 1 }, true],
+  ['es-modelo-190', 'spain', 'filing', 'annual', { day: 31, monthOffset: 0, month: 1 }, true], ['es-cotizacion-ss', 'spain', 'payment', 'monthly', { day: 'last', monthOffset: 1 }, true],
+  ['it-ritenute-f24', 'italy', 'payment', 'monthly', { day: 16, monthOffset: 1 }, true], ['it-inps-contributi', 'italy', 'payment', 'monthly', { day: 16, monthOffset: 1 }, false],
+  ['it-uniemens', 'italy', 'filing', 'monthly', { day: 'last', monthOffset: 1 }, true], ['it-cu', 'italy', 'filing', 'annual', { day: 16, monthOffset: 0, month: 3 }, true], ['it-770', 'italy', 'filing', 'annual', { day: 31, monthOffset: 0, month: 10 }, true],
+];
+const OFFICIAL_HOSTS = { uk: /(^|\.)gov\.uk$/, germany: /(^|\.)gesetze-im-internet\.de$/, france: /(^|\.)gouv\.fr$/, netherlands: /(^|\.)belastingdienst\.nl$/, spain: /(^|\.)(gob\.es|boe\.es)$/, italy: /(^|\.)(agenziaentrate\.gov\.it|inps\.it)$/ };
+test('p2_12.data.batch1_has_the_26_verified_deadlines_for_six_countries', () => {
+  const data = loadDeadlines();
+  assert.ok(Array.isArray(data));
+  const first = data.slice(0, BATCH1.length);
+  assert.deepEqual(first.map(d => d.id), BATCH1.map(r => r[0]), 'the first 26 ids are the verified batch-1 ids (same order); later batches may be appended');
+  for (const [id, country, kind, frequency, rule, hasNote] of BATCH1) {
+    const d = data.find(x => x.id === id);
+    assert.equal(d.country, country, id); assert.equal(d.kind, kind, id); assert.equal(d.frequency, frequency, id); assert.deepEqual(d.rule, rule, `${id}: rule`);
+    assert.equal('weekendNote' in d, hasNote, `${id}: weekendNote present exactly when the verification notes say weekendRuleStated.stated is true`);
+  }
+  assert.equal(BATCH1.filter(r => r[5]).length, 13);
+  for (const c of Object.keys(OFFICIAL_HOSTS)) assert.ok(data.filter(d => d.country === c).length >= 2, `${c}: at least 2 deadlines`);
+  assert.deepEqual([...new Set(data.slice(0, 26).map(d => d.country))].sort(), ['france', 'germany', 'italy', 'netherlands', 'spain', 'uk']);
+  for (const d of data) {
+    const u = new URL(d.sourceUrl);
+    assert.equal(u.protocol, 'https:', `${d.id}: https source`);
+    if (OFFICIAL_HOSTS[d.country]) assert.match(u.hostname, OFFICIAL_HOSTS[d.country], `${d.id}: official host ${u.hostname}`);
+    assert.match(d.sourceLabel, /^Source: .+ - .+/);
+    if ('appliesTo' in d) assert.ok(d.appliesTo.length <= 120);
+    if ('weekendNote' in d) assert.ok(typeof d.weekendNote === 'string' && d.weekendNote.trim() === d.weekendNote && d.weekendNote.length >= 10 && d.weekendNote.length <= 200 && !/[<>]/.test(d.weekendNote), `${d.id}: weekendNote is plain text of 10 to 200 characters`);
+    assert.ok(d.checked >= '2026-10-04' && d.checked <= ymd(1), `${d.id}: checked ${d.checked}`);
+  }
+});
+test('p2_12.data.passes_the_validator_and_every_deadline_has_upcoming_dates', () => {
+  runNode('scripts/validate.mjs');
+  for (const d of loadDeadlines()) assert.equal(plainArr(P2.occurrences(d, VER22, 3)).length, 3, `${d.id}: occurrences give 3 dates`);
+});
+// ----- validator -----
+const dlFix = (o = {}) => ({ id: 'uk-paye-payment', country: 'uk', title: 'PAYE and National Insurance payment to HMRC (monthly)', kind: 'payment', frequency: 'monthly', rule: { day: 22, monthOffset: 1 }, ruleText: 'Pay what you owe by the 22nd of the month.', sourceUrl: 'https://www.gov.uk/running-payroll/paying-hmrc', sourceLabel: 'Source: GOV.UK - Running payroll: Paying HMRC', checked: '2026-10-04', ...o });
+const dlQ = (o = {}) => dlFix({ id: 'de-quarterly', country: 'germany', frequency: 'quarterly', rule: { day: 10, monthOffset: 0, months: [1, 4, 7, 10] }, ...o });
+const dlA = (o = {}) => dlFix({ id: 'uk-p60', kind: 'filing', frequency: 'annual', rule: { day: 31, monthOffset: 0, month: 5 }, ...o });
+test('p2_12.validate_accepts_valid_deadlines', () => {
+  const s = factsSite();
+  try {
+    let r = s.validateDl([dlFix(), dlQ({ weekendNote: 'The page does not mention weekends.', appliesTo: 'Employers in Germany' }), dlA()]); assert.ok(r.ok, 'valid fixture: ' + r.out.slice(0, 500));
+    r = s.validateDl([]); assert.ok(r.ok, 'an empty array is valid: ' + r.out.slice(0, 300));
+    const ok = {
+      lengths: dlFix({ title: 't'.repeat(120), ruleText: 'r'.repeat(300), appliesTo: 'a'.repeat(120), weekendNote: 'w'.repeat(200), sourceLabel: 'Source: X - ' + 'y'.repeat(188) }),
+      monthly_28_last_offset0: dlFix({ id: 'a', rule: { day: 28, monthOffset: 0 } }), monthly_last: dlFix({ id: 'b', rule: { day: 'last', monthOffset: 1 } }), monthly_1: dlFix({ id: 'c', rule: { day: 1, monthOffset: 0 } }),
+      quarterly_last: dlQ({ id: 'd', rule: { day: 'last', monthOffset: 0, months: [3, 6, 9, 12] } }), quarterly_28: dlQ({ id: 'e', rule: { day: 28, monthOffset: 0, months: [2, 5, 8, 11] } }),
+      annual_feb_28: dlA({ id: 'f', rule: { day: 28, monthOffset: 0, month: 2 } }), annual_feb_last: dlA({ id: 'g', rule: { day: 'last', monthOffset: 0, month: 2 } }), annual_jan_31: dlA({ id: 'h', rule: { day: 31, monthOffset: 0, month: 1 } }),
+      annual_apr_30: dlA({ id: 'i', rule: { day: 30, monthOffset: 0, month: 4 } }), annual_dec_31: dlA({ id: 'j', rule: { day: 31, monthOffset: 0, month: 12 } }),
+      quarterly_march: dlQ({ id: 'q1', rule: { day: 10, monthOffset: 0, months: [3, 6, 9, 12] } }), quarterly_feb: dlQ({ id: 'q2', rule: { day: 'last', monthOffset: 0, months: [2, 5, 8, 11] } }),
+      weekend_source: dlFix({ id: 'ws', weekendNote: 'Payment must arrive before a weekend date.', weekendSourceUrl: 'https://www.belastingdienst.nl/x?a=1&b=2' }), id_close_to_reserved: dlFix({ id: 'upcoming-x' }), id_country_prefix: dlFix({ id: 'spain-modelo' }),
+      kind_both: dlFix({ id: 'k', kind: 'both' }), kind_filing: dlFix({ id: 'l', kind: 'filing' }), checked_tomorrow: dlFix({ id: 'm', checked: ymd(1) }), id_digits: dlFix({ id: '2026-x1' }), id_single: dlFix({ id: 'a' }),
+      apostrophe_ampersand: dlFix({ id: 'n', title: "Employer's PAYE & NI", ruleText: 'Pay "by" the 22nd; or the 19th, if paying by post.' }), unicode_text: dlFix({ id: 'o', title: 'Lohnsteuer-Anmeldung (M\u00e4rz)', weekendNote: 'Ab Fr\u00fchling: \u20ac \u00fc \u00e9' }),
+    };
+    for (const [name, d] of Object.entries(ok)) { r = s.validateDl([d]); assert.ok(r.ok, `${name} must pass: ` + r.out.slice(0, 400)); }
+  } finally { s.done(); }
+});
+test('p2_12.validate_rejects_missing_or_unparseable_file', () => {
+  const s = factsSite();
+  try {
+    let r = s.validateDl(undefined); assert.ok(!r.ok && /deadlines/i.test(r.out) && /missing|not valid JSON/.test(r.out), 'missing file: ' + r.out.slice(0, 300));
+    r = s.validateDl('{not json'); assert.ok(!r.ok && /deadlines/i.test(r.out), 'bad JSON');
+    r = s.validateDl('"text"'); assert.ok(!r.ok && /deadlines/i.test(r.out) && /array/i.test(r.out), 'non-array');
+    r = s.validateDl('{"id":"uk-x"}'); assert.ok(!r.ok && /deadlines/i.test(r.out) && /array/i.test(r.out), 'object instead of array');
+  } finally { s.done(); }
+});
+test('p2_12.validate_rejects_bad_deadlines', () => {
+  const s = factsSite();
+  const f = dlFix, noKey = (o, k) => { const { [k]: _, ...rest } = o; return rest; };
+  const rule = (frequency, r, o = {}) => [dlFix({ frequency, rule: r, ...o })];
+  const cases = {
+    entry_not_object: [[1], /deadline must be an object/], entry_array: [[[]], /deadline must be an object/], entry_null: [[null], /deadline must be an object/],
+    unknown_field: [[f({ extra: 1 })], /unknown field "extra"/], unknown_field_weekend_typo: [[f({ weekendnote: 'x' })], /unknown field "weekendnote"/], unknown_field_region: [[f({ region: 'europe' })], /unknown field "region"/],
+    id_missing: [[noKey(f(), 'id')], /id must be kebab-case/], id_upper: [[f({ id: 'UK-Paye' })], /id must be kebab-case/], id_underscore: [[f({ id: 'uk_paye' })], /id must be kebab-case/], id_leading_dash: [[f({ id: '-uk' })], /id must be kebab-case/],
+    id_trailing_dash: [[f({ id: 'uk-' })], /id must be kebab-case/], id_double_dash: [[f({ id: 'uk--paye' })], /id must be kebab-case/], id_space: [[f({ id: 'uk paye' })], /id must be kebab-case/], id_empty: [[f({ id: '' })], /id must be kebab-case/],
+    id_number: [[f({ id: 5 })], /id must be kebab-case/], id_dot: [[f({ id: 'uk.paye' })], /id must be kebab-case/], id_unicode: [[f({ id: 'uk-p\u00e4ye' })], /id must be kebab-case/],
+    duplicate_id: [[f(), f({ title: 'Another title' })], /duplicate id "uk-paye-payment"/],
+    country_unknown: [[f({ country: 'atlantis' })], /country must be a known country code/], country_proto: [[f({ country: 'constructor' })], /country must be a known country code/], country_case: [[f({ country: 'UK' })], /country must be a known country code/],
+    country_missing: [[noKey(f(), 'country')], /country must be a known country code/], country_number: [[f({ country: 44 })], /country must be a known country code/],
+    title_missing: [[noKey(f(), 'title')], /title/], title_empty: [[f({ title: '' })], /title/], title_untrimmed: [[f({ title: ' PAYE' })], /title/], title_markup: [[f({ title: 'PAYE <b>x</b>' })], /title.*plain text/], title_gt: [[f({ title: 'a > b' })], /title.*plain text/],
+    title_newline: [[f({ title: 'PAYE\npayment' })], /title.*control/], title_tab: [[f({ title: 'PAYE\tpayment' })], /title.*control/], title_bidi: [[f({ title: 'PAYE \u202E payment' })], /title.*control/], title_zero_width: [[f({ title: 'PAYE\u200B payment' })], /title.*control/],
+    title_bom: [[f({ title: 'PAYE\uFEFF payment' })], /title.*control/], title_long: [[f({ title: 't'.repeat(121) })], /title.*120/], title_number: [[f({ title: 12 })], /title/],
+    kind_missing: [[noKey(f(), 'kind')], /kind must be one of payment, filing, both/], kind_unknown: [[f({ kind: 'reporting' })], /kind must be one of payment, filing, both/], kind_case: [[f({ kind: 'Payment' })], /kind must be one of payment, filing, both/],
+    kind_proto: [[f({ kind: 'constructor' })], /kind must be one of/], kind_array: [[f({ kind: ['payment'] })], /kind must be one of/],
+    frequency_missing: [[noKey(f(), 'frequency')], /frequency must be one of monthly, quarterly, annual/], frequency_weekly: [[f({ frequency: 'weekly' })], /frequency must be one of monthly, quarterly, annual/], frequency_case: [[f({ frequency: 'Monthly' })], /frequency must be one of/],
+    frequency_proto: [[f({ frequency: 'constructor' })], /frequency must be one of/],
+    rule_missing: [[noKey(f(), 'rule')], /rule must be an object/], rule_null: [[f({ rule: null })], /rule must be an object/], rule_array: [[f({ rule: [22, 1] })], /rule must be an object/], rule_string: [[f({ rule: '22' })], /rule must be an object/],
+    rule_unknown_field: [rule('monthly', { day: 22, monthOffset: 1, extra: 1 }), /rule unknown field "extra"/], monthly_with_months: [rule('monthly', { day: 22, monthOffset: 1, months: [1, 4, 7, 10] }), /rule unknown field "months"/],
+    monthly_with_month: [rule('monthly', { day: 22, monthOffset: 1, month: 5 }), /rule unknown field "month"/], quarterly_with_month: [rule('quarterly', { day: 10, monthOffset: 0, months: [1, 4, 7, 10], month: 1 }), /rule unknown field "month"/],
+    annual_with_months: [rule('annual', { day: 10, monthOffset: 0, month: 1, months: [1, 4, 7, 10] }), /rule unknown field "months"/],
+    monthly_day_31: [rule('monthly', { day: 31, monthOffset: 0 }), /rule day/], monthly_day_29: [rule('monthly', { day: 29, monthOffset: 1 }), /rule day/], monthly_day_30: [rule('monthly', { day: 30, monthOffset: 1 }), /rule day/], monthly_day_0: [rule('monthly', { day: 0, monthOffset: 0 }), /rule day/],
+    monthly_day_neg: [rule('monthly', { day: -1, monthOffset: 0 }), /rule day/], monthly_day_float: [rule('monthly', { day: 2.5, monthOffset: 0 }), /rule day/], monthly_day_string: [rule('monthly', { day: '22', monthOffset: 0 }), /rule day/],
+    monthly_day_LAST: [rule('monthly', { day: 'LAST', monthOffset: 0 }), /rule day/], monthly_day_null: [rule('monthly', { day: null, monthOffset: 0 }), /rule day/], monthly_day_missing: [rule('monthly', { monthOffset: 0 }), /rule day/],
+    quarterly_day_29: [rule('quarterly', { day: 29, monthOffset: 0, months: [1, 4, 7, 10] }), /rule day/], quarterly_day_31: [rule('quarterly', { day: 31, monthOffset: 0, months: [1, 4, 7, 10] }), /rule day/],
+    annual_feb_29: [rule('annual', { day: 29, monthOffset: 0, month: 2 }), /rule day/], annual_feb_30: [rule('annual', { day: 30, monthOffset: 0, month: 2 }), /rule day/], annual_apr_31: [rule('annual', { day: 31, monthOffset: 0, month: 4 }), /rule day/],
+    annual_jun_31: [rule('annual', { day: 31, monthOffset: 0, month: 6 }), /rule day/], annual_day_32: [rule('annual', { day: 32, monthOffset: 0, month: 1 }), /rule day/], annual_day_0: [rule('annual', { day: 0, monthOffset: 0, month: 1 }), /rule day/],
+    monthly_offset_missing: [rule('monthly', { day: 22 }), /rule monthOffset/], monthly_offset_2: [rule('monthly', { day: 22, monthOffset: 2 }), /rule monthOffset/], monthly_offset_neg: [rule('monthly', { day: 22, monthOffset: -1 }), /rule monthOffset/],
+    monthly_offset_string: [rule('monthly', { day: 22, monthOffset: '1' }), /rule monthOffset/], monthly_offset_float: [rule('monthly', { day: 22, monthOffset: 0.5 }), /rule monthOffset/], monthly_offset_true: [rule('monthly', { day: 22, monthOffset: true }), /rule monthOffset/],
+    quarterly_offset_1: [rule('quarterly', { day: 10, monthOffset: 1, months: [1, 4, 7, 10] }), /rule monthOffset/], quarterly_offset_missing: [rule('quarterly', { day: 10, months: [1, 4, 7, 10] }), /rule monthOffset/],
+    annual_offset_1: [rule('annual', { day: 10, monthOffset: 1, month: 1 }), /rule monthOffset/], annual_offset_missing: [rule('annual', { day: 10, month: 1 }), /rule monthOffset/],
+    quarterly_months_missing: [rule('quarterly', { day: 10, monthOffset: 0 }), /rule months/], quarterly_three: [rule('quarterly', { day: 10, monthOffset: 0, months: [1, 4, 7] }), /rule months/], quarterly_five: [rule('quarterly', { day: 10, monthOffset: 0, months: [1, 3, 5, 7, 9] }), /rule months/],
+    quarterly_dupes: [rule('quarterly', { day: 10, monthOffset: 0, months: [1, 4, 4, 10] }), /rule months/], quarterly_unsorted: [rule('quarterly', { day: 10, monthOffset: 0, months: [4, 7, 10, 1] }), /rule months/],
+    quarterly_descending: [rule('quarterly', { day: 10, monthOffset: 0, months: [10, 7, 4, 1] }), /rule months/], quarterly_13: [rule('quarterly', { day: 10, monthOffset: 0, months: [1, 4, 7, 13] }), /rule months/],
+    quarterly_0: [rule('quarterly', { day: 10, monthOffset: 0, months: [0, 4, 7, 10] }), /rule months/], quarterly_strings: [rule('quarterly', { day: 10, monthOffset: 0, months: ['1', '4', '7', '10'] }), /rule months/],
+    quarterly_consecutive: [rule('quarterly', { day: 10, monthOffset: 0, months: [1, 2, 3, 4] }), /rule months/], quarterly_one_off: [rule('quarterly', { day: 10, monthOffset: 0, months: [1, 4, 7, 11] }), /rule months/],
+    quarterly_mixed: [rule('quarterly', { day: 10, monthOffset: 0, months: [2, 3, 8, 12] }), /rule months/],
+    id_upcoming: [[f({ id: 'upcoming' })], /id .*reserved/], id_deadlines: [[f({ id: 'deadlines' })], /id .*reserved/], id_country_slug: [[f({ id: 'spain' })], /id .*reserved/], id_country_slug_multiword: [[f({ id: 'united-kingdom' })], /id .*reserved/],
+    weekendSourceUrl_without_note: [[f({ weekendSourceUrl: 'https://www.gov.uk/x' })], /weekendSourceUrl.*weekendNote/], weekendSourceUrl_http: [[f({ weekendNote: 'Moves to the next working day.', weekendSourceUrl: 'http://www.gov.uk/x' })], /weekendSourceUrl/],
+    weekendSourceUrl_junk: [[f({ weekendNote: 'Moves to the next working day.', weekendSourceUrl: 'javascript:alert(1)' })], /weekendSourceUrl/], weekendSourceUrl_ip: [[f({ weekendNote: 'Moves to the next working day.', weekendSourceUrl: 'https://10.0.0.1/x' })], /weekendSourceUrl/],
+    weekendSourceUrl_userinfo: [[f({ weekendNote: 'Moves to the next working day.', weekendSourceUrl: 'https://a:b@www.gov.uk/x' })], /weekendSourceUrl/], weekendSourceUrl_number: [[f({ weekendNote: 'Moves to the next working day.', weekendSourceUrl: 5 })], /weekendSourceUrl/],
+    quarterly_not_array: [rule('quarterly', { day: 10, monthOffset: 0, months: '1,4,7,10' }), /rule months/], quarterly_float: [rule('quarterly', { day: 10, monthOffset: 0, months: [1, 4, 7, 10.5] }), /rule months/],
+    annual_month_missing: [rule('annual', { day: 10, monthOffset: 0 }), /rule month must/], annual_month_0: [rule('annual', { day: 10, monthOffset: 0, month: 0 }), /rule month must/], annual_month_13: [rule('annual', { day: 10, monthOffset: 0, month: 13 }), /rule month must/],
+    annual_month_string: [rule('annual', { day: 10, monthOffset: 0, month: '1' }), /rule month must/], annual_month_float: [rule('annual', { day: 10, monthOffset: 0, month: 1.5 }), /rule month must/],
+    ruleText_missing: [[noKey(f(), 'ruleText')], /ruleText/], ruleText_empty: [[f({ ruleText: ' ' })], /ruleText/], ruleText_markup: [[f({ ruleText: 'Pay <script>alert(1)</script>' })], /ruleText.*plain text/], ruleText_control: [[f({ ruleText: 'a\nb' })], /ruleText.*control/],
+    ruleText_long: [[f({ ruleText: 'r'.repeat(301) })], /ruleText.*300/], ruleText_bidi: [[f({ ruleText: 'a\u2067b' })], /ruleText.*control/],
+    appliesTo_empty: [[f({ appliesTo: '' })], /appliesTo/], appliesTo_markup: [[f({ appliesTo: 'Large <i>employers</i>' })], /appliesTo.*plain text/], appliesTo_long: [[f({ appliesTo: 'a'.repeat(121) })], /appliesTo.*120/], appliesTo_control: [[f({ appliesTo: 'a\tb' })], /appliesTo.*control/],
+    weekendNote_empty: [[f({ weekendNote: '' })], /weekendNote/], weekendNote_markup: [[f({ weekendNote: 'See <a href="x">this</a>' })], /weekendNote.*plain text/], weekendNote_long: [[f({ weekendNote: 'w'.repeat(201) })], /weekendNote.*200/],
+    weekendNote_control: [[f({ weekendNote: 'a\u0007b' })], /weekendNote.*control/], weekendNote_null: [[f({ weekendNote: null })], /weekendNote/],
+    url_http: [[f({ sourceUrl: 'http://www.gov.uk/x' })], /sourceUrl/], url_userinfo: [[f({ sourceUrl: 'https://user:pw@www.gov.uk/x' })], /sourceUrl/], url_js: [[f({ sourceUrl: 'javascript:alert(1)' })], /sourceUrl/], url_space: [[f({ sourceUrl: 'https://www.gov.uk/a b' })], /sourceUrl/],
+    url_quote: [[f({ sourceUrl: 'https://www.gov.uk/a"b' })], /sourceUrl/], url_missing: [[noKey(f(), 'sourceUrl')], /sourceUrl/], url_ip: [[f({ sourceUrl: 'https://192.168.0.1/x' })], /sourceUrl/], url_localhost: [[f({ sourceUrl: 'https://localhost/x' })], /sourceUrl/],
+    url_angle: [[f({ sourceUrl: 'https://www.gov.uk/a<b' })], /sourceUrl/],
+    label_pattern: [[f({ sourceLabel: 'GOV.UK' })], /sourceLabel/], label_missing: [[noKey(f(), 'sourceLabel')], /sourceLabel/], label_markup: [[f({ sourceLabel: 'Source: GOV.UK - <b>x</b>' })], /sourceLabel.*plain text/],
+    label_control: [[f({ sourceLabel: 'Source: GOV.UK - a\tb' })], /sourceLabel.*control/], label_long: [[f({ sourceLabel: 'Source: X - ' + 'y'.repeat(190) })], /sourceLabel.*200/],
+    checked_missing: [[noKey(f(), 'checked')], /checked/], checked_not_real: [[f({ checked: '2026-02-30' })], /checked/], checked_format: [[f({ checked: '2026-1-5' })], /checked/], checked_future: [[f({ checked: ymd(2) })], /checked.*in the future/], checked_number: [[f({ checked: 20261004 })], /checked/],
+  };
+  try {
+    assert.ok(s.validateDl([f()]).ok, 'baseline fixture must pass: ' + s.validateDl([f()]).out.slice(0, 300));
+    for (const [name, [data, re]] of Object.entries(cases)) {
+      const r = s.validateDl(data);
+      assert.ok(!r.ok && /deadlines/i.test(r.out) && re.test(r.out), `validate.mjs must reject deadlines case "${name}" with a message naming "deadlines" and matching ${re}: ` + r.out.slice(0, 400));
+    }
+  } finally { s.done(); }
+});
+test('p2_12.validate_warns_when_stale_but_passes', () => {
+  const s = factsSite();
+  try {
+    let r = s.validateDl([dlFix({ checked: ymd(-370) })]); assert.ok(r.ok, 'stale deadline must not fail: ' + r.out.slice(0, 300));
+    assert.ok(/WARNING/.test(r.out) && /deadlines/i.test(r.out.split('\n').filter(l => /WARNING/.test(l)).join('\n')) && /365/.test(r.out), 'WARNING line naming "deadlines" and 365: ' + r.out.slice(0, 400));
+    r = s.validateDl([dlFix({ checked: ymd(-360) })]); assert.ok(r.ok && !/WARNING.*deadlines/i.test(r.out), 'a deadline checked 360 days ago must not warn');
+    r = s.validateDl([dlFix({ checked: ymd(0) })]); assert.ok(r.ok && !/WARNING.*deadlines/i.test(r.out), 'a fresh deadline must not warn');
+  } finally { s.done(); }
+});
+test('p2_12.validate_applies_the_app_js_guard_rules_to_deadlines_js', () => {
+  const s = factsSite();
+  try {
+    const p = path.join(s.dir, 'deadlines.js'), orig = fs.readFileSync(p, 'utf8');
+    let r = s.run('validate.mjs'); assert.ok(r.ok, 'the real deadlines.js passes the guard rules: ' + r.out.slice(0, 500));
+    const cases = {
+      handler: ['\nel.innerHTML = \'<a onclick="x()">y</a>\';\n', /deadlines\.js: inline event handler/], style: ['\nel.innerHTML = \'<p style="color:red">y</p>\';\n', /deadlines\.js: inline style attribute/],
+      js_url: ['\nel.innerHTML = \'<a href="javascript:alert(1)">y</a>\';\n', /deadlines\.js: javascript: URL/], xss_template: ['\nel.innerHTML = `<p>${params}</p>`;\n', /deadlines\.js:\d+: unescaped user-controlled value/],
+    };
+    for (const [name, [add, re]] of Object.entries(cases)) { fs.writeFileSync(p, orig + add); r = s.run('validate.mjs'); assert.ok(!r.ok && re.test(r.out), `${name}: ` + r.out.slice(0, 400)); }
+    fs.writeFileSync(p, orig);
+  } finally { s.done(); }
+});
+
+// ----- real page, JSON and calendars -----
+const dlReal = () => {
+  const list = loadDeadlines(), D = dlNewest(list, VER22);
+  assert.ok(list.length >= 26);
+  return { list, D };
+};
+test('p2_12.page_exists_with_seo_head_jsonld_sitemap_and_scripts', () => {
+  const { list, D } = dlReal();
+  assert.ok(fs.existsSync(path.join(ROOT, 'deadlines.html')), 'deadlines.html not generated by build-pages.mjs');
+  const h = read('deadlines.html'), url = SITE_URL + 'deadlines.html', { s } = dlPageChecks(h, list, VER22, 'real');
+  assert.equal(s.canonical, url); assert.equal(s.ogUrl, url); assert.equal(s.h1s, 1);
+  assert.equal(s.ogTitle, s.title); assert.equal(s.twTitle, s.title); assert.equal(s.ogDesc, s.desc); assert.equal(s.twDesc, s.desc);
+  assert.ok(h.includes('<h1>Payroll deadlines by country</h1>'), 'h1');
+  assert.match(h, /<link rel="stylesheet" href="legal\.css">/); assert.match(h, /Content-Security-Policy/);
+  const csp = (h.match(/http-equiv="Content-Security-Policy" content="([^"]*)"/) || [])[1] || '';
+  assert.ok(!/unsafe-/.test(csp) && !/script-src 'none'/.test(csp) && /(default-src|script-src) 'self'/.test(csp), 'CSP allows same-origin scripts and fetch (default-src or script-src/connect-src self) and nothing unsafe: ' + csp);
+  assert.ok(!/connect-src 'none'/.test(csp), 'CSP must not block fetch of deadlines.json');
+  assert.ok(!/\son[a-z]+=|\sstyle=/i.test(h) && !INLINE_SCRIPT.test(h), 'CSP: no inline handlers/styles/scripts');
+  const scripts = [...h.matchAll(/<script\b[^>]*>/g)].map(m => m[0]).filter(t => !/application\/ld\+json/.test(t));
+  assert.deepEqual(scripts, ['<script src="filters.js">', '<script src="deadlines.js">'], 'external scripts: filters.js then deadlines.js');
+  assert.ok(h.indexOf('<script src="deadlines.js">') > h.indexOf('</footer>'), 'scripts come after the footer');
+  const bc = byType(ldGraph(h, 'deadlines.html'), 'BreadcrumbList');
+  assert.equal(bc.length, 1); assert.deepEqual(bc[0].itemListElement.map(i => [i.position, i.name, i.item]), [[1, 'Home', SITE_URL], [2, 'Payroll deadlines', url]]);
+  assert.equal(sitemapMod(read('sitemap.xml'), 'deadlines.html'), D, 'sitemap lastmod = newest deadline checked date');
+  assert.ok(publicPages().includes('deadlines.html'), 'part of the public page set (SEO uniqueness, breadcrumb and sitemap tests cover it)');
+  if (D !== VER22) assert.ok(!hasWords(h, VER22), 'the page must not state the site-wide last verified date');
+});
+test('p2_12.page_intro_states_the_rules_and_the_disclaimer', () => {
+  const h = read('deadlines.html'), main = mainOf(h), intro = main.slice(0, main.indexOf('<h2')), t = normWs(intro);
+  assert.match(t, /recurring/i, 'recurring dates');
+  assert.match(t, /If a date falls on a non-working day, check the source's rule/, 'exact sentence about non-working days');
+  assert.match(t, /(weekend|holiday)[^.]*not (applied|shifted|moved|adjusted)|not (applied|shifted|moved|adjusted)[^.]*(weekend|holiday)/i, 'states that weekend and holiday shifting is not applied');
+  assert.match(t, /employer size/i, 'deadlines can differ by employer size'); assert.match(t, /Applies to/, 'points to the "Applies to" column');
+  assert.match(t, /stated by (the|each) (cited )?source/i, 'dates are the rules stated by the cited sources');
+  assert.ok(t.includes('as stated by each cited source, or directly derived from it (the When column quotes the rule)') && !/exactly as stated/i.test(t), 'intro wording: stated by each cited source, or directly derived from it');;
+  assert.ok(main.includes('href="countries.html"') && main.includes('href="keyfacts.html"'), 'main links back to countries.html and keyfacts.html');
+  assert.ok(!/<h[3-6]\b/.test(main), 'static headings: h1 then h2 only');
+  const ph = main.match(/<h2 id="upcoming">[^<]+<\/h2>\s*<div id="deadlines-upcoming">\s*<noscript>([\s\S]*?)<\/noscript>\s*<\/div>/);
+  assert.ok(ph, 'upcoming heading + placeholder + noscript');
+  assert.match(normWs(ph[1]), /JavaScript/); assert.match(normWs(ph[1]), /tables below/);
+  assert.ok(main.indexOf('id="deadlines-upcoming"') < main.indexOf('<h2 id="' + [...dlNames.values()].find(n => n.slug === 'france').slug + '"'), 'placeholder comes before the country sections');
+  assert.ok(squash(main).includes('<a class="cta" href="webcal://www.intelligentpayroll.eu/deadlines.ics">Subscribe in your calendar app</a> <a class="cta secondary" href="deadlines.ics">Download once (.ics)</a>'.replace(/> </g, '><')), 'calendar row with webcal subscribe and download links');
+});
+test('p2_12.page_tables_match_data_exactly', () => {
+  const { list } = dlReal(), h = read('deadlines.html');
+  dlPageChecks(h, list, VER22, 'real');
+  for (const m of mainOf(h).matchAll(/href="(countries\/[^"]+)"/g)) assert.ok(resolves(m[1]), `${m[1]} resolves`);
+  const weekendCells = [...mainOf(h).matchAll(/<tr id="([^"]+)">[\s\S]*?<\/tr>/g)].filter(m => !m[0].includes('<td>Check the source</td>')).map(m => m[1]);
+  assert.deepEqual(weekendCells.sort(), BATCH1.filter(r => r[5]).map(r => r[0]).sort(), 'the "Non-working day" cell shows the note exactly for the deadlines that have one');
+});
+test('p2_12.footers_nav_keyfacts_and_country_pages_link_to_the_page', () => {
+  const gen = allGenerated(); assert.ok(gen.includes('deadlines.html'));
+  for (const f of gen) {
+    const d = f.startsWith('countries/') ? '../' : '', h = read(f), ft = footerOf(h), a = `<a href="${d}deadlines.html">Deadlines</a>`;
+    assert.ok(ft.includes(a), `${f}: footer link "Deadlines"`);
+    assert.ok(ft.indexOf(`<a href="${d}minimum-wage-europe.html">Minimum wage</a>`) < ft.indexOf(a) && ft.indexOf(a) < ft.indexOf(`<a href="${d}glossary.html">Glossary</a>`), `${f}: footer order Minimum wage, Deadlines, Glossary`);
+    assert.ok(!/deadlines\.html/.test(headerOf(h)), `${f}: no header nav change`);
+  }
+  const idx = read('index.html');
+  assert.ok(!/deadlines\.html/.test((idx.match(/<header>[\s\S]*?<\/header>/) || [''])[0]), 'index.html header unchanged');
+  assert.equal(idx.split('href="deadlines.html"').length - 1, 1, 'index.html links the page once (footer)');
+  const kmain = mainOf(read('keyfacts.html'));
+  assert.equal(kmain.split('href="deadlines.html"').length - 1, 1, 'keyfacts.html main links to the page once');
+  assert.ok(((kmain.match(/<\/h1>\s*<p>([\s\S]*?)<\/p>/) || ['', ''])[1]).includes('<a href="deadlines.html">'), 'keyfacts.html: the intro paragraph holds the link');
+  const dh = read('deadlines.html'), ids = new Set([...dh.matchAll(/\sid="([^"]+)"/g)].map(m => m[1])), withDl = new Set(loadDeadlines().map(d => d.country));
+  for (const f of countryFiles.filter(f => f.endsWith('.html'))) {
+    const code = slugToCode.get(f.replace(/\.html$/, '')), intro = introOf(read(`countries/${f}`)), slug = f.replace(/\.html$/, '');
+    if (withDl.has(code)) {
+      assert.equal(intro.split(`<a href="../deadlines.html#${slug}">Payroll deadlines</a>`).length - 1, 1, `${f}: intro links its deadlines section once`);
+      assert.ok(ids.has(slug), `${f}: deadlines.html has id="${slug}"`);
+    } else assert.ok(!/deadlines\.html/.test(intro), `${f}: no deadlines link without deadlines`);
+  }
+});
+test('p2_12.json_is_generated_from_the_data', () => {
+  const { list } = dlReal(); assert.ok(fs.existsSync(path.join(ROOT, 'deadlines.json')), 'deadlines.json not generated');
+  const countries = {}; for (const c of dlCountries(list)) countries[c] = dlNames.get(c);
+  assert.equal(read('deadlines.json'), JSON.stringify({ countries, deadlines: list }, null, 0) + '\n', 'byte-exact: {countries (by name), deadlines (as in data/deadlines.json)}');
+  assert.deepEqual(Object.keys(JSON.parse(read('deadlines.json')).countries), dlCountries(list), 'country order = by name');
+});
+test('p2_12.ics_real_calendars', () => {
+  const { list, D } = dlReal(); assert.ok(fs.existsSync(path.join(ROOT, 'deadlines.ics')), 'deadlines.ics not generated');
+  const all = icsAt(path.join(ROOT, 'deadlines.ics'), 'deadlines.ics');
+  checkDlHeader(all, 'Intelligent Payroll: payroll deadlines', 'deadlines.ics'); checkDlEvents('deadlines.ics', all, list, VER22, D, 'deadlines.ics');
+  const dir = path.join(ROOT, 'deadlines'); assert.ok(fs.existsSync(dir), 'deadlines/ directory missing');
+  const want = dlCountries(list).map(c => dlNames.get(c).slug + '.ics').sort();
+  assert.deepEqual(fs.readdirSync(dir).sort(), want, 'deadlines/<slug>.ics exists exactly for countries with deadlines (and nothing else is in the folder)');
+  for (const c of dlCountries(list)) {
+    const { name, slug } = dlNames.get(c), mine = list.filter(d => d.country === c), f = `deadlines/${slug}.ics`, ev = icsAt(path.join(ROOT, f), f);
+    checkDlHeader(ev, `Intelligent Payroll: ${name} payroll deadlines`, f); checkDlEvents(f, ev, mine, VER22, D, f);
+  }
+  for (const e of all.events) {
+    const d = list.find(x => `${x.id}@${DL_DOMAIN}` === e.UID);
+    assert.equal(e['DTSTART;VALUE=DATE'], plainArr(P2.occurrences(d, VER22, 1))[0].replace(/-/g, ''), `${d.id}: DTSTART = first occurrence on/after LAST_VERIFIED`);
+    const desc = icsUnesc(e.DESCRIPTION);
+    assert.ok(desc.includes(d.ruleText) && desc.includes('Source: ' + d.sourceUrl) && (desc.includes('Non-working day: ' + d.weekendNote) || desc.includes('Non-working-day rule: check the source.')), `${d.id}: description content`);
+  }
+  // spot checks of the literal RRULE strings
+  const rr = id => all.events.find(e => e.UID === `${id}@${DL_DOMAIN}`).RRULE;
+  assert.equal(rr('uk-paye-payment'), 'FREQ=MONTHLY;BYMONTHDAY=22'); assert.equal(rr('nl-loonaangifte-monthly'), 'FREQ=MONTHLY;BYMONTHDAY=-1');
+  assert.equal(rr('de-lohnsteuer-anmeldung-quarterly'), 'FREQ=MONTHLY;INTERVAL=3;BYMONTHDAY=10'); assert.equal(rr('uk-p60'), 'FREQ=YEARLY;BYMONTH=5;BYMONTHDAY=31');
+  assert.equal(rr('de-lohnsteuerbescheinigung'), 'FREQ=YEARLY;BYMONTH=2;BYMONTHDAY=-1');
+});
+test('p2_12.page_has_subscribe_and_download_links_for_all_and_per_country', () => {
+  const { list } = dlReal(), main = squash(mainOf(read('deadlines.html')));
+  assert.ok(main.includes('href="webcal://www.intelligentpayroll.eu/deadlines.ics">Subscribe in your calendar app</a>') && main.includes('href="deadlines.ics">Download once (.ics)</a>'));
+  for (const c of dlCountries(list)) { const { name, slug } = dlNames.get(c); assert.ok(main.includes(`href="webcal://www.intelligentpayroll.eu/deadlines/${slug}.ics">Subscribe to ${escH(name)} deadlines</a>`) && main.includes(`href="deadlines/${slug}.ics">Download (.ics)</a>`), `${slug}: subscribe + download`); }
+});
+test('p2_12.build_is_deterministic_and_check_tracks_every_output', () => {
+  const s = factsSite();
+  try {
+    const real = JSON.parse(read(DL_FILE));
+    let r = s.buildDl(real); assert.ok(r.ok, r.out.slice(0, 400));
+    const files = ['deadlines.html', 'deadlines.json', 'deadlines.ics', ...dlCountries(real).map(c => `deadlines/${dlNames.get(c).slug}.ics`), 'sitemap.xml', 'keyfacts.html'];
+    const snap = Object.fromEntries(files.map(f => [f, s.read(f)]));
+    s.run('build-pages.mjs'); for (const f of files) assert.equal(s.read(f), snap[f], `${f}: second build byte-identical`);
+    for (const f of ['deadlines.html', 'deadlines.json', 'deadlines.ics', 'deadlines/spain.ics']) assert.equal(s.read(f), read(f), `${f}: build output of the real data equals the committed file`);
+    r = s.run('build-pages.mjs', '--check'); assert.ok(r.ok, r.out.slice(0, 300));
+    for (const f of ['deadlines.html', 'deadlines.json', 'deadlines.ics', 'deadlines/spain.ics']) {
+      const p = path.join(s.dir, f), orig = fs.readFileSync(p, 'utf8');
+      fs.writeFileSync(p, orig + ' '); r = s.run('build-pages.mjs', '--check'); assert.ok(!r.ok && new RegExp(f.replace(/[./]/g, '\\$&') + ' is out of date').test(r.out), `tampered ${f}: ` + r.out.slice(0, 300));
+      fs.rmSync(p); r = s.run('build-pages.mjs', '--check'); assert.ok(!r.ok && new RegExp(f.replace(/[./]/g, '\\$&') + ' is missing').test(r.out), `deleted ${f}: ` + r.out.slice(0, 300));
+      fs.writeFileSync(p, orig);
+    }
+    // stale per-country file
+    fs.writeFileSync(path.join(s.dir, 'deadlines/zz-nowhere.ics'), 'x'); r = s.run('build-pages.mjs', '--check');
+    assert.ok(!r.ok && /deadlines\/zz-nowhere\.ics is no longer generated \(delete it\)/.test(r.out), 'stale deadlines/*.ics: ' + r.out.slice(0, 300));
+    s.run('build-pages.mjs'); assert.ok(!s.exists('deadlines/zz-nowhere.ics'), 'a normal build deletes stale deadlines/*.ics'); assert.ok(s.run('build-pages.mjs', '--check').ok);
+    // changing the data makes everything derived stale
+    const changed = JSON.parse(JSON.stringify(real)); changed[0].ruleText = 'A changed rule text.'; s.setDeadlines(changed);
+    r = s.run('build-pages.mjs', '--check'); assert.ok(!r.ok && ['deadlines.html', 'deadlines.json', 'deadlines.ics', 'deadlines/united-kingdom.ics'].every(f => r.out.includes(f + ' is out of date')), 'changed data: ' + r.out.slice(0, 500));
+  } finally { s.done(); }
+});
+
+test('p2_12.quarterly_rrule_expansion_equals_occurrences_for_four_years', () => {
+  const { list } = dlReal(), quarterly = list.filter(d => d.frequency === 'quarterly'); assert.ok(quarterly.length >= 3);
+  const all = icsAt(path.join(ROOT, 'deadlines.ics'), 'deadlines.ics');
+  const dim = (y, m) => new Date(Date.UTC(y, m, 0)).getUTCDate();
+  // A tiny expander for FREQ=MONTHLY;INTERVAL=n;BYMONTHDAY=k (negative = from the end of the month), starting at DTSTART.
+  const expand = (rrule, dtstart, count) => {
+    const m = rrule.match(/^FREQ=MONTHLY;INTERVAL=(\d+);BYMONTHDAY=(-?\d+)$/); assert.ok(m, 'quarterly rule is FREQ=MONTHLY;INTERVAL=3;BYMONTHDAY=n: ' + rrule);
+    const step = +m[1], bd = +m[2], out = []; let y = +dtstart.slice(0, 4), mo = +dtstart.slice(4, 6);
+    while (out.length < count) {
+      const day = bd > 0 ? bd : dim(y, mo) + 1 + bd, iso = y + '-' + String(mo).padStart(2, '0') + '-' + String(day).padStart(2, '0');
+      if (iso.replace(/-/g, '') >= dtstart) out.push(iso);
+      mo += step; while (mo > 12) { mo -= 12; y++; }
+    }
+    return out;
+  };
+  for (const d of quarterly) {
+    const ev = all.events.find(e => e.UID === d.id + '@' + DL_DOMAIN), start = ev['DTSTART;VALUE=DATE'];
+    assert.ok(/INTERVAL=3/.test(ev.RRULE) && !/BYMONTH=/.test(ev.RRULE), d.id + ': portable rule without BYMONTH');
+    assert.deepEqual(expand(ev.RRULE, start, 16), plainArr(P2.occurrences(d, VER22, 16)), d.id + ': 4 years of the calendar rule = occurrences()');
+  }
+});
+test('p2_12.build_check_and_write_handle_nested_files_in_deadlines', () => {
+  const s = factsSite();
+  try {
+    const real = JSON.parse(read(DL_FILE)); assert.ok(s.buildDl(real).ok);
+    fs.mkdirSync(path.join(s.dir, 'deadlines/old/deeper'), { recursive: true });
+    fs.writeFileSync(path.join(s.dir, 'deadlines/old/deeper/x.ics'), 'x'); fs.writeFileSync(path.join(s.dir, 'deadlines/notes.txt'), 'x');
+    let r = s.run('build-pages.mjs', '--check');
+    assert.ok(!r.ok && /deadlines\/old\/deeper\/x\.ics is no longer generated \(delete it\)/.test(r.out) && /deadlines\/notes\.txt is no longer generated/.test(r.out), 'nested and non-ics files are reported: ' + r.out.slice(0, 400));
+    s.run('build-pages.mjs');
+    assert.ok(!s.exists('deadlines/old/deeper/x.ics') && !s.exists('deadlines/notes.txt') && !s.exists('deadlines/old'), 'a normal build removes them and the empty folders');
+    assert.ok(s.exists('deadlines/spain.ics') && s.run('build-pages.mjs', '--check').ok);
+  } finally { s.done(); }
+});
+
+// ----- fixtures -----
+const dlSet = () => [
+  dlFix({ id: 'es-monthly', country: 'spain', title: 'Spain monthly return', kind: 'both', rule: { day: 'last', monthOffset: 1 }, ruleText: 'By the last day of the following month.', appliesTo: 'Large employers', weekendNote: 'A non-working last day moves the deadline to the next working day.', weekendSourceUrl: 'https://sede.agenciatributaria.gob.es/w?x=1&y=2', sourceUrl: 'https://sede.agenciatributaria.gob.es/a?x=1&y=2', sourceLabel: 'Source: AEAT - Modelo 111', checked: '2026-11-05' }),
+  dlQ({ id: 'de-quarterly', title: 'Lohnsteuer quarterly', kind: 'both', ruleText: 'On the 10th after each calendar quarter.', sourceUrl: 'https://www.gesetze-im-internet.de/estg/__41a.html', sourceLabel: 'Source: BMJ - 41a EStG', checked: '2026-10-02' }),
+  dlA({ id: 'uk-annual-feb', title: 'UK annual (Feb)', rule: { day: 'last', monthOffset: 0, month: 2 }, ruleText: 'By the end of February.', checked: '2026-10-03' }),
+  dlFix({ id: 'uk-monthly', title: 'UK monthly payment', checked: '2026-10-04' }),
+  dlA({ id: 'uk-annual-may', title: 'UK annual (May)', ruleText: 'By 31 May.', checked: '2026-09-30' }),
+];
+const dlLv = lv => ({ appEdit: js => js.replace(/(new Date\(')\d{4}-\d{2}-\d{2}(T)/, (_, a, b) => a + lv + b) });
+test('p2_12.fixture_pages_json_and_calendars_follow_the_data', () => {
+  for (const lv of ['2026-10-01', '2028-02-15']) {
+    const s = factsSite(undefined, dlLv(lv));
+    try {
+      const data = dlSet(), r = s.buildDl(data); assert.ok(r.ok, r.out.slice(0, 500));
+      const D = dlNewest(data, lv); assert.equal(D, '2026-11-05');
+      const h = s.read('deadlines.html'), { main } = dlPageChecks(h, data, lv, 'fixture@' + lv);
+      assert.deepEqual([...main.matchAll(/<h2 id="([^"]+)">/g)].map(m => m[1]).slice(1), ['germany', 'spain', 'united-kingdom'], 'countries alphabetical by name');
+      assert.equal(sitemapMod(s.read('sitemap.xml'), 'deadlines.html'), D, 'lastmod = newest checked even when later than LAST_VERIFIED');
+      assert.ok(footerOf(s.read('countries/spain.html')).includes('Sources last checked ' + fmtLong(lv) + '.'), 'country pages keep LAST_VERIFIED text');
+      const countries = {}; for (const c of ['germany', 'spain', 'uk']) countries[c] = dlNames.get(c);
+      assert.equal(s.read('deadlines.json'), JSON.stringify({ countries, deadlines: data }, null, 0) + '\n');
+      const all = icsAt(path.join(s.dir, 'deadlines.ics'), 'fixture deadlines.ics'); checkDlHeader(all, 'Intelligent Payroll: payroll deadlines', 'fixture'); checkDlEvents('', all, data, lv, D, 'fixture@' + lv);
+      assert.deepEqual(fs.readdirSync(path.join(s.dir, 'deadlines')).sort(), ['germany.ics', 'spain.ics', 'united-kingdom.ics']);
+      for (const [code, f] of [['uk', 'united-kingdom'], ['spain', 'spain'], ['germany', 'germany']]) checkDlEvents('', icsAt(path.join(s.dir, `deadlines/${f}.ics`), f), data.filter(d => d.country === code), lv, D, f);
+      // RRULE strings, literally
+      const rr = id => all.events.find(e => e.UID === `${id}@${DL_DOMAIN}`);
+      assert.equal(rr('uk-monthly').RRULE, 'FREQ=MONTHLY;BYMONTHDAY=22'); assert.equal(rr('es-monthly').RRULE, 'FREQ=MONTHLY;BYMONTHDAY=-1');
+      assert.equal(rr('de-quarterly').RRULE, 'FREQ=MONTHLY;INTERVAL=3;BYMONTHDAY=10'); assert.equal(rr('uk-annual-feb').RRULE, 'FREQ=YEARLY;BYMONTH=2;BYMONTHDAY=-1'); assert.equal(rr('uk-annual-may').RRULE, 'FREQ=YEARLY;BYMONTH=5;BYMONTHDAY=31');
+      // DTSTART = first occurrence on/after LAST_VERIFIED
+      const starts = lv === '2026-10-01'
+        ? { 'uk-monthly': '20261022', 'es-monthly': '20261031', 'de-quarterly': '20261010', 'uk-annual-feb': '20270228', 'uk-annual-may': '20270531' }
+        : { 'uk-monthly': '20280222', 'es-monthly': '20280229', 'de-quarterly': '20280410', 'uk-annual-feb': '20280229', 'uk-annual-may': '20280531' };
+      for (const [id, v] of Object.entries(starts)) assert.equal(rr(id)['DTSTART;VALUE=DATE'], v, `${id} DTSTART @${lv}`);
+      assert.ok(s.run('build-pages.mjs', '--check').ok, '--check green');
+    } finally { s.done(); }
+  }
+});
+test('p2_12.fixture_country_pages_link_only_with_deadlines', () => {
+  const s = factsSite();
+  try {
+    assert.ok(s.buildDl([dlFix({ id: 'es-monthly', country: 'spain' })]).ok);
+    const sp = introOf(s.page('spain')), uk = introOf(s.page('united-kingdom'));
+    assert.equal(sp.split('<a href="../deadlines.html#spain">Payroll deadlines</a>').length - 1, 1);
+    assert.ok(!/deadlines\.html/.test(uk), 'no link on a country without deadlines');
+    assert.ok(!s.exists('deadlines/united-kingdom.ics') && s.exists('deadlines/spain.ics'), 'per-country calendar only for countries with deadlines');
+    assert.ok(s.read('deadlines.html').includes('id="spain"') && !s.read('deadlines.html').includes('id="united-kingdom"'));
+  } finally { s.done(); }
+});
+test('p2_12.fixture_empty_data_builds_a_valid_page_and_calendar', () => {
+  const s = factsSite(undefined, dlLv('2027-02-03'));
+  try {
+    const r = s.buildDl([]); assert.ok(r.ok, r.out.slice(0, 400));
+    const h = s.read('deadlines.html');
+    assert.ok(!/<table\b/.test(h) && h.includes('id="deadlines-upcoming"'), 'no table without data');
+    const ev = icsAt(path.join(s.dir, 'deadlines.ics'), 'empty'); assert.equal(ev.events.length, 0);
+    assert.ok(!s.exists('deadlines') || fs.readdirSync(path.join(s.dir, 'deadlines')).length === 0, 'no per-country calendars');
+    assert.equal(s.read('deadlines.json'), '{"countries":{},"deadlines":[]}\n');
+    assert.equal(sitemapMod(s.read('sitemap.xml'), 'deadlines.html'), '2027-02-03', 'no deadlines: lastmod falls back to LAST_VERIFIED');
+    assert.ok(footerOf(h).includes('Sources last checked 3 February 2027.'));
+    assert.ok(s.run('build-pages.mjs', '--check').ok, '--check green (SEO rules hold with no data)');
+  } finally { s.done(); }
+});
+test('p2_12.fixture_escapes_hostile_strings_everywhere', () => {
+  const s = factsSite();
+  try {
+    const H = '<img src=x onerror=alert(1)>';
+    const data = [dlFix({ id: 'uk-evil', title: `T ${H} "q" 's' & more`, ruleText: `R ${H} ; , \\ end`, appliesTo: `A ${H}`, weekendNote: `W ${H}`, sourceLabel: `Source: <u>Z</u> - "W" ${H}`, sourceUrl: 'https://example.org/a"onmouseover="x&y=1' })];
+    const r = s.buildDl(data); assert.ok(r.ok, 'build without validate must not crash on hostile text: ' + r.out.slice(0, 400));
+    const h = s.read('deadlines.html'), main = mainOf(h);
+    assert.ok(!/<(img|u)\b/i.test(main.replace(/<a href="[^"]*"/g, '<a')), 'no raw tags from data');
+    assert.ok(!/<[^>]*\son[a-z]+=/i.test(h.replace(/="[^"]*"/g, '=""')), 'no event-handler attribute');
+    assert.ok(h.includes('&lt;img src=x onerror=alert(1)&gt;') && h.includes('href="https://example.org/a&quot;onmouseover=&quot;x&amp;y=1"'));
+    assert.ok(squash(main).includes(dlRow(data[0]).replace(/> </g, '><')), 'row equals the escaped expectation');
+    const ev = icsAt(path.join(s.dir, 'deadlines.ics'), 'hostile'); checkDlEvents('', ev, data, VER22, '2026-10-04', 'hostile');
+    const un = ev.logical.join('\n'); assert.ok(un.includes('\\;') && un.includes('\\,') && un.includes('\\\\') && un.includes('\\n'), 'ics text is escaped (; , \\ newline)');
+  } finally { s.done(); }
+});
+test('p2_12.fixture_ics_lines_fold_at_75_octets_and_unfold_exactly', () => {
+  const s = factsSite();
+  try {
+    const data = [dlFix({ id: 'uk-long', title: 'Zahlung \u{1F4B6} f\u00fcr Lohnsteuer \u00e4nderung \u4e2d\u6587 '.repeat(5).trim().slice(0, 120), ruleText: 'Lange Beschreibung mit Umlauten \u00e4\u00f6\u00fc, Kommas; und Semikolons. '.repeat(4).trim().slice(0, 300), appliesTo: '\u00dcberl\u00e4nge '.repeat(12).trim().slice(0, 120), sourceUrl: 'https://www.gov.uk/' + 'a'.repeat(150) })];
+    assert.ok(s.buildDl(data).ok);
+    const ev = icsAt(path.join(s.dir, 'deadlines.ics'), 'long');
+    assert.ok(ev.raw.split('\r\n').some(l => l.startsWith(' ')), 'folded continuation lines exist');
+    checkDlEvents('', ev, data, VER22, '2026-10-04', 'long');
+    for (const l of ev.raw.split('\r\n')) assert.ok(!/[\uD800-\uDBFF]$/.test(l), 'no line ends in half a surrogate pair');
+  } finally { s.done(); }
+});
+test('p2_12.fixture_page_is_data_driven_without_hard_coded_countries', () => {
+  const s = factsSite();
+  try {
+    assert.ok(s.buildDl([dlFix({ id: 'es-monthly', country: 'spain', title: 'Only Spain' })]).ok);
+    const main = mainOf(s.read('deadlines.html'));
+    assert.ok(!/United Kingdom|Germany|France|Italy|Netherlands/.test(main), 'no hard-coded countries');
+    assert.equal((main.match(/<table\b/g) || []).length, 1);
+    const d = seoOf(s.read('deadlines.html'), 'deadlines.html').desc; assert.ok(/(^|\D)1(\D|$)/.test(d), 'description names 1 country / 1 deadline: ' + d);
+    assert.ok(s.run('build-pages.mjs', '--check').ok);
+  } finally { s.done(); }
+});
+
+// ----- docs, CI, link checking -----
+test('p2_12.readme_documents_the_deadlines', () => {
+  const readme = read('README.md'); assert.ok(readme.includes('### Payroll deadlines'), 'README needs a "### Payroll deadlines" section');
+  const sec = readme.split('### Payroll deadlines')[1].split(/\n##+ /)[0];
+  for (const re of [/`data\/deadlines\.json`/, /`weekendNote`/, /`weekendSourceUrl`/, /`monthOffset`/, /does not change the (date|dates)/, /INTERVAL=3|every third month/, /`months`/, /`ruleText`/, /`appliesTo`/, /`kind`/, /`frequency`/, /`sourceUrl`/, /`checked`/, /'last'|"last"|`last`/,
+    /deadlines\.html/, /deadlines\.json/, /deadlines\.ics/, /deadlines\/<slug>\.ics|deadlines\/&lt;slug&gt;\.ics/, /no (automatic )?weekend|not (shifted|applied)/i, /holiday/i, /365 days/, /UTC today plus one day/, /How to add|how to add|To add a deadline/, /build-pages\.mjs/, /validate\.mjs/, /test-deadlines\.mjs/]) assert.match(sec, re, `README Payroll deadlines mentions ${re}`);
+  const blocks = [...sec.matchAll(/```json\n([\s\S]*?)\n```/g)].map(m => JSON.parse(m[1]));
+  assert.ok(blocks.length >= 1, 'a README json example'); assert.ok(blocks.some(b => (Array.isArray(b) ? b : [b]).some(d => d.weekendNote)), 'an example with weekendNote');
+  const s = factsSite();
+  try { for (const b of blocks) { const r = s.validateDl(Array.isArray(b) ? b : [b]); assert.ok(r.ok, 'README example validates: ' + r.out.slice(0, 400)); } } finally { s.done(); }
+  assert.match(readme.split('## On-page SEO')[1].split(/\n## /)[0], /deadlines\.html/, 'On-page SEO documents the deadlines page title and description');
+});
+test('p2_12.ci_and_hook_run_the_deadline_tests_and_links_are_checked', () => {
+  assert.ok(fs.existsSync(path.join(ROOT, 'scripts/test-deadlines.mjs')));
+  assert.match(read('.github/workflows/validate.yml'), /run: node scripts\/test-deadlines\.mjs/, 'CI runs scripts/test-deadlines.mjs');
+  assert.match(read('scripts/hooks/pre-commit'), /node scripts\/test-deadlines\.mjs/, 'pre-commit runs scripts/test-deadlines.mjs');
+  const cl = read('scripts/check-links.mjs'); assert.ok(/data\/deadlines\.json/.test(cl) && /deadlines\//.test(cl), 'check-links.mjs probes every deadlines sourceUrl (labelled deadlines/<id>)');
+});
+test('p2_12.css_deadlines_table_at_375px', () => {
+  const css = read('legal.css').replace(/\/\*[\s\S]*?\*\//g, ''), screen = css.replace(/@media\s+print\s*\{[\s\S]*$/, '');
+  const rule = sel => [...screen.matchAll(/(?<=^|\})\s*([^{}]*)\{([^}]*)\}/g)].filter(m => m[1].split(',').map(x => x.trim().replace(/\s+/g, ' ')).includes(sel)).map(m => m[2]).join(';');
+  const t = rule('.deadlines');
+  assert.match(t, /border-collapse\s*:\s*collapse/); assert.match(t, /width\s*:\s*100%/);
+  const mw = t.match(/min-width\s*:\s*(\d+(?:\.\d+)?)rem/); assert.ok(mw && Number(mw[1]) >= 30 && Number(mw[1]) <= 64, '.deadlines min-width in rem (30 to 64): five columns scroll inside .table-scroll instead of crushing at 375px');
+  const cells = rule('.deadlines th') + ';' + rule('.deadlines td') + ';' + [...screen.matchAll(/\.deadlines th,\s*\.deadlines td\s*\{([^}]*)\}/g)].map(m => m[1]).join(';');
+  assert.match(cells, /border\s*:\s*1px solid var\(--border\)/); assert.match(cells, /padding\s*:/); assert.match(cells, /text-align\s*:\s*left/); assert.match(cells, /vertical-align\s*:\s*top/);
+  assert.match(rule('.deadlines caption'), /text-align\s*:\s*left/);
+  assert.match(rule('.deadline-meta'), /display\s*:\s*block|color\s*:/, '.deadline-meta is styled (muted, own line)');
+  assert.match(screen, /\.deadline-chip[^{]*\{[^}]*(border|background)/, 'filter chips are styled on screen'); assert.match(screen, /\.deadline-chip\[aria-pressed="true"\]|\.deadline-chip\.active/, 'pressed chip looks different');
+  assert.match(screen, /\.deadline-items[^{]*\{/, 'upcoming list is styled'); assert.ok(!/\.deadlines[^{]*\{[^}]*display\s*:\s*none/.test(screen), 'nothing in the table is hidden on screen');
+  assert.match(screen, /\.deadline-(filter|chip)[^{]*\{[^}]*(flex-wrap\s*:\s*wrap|display\s*:\s*inline-flex|display\s*:\s*inline-block)/, 'chips wrap onto several lines on a phone');
 });
 
 console.log(`${passed} site tests passed.`);

@@ -1,5 +1,6 @@
 // Generates the static, crawlable pages from the CHANGES data in index.html:
-//   countries.html, countries/<slug>.html (with the Key facts box from data/facts.json), glossary.html, sitemap.xml, robots.txt, and the canonical links
+//   countries.html, countries/<slug>.html (with the Key facts box from data/facts.json), glossary.html, deadlines.html + deadlines.json + deadlines.ics +
+//   deadlines/<slug>.ics (from data/deadlines.json), sitemap.xml, robots.txt, and the canonical links
 //   and privacy.html / terms.html (rendered from scripts/templates using scripts/operator.json).
 // Run: node scripts/build-pages.mjs          (write files)
 //      node scripts/build-pages.mjs --check  (fail if generated files are out of date; used in CI)
@@ -12,7 +13,7 @@ import { loadSite } from './load.mjs';
 import { createRequire } from 'node:module';
 
 // Shared status/date helpers (same code the browser uses).
-const { statusOf, formatEffective, STATUS_LABELS, linkTerms } = createRequire(import.meta.url)('../filters.js');
+const { statusOf, formatEffective, STATUS_LABELS, linkTerms, occurrences } = createRequire(import.meta.url)('../filters.js');
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const check = process.argv.includes('--check');
@@ -90,6 +91,14 @@ const factDate = (facts, pick = () => true) => { const d = facts.filter(pick).ma
 const MW_ISO = factDate(FACTS.flatMap(factsOf), x => x.key === 'minimumWage' && x.headline);
 const KF_ISO = factDate(FACTS.flatMap(factsOf));
 const countryModIso = code => maxIso([VERIFIED_ISO, ...factsOf(FACTS_BY_CODE.get(code) || {}).map(x => x.checked).filter(x => typeof x === 'string')]);
+// Payroll deadlines (data/deadlines.json): the deadlines page, deadlines.json and the deadline calendars. Schema checked in validate.mjs.
+const DEADLINES = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/deadlines.json'), 'utf8'));
+if (!Array.isArray(DEADLINES)) throw new Error('data/deadlines.json: must be an array');
+for (const d of DEADLINES) if (!d || typeof d !== 'object' || !countries.has(d.country)) throw new Error(`data/deadlines.json: unknown country code "${d && d.country}"`);
+const DL_COUNTRIES = [...new Set(DEADLINES.map(d => d.country))].map(code => countries.get(code)).sort((a, b) => a.name.localeCompare(b.name));
+// Dated by the newest 'checked' of all deadlines (LAST_VERIFIED when there are none), like the other data pages.
+const DL_ISO = DEADLINES.length ? maxIso(DEADLINES.map(d => d.checked)) : VERIFIED_ISO;
+const hasDeadlines = code => DEADLINES.some(d => d.country === code);
 const REQ_TYPES = { country: 'New country', rule: 'Missing rule', feature: 'Feature idea' };
 const REQ_STATUS = { requested: 'Requested', researching: 'Researching', added: 'Added' };
 function requestsSection() {
@@ -171,7 +180,7 @@ const head = ({ title, desc, url, depth, noindex, graph }) => `<!DOCTYPE html>
 const header = depth => `  <header><a href="${depth || './'}">Intelligent Payroll</a> <a class="nav" href="${depth}countries.html">All countries</a> <a class="nav" href="${depth}keyfacts.html">Key facts</a> <a class="nav" href="${depth}glossary.html">Glossary</a></header>`;
 const footer = (depth, date = VERIFIED) => `  <footer>
     <p>For information only, not legal or tax advice. Sources last checked ${date}. Found an error? <a href="${ISSUES}" rel="noopener">Tell us</a>.</p>
-    <p><a href="${depth || './'}">Home</a> &middot; <a href="${depth}countries.html">All countries</a> &middot; <a href="${depth}upcoming.html">What's coming</a> &middot; <a href="${depth}keyfacts.html">Key facts</a> &middot; <a href="${depth}minimum-wage-europe.html">Minimum wage</a> &middot; <a href="${depth}glossary.html">Glossary</a> &middot; <a href="${depth}suggest.html">Suggest a change</a> &middot; <a href="${depth}feed.xml">RSS feed</a> &middot; <a href="${depth}privacy.html">Privacy</a> &middot; <a href="${depth}terms.html">Terms and disclaimer</a></p>
+    <p><a href="${depth || './'}">Home</a> &middot; <a href="${depth}countries.html">All countries</a> &middot; <a href="${depth}upcoming.html">What's coming</a> &middot; <a href="${depth}keyfacts.html">Key facts</a> &middot; <a href="${depth}minimum-wage-europe.html">Minimum wage</a> &middot; <a href="${depth}deadlines.html">Deadlines</a> &middot; <a href="${depth}glossary.html">Glossary</a> &middot; <a href="${depth}suggest.html">Suggest a change</a> &middot; <a href="${depth}feed.xml">RSS feed</a> &middot; <a href="${depth}privacy.html">Privacy</a> &middot; <a href="${depth}terms.html">Terms and disclaimer</a></p>
   </footer>`;
 
 // items are HTML (already escaped, possibly with glossary links).
@@ -252,6 +261,7 @@ function countryPage(c) {
   const introLinks = hasFacts
     ? ` <a href="#key-facts">Key facts</a> for ${esc(c.name)} are below; <a href="../keyfacts.html">key facts for other countries</a>. See the <a href="../glossary.html">Glossary</a> for abbreviations.`
     : ` See the <a href="../glossary.html">Glossary</a> for abbreviations.`;
+  const dlLink = hasDeadlines(c.code) ? ` See the <a href="../deadlines.html#${c.slug}">Payroll deadlines</a> for ${esc(c.name)}.` : '';
   const region = REGIONS[c.region];
   const siblings = list.filter(x => x.region === c.region && x.code !== c.code);
   const partial = n < 2 ? `    <p class="partial">Partial coverage: we currently track ${n} change for this country. Know of another? <a href="../suggest.html">Tell us</a>.</p>\n` : '';
@@ -262,7 +272,7 @@ ${header('../')}
     <p class="crumbs"><a href="../">Home</a> &rsaquo; <a href="../countries.html">All countries</a> &rsaquo; ${esc(c.name)}</p>
     <h1>${c.flag} ${esc(c.name)}: payroll law changes</h1>
     <p class="meta">${n} tracked ${n === 1 ? 'change' : 'changes'} &middot; ${region} &middot; sources last checked ${VERIFIED}</p>
-    <p>Statutory and legislative payroll changes in ${esc(c.name)}, each linked to the page it was checked against. For information only, not legal or tax advice: confirm details with the source before acting. See the <a href="../terms.html">terms</a>.${introLinks}</p>
+    <p>Statutory and legislative payroll changes in ${esc(c.name)}, each linked to the page it was checked against. For information only, not legal or tax advice: confirm details with the source before acting. See the <a href="../terms.html">terms</a>.${introLinks}${dlLink}</p>
     <p><a class="cta" href="../?country=${encodeURIComponent(c.code)}">Open in the interactive changelog</a>${icsCountries.includes(c) ? ` <a class="cta secondary" href="${SITE.replace(/^https:/, 'webcal:')}countries/${c.slug}.ics">Subscribe to ${esc(c.name)} calendar</a> <a href="${c.slug}.ics">Download (.ics)</a>` : ''}</p>
 ${factsHtml(c)}${partial}
 ${ordered.map(entryHtml).join('\n\n')}
@@ -343,7 +353,7 @@ ${cs.map(c => `      <li><a href="countries/${c.slug}.html#key-facts">${c.flag} 
 ${header('')}
   <main>
     <h1>Key facts by country</h1>
-    <p>Pick a country to see its key payroll facts, such as minimum wage and tax rates. Each fact links to its official or professional source and shows the as of date it is valid from or was last checked. Rules change, so always confirm with the source. Looking for another country? See <a href="countries.html">all countries</a>. To compare countries, see the <a href="minimum-wage-europe.html">minimum wage in Europe</a> table.</p>
+    <p>Pick a country to see its key payroll facts, such as minimum wage and tax rates. Each fact links to its official or professional source and shows the as of date it is valid from or was last checked. Rules change, so always confirm with the source. Looking for another country? See <a href="countries.html">all countries</a>. To compare countries, see the <a href="minimum-wage-europe.html">minimum wage in Europe</a> table. For filing and payment dates, see the <a href="deadlines.html">payroll deadlines</a>.</p>
 
 ${sections}
   </main>
@@ -583,6 +593,73 @@ function icsCalendar(name, entries) {
   return lines.map(icsFold).join('\r\n') + '\r\n';
 }
 
+// ---- Payroll deadlines: deadlines.html, deadlines.json, deadlines.ics and deadlines/<slug>.ics ----
+const DL_KIND = { payment: 'Payment', filing: 'Filing', both: 'Payment and filing' };
+const WEBCAL = SITE.replace(/^https:/, 'webcal:');
+function deadlineRow(d) {
+  return `        <tr id="${escF(d.id)}"><th scope="row">${escF(d.title)} <span class="deadline-meta">${DL_KIND[d.kind]}, ${escF(d.frequency)}</span></th><td>${escF(d.ruleText)}</td><td>${d.appliesTo ? escF(d.appliesTo) : '—'}</td><td>${d.weekendNote ? escF(d.weekendNote) + (d.weekendSourceUrl ? ` <a href="${escF(d.weekendSourceUrl)}" rel="noopener">(source)</a>` : '') : 'Check the source'}</td><td><a href="${escF(d.sourceUrl)}" rel="noopener">${escF(d.sourceLabel)}</a></td></tr>`;
+}
+function deadlineSection(c) {
+  const mine = DEADLINES.filter(d => d.country === c.code);
+  return `    <h2 id="${c.slug}"><a href="countries/${c.slug}.html">${c.flag} ${esc(c.name)}</a></h2>
+    <p class="deadline-subscribe"><a class="cta secondary" href="${WEBCAL}deadlines/${c.slug}.ics">Subscribe to ${esc(c.name)} deadlines</a> <a href="deadlines/${c.slug}.ics">Download (.ics)</a></p>
+    <div class="table-scroll" tabindex="0" role="region" aria-label="${esc(c.name)} payroll deadlines table"><table class="deadlines"><caption>Payroll deadlines in ${esc(c.name)}</caption>
+      <thead><tr><th scope="col">Deadline</th><th scope="col">When</th><th scope="col">Applies to</th><th scope="col">Non-working day</th><th scope="col">Source</th></tr></thead>
+      <tbody>
+${mine.map(deadlineRow).join('\n')}
+      </tbody>
+    </table></div>`;
+}
+function deadlinesPage() {
+  const url = `${SITE}deadlines.html`, n = DEADLINES.length, k = DL_COUNTRIES.length;
+  const desc = `${n} recurring payroll filing and payment ${n === 1 ? 'deadline' : 'deadlines'} across ${k} ${k === 1 ? 'country' : 'countries'}, each with its rule and official source. Checked ${fmtDay(DL_ISO)}.`;
+  return `${head({ title: withBrand('Payroll deadlines by country'), desc, url, depth: '', graph: [breadcrumbs([['Payroll deadlines', url]])] })}
+<body>
+${header('')}
+  <main>
+    <h1>Payroll deadlines by country</h1>
+    <p class="meta">${n} ${n === 1 ? 'deadline' : 'deadlines'} &middot; ${k} ${k === 1 ? 'country' : 'countries'} &middot; sources last checked ${fmtDay(DL_ISO)}</p>
+    <p>Recurring payroll filing and payment deadlines, each with the rule as stated by each cited source, or directly derived from it (the When column quotes the rule), and a link to it. The dates repeat every month, quarter or year as the rule says, and weekends and public holidays are not applied to them.</p>
+    <p>If a date falls on a non-working day, check the source's rule: some sources move the date later and others earlier, and the Non-working day column shows what the source says. Deadlines can also differ by employer size or by how you pay, so read the Applies to column. Looking for something else? See <a href="countries.html">all countries</a> or the <a href="keyfacts.html">key facts</a> by country. For information only, not legal or tax advice.</p>
+    <p><a class="cta" href="${WEBCAL}deadlines.ics">Subscribe in your calendar app</a> <a class="cta secondary" href="deadlines.ics">Download once (.ics)</a></p>
+
+    <h2 id="upcoming">Coming up in the next 12 months</h2>
+    <div id="deadlines-upcoming"><noscript><p>This list needs JavaScript. Without it, the tables below list every deadline with its rule.</p></noscript></div>
+${DL_COUNTRIES.length ? '\n' + DL_COUNTRIES.map(deadlineSection).join('\n\n') + '\n' : ''}  </main>
+${footer('', fmtDay(DL_ISO))}
+  <script src="filters.js"></script><script src="deadlines.js"></script>
+</body>
+</html>
+`;
+}
+// One VEVENT per deadline (RFC 5545 RRULE). DTSTART = the first due date on or after the last-verified date; weekends and holidays are not applied.
+const rruleOf = d => {
+  const bd = d.rule.day === 'last' ? -1 : d.rule.day;
+  return d.frequency === 'monthly' ? `FREQ=MONTHLY;BYMONTHDAY=${bd}` : d.frequency === 'quarterly' ? `FREQ=MONTHLY;INTERVAL=3;BYMONTHDAY=${bd}` : `FREQ=YEARLY;BYMONTH=${d.rule.month};BYMONTHDAY=${bd}`;
+};
+function deadlineCalendar(name, entries) {
+  const stamp = DL_ISO.replace(/-/g, '') + 'T000000Z', host = new URL(SITE).hostname.replace(/^www\./, '');
+  const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Intelligent Payroll//Payroll deadlines//EN', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', `X-WR-CALNAME:${icsText(name)}`];
+  for (const d of entries) {
+    const c = countries.get(d.country), start = occurrences(d, VERIFIED_ISO, 1)[0];
+    if (!start) throw new Error(`data/deadlines.json: ${d.id}: rule gives no due date`);
+    const next = new Date(Date.parse(start + 'T00:00:00Z') + 864e5).toISOString().slice(0, 10), page = `${SITE}deadlines.html#${c.slug}`;
+    lines.push('BEGIN:VEVENT',
+      `UID:${d.id}@${host}`,
+      `DTSTAMP:${stamp}`,
+      `DTSTART;VALUE=DATE:${start.replace(/-/g, '')}`,
+      `DTEND;VALUE=DATE:${next.replace(/-/g, '')}`,
+      `RRULE:${rruleOf(d)}`,
+      `SUMMARY:${icsText(`${c.name}: ${d.title}`)}`,
+      `DESCRIPTION:${icsText(`${d.ruleText}${d.appliesTo ? `\nApplies to: ${d.appliesTo}` : ''}\n${d.weekendNote ? `Non-working day: ${d.weekendNote}${d.weekendSourceUrl ? `\nSource for non-working-day rule: ${d.weekendSourceUrl}` : ''}` : 'Non-working-day rule: check the source.'}\n\nSource: ${d.sourceUrl}\nDetails: ${page}\n\nFor information only, not legal or tax advice. Dates follow the recurring rule stated by the source; weekends and holidays are not applied. Sources last checked ${fmtDay(d.checked)}.`)}`,
+      `URL:${page}`,
+      'TRANSP:TRANSPARENT',
+      'END:VEVENT');
+  }
+  lines.push('END:VCALENDAR');
+  return lines.map(icsFold).join('\r\n') + '\r\n';
+}
+
 // ---- outputs ----
 const out = new Map();
 out.set('countries.html', indexPage());
@@ -593,12 +670,16 @@ out.set('minimum-wage-europe.html', minWagePage());
 out.set('upcoming.html', upcomingPage());
 out.set('calendar.ics', icsCalendar("Intelligent Payroll: what's coming", CHANGES));
 for (const c of icsCountries) out.set(icsName(c), icsCalendar(`Intelligent Payroll: ${c.name}`, c.entries));
+out.set('deadlines.html', deadlinesPage());
+out.set('deadlines.json', JSON.stringify({ countries: Object.fromEntries(DL_COUNTRIES.map(c => [c.code, { name: c.name, flag: c.flag, slug: c.slug }])), deadlines: DEADLINES }, null, 0) + '\n');
+out.set('deadlines.ics', deadlineCalendar('Intelligent Payroll: payroll deadlines', DEADLINES));
+for (const c of DL_COUNTRIES) out.set(`deadlines/${c.slug}.ics`, deadlineCalendar(`Intelligent Payroll: ${c.name} payroll deadlines`, DEADLINES.filter(d => d.country === c.code)));
 out.set('worker/countries.json', JSON.stringify(Object.fromEntries(list.map(c => [c.code, c.name])), null, 0) + '\n');
 for (const c of list) out.set(`countries/${c.slug}.html`, countryPage(c));
 
 const lastmodOf = u => u === 'keyfacts.html' ? KF_ISO : u === 'minimum-wage-europe.html' ? MW_ISO
-  : u.startsWith('countries/') ? countryModIso(list.find(c => `countries/${c.slug}.html` === u).code) : VERIFIED_ISO;
-const urls = ['', 'countries.html', ...list.map(c => `countries/${c.slug}.html`), 'upcoming.html', 'keyfacts.html', 'minimum-wage-europe.html', 'glossary.html', 'suggest.html', 'privacy.html', 'terms.html'];
+  : u === 'deadlines.html' ? DL_ISO : u.startsWith('countries/') ? countryModIso(list.find(c => `countries/${c.slug}.html` === u).code) : VERIFIED_ISO;
+const urls = ['', 'countries.html', ...list.map(c => `countries/${c.slug}.html`), 'upcoming.html', 'keyfacts.html', 'minimum-wage-europe.html', 'deadlines.html', 'glossary.html', 'suggest.html', 'privacy.html', 'terms.html'];
 out.set('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.map(u => `  <url><loc>${SITE}${u}</loc><lastmod>${lastmodOf(u)}</lastmod></url>`).join('\n')}
@@ -743,7 +824,9 @@ function seoProblems(pages) {
 // ---- write or check ----
 const norm = s => s.replace(/\r\n/g, '\n');
 const dir = path.join(ROOT, 'countries');
-const existing = fs.existsSync(dir) ? fs.readdirSync(dir).filter(f => f.endsWith('.html') || f.endsWith('.ics')).map(f => `countries/${f}`) : [];
+// countries/ holds generated .html and .ics files only; deadlines/ is generated entirely, so every file below it (any depth) counts.
+const listDir = (sub, keep, deep) => { const p = path.join(ROOT, sub); return fs.existsSync(p) ? fs.readdirSync(p, { withFileTypes: true }).flatMap(e => e.isDirectory() ? (deep ? listDir(`${sub}/${e.name}`, keep, deep) : []) : keep(e.name) ? [`${sub}/${e.name}`] : []) : []; };
+const existing = [...listDir('countries', f => f.endsWith('.html') || f.endsWith('.ics')), ...listDir('deadlines', () => true, true)];
 const stale = existing.filter(f => !out.has(f));
 
 if (check) {
@@ -760,8 +843,11 @@ if (check) {
   console.log(`Generated pages are up to date (${out.size} files).`);
 } else {
   fs.mkdirSync(dir, { recursive: true });
-  for (const [f, content] of out) fs.writeFileSync(path.join(ROOT, f), content);
+  for (const [f, content] of out) { fs.mkdirSync(path.dirname(path.join(ROOT, f)), { recursive: true }); fs.writeFileSync(path.join(ROOT, f), content); }
   for (const f of stale) fs.unlinkSync(path.join(ROOT, f));
+  // Empty sub-folders left behind in deadlines/ (deepest first); the folder itself stays.
+  const prune = sub => { const p = path.join(ROOT, sub); for (const e of fs.readdirSync(p, { withFileTypes: true })) if (e.isDirectory()) { prune(`${sub}/${e.name}`); if (!fs.readdirSync(path.join(p, e.name)).length) fs.rmdirSync(path.join(p, e.name)); } };
+  if (fs.existsSync(path.join(ROOT, 'deadlines'))) prune('deadlines');
   console.log(`Wrote ${out.size} files (${list.length} country pages), removed ${stale.length} stale.`);
   for (const p of problems) console.warn('WARNING:', p);
 }

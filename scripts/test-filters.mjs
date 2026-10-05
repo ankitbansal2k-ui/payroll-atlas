@@ -550,5 +550,223 @@ test('p2_7.link.pure', () => {
   assert.equal(F.linkTerms('PAYE NI', g, 'uk'), F.linkTerms('PAYE NI', g, 'uk'), 'stateless');
 });
 
+// ---------- P2-12: compliance deadlines, pure rule expansion ----------
+// CONTRACT (filters.js, exported on the same api object, no DOM, no clock):
+//   MAX_OCCURRENCES = 60
+//   occurrences(deadline, fromIso, count) -> array of 'YYYY-MM-DD' strings (UTC calendar dates, ascending, no duplicates):
+//     the next `count` due dates ON OR AFTER fromIso. count must be an integer >= 0 (0 -> []); counts above MAX_OCCURRENCES are capped to 60.
+//     deadline = {frequency, rule}:
+//       monthly   rule {day: 1..28 | 'last', monthOffset: 0|1}: one due date per calendar month, on `day` ('last' = last day of that month).
+//                 monthOffset only says which pay-period month the date belongs to (due date is in month M+monthOffset), so the sequence of dates is the same.
+//       quarterly rule {day: 1..28 | 'last', monthOffset: 0, months: [m1..m4]}: `day` of each listed calendar month, every year (months may arrive unsorted).
+//       annual    rule {day: 1..days-in-month (Feb at most 28) | 'last', monthOffset: 0, month: 1..12}: `day` of `month`, every year.
+//     Weekends and holidays are NOT shifted. Anything invalid (not an object, unknown frequency, rule missing, day out of range for its month,
+//     months not 4 distinct ints 1..12, bad fromIso such as 2026-02-30 or a non-string, count not an integer) returns []. Never throws, never mutates input,
+//     never reads the clock (no Date.now / new Date()).
+//   upcomingList(deadlines, fromIso, monthsAhead = 12, countries = []) -> [{date, deadline}] for every due date d with fromIso <= d < end,
+//     end = fromIso plus monthsAhead calendar months, day clamped to the length of the target month (2026-01-31 + 1 month = 2026-02-28), end EXCLUSIVE.
+//     monthsAhead must be an integer 1..24 (else []). countries: array of country codes, [] (or omitted) = all; unknown codes match nothing.
+//     Sorted by date, then deadline.country (plain string comparison of the code), then deadline.id. Invalid deadlines are skipped, invalid fromIso -> [].
+test('p2_12.exports', () => {
+  assert.equal(typeof F.occurrences, 'function', 'filters.js must export occurrences');
+  assert.equal(typeof F.upcomingList, 'function', 'filters.js must export upcomingList');
+  assert.equal(F.MAX_OCCURRENCES, 60);
+});
+const DM = (o = {}) => ({ id: 'x-monthly', country: 'uk', frequency: 'monthly', rule: { day: 22, monthOffset: 1 }, ...o });
+const DQ = (o = {}) => ({ id: 'x-quarterly', country: 'germany', frequency: 'quarterly', rule: { day: 10, monthOffset: 0, months: [1, 4, 7, 10] }, ...o });
+const DA = (o = {}) => ({ id: 'x-annual', country: 'uk', frequency: 'annual', rule: { day: 31, monthOffset: 0, month: 5 }, ...o });
+const OCC = (d, from, count) => plain(F.occurrences(d, from, count));
+test('p2_12.occ.monthly_basic_and_offset', () => {
+  assert.deepEqual(OCC(DM(), '2026-10-05', 3), ['2026-10-22', '2026-11-22', '2026-12-22']);
+  assert.deepEqual(OCC(DM({ rule: { day: 22, monthOffset: 0 } }), '2026-10-05', 3), ['2026-10-22', '2026-11-22', '2026-12-22'], 'monthOffset does not change the date sequence');
+  assert.deepEqual(OCC(DM({ rule: { day: 1, monthOffset: 0 } }), '2026-10-05', 2), ['2026-11-01', '2026-12-01']);
+});
+test('p2_12.occ.rollover_dec_to_jan', () => {
+  assert.deepEqual(OCC(DM(), '2026-12-23', 2), ['2027-01-22', '2027-02-22']);
+  assert.deepEqual(OCC(DM(), '2026-12-01', 2), ['2026-12-22', '2027-01-22']);
+});
+test('p2_12.occ.month_offset_one_across_year_end_with_last', () => {
+  const d = DM({ rule: { day: 'last', monthOffset: 1 } });
+  assert.deepEqual(OCC(d, '2026-12-01', 3), ['2026-12-31', '2027-01-31', '2027-02-28']);
+  assert.deepEqual(OCC(d, '2026-12-31', 1), ['2026-12-31'], 'from-date equal to a due date is included');
+  assert.deepEqual(OCC(d, '2027-01-01', 1), ['2027-01-31']);
+});
+test('p2_12.occ.last_in_february_incl_leap_years', () => {
+  const d = DM({ rule: { day: 'last', monthOffset: 0 } });
+  assert.deepEqual(OCC(d, '2027-02-01', 2), ['2027-02-28', '2027-03-31']);
+  assert.deepEqual(OCC(d, '2028-02-01', 2), ['2028-02-29', '2028-03-31'], '2028 is a leap year');
+  assert.deepEqual(OCC(d, '2100-02-01', 1), ['2100-02-28'], '2100 is not a leap year');
+  assert.deepEqual(OCC(d, '2000-02-01', 1), ['2000-02-29'], '2000 is a leap year');
+  assert.deepEqual(OCC(d, '2026-04-01', 1), ['2026-04-30']);
+});
+test('p2_12.occ.day_28_in_february', () => {
+  assert.deepEqual(OCC(DM({ rule: { day: 28, monthOffset: 0 } }), '2027-02-01', 3), ['2027-02-28', '2027-03-28', '2027-04-28']);
+  assert.deepEqual(OCC(DM({ rule: { day: 28, monthOffset: 0 } }), '2028-02-01', 1), ['2028-02-28'], 'day 28 is not the last day in a leap February');
+});
+test('p2_12.occ.from_date_equal_to_due_date_is_included', () => {
+  assert.deepEqual(OCC(DM({ rule: { day: 15, monthOffset: 0 } }), '2026-10-15', 2), ['2026-10-15', '2026-11-15']);
+  assert.deepEqual(OCC(DM({ rule: { day: 15, monthOffset: 0 } }), '2026-10-16', 1), ['2026-11-15']);
+  assert.deepEqual(OCC(DM({ rule: { day: 15, monthOffset: 0 } }), '2026-10-14', 1), ['2026-10-15']);
+});
+test('p2_12.occ.quarterly', () => {
+  assert.deepEqual(OCC(DQ(), '2026-10-11', 3), ['2027-01-10', '2027-04-10', '2027-07-10']);
+  assert.deepEqual(OCC(DQ(), '2026-10-10', 1), ['2026-10-10'], 'from-date equal to a due date');
+  assert.deepEqual(OCC(DQ({ rule: { day: 10, monthOffset: 0, months: [4, 7, 10, 1] } }), '2026-10-11', 3), ['2027-01-10', '2027-04-10', '2027-07-10'], 'unsorted months give the same ascending dates');
+  assert.deepEqual(OCC(DQ({ rule: { day: 'last', monthOffset: 0, months: [3, 6, 9, 12] } }), '2026-01-01', 5), ['2026-03-31', '2026-06-30', '2026-09-30', '2026-12-31', '2027-03-31']);
+  assert.deepEqual(OCC(DQ({ rule: { day: 'last', monthOffset: 0, months: [2, 5, 8, 11] } }), '2028-01-01', 2), ['2028-02-29', '2028-05-31'], 'last day of a leap February');
+  assert.deepEqual(OCC(DQ(), '2026-01-01', 8), ['2026-01-10', '2026-04-10', '2026-07-10', '2026-10-10', '2027-01-10', '2027-04-10', '2027-07-10', '2027-10-10']);
+});
+test('p2_12.occ.annual', () => {
+  assert.deepEqual(OCC(DA(), '2026-06-01', 3), ['2027-05-31', '2028-05-31', '2029-05-31']);
+  assert.deepEqual(OCC(DA(), '2026-05-31', 2), ['2026-05-31', '2027-05-31'], 'from-date equal to the due date');
+  assert.deepEqual(OCC(DA(), '2026-05-30', 1), ['2026-05-31']);
+  assert.deepEqual(OCC(DA({ rule: { day: 'last', monthOffset: 0, month: 2 } }), '2027-03-01', 3), ['2028-02-29', '2029-02-28', '2030-02-28']);
+  assert.deepEqual(OCC(DA({ rule: { day: 28, monthOffset: 0, month: 2 } }), '2028-01-01', 2), ['2028-02-28', '2029-02-28']);
+  assert.deepEqual(OCC(DA({ rule: { day: 'last', monthOffset: 0, month: 12 } }), '2026-12-31', 2), ['2026-12-31', '2027-12-31']);
+  assert.deepEqual(OCC(DA({ rule: { day: 6, monthOffset: 0, month: 7 } }), '2026-12-31', 1), ['2027-07-06']);
+});
+test('p2_12.occ.count_zero_and_cap', () => {
+  assert.deepEqual(OCC(DM(), '2026-10-05', 0), []);
+  for (const big of [61, 100, 1000, 1e9, Number.MAX_SAFE_INTEGER]) {
+    const r = OCC(DM(), '2026-10-05', big);
+    assert.equal(r.length, 60, `count ${big} is capped to 60`);
+    assert.ok(r.every((x, i) => i === 0 || r[i - 1] < x), 'strictly ascending');
+  }
+  assert.equal(OCC(DM(), '2026-10-05', 60).length, 60);
+  assert.equal(OCC(DM(), '2026-10-05', 59).length, 59);
+  assert.equal(OCC(DA(), '2026-10-05', 1000).length, 60, 'annual is capped too');
+  assert.equal(OCC(DA(), '2026-10-05', 1).length, 1);
+});
+test('p2_12.occ.invalid_input_returns_empty_array', () => {
+  const bad = {
+    deadline_null: [null, '2026-10-05', 3], deadline_undefined: [undefined, '2026-10-05', 3], deadline_string: ['monthly', '2026-10-05', 3], deadline_array: [[], '2026-10-05', 3], deadline_empty: [{}, '2026-10-05', 3],
+    no_rule: [{ frequency: 'monthly' }, '2026-10-05', 3], no_frequency: [{ rule: { day: 5, monthOffset: 0 } }, '2026-10-05', 3],
+    freq_unknown: [DM({ frequency: 'weekly' }), '2026-10-05', 3], freq_case: [DM({ frequency: 'Monthly' }), '2026-10-05', 3], freq_proto: [DM({ frequency: 'constructor' }), '2026-10-05', 3],
+    rule_null: [DM({ rule: null }), '2026-10-05', 3], rule_string: [DM({ rule: '22' }), '2026-10-05', 3],
+    day_0: [DM({ rule: { day: 0, monthOffset: 0 } }), '2026-10-05', 3], day_29_monthly: [DM({ rule: { day: 29, monthOffset: 0 } }), '2026-10-05', 3], day_31_monthly: [DM({ rule: { day: 31, monthOffset: 0 } }), '2026-10-05', 3],
+    day_neg: [DM({ rule: { day: -1, monthOffset: 0 } }), '2026-10-05', 3], day_string: [DM({ rule: { day: '22', monthOffset: 0 } }), '2026-10-05', 3], day_float: [DM({ rule: { day: 2.5, monthOffset: 0 } }), '2026-10-05', 3],
+    day_LAST: [DM({ rule: { day: 'LAST', monthOffset: 0 } }), '2026-10-05', 3], day_missing: [DM({ rule: { monthOffset: 0 } }), '2026-10-05', 3],
+    annual_feb_29: [DA({ rule: { day: 29, monthOffset: 0, month: 2 } }), '2026-01-01', 3], annual_feb_30: [DA({ rule: { day: 30, monthOffset: 0, month: 2 } }), '2026-01-01', 3],
+    annual_apr_31: [DA({ rule: { day: 31, monthOffset: 0, month: 4 } }), '2026-01-01', 3], annual_month_0: [DA({ rule: { day: 1, monthOffset: 0, month: 0 } }), '2026-01-01', 3],
+    annual_month_13: [DA({ rule: { day: 1, monthOffset: 0, month: 13 } }), '2026-01-01', 3], annual_no_month: [DA({ rule: { day: 1, monthOffset: 0 } }), '2026-01-01', 3], annual_month_string: [DA({ rule: { day: 1, monthOffset: 0, month: '5' } }), '2026-01-01', 3],
+    quarterly_no_months: [DQ({ rule: { day: 10, monthOffset: 0 } }), '2026-01-01', 3], quarterly_three: [DQ({ rule: { day: 10, monthOffset: 0, months: [1, 4, 7] } }), '2026-01-01', 3],
+    quarterly_five: [DQ({ rule: { day: 10, monthOffset: 0, months: [1, 3, 5, 7, 9] } }), '2026-01-01', 3], quarterly_dupes: [DQ({ rule: { day: 10, monthOffset: 0, months: [1, 4, 4, 10] } }), '2026-01-01', 3],
+    quarterly_13: [DQ({ rule: { day: 10, monthOffset: 0, months: [1, 4, 7, 13] } }), '2026-01-01', 3], quarterly_0: [DQ({ rule: { day: 10, monthOffset: 0, months: [0, 4, 7, 10] } }), '2026-01-01', 3],
+    quarterly_not_array: [DQ({ rule: { day: 10, monthOffset: 0, months: '1,4,7,10' } }), '2026-01-01', 3], quarterly_strings: [DQ({ rule: { day: 10, monthOffset: 0, months: ['1', '4', '7', '10'] } }), '2026-01-01', 3],
+    from_missing: [DM(), undefined, 3], from_null: [DM(), null, 3], from_number: [DM(), 20261005, 3], from_garbage: [DM(), 'garbage', 3], from_empty: [DM(), '', 3], from_feb_30: [DM(), '2026-02-30', 3],
+    from_feb_29_non_leap: [DM(), '2027-02-29', 3], from_month_13: [DM(), '2026-13-01', 3], from_short: [DM(), '2026-1-5', 3], from_datetime: [DM(), '2026-10-05T00:00:00Z', 3], from_spaces: [DM(), ' 2026-10-05', 3], from_date_obj: [DM(), new Date(Date.UTC(2026, 9, 5)), 3],
+    count_missing: [DM(), '2026-10-05', undefined], count_null: [DM(), '2026-10-05', null], count_string: [DM(), '2026-10-05', '3'], count_negative: [DM(), '2026-10-05', -1], count_float: [DM(), '2026-10-05', 2.5],
+    count_nan: [DM(), '2026-10-05', NaN], count_inf: [DM(), '2026-10-05', Infinity], count_array: [DM(), '2026-10-05', [3]],
+  };
+  for (const [name, args] of Object.entries(bad)) {
+    let r; try { r = F.occurrences(...args); } catch (e) { assert.fail(`${name}: must not throw, threw ${e.message}`); }
+    assert.ok(Array.isArray(r) && r.length === 0, `${name}: expected [] got ${JSON.stringify(r)}`);
+  }
+  assert.deepEqual(plain(F.occurrences()), [], 'called with no arguments');
+});
+test('p2_12.occ.pure_deterministic_and_clock_free', () => {
+  const deep = o => { if (o && typeof o === 'object') { Object.values(o).forEach(deep); Object.freeze(o); } return o; };
+  const d = deep(DQ()), before = JSON.stringify(d);
+  const a = OCC(d, '2026-10-11', 6), b = OCC(d, '2026-10-11', 6);
+  assert.deepEqual(a, b); assert.equal(JSON.stringify(d), before, 'input not mutated (and not frozen-write)');
+  assert.ok(!/Date\.now\s*\(|new Date\s*\(\s*\)|performance\.now|Math\.random/.test(src), 'filters.js must not read the clock or randomness');
+  // Run the same code in a sandbox whose clock throws: nothing may touch it.
+  const RealDate = Date;
+  class NoClock extends RealDate { constructor(...args) { if (!args.length) throw new Error('new Date() is forbidden'); super(...args); } static now() { throw new Error('Date.now() is forbidden'); } }
+  const sb = { module: { exports: {} }, Date: NoClock, Math: Object.assign(Object.create(Math), { random() { throw new Error('Math.random is forbidden'); } }) };
+  vm.runInNewContext(src, sb, { filename: 'filters.js' });
+  assert.deepEqual(plain(sb.module.exports.occurrences(DM(), '2026-10-05', 3)), ['2026-10-22', '2026-11-22', '2026-12-22']);
+  assert.ok(sb.module.exports.upcomingList([DM()], '2026-10-05', 2).length >= 2);
+});
+// Independent brute-force oracle: walk the calendar day by day and test the rule.
+const dimOf = (y, m) => new Date(Date.UTC(y, m, 0)).getUTCDate();
+const dueOn = (d, s) => {
+  const y = +s.slice(0, 4), m = +s.slice(5, 7), dd = +s.slice(8, 10), day = d.rule.day === 'last' ? dimOf(y, m) : d.rule.day;
+  if (dd !== day) return false;
+  if (d.frequency === 'monthly') return true;
+  if (d.frequency === 'quarterly') return d.rule.months.includes(m);
+  return m === d.rule.month;
+};
+const brute = (d, from, count) => {
+  const out = []; let t = Date.parse(from + 'T00:00:00Z');
+  for (let i = 0; i < 366 * 14 && out.length < count; i++, t += 864e5) { const s = new Date(t).toISOString().slice(0, 10); if (dueOn(d, s)) out.push(s); }
+  return out;
+};
+test('p2_12.occ.matches_a_brute_force_calendar_walk', () => {
+  const rules = [
+    DM(), DM({ rule: { day: 'last', monthOffset: 1 } }), DM({ rule: { day: 5, monthOffset: 1 } }), DM({ rule: { day: 28, monthOffset: 0 } }), DM({ rule: { day: 1, monthOffset: 0 } }), DM({ rule: { day: 'last', monthOffset: 0 } }),
+    DQ(), DQ({ rule: { day: 'last', monthOffset: 0, months: [2, 5, 8, 11] } }), DQ({ rule: { day: 20, monthOffset: 0, months: [1, 4, 7, 10] } }), DQ({ rule: { day: 28, monthOffset: 0, months: [2, 3, 8, 12] } }),
+    DA(), DA({ rule: { day: 'last', monthOffset: 0, month: 2 } }), DA({ rule: { day: 16, monthOffset: 0, month: 3 } }), DA({ rule: { day: 10, monthOffset: 0, month: 1 } }), DA({ rule: { day: 30, monthOffset: 0, month: 4 } }),
+  ];
+  const froms = ['2026-10-05', '2026-12-31', '2027-01-01', '2028-02-28', '2028-02-29', '2028-03-01', '2099-12-31', '2100-02-01', '2400-02-29'];
+  for (const d of rules) for (const from of froms) for (const n of [1, 2, 5, 13]) {
+    assert.deepEqual(OCC(d, from, n), brute(d, from, n), `${d.frequency} ${JSON.stringify(d.rule)} from ${from} count ${n}`);
+  }
+});
+test('p2_12.occ.output_is_iso_date_strings_only', () => {
+  for (const x of OCC(DM(), '2026-10-05', 12)) assert.match(x, /^\d{4}-\d{2}-\d{2}$/);
+});
+
+// ---- upcomingList ----
+const UL = (...a) => plain(F.upcomingList(...a));
+const ids = r => r.map(x => `${x.date} ${x.deadline.country}/${x.deadline.id}`);
+test('p2_12.upcoming.window_is_from_inclusive_to_end_exclusive', () => {
+  const d = DM({ rule: { day: 5, monthOffset: 0 } });
+  const r = UL([d], '2026-10-05');
+  assert.equal(r[0].date, '2026-10-05', 'from-date included');
+  assert.equal(r.at(-1).date, '2027-09-05', 'default 12 months: 2027-10-05 (= from + 12 months) is excluded');
+  assert.equal(r.length, 12);
+  assert.deepEqual(UL([d], '2026-10-05', 12).map(x => x.date), r.map(x => x.date), 'monthsAhead defaults to 12');
+  assert.deepEqual(UL([d], '2026-10-06', 1).map(x => x.date), ['2026-11-05']);
+  assert.deepEqual(UL([d], '2026-10-05', 1).map(x => x.date), ['2026-10-05'], '2026-11-05 is excluded');
+  assert.equal(UL([d], '2026-10-05', 24).length, 24);
+});
+test('p2_12.upcoming.end_day_is_clamped_to_the_target_month', () => {
+  assert.deepEqual(UL([DM({ rule: { day: 27, monthOffset: 0 } })], '2026-01-31', 1).map(x => x.date), ['2026-02-27']);
+  assert.deepEqual(UL([DM({ rule: { day: 'last', monthOffset: 0 } })], '2026-01-31', 1).map(x => x.date), ['2026-01-31'], 'end = 2026-02-28 exclusive, so Feb 28 is out');
+});
+test('p2_12.upcoming.invalid_arguments', () => {
+  const ok = [DM({ rule: { day: 5, monthOffset: 0 } })];
+  for (const m of [0, -1, 1.5, '12', null, NaN, 25, 100, Infinity]) assert.deepEqual(UL(ok, '2026-10-05', m), [], `monthsAhead ${String(m)}`);
+  for (const f of [undefined, null, 'garbage', '2026-02-30', 20261005]) assert.deepEqual(UL(ok, f), [], `from ${String(f)}`);
+  for (const dl of [undefined, null, 'x', {}, 5]) assert.deepEqual(UL(dl, '2026-10-05'), [], `deadlines ${String(dl)}`);
+  assert.deepEqual(UL([], '2026-10-05'), []);
+  assert.deepEqual(UL([null, 5, {}, DM({ id: 'bad', rule: { day: 99, monthOffset: 0 } }), ...ok], '2026-10-05', 1).map(x => x.deadline.id), ['x-monthly'], 'invalid entries are skipped, valid ones kept');
+});
+test('p2_12.upcoming.country_filter', () => {
+  const a = DM({ id: 'a', country: 'uk', rule: { day: 5, monthOffset: 0 } }), b = DM({ id: 'b', country: 'spain', rule: { day: 6, monthOffset: 0 } }), c = DM({ id: 'c', country: 'germany', rule: { day: 7, monthOffset: 0 } });
+  const set = r => [...new Set(r.map(x => x.deadline.country))].sort();
+  assert.deepEqual(set(UL([a, b, c], '2026-10-01', 2)), ['germany', 'spain', 'uk'], 'default = all');
+  assert.deepEqual(set(UL([a, b, c], '2026-10-01', 2, [])), ['germany', 'spain', 'uk'], 'empty = all');
+  assert.deepEqual(set(UL([a, b, c], '2026-10-01', 2, ['uk', 'spain'])), ['spain', 'uk']);
+  assert.deepEqual(set(UL([a, b, c], '2026-10-01', 2, ['germany'])), ['germany']);
+  assert.deepEqual(UL([a, b, c], '2026-10-01', 2, ['atlantis']), [], 'unknown code matches nothing');
+  assert.deepEqual(set(UL([a, b, c], '2026-10-01', 2, ['uk', 'atlantis'])), ['uk']);
+});
+test('p2_12.upcoming.sorted_with_stable_tie_break_country_then_id', () => {
+  const mk = (id, country, day = 15) => DM({ id, country, rule: { day, monthOffset: 0 } });
+  const input = [mk('z-1', 'spain'), mk('a-2', 'uk'), mk('m-3', 'spain'), mk('b-4', 'germany'), mk('a-5', 'spain'), mk('early', 'uk', 3)];
+  const r = UL(input, '2026-10-01', 2);
+  assert.deepEqual(ids(r), ['2026-10-03 uk/early', '2026-10-15 germany/b-4', '2026-10-15 spain/a-5', '2026-10-15 spain/m-3', '2026-10-15 spain/z-1', '2026-10-15 uk/a-2',
+    '2026-11-03 uk/early', '2026-11-15 germany/b-4', '2026-11-15 spain/a-5', '2026-11-15 spain/m-3', '2026-11-15 spain/z-1', '2026-11-15 uk/a-2']);
+  assert.deepEqual(ids(UL([...input].reverse(), '2026-10-01', 2)), ids(r), 'input order does not matter');
+  assert.deepEqual(ids(UL(input, '2026-10-01', 2)), ids(r), 'deterministic');
+});
+test('p2_12.upcoming.items_carry_the_deadline_and_do_not_mutate', () => {
+  const d = Object.freeze(DM({ rule: Object.freeze({ day: 5, monthOffset: 0 }) }));
+  const r = F.upcomingList([d], '2026-10-01', 1);
+  assert.equal(r.length, 1);
+  assert.deepEqual(Object.keys(r[0]).sort(), ['date', 'deadline']);
+  assert.equal(r[0].deadline.id, 'x-monthly'); assert.equal(r[0].deadline.title, d.title);
+});
+test('p2_12.upcoming.mixed_frequencies_match_brute_force_for_12_months', () => {
+  const set = [DM(), DM({ id: 'm2', rule: { day: 'last', monthOffset: 1 } }), DQ(), DA(), DA({ id: 'a2', rule: { day: 'last', monthOffset: 0, month: 2 } })];
+  const from = '2027-01-15', end = '2028-01-15';
+  const want = [];
+  for (const d of set) for (let t = Date.parse(from + 'T00:00:00Z'); t < Date.parse(end + 'T00:00:00Z'); t += 864e5) { const s = new Date(t).toISOString().slice(0, 10); if (dueOn(d, s)) want.push(`${s} ${d.country}/${d.id}`); }
+  want.sort();
+  assert.deepEqual(ids(UL(set, from, 12)), want);
+});
+
 console.log(`${n} filter tests passed, ${failed} failed.`);
 if (failed) process.exit(1);

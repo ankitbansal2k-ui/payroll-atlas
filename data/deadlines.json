@@ -1,0 +1,461 @@
+[
+  {
+    "id": "uk-paye-payment",
+    "country": "uk",
+    "title": "PAYE and National Insurance payment to HMRC (monthly)",
+    "kind": "payment",
+    "frequency": "monthly",
+    "rule": {
+      "day": 22,
+      "monthOffset": 1
+    },
+    "ruleText": "Pay what you owe by the 22nd of the month (or the 19th if paying by post). The amount is the tax and National Insurance reported on your FPS in the previous tax month, minus any EPS reductions.",
+    "appliesTo": "Employers paying HMRC monthly (other than by cheque through the post)",
+    "sourceUrl": "https://www.gov.uk/running-payroll/paying-hmrc",
+    "sourceLabel": "Source: GOV.UK - Running payroll: Paying HMRC",
+    "checked": "2026-10-04"
+  },
+  {
+    "id": "uk-paye-payment-post",
+    "country": "uk",
+    "title": "PAYE and National Insurance payment to HMRC by post (cheque)",
+    "kind": "payment",
+    "frequency": "monthly",
+    "rule": {
+      "day": 19,
+      "monthOffset": 1
+    },
+    "ruleText": "If you pay by cheque through the post, it must reach HMRC by the 19th of the month.",
+    "appliesTo": "Employers paying HMRC by cheque through the post",
+    "sourceUrl": "https://www.gov.uk/pay-paye-tax",
+    "sourceLabel": "Source: GOV.UK - Pay employers' PAYE: Overview",
+    "checked": "2026-10-04"
+  },
+  {
+    "id": "uk-paye-eps",
+    "country": "uk",
+    "title": "Employer Payment Summary (EPS) to claim reductions",
+    "kind": "filing",
+    "frequency": "monthly",
+    "rule": {
+      "day": 19,
+      "monthOffset": 1
+    },
+    "ruleText": "In the next tax month (which starts on the 6th), you can claim any reduction on what you'll owe HMRC (for example statutory pay) by sending an Employer Payment Summary (EPS) by the 19th.",
+    "appliesTo": "Employers claiming reductions such as statutory pay",
+    "sourceUrl": "https://www.gov.uk/running-payroll/reporting-to-hmrc",
+    "sourceLabel": "Source: GOV.UK - Running payroll: Reporting to HMRC: FPS",
+    "checked": "2026-10-04"
+  },
+  {
+    "id": "uk-p60",
+    "country": "uk",
+    "title": "Give employees a P60",
+    "kind": "filing",
+    "frequency": "annual",
+    "rule": {
+      "day": 31,
+      "monthOffset": 0,
+      "month": 5
+    },
+    "ruleText": "Give your employees a P60 by 31 May (for the tax year ending 5 April).",
+    "appliesTo": "Employers running payroll",
+    "sourceUrl": "https://www.gov.uk/payroll-annual-reporting",
+    "sourceLabel": "Source: GOV.UK - Payroll: annual reporting and tasks: Overview",
+    "checked": "2026-10-04"
+  },
+  {
+    "id": "uk-p11d",
+    "country": "uk",
+    "title": "Report expenses and benefits to HMRC",
+    "kind": "filing",
+    "frequency": "annual",
+    "rule": {
+      "day": 6,
+      "monthOffset": 0,
+      "month": 7
+    },
+    "ruleText": "You must report expenses and benefits to HMRC by 6 July.",
+    "appliesTo": "Employers that provided taxable expenses and benefits",
+    "sourceUrl": "https://www.gov.uk/payroll-annual-reporting/report-expenses-and-benefits",
+    "sourceLabel": "Source: GOV.UK - Payroll: annual reporting and tasks: Report expenses and benefits",
+    "checked": "2026-10-04"
+  },
+  {
+    "id": "uk-class1a-payment",
+    "country": "uk",
+    "title": "Class 1A National Insurance payment on benefits",
+    "kind": "payment",
+    "frequency": "annual",
+    "rule": {
+      "day": 22,
+      "monthOffset": 0,
+      "month": 7
+    },
+    "ruleText": "Your Class 1A National Insurance payment must be received by 22 July (or 19 July if you're paying by post).",
+    "appliesTo": "Employers that provided taxable expenses and benefits",
+    "sourceUrl": "https://www.gov.uk/payroll-annual-reporting/report-expenses-and-benefits",
+    "sourceLabel": "Source: GOV.UK - Payroll: annual reporting and tasks: Report expenses and benefits",
+    "checked": "2026-10-04"
+  },
+  {
+    "id": "de-lohnsteuer-anmeldung-monthly",
+    "country": "germany",
+    "title": "Lohnsteuer-Anmeldung and payment of withheld wage tax (monthly filers)",
+    "kind": "both",
+    "frequency": "monthly",
+    "rule": {
+      "day": 10,
+      "monthOffset": 1
+    },
+    "ruleText": "The employer must file the Lohnsteuer-Anmeldung and pay the withheld wage tax to the Betriebsstättenfinanzamt no later than the tenth day after the end of each Lohnsteuer-Anmeldungszeitraum. The period is in principle the calendar month.",
+    "appliesTo": "Employers whose Lohnsteuer-Anmeldungszeitraum is the calendar month (the default)",
+    "sourceUrl": "https://www.gesetze-im-internet.de/estg/__41a.html",
+    "sourceLabel": "Source: Gesetze im Internet - EStG § 41a Anmeldung und Abführung der Lohnsteuer",
+    "checked": "2026-10-04"
+  },
+  {
+    "id": "de-lohnsteuer-anmeldung-quarterly",
+    "country": "germany",
+    "title": "Lohnsteuer-Anmeldung and payment (quarterly filers)",
+    "kind": "both",
+    "frequency": "quarterly",
+    "rule": {
+      "day": 10,
+      "monthOffset": 0,
+      "months": [
+        1,
+        4,
+        7,
+        10
+      ]
+    },
+    "ruleText": "No later than the tenth day after the end of the calendar quarter (the period is the calendar quarter), if the wage tax to be remitted for the previous calendar year was more than 1,080 euros but not more than 5,000 euros.",
+    "appliesTo": "Employers whose prior-year wage tax was over 1,080 and up to 5,000 euros",
+    "sourceUrl": "https://www.gesetze-im-internet.de/estg/__41a.html",
+    "sourceLabel": "Source: Gesetze im Internet - EStG § 41a Anmeldung und Abführung der Lohnsteuer",
+    "checked": "2026-10-04"
+  },
+  {
+    "id": "de-lohnsteuer-anmeldung-annual",
+    "country": "germany",
+    "title": "Lohnsteuer-Anmeldung and payment (annual filers)",
+    "kind": "both",
+    "frequency": "annual",
+    "rule": {
+      "day": 10,
+      "monthOffset": 0,
+      "month": 1
+    },
+    "ruleText": "No later than the tenth day after the end of the calendar year (the period is the calendar year), if the wage tax to be remitted for the previous calendar year was not more than 1,080 euros.",
+    "appliesTo": "Employers whose prior-year wage tax was 1,080 euros or less",
+    "sourceUrl": "https://www.gesetze-im-internet.de/estg/__41a.html",
+    "sourceLabel": "Source: Gesetze im Internet - EStG § 41a Anmeldung und Abführung der Lohnsteuer",
+    "checked": "2026-10-04"
+  },
+  {
+    "id": "de-lohnsteuerbescheinigung",
+    "country": "germany",
+    "title": "Electronic Lohnsteuerbescheinigung transmitted to tax authority",
+    "kind": "filing",
+    "frequency": "annual",
+    "rule": {
+      "day": "last",
+      "monthOffset": 0,
+      "month": 2
+    },
+    "ruleText": "The electronic Lohnsteuerbescheinigung (§ 41b EStG) is transmitted per § 93c AO after the tax period, by the last day of February of the following year.",
+    "appliesTo": "Employers closing the Lohnkonto for each employee",
+    "sourceUrl": "https://www.gesetze-im-internet.de/ao_1977/__93c.html",
+    "sourceLabel": "Source: Gesetze im Internet - AO § 93c Datenübermittlung durch Dritte",
+    "checked": "2026-10-04"
+  },
+  {
+    "id": "de-uv-jahresmeldung",
+    "country": "germany",
+    "title": "Special annual report to statutory accident insurance (Jahresmeldung zur Unfallversicherung)",
+    "kind": "filing",
+    "frequency": "annual",
+    "rule": {
+      "day": 16,
+      "monthOffset": 0,
+      "month": 2
+    },
+    "ruleText": "For each employee insured in accident insurance in a calendar year, the employer must submit a special annual report (\"zum 16. Februar des Folgejahres\", i.e. due 16 February of the following year).",
+    "appliesTo": "Employers with employees insured in statutory accident insurance",
+    "sourceUrl": "https://www.gesetze-im-internet.de/sgb_4/__28a.html",
+    "sourceLabel": "Source: Gesetze im Internet - SGB IV § 28a Meldepflicht",
+    "checked": "2026-10-04"
+  },
+  {
+    "id": "fr-dsn-under50",
+    "country": "france",
+    "title": "DSN and payment of social contributions (employers under 50 employees)",
+    "kind": "both",
+    "frequency": "monthly",
+    "rule": {
+      "day": 15,
+      "monthOffset": 1
+    },
+    "ruleText": "Monthly DSN no later than the 15th of the month following the paid work period. Social contributions are due on the 15th of month M+1, whatever the salary payment date.",
+    "appliesTo": "Employers with fewer than 50 employees (average annual headcount at 31 December of the previous year)",
+    "weekendNote": "If the deadline falls on a public holiday or non-working day, it moves to the next working day. Stated for the DSN filing deadline; the payment table does not repeat it.",
+    "sourceUrl": "https://entreprendre.service-public.gouv.fr/vosdroits/F34059",
+    "sourceLabel": "Source: Service Public Entreprendre - Déclaration sociale nominative (DSN)",
+    "checked": "2026-10-04"
+  },
+  {
+    "id": "fr-dsn-50plus-same-month",
+    "country": "france",
+    "title": "DSN and payment of social contributions (50+ employees, pay in same month as work)",
+    "kind": "both",
+    "frequency": "monthly",
+    "rule": {
+      "day": 5,
+      "monthOffset": 1
+    },
+    "ruleText": "Monthly DSN no later than the 5th of the month following the paid work period. For salaries paid in month M, social contributions are due on the 5th of month M+1.",
+    "appliesTo": "Employers with 50 employees or more (payment table is headed \"plus de 50\") paying salary in the month worked",
+    "weekendNote": "If the deadline falls on a public holiday or non-working day, it moves to the next working day. Stated for the DSN filing deadline; the payment table does not repeat it.",
+    "sourceUrl": "https://entreprendre.service-public.gouv.fr/vosdroits/F34059",
+    "sourceLabel": "Source: Service Public Entreprendre - Déclaration sociale nominative (DSN)",
+    "checked": "2026-10-04"
+  },
+  {
+    "id": "fr-dsn-50plus-deferred-pay",
+    "country": "france",
+    "title": "Payment of social contributions (50+ employees, salary paid the month after work)",
+    "kind": "payment",
+    "frequency": "monthly",
+    "rule": {
+      "day": 15,
+      "monthOffset": 1
+    },
+    "ruleText": "For salaries paid in month M+1, social contributions are due on the 15th of month M+1.",
+    "appliesTo": "Employers with 50+ employees (table says \"plus de 50\") paying salary in the month after the work period",
+    "weekendNote": "If the deadline falls on a public holiday or non-working day, it moves to the next working day. Stated for the DSN filing deadline; the payment table does not repeat it.",
+    "sourceUrl": "https://entreprendre.service-public.gouv.fr/vosdroits/F34059",
+    "sourceLabel": "Source: Service Public Entreprendre - Déclaration sociale nominative (DSN)",
+    "checked": "2026-10-04"
+  },
+  {
+    "id": "fr-cotisations-quarterly-under11",
+    "country": "france",
+    "title": "Quarterly payment of social contributions (option, under 11 employees)",
+    "kind": "payment",
+    "frequency": "quarterly",
+    "rule": {
+      "day": 15,
+      "monthOffset": 0,
+      "months": [
+        1,
+        4,
+        7,
+        10
+      ]
+    },
+    "ruleText": "Employers with fewer than 11 employees that opted for quarterly payment pay social contributions on the 15th of the first month of the following quarter.",
+    "appliesTo": "Employers with fewer than 11 employees that opted for quarterly payment",
+    "sourceUrl": "https://entreprendre.service-public.gouv.fr/vosdroits/F34059",
+    "sourceLabel": "Source: Service Public Entreprendre - Déclaration sociale nominative (DSN)",
+    "checked": "2026-10-04"
+  },
+  {
+    "id": "nl-loonaangifte-monthly",
+    "country": "netherlands",
+    "title": "Loonaangifte and payment of loonheffingen (monthly period)",
+    "kind": "both",
+    "frequency": "monthly",
+    "rule": {
+      "day": "last",
+      "monthOffset": 1
+    },
+    "ruleText": "For monthly aangifte loonheffingen the latest filing and payment date is the last day of the month after the period (period January 2026: 28-02-2026; December 2026: 31-01-2027).",
+    "appliesTo": "Employers whose aangiftetijdvak is a calendar month",
+    "weekendNote": "If the date is a Saturday, Sunday or public holiday, payment must arrive before that date.",
+    "weekendSourceUrl": "https://stichtingenvereniging.belastingdienst.nl/aangifte/aangifte-loonheffingen/loonheffingen-aangeven-en-betalen/",
+    "sourceUrl": "https://download.belastingdienst.nl/belastingdienst/docs/tijdvakcodes-aangiftedatums-betaaldatums-lh2101t62fd.pdf",
+    "sourceLabel": "Source: Belastingdienst - Aangifte loonheffingen 2026: tijdvakcodes, aangifte- en betaaldatums",
+    "checked": "2026-10-04"
+  },
+  {
+    "id": "nl-loonaangifte-annual",
+    "country": "netherlands",
+    "title": "Loonaangifte and payment of loonheffingen (annual period)",
+    "kind": "both",
+    "frequency": "annual",
+    "rule": {
+      "day": "last",
+      "monthOffset": 0,
+      "month": 1
+    },
+    "ruleText": "For the annual period (tijdvakcode 6400) the latest filing and payment date is 31 January of the following year (31-01-2027 for 2026).",
+    "appliesTo": "Employers with a year as aangiftetijdvak",
+    "weekendNote": "If the date is a Saturday, Sunday or public holiday, payment must arrive before that date.",
+    "weekendSourceUrl": "https://stichtingenvereniging.belastingdienst.nl/aangifte/aangifte-loonheffingen/loonheffingen-aangeven-en-betalen/",
+    "sourceUrl": "https://download.belastingdienst.nl/belastingdienst/docs/tijdvakcodes-aangiftedatums-betaaldatums-lh2101t62fd.pdf",
+    "sourceLabel": "Source: Belastingdienst - Aangifte loonheffingen 2026: tijdvakcodes, aangifte- en betaaldatums",
+    "checked": "2026-10-04"
+  },
+  {
+    "id": "es-modelo-111-quarterly",
+    "country": "spain",
+    "title": "Modelo 111 quarterly withholding return and payment (IRPF on employment income)",
+    "kind": "both",
+    "frequency": "quarterly",
+    "rule": {
+      "day": 20,
+      "monthOffset": 0,
+      "months": [
+        1,
+        4,
+        7,
+        10
+      ]
+    },
+    "ruleText": "Quarterly self-assessment during the first twenty natural days of April, July, October and January, for withholdings of the immediately preceding natural quarter.",
+    "appliesTo": "Withholding agents filing Modelo 111 quarterly (not Grandes empresas or large public administrations)",
+    "weekendNote": "A deadline that falls on a Saturday or non-working day moves to the next working day.",
+    "sourceUrl": "https://sede.agenciatributaria.gob.es/Sede/todas-gestiones/impuestos-tasas/pagos-cuenta/modelo-111-reten_____moniales-imputaciones-renta-autoliquidacion_/instrucciones.html",
+    "sourceLabel": "Source: Agencia Tributaria - Modelo 111 Instrucciones",
+    "checked": "2026-10-04"
+  },
+  {
+    "id": "es-modelo-111-monthly",
+    "country": "spain",
+    "title": "Modelo 111 monthly withholding return and payment (large companies)",
+    "kind": "both",
+    "frequency": "monthly",
+    "rule": {
+      "day": 20,
+      "monthOffset": 1
+    },
+    "ruleText": "Monthly self-assessment during the first twenty natural days of the month following the monthly self-assessment period (Grandes empresas and public administrations with annual budget over 6 million euros).",
+    "appliesTo": "Grandes empresas and public administrations with annual budget over 6 million euros",
+    "weekendNote": "A deadline that falls on a Saturday or non-working day moves to the next working day.",
+    "sourceUrl": "https://sede.agenciatributaria.gob.es/Sede/todas-gestiones/impuestos-tasas/pagos-cuenta/modelo-111-reten_____moniales-imputaciones-renta-autoliquidacion_/instrucciones.html",
+    "sourceLabel": "Source: Agencia Tributaria - Modelo 111 Instrucciones",
+    "checked": "2026-10-04"
+  },
+  {
+    "id": "es-modelo-190",
+    "country": "spain",
+    "title": "Modelo 190 annual summary of withholdings (IRPF on employment income)",
+    "kind": "filing",
+    "frequency": "annual",
+    "rule": {
+      "day": 31,
+      "monthOffset": 0,
+      "month": 1
+    },
+    "ruleText": "You must file Modelo 190 if you filed Modelo 111. The period is, in general, between 1 January and 31 January of the year following the one the annual return covers.",
+    "appliesTo": "Withholding agents that filed Modelo 111",
+    "weekendNote": "If the deadline falls on a non-working day, it ends on the next working day.",
+    "sourceUrl": "https://sede.agenciatributaria.gob.es/Sede/irpf/retenciones-ingresos-cuenta-pagos-fraccionados/retenciones-ingresos-cuenta/obligaciones-retenedor.html",
+    "sourceLabel": "Source: Agencia Tributaria - Retenciones e ingresos a cuenta - Obligaciones como retenedor",
+    "checked": "2026-10-04"
+  },
+  {
+    "id": "es-cotizacion-ss",
+    "country": "spain",
+    "title": "Social security contributions payment (Seguridad Social cuotas)",
+    "kind": "payment",
+    "frequency": "monthly",
+    "rule": {
+      "day": "last",
+      "monthOffset": 1
+    },
+    "ruleText": "Social security contributions are paid within the month following the one in which they accrue, unless the rules of a specific scheme set another period (for example self-employed: within the same month).",
+    "appliesTo": "Employers in the general scheme (other schemes may set another period)",
+    "weekendNote": "If the last day is a non-working day, the deadline ends on the previous working day (RD 1415/2004, art. 8(b)).",
+    "sourceUrl": "https://www.boe.es/buscar/act.php?id=BOE-A-2004-11836",
+    "sourceLabel": "Source: BOE - Real Decreto 1415/2004, Reglamento General de Recaudación de la Seguridad Social (art. 56)",
+    "checked": "2026-10-04"
+  },
+  {
+    "id": "it-ritenute-f24",
+    "country": "italy",
+    "title": "Payment of withholding tax on employee income (F24)",
+    "kind": "payment",
+    "frequency": "monthly",
+    "rule": {
+      "day": 16,
+      "monthOffset": 1
+    },
+    "ruleText": "Withholding agents (sostituti d'imposta) must pay the withholdings by the 16th day of the month following the month of payment, using Form F24.",
+    "appliesTo": "Sostituti d'imposta withholding tax on employee income",
+    "weekendNote": "Payment is on time if made on the first working day after a deadline that falls on a Saturday or public holiday.",
+    "sourceUrl": "https://www.agenziaentrate.gov.it/portale/schede/pagamenti/f24ritreddlavdip/come-e-quando-si-versa",
+    "sourceLabel": "Source: Agenzia delle Entrate - F24 Ritenute reddito lavoro dipendente - Come e quando si versa",
+    "checked": "2026-10-04"
+  },
+  {
+    "id": "it-inps-contributi",
+    "country": "italy",
+    "title": "Payment of INPS social security contributions",
+    "kind": "payment",
+    "frequency": "monthly",
+    "rule": {
+      "day": 16,
+      "monthOffset": 1
+    },
+    "ruleText": "Employers pay social security and welfare contributions by the 16th of the month following the month in which the employee performed the work.",
+    "appliesTo": "Employers of dependent workers",
+    "sourceUrl": "https://www.inps.it/it/it/inps-comunica/diritti-e-obblighi-in-materia-di-sicurezza-sociale-nell-unione-e/per-le-imprese/pagamento-dei-contributi-previdenziali.html",
+    "sourceLabel": "Source: INPS - Pagamento dei contributi previdenziali",
+    "checked": "2026-10-04"
+  },
+  {
+    "id": "it-uniemens",
+    "country": "italy",
+    "title": "UniEmens monthly return to INPS",
+    "kind": "filing",
+    "frequency": "monthly",
+    "rule": {
+      "day": "last",
+      "monthOffset": 1
+    },
+    "ruleText": "For employers, the UniEmens flow must be sent by the last day of the month following the reference month. If the last day is a holiday, the deadline moves to the first working day of the following month.",
+    "appliesTo": "Employers of private companies (employers that used deferred DM10 terms keep their deferred term)",
+    "weekendNote": "If the last day is a public holiday, the deadline moves to the first working day of the following month.",
+    "sourceUrl": "https://www.inps.it/it/it/dettaglio-scheda.it.schede-servizio-strumento.schede-servizi.50252.trasmissione-uniemens-per-datori-di-lavoro-di-aziende-private.html",
+    "sourceLabel": "Source: INPS - Trasmissione UNIEMENS per datori di lavoro di aziende private",
+    "checked": "2026-10-04"
+  },
+  {
+    "id": "it-cu",
+    "country": "italy",
+    "title": "Certificazione Unica: give to payee and transmit to Agenzia delle Entrate",
+    "kind": "filing",
+    "frequency": "annual",
+    "rule": {
+      "day": 16,
+      "monthOffset": 0,
+      "month": 3
+    },
+    "ruleText": "Certificazioni Uniche for employment income, self-employment not habitually exercised and miscellaneous income are transmitted online to the Agenzia delle Entrate by 16 March, and given to the payee by 16 March.",
+    "appliesTo": "Sostituti d'imposta issuing Certificazioni Uniche for employment income",
+    "weekendNote": "Deadlines that fall on a Saturday or public holiday move to the next working day.",
+    "sourceUrl": "https://www.agenziaentrate.gov.it/portale/documents/20143/9602395/CU_istruzioni_2026.pdf/4184818b-05a3-acce-5956-70811c7d2233",
+    "sourceLabel": "Source: Agenzia delle Entrate - Certificazione Unica 2026: istruzioni per la compilazione",
+    "checked": "2026-10-04"
+  },
+  {
+    "id": "it-770",
+    "country": "italy",
+    "title": "Modello 770 annual withholding agent return",
+    "kind": "filing",
+    "frequency": "annual",
+    "rule": {
+      "day": 31,
+      "monthOffset": 0,
+      "month": 10
+    },
+    "ruleText": "The Mod. 770 is filed electronically by 31 October (art. 4, paragraph 4-bis, DPR 322/1998). Terms falling on a Saturday or holiday move to the first working day after.",
+    "appliesTo": "Sostituti d'imposta",
+    "weekendNote": "Deadlines that fall on a Saturday or public holiday move to the next working day.",
+    "sourceUrl": "https://www.agenziaentrate.gov.it/portale/documents/20143/9771798/770_istr_2026.pdf/6175653a-80b7-42a6-cd77-4e48609d0dfc?t=1772197125449",
+    "sourceLabel": "Source: Agenzia delle Entrate - Modello 770/2026: istruzioni",
+    "checked": "2026-10-04"
+  }
+]

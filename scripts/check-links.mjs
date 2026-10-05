@@ -1,4 +1,4 @@
-// Checks every entry's, glossary term's and country fact's sourceUrl. Run: node scripts/check-links.mjs
+// Checks every entry's, glossary term's, country fact's and payroll deadline's sourceUrl. Run: node scripts/check-links.mjs
 // BROKEN (404/410/5xx/network) fails the run. BLOCKED (403/429/999, usually bot protection)
 // is listed for manual review but does not fail the run. Links that redirect to a bare homepage are
 // listed as suspect (the page has probably moved).
@@ -26,6 +26,12 @@ for (const c of JSON.parse(readFileSync(new URL('../data/facts.json', import.met
     if (!urls.has(f.sourceUrl)) urls.set(f.sourceUrl, []);
     urls.get(f.sourceUrl).push(`facts/${c.code}/${f.key}`);
   }
+}
+
+// Payroll deadline sources (data/deadlines.json) are checked too, labelled deadlines/<id>.
+for (const d of JSON.parse(readFileSync(new URL('../data/deadlines.json', import.meta.url), 'utf8'))) {
+  if (!urls.has(d.sourceUrl)) urls.set(d.sourceUrl, []);
+  urls.get(d.sourceUrl).push(`deadlines/${d.id}`);
 }
 
 // Each URL gets one overall time budget (HEAD, GET and the retry together). A server that does not answer in time is listed as

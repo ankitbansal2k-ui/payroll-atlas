@@ -311,5 +311,34 @@ test('p4_2.print_keeps_min_wage_table_on_white_with_borders_and_urls', () => {
   assert.ok(!existsIn(page, 'script') || !/data-action="print"/.test(page));
 });
 
+// ---------- P2-12: deadlines.html prints ----------
+// Contract (see test-site.mjs p2_12.*, test-deadlines.mjs): <div class="table-scroll"><table class="deadlines"> with 5 columns (source links in the last), a
+// <p class="deadline-subscribe"> per country (calendar links), and the JS-built widget in #deadlines-upcoming: <div class="deadline-filter"> (chips, clear button),
+// <h3 class="deadline-month"> and <li class="deadline-item"> with a source link. legal.css @media print keeps the tables and the month list on white paper,
+// hides the filter and every calendar/subscribe control, and prints the source addresses.
+test('p2_12.print_keeps_deadline_tables_and_list_hides_filter_and_calendar_controls', () => {
+  assert.ok(fs.existsSync(path.join(ROOT, 'deadlines.html')), 'deadlines.html not generated');
+  const page = read('deadlines.html'), widget = read('deadlines.js');
+  for (const s of ['.table-scroll', '.deadlines', '.deadlines th', '.deadlines td', '.deadline-subscribe', '.cta']) assert.ok(existsIn(page, s), 'page contains ' + s);
+  for (const s of ['.deadline-filter', '.deadline-item', '.deadline-month']) assert.ok(existsIn(widget, s), 'deadlines.js renders ' + s);
+  assert.ok(page.includes('<link rel="stylesheet" href="legal.css">'));
+  const rs = printRules('legal.css');
+  for (const s of ['.deadline-filter', '.deadline-subscribe']) assert.equal(val(declOf(rs, s, 'display')), 'none', `legal.css @media print must hide ${s}`);
+  assert.equal(val(declOf(rs, '.cta', 'display')), 'none', 'the page-level subscribe / download buttons stay hidden (.cta)');
+  for (const r of rs.filter(r => val(r.decls.display) === 'none')) for (const s of r.selectors) assert.ok(!/deadlines|deadline-item|deadline-month|deadline-items|table-scroll|upcoming|^(main|section|table|tr|td|th|ul|li|h2|h3)$/.test(s.replace(/\.deadline-(filter|subscribe)$/, '')), 'print rule hides the tables or the list: ' + s);
+  assert.equal(val(declOf(rs, '.table-scroll', 'overflow')) || val(declOf(rs, '.table-scroll', 'overflow-x')), 'visible', 'no clipping of columns in print');
+  assert.ok(/^(0|0rem|none|auto)$/.test(val(declOf(rs, '.deadlines', 'min-width'))), 'print resets the screen min-width of .deadlines so 5 columns fit the paper');
+  const cell = rs.find(r => r.selectors.includes('.deadlines th') && r.selectors.includes('.deadlines td'));
+  assert.ok(cell, 'print rule for .deadlines th, .deadlines td');
+  assert.match(cell.decls.border || '', /#000/, 'visible black cell borders'); assert.ok(isWhite(cell.decls.background || cell.decls['background-color']), 'white cell background');
+  for (const sel of ['.deadlines tr', '.deadline-item']) assert.equal(val(declOf(rs, sel, 'break-inside')) || val(declOf(rs, sel, 'page-break-inside')), 'avoid', `${sel} is not split across pages`);
+  assert.equal(val(declOf(rs, '.deadline-month', 'break-after')) || val(declOf(rs, '.deadline-month', 'page-break-after')), 'avoid', 'a month heading stays with its first item');
+  for (const base of ['.deadlines', '.deadline-item']) {
+    const hit = rs.find(r => r.selectors.some(s => s === `${base} a[href^="http"]::after`) && /attr\(\s*href\s*\)/.test(r.decls.content || ''));
+    assert.ok(hit, `need ${base} a[href^="http"]::after { content: " (" attr(href) ")" } so the printed page shows each source address`);
+  }
+  assert.ok(!/data-action="print"/.test(page), 'no print button on the page');
+});
+
 console.log(`\n${pass} passed, ${fail} failed`);
 if (fail) process.exit(1);

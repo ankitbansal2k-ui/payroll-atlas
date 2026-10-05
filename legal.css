@@ -125,6 +125,34 @@ a.term:hover, a.term:focus-visible { color: var(--accent); text-decoration-style
 .min-wage td:last-child { min-width: 16rem; }
 .no-min-wage { overflow-wrap: anywhere; }
 
+/* P2-12: deadlines.html. Five-column tables scroll inside .table-scroll, never the page. */
+.deadlines { border-collapse: collapse; width: 100%; min-width: 48rem; margin: 0.25rem 0 0.75rem; font-size: 0.9rem; }
+.deadlines caption { text-align: left; caption-side: top; color: var(--muted); font-size: 0.85rem; padding-bottom: 0.4rem; }
+.deadlines th, .deadlines td { border: 1px solid var(--border); padding: 0.4rem 0.7rem; text-align: left; vertical-align: top; }
+.deadlines thead th { background: rgba(45, 212, 163, 0.08); color: var(--text); font-weight: 700; white-space: nowrap; }
+.deadlines tbody th { font-weight: 700; min-width: 13rem; }
+.deadlines td { color: var(--text); min-width: 9rem; }
+.deadlines td:last-child { min-width: 12rem; overflow-wrap: anywhere; }
+.deadline-meta { display: block; font-weight: 400; font-size: 0.8rem; color: var(--muted); }
+.deadline-subscribe { margin-bottom: 0.75rem; }
+/* The "next 12 months" list built by deadlines.js */
+#deadlines-upcoming { margin-bottom: 1rem; }
+.deadline-filter { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0 0 1rem; }
+.deadline-chip, .deadline-chip-clear { font: inherit; font-size: 0.9rem; line-height: 1.4; cursor: pointer; max-width: 100%; padding: 0.3rem 0.8rem; border: 1px solid var(--border); border-radius: 999px; background: transparent; color: var(--text); }
+.deadline-chip:hover, .deadline-chip-clear:hover { border-color: var(--accent); }
+.deadline-chip:focus-visible, .deadline-chip-clear:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.deadline-chip[aria-pressed="true"] { background: rgba(45, 212, 163, 0.2); border-color: var(--accent); color: var(--accent); font-weight: 700; }
+.deadline-chip-clear { border-style: dashed; color: var(--accent); }
+.deadline-month { font-size: 1rem; margin: 1.25rem 0 0.4rem; }
+.deadline-items { list-style: none; padding: 0; }
+.deadline-item { padding: 0.5rem 0; border-bottom: 1px solid var(--border); overflow-wrap: anywhere; }
+.deadline-item time { display: block; font-weight: 700; color: var(--accent); }
+.deadline-country { color: var(--muted); font-size: 0.85rem; }
+.deadline-rule { display: block; color: var(--muted); font-size: 0.9rem; }
+.deadline-weekend { display: block; color: var(--muted); font-size: 0.85rem; }
+.deadline-status { color: var(--muted); font-size: 0.9rem; margin-bottom: 0.25rem; }
+.deadline-error, .deadline-empty { padding: 0.75rem 1rem; border: 1px dashed var(--border); border-radius: 6px; color: var(--muted); font-size: 0.9rem; }
+
 /* CP5: print / save as PDF */
 @media print {
   header, .cta, .chips, .az, footer p:last-child { display: none !important; }
@@ -150,4 +178,13 @@ a.term:hover, a.term:focus-visible { color: var(--accent); text-decoration-style
   .min-wage tr { break-inside: avoid; page-break-inside: avoid; }
   .min-wage a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 8pt; word-break: break-all; }
   .no-min-wage li { break-inside: avoid; }
+  /* P2-12: deadline tables and the month list on white paper; the filter and calendar controls do not print; source addresses are printed */
+  .deadline-filter, .deadline-subscribe { display: none !important; }
+  .deadlines { min-width: 0; font-size: 9pt; }
+  .deadlines th, .deadlines td { border: 1px solid #000; background: #fff; white-space: normal; min-width: 0; }
+  .deadlines thead th { white-space: normal; }
+  .deadlines tr, .deadline-item { break-inside: avoid; page-break-inside: avoid; }
+  .deadline-month { break-after: avoid; page-break-after: avoid; }
+  .deadline-item time { color: #000; }
+  .deadlines a[href^="http"]::after, .deadline-item a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 8pt; word-break: break-all; }
 }

@@ -1,0 +1,110 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Intelligent Payroll//Payroll deadlines//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Intelligent Payroll: Italy payroll deadlines
+BEGIN:VEVENT
+UID:it-ritenute-f24@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20261016
+DTEND;VALUE=DATE:20261017
+RRULE:FREQ=MONTHLY;BYMONTHDAY=16
+SUMMARY:Italy: Payment of withholding tax on employee income (F24)
+DESCRIPTION:Withholding agents (sostituti d'imposta) must pay the withholdi
+ ngs by the 16th day of the month following the month of payment\, using Fo
+ rm F24.\nApplies to: Sostituti d'imposta withholding tax on employee incom
+ e\nNon-working day: Payment is on time if made on the first working day af
+ ter a deadline that falls on a Saturday or public holiday.\n\nSource: http
+ s://www.agenziaentrate.gov.it/portale/schede/pagamenti/f24ritreddlavdip/co
+ me-e-quando-si-versa\nDetails: https://www.intelligentpayroll.eu/deadlines
+ .html#italy\n\nFor information only\, not legal or tax advice. Dates follo
+ w the recurring rule stated by the source\; weekends and holidays are not 
+ applied. Sources last checked 4 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#italy
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:it-inps-contributi@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20261016
+DTEND;VALUE=DATE:20261017
+RRULE:FREQ=MONTHLY;BYMONTHDAY=16
+SUMMARY:Italy: Payment of INPS social security contributions
+DESCRIPTION:Employers pay social security and welfare contributions by the 
+ 16th of the month following the month in which the employee performed the 
+ work.\nApplies to: Employers of dependent workers\nNon-working-day rule: c
+ heck the source.\n\nSource: https://www.inps.it/it/it/inps-comunica/diritt
+ i-e-obblighi-in-materia-di-sicurezza-sociale-nell-unione-e/per-le-imprese/
+ pagamento-dei-contributi-previdenziali.html\nDetails: https://www.intellig
+ entpayroll.eu/deadlines.html#italy\n\nFor information only\, not legal or 
+ tax advice. Dates follow the recurring rule stated by the source\; weekend
+ s and holidays are not applied. Sources last checked 4 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#italy
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:it-uniemens@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20261031
+DTEND;VALUE=DATE:20261101
+RRULE:FREQ=MONTHLY;BYMONTHDAY=-1
+SUMMARY:Italy: UniEmens monthly return to INPS
+DESCRIPTION:For employers\, the UniEmens flow must be sent by the last day 
+ of the month following the reference month. If the last day is a holiday\,
+  the deadline moves to the first working day of the following month.\nAppl
+ ies to: Employers of private companies (employers that used deferred DM10 
+ terms keep their deferred term)\nNon-working day: If the last day is a pub
+ lic holiday\, the deadline moves to the first working day of the following
+  month.\n\nSource: https://www.inps.it/it/it/dettaglio-scheda.it.schede-se
+ rvizio-strumento.schede-servizi.50252.trasmissione-uniemens-per-datori-di-
+ lavoro-di-aziende-private.html\nDetails: https://www.intelligentpayroll.eu
+ /deadlines.html#italy\n\nFor information only\, not legal or tax advice. D
+ ates follow the recurring rule stated by the source\; weekends and holiday
+ s are not applied. Sources last checked 4 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#italy
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:it-cu@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20270316
+DTEND;VALUE=DATE:20270317
+RRULE:FREQ=YEARLY;BYMONTH=3;BYMONTHDAY=16
+SUMMARY:Italy: Certificazione Unica: give to payee and transmit to Agenzia 
+ delle Entrate
+DESCRIPTION:Certificazioni Uniche for employment income\, self-employment n
+ ot habitually exercised and miscellaneous income are transmitted online to
+  the Agenzia delle Entrate by 16 March\, and given to the payee by 16 Marc
+ h.\nApplies to: Sostituti d'imposta issuing Certificazioni Uniche for empl
+ oyment income\nNon-working day: Deadlines that fall on a Saturday or publi
+ c holiday move to the next working day.\n\nSource: https://www.agenziaentr
+ ate.gov.it/portale/documents/20143/9602395/CU_istruzioni_2026.pdf/4184818b
+ -05a3-acce-5956-70811c7d2233\nDetails: https://www.intelligentpayroll.eu/d
+ eadlines.html#italy\n\nFor information only\, not legal or tax advice. Dat
+ es follow the recurring rule stated by the source\; weekends and holidays 
+ are not applied. Sources last checked 4 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#italy
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:it-770@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20261031
+DTEND;VALUE=DATE:20261101
+RRULE:FREQ=YEARLY;BYMONTH=10;BYMONTHDAY=31
+SUMMARY:Italy: Modello 770 annual withholding agent return
+DESCRIPTION:The Mod. 770 is filed electronically by 31 October (art. 4\, pa
+ ragraph 4-bis\, DPR 322/1998). Terms falling on a Saturday or holiday move
+  to the first working day after.\nApplies to: Sostituti d'imposta\nNon-wor
+ king day: Deadlines that fall on a Saturday or public holiday move to the 
+ next working day.\n\nSource: https://www.agenziaentrate.gov.it/portale/doc
+ uments/20143/9771798/770_istr_2026.pdf/6175653a-80b7-42a6-cd77-4e48609d0df
+ c?t=1772197125449\nDetails: https://www.intelligentpayroll.eu/deadlines.ht
+ ml#italy\n\nFor information only\, not legal or tax advice. Dates follow t
+ he recurring rule stated by the source\; weekends and holidays are not app
+ lied. Sources last checked 4 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#italy
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR

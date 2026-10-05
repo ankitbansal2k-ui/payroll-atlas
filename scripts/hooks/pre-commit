@@ -55,3 +55,10 @@ if ! node scripts/test-print.mjs >/dev/null; then
   echo "pre-commit: commit blocked. The print stylesheet tests (scripts/test-print.mjs) failed."
   exit 1
 fi
+
+if ! node scripts/test-deadlines.mjs >/dev/null; then
+  node scripts/test-deadlines.mjs
+  echo ""
+  echo "pre-commit: commit blocked. The deadlines page tests (scripts/test-deadlines.mjs) failed."
+  exit 1
+fi

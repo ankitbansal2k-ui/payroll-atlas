@@ -1,0 +1,96 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Intelligent Payroll//Payroll deadlines//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Intelligent Payroll: Spain payroll deadlines
+BEGIN:VEVENT
+UID:es-modelo-111-quarterly@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20261020
+DTEND;VALUE=DATE:20261021
+RRULE:FREQ=MONTHLY;INTERVAL=3;BYMONTHDAY=20
+SUMMARY:Spain: Modelo 111 quarterly withholding return and payment (IRPF on
+  employment income)
+DESCRIPTION:Quarterly self-assessment during the first twenty natural days 
+ of April\, July\, October and January\, for withholdings of the immediatel
+ y preceding natural quarter.\nApplies to: Withholding agents filing Modelo
+  111 quarterly (not Grandes empresas or large public administrations)\nNon
+ -working day: A deadline that falls on a Saturday or non-working day moves
+  to the next working day.\n\nSource: https://sede.agenciatributaria.gob.es
+ /Sede/todas-gestiones/impuestos-tasas/pagos-cuenta/modelo-111-reten_____mo
+ niales-imputaciones-renta-autoliquidacion_/instrucciones.html\nDetails: ht
+ tps://www.intelligentpayroll.eu/deadlines.html#spain\n\nFor information on
+ ly\, not legal or tax advice. Dates follow the recurring rule stated by th
+ e source\; weekends and holidays are not applied. Sources last checked 4 O
+ ctober 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#spain
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:es-modelo-111-monthly@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20261020
+DTEND;VALUE=DATE:20261021
+RRULE:FREQ=MONTHLY;BYMONTHDAY=20
+SUMMARY:Spain: Modelo 111 monthly withholding return and payment (large com
+ panies)
+DESCRIPTION:Monthly self-assessment during the first twenty natural days of
+  the month following the monthly self-assessment period (Grandes empresas 
+ and public administrations with annual budget over 6 million euros).\nAppl
+ ies to: Grandes empresas and public administrations with annual budget ove
+ r 6 million euros\nNon-working day: A deadline that falls on a Saturday or
+  non-working day moves to the next working day.\n\nSource: https://sede.ag
+ enciatributaria.gob.es/Sede/todas-gestiones/impuestos-tasas/pagos-cuenta/m
+ odelo-111-reten_____moniales-imputaciones-renta-autoliquidacion_/instrucci
+ ones.html\nDetails: https://www.intelligentpayroll.eu/deadlines.html#spain
+ \n\nFor information only\, not legal or tax advice. Dates follow the recur
+ ring rule stated by the source\; weekends and holidays are not applied. So
+ urces last checked 4 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#spain
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:es-modelo-190@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20270131
+DTEND;VALUE=DATE:20270201
+RRULE:FREQ=YEARLY;BYMONTH=1;BYMONTHDAY=31
+SUMMARY:Spain: Modelo 190 annual summary of withholdings (IRPF on employmen
+ t income)
+DESCRIPTION:You must file Modelo 190 if you filed Modelo 111. The period is
+ \, in general\, between 1 January and 31 January of the year following the
+  one the annual return covers.\nApplies to: Withholding agents that filed 
+ Modelo 111\nNon-working day: If the deadline falls on a non-working day\, 
+ it ends on the next working day.\n\nSource: https://sede.agenciatributaria
+ .gob.es/Sede/irpf/retenciones-ingresos-cuenta-pagos-fraccionados/retencion
+ es-ingresos-cuenta/obligaciones-retenedor.html\nDetails: https://www.intel
+ ligentpayroll.eu/deadlines.html#spain\n\nFor information only\, not legal 
+ or tax advice. Dates follow the recurring rule stated by the source\; week
+ ends and holidays are not applied. Sources last checked 4 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#spain
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:es-cotizacion-ss@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20261031
+DTEND;VALUE=DATE:20261101
+RRULE:FREQ=MONTHLY;BYMONTHDAY=-1
+SUMMARY:Spain: Social security contributions payment (Seguridad Social cuot
+ as)
+DESCRIPTION:Social security contributions are paid within the month followi
+ ng the one in which they accrue\, unless the rules of a specific scheme se
+ t another period (for example self-employed: within the same month).\nAppl
+ ies to: Employers in the general scheme (other schemes may set another per
+ iod)\nNon-working day: If the last day is a non-working day\, the deadline
+  ends on the previous working day (RD 1415/2004\, art. 8(b)).\n\nSource: h
+ ttps://www.boe.es/buscar/act.php?id=BOE-A-2004-11836\nDetails: https://www
+ .intelligentpayroll.eu/deadlines.html#spain\n\nFor information only\, not 
+ legal or tax advice. Dates follow the recurring rule stated by the source\
+ ; weekends and holidays are not applied. Sources last checked 4 October 20
+ 26.
+URL:https://www.intelligentpayroll.eu/deadlines.html#spain
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR

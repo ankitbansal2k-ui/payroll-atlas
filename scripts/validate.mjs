@@ -6,6 +6,9 @@ import { loadSite } from './load.mjs';
 
 const { html, js, CHANGES, countryToRegion, selects } = loadSite();
 const errors = [];
+// P2-12: the browser script of the deadlines page gets the same guard rules as app.js (read here so the XSS guard below can scan it).
+let deadlinesJs = '';
+try { deadlinesJs = fs.readFileSync(new URL('../deadlines.js', import.meta.url), 'utf8'); } catch { errors.push('deadlines.js: file is missing'); }
 const err = (m) => errors.push(m);
 const CATEGORIES = new Set(['payroll', 'reporting']);
 const REGIONS = new Set(['europe', 'apac', 'menat', 'latam', 'africa']);
@@ -129,17 +132,18 @@ for (const [n, opts] of selects.entries()) {
 // wherever they are interpolated into a template string that ends up in innerHTML.
 {
   const RISKY = /\b(country|countryParam|search|query|term|param|params|countries|selection|state|hlNeedle)\b/; // no aliases: pass state.search to wrappers directly
-  const lines = js.split('\n');
-  lines.forEach((line, i) => {
+  const guard = (name, text) => text.split('\n').forEach((line, i) => {
     if (/^\s*\{country:/.test(line)) return; // data rows
     for (const m of line.matchAll(/\$\{([^}]*)\}/g)) {
       // Drop the parts that are properly escaped, and plain truthiness tests such as `search ? ...`.
       const rest = m[1]
         .replace(/(?:escapeHtml|PayrollFilters\.highlight)\((?:[^()]|\([^()]*\))*\)?/g, '') // escaping wrappers
         .replace(/\b(?:state\.)?(country|countryParam|search|query|term|param|params|countries|selection|state)\s*(\?|&&)/g, '');
-      if (RISKY.test(rest)) err(`app.js:${i + 1}: unescaped user-controlled value in template: ${m[1].trim()}`);
+      if (RISKY.test(rest)) err(`${name}:${i + 1}: unescaped user-controlled value in template: ${m[1].trim()}`);
     }
   });
+  guard('app.js', js);
+  guard('deadlines.js', deadlinesJs);
 }
 
 // CSP guard: the page's content security policy forbids inline code, so the markup and the strings
@@ -152,6 +156,7 @@ for (const [n, opts] of selects.entries()) {
   };
   scan('index.html', html);
   scan('app.js', js);
+  scan('deadlines.js', deadlinesJs);
   if (/<style[\s>]/i.test(html)) err('index.html: inline <style> block (use styles.css)');
   // Only JSON-LD data blocks may be inline: the type must be exactly application/ld+json and the tag must carry nothing else.
   const LD_OPEN = /^<script type="application\/ld\+json">$/i;
@@ -301,6 +306,20 @@ try {
   }
 }
 
+// Shared helpers for the data files below (facts and deadlines).
+const has = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
+const isObj = v => v !== null && typeof v === 'object' && !Array.isArray(v);
+// Non-empty, trimmed, plain text (no markup characters, no control characters or line breaks), optionally length-limited.
+const textProblem = (label, v, max) => {
+  if (typeof v !== 'string' || !v.trim() || v.trim() !== v) return `${label} must be a non-empty trimmed string`;
+  if (/[<>]/.test(v)) return `${label} must be plain text (no < or >)`;
+  if (hasBadChar(v)) return `${label} ${BAD_CHARS_MSG}`;
+  if (max && v.length > max) return `${label} is ${v.length} characters (max ${max})`;
+  return null;
+};
+const utcToday = new Date().toISOString().slice(0, 10);
+const ageDays = iso => Math.floor((Date.parse(utcToday + 'T00:00:00Z') - Date.parse(iso + 'T00:00:00Z')) / 864e5);
+
 // Country key facts (data/facts.json): rendered as the "Key facts" box on the generated country pages.
 // Rules are documented in README.md ("Country key facts").
 {
@@ -309,18 +328,6 @@ try {
   const FACT_FIELDS = new Set(['key', 'label', 'value', 'validFrom', 'note', 'bands', 'sourceUrl', 'sourceLabel', 'checked', 'headline']);
   const HEADLINE_FIELDS = new Set(['amount', 'period', 'scope', 'region', 'statutory']);
   const BAND_FIELDS = new Set(['from', 'to', 'rate']);
-  const has = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
-  const isObj = v => v !== null && typeof v === 'object' && !Array.isArray(v);
-  // Non-empty, trimmed, plain text (no markup characters, no control characters or line breaks), optionally length-limited.
-  const textProblem = (label, v, max) => {
-    if (typeof v !== 'string' || !v.trim() || v.trim() !== v) return `${label} must be a non-empty trimmed string`;
-    if (/[<>]/.test(v)) return `${label} must be plain text (no < or >)`;
-    if (hasBadChar(v)) return `${label} ${BAD_CHARS_MSG}`;
-    if (max && v.length > max) return `${label} is ${v.length} characters (max ${max})`;
-    return null;
-  };
-  const utcToday = new Date().toISOString().slice(0, 10);
-  const ageDays = iso => Math.floor((Date.parse(utcToday + 'T00:00:00Z') - Date.parse(iso + 'T00:00:00Z')) / 864e5);
   let facts = null;
   try { facts = JSON.parse(fs.readFileSync(new URL('../data/facts.json', import.meta.url), 'utf8')); } catch (e) { err('data/facts.json: facts file missing or not valid JSON (' + e.message + ')'); }
   if (facts !== null && !Array.isArray(facts)) err('data/facts.json: facts must be an array of countries');
@@ -402,6 +409,69 @@ try {
           });
         }
       });
+    });
+  }
+}
+
+// Payroll deadlines (data/deadlines.json): rendered on deadlines.html, in deadlines.json and in the .ics calendars.
+// Rules are documented in README.md ("Payroll deadlines").
+{
+  const KEYS = new Set(['id', 'country', 'title', 'kind', 'frequency', 'rule', 'ruleText', 'appliesTo', 'weekendNote', 'weekendSourceUrl', 'sourceUrl', 'sourceLabel', 'checked']);
+  const RULE_KEYS = { monthly: ['day', 'monthOffset'], quarterly: ['day', 'monthOffset', 'months'], annual: ['day', 'monthOffset', 'month'] };
+  const DL_KINDS = ['payment', 'filing', 'both'], DL_FREQS = ['monthly', 'quarterly', 'annual'];
+  const dim = (m) => [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m - 1]; // February: at most 28 (no leap-year dependent day)
+  const isInt = n => typeof n === 'number' && Number.isInteger(n);
+  // Ids may not collide with page anchors on deadlines.html: the reserved ids and every country slug.
+  const RESERVED_IDS = new Set(['upcoming', 'deadlines', ...CHANGES.map(c => slugify(c.name))]);
+  let dl = null;
+  try { dl = JSON.parse(fs.readFileSync(new URL('../data/deadlines.json', import.meta.url), 'utf8')); } catch (e) { err('data/deadlines.json: deadlines file missing or not valid JSON (' + e.message + ')'); }
+  if (dl !== null && !Array.isArray(dl)) err('data/deadlines.json: deadlines must be an array of deadline objects');
+  else if (dl !== null) {
+    const seenIds = new Set();
+    dl.forEach((d, i) => {
+      if (!isObj(d)) { err(`data/deadlines.json[${i}]: deadline must be an object`); return; }
+      const at = `data/deadlines.json[${i}] (${typeof d.id === 'string' ? d.id : '?'}):`;
+      for (const k of Object.keys(d)) if (!KEYS.has(k)) err(`${at} unknown field "${k}" (allowed: ${[...KEYS].join(', ')})`);
+      if (typeof d.id !== 'string' || !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(d.id)) err(`${at} id must be kebab-case (lower-case letters, digits, single hyphens)`);
+      else if (seenIds.has(d.id)) err(`${at} duplicate id "${d.id}"`);
+      else if (RESERVED_IDS.has(d.id)) err(`${at} id "${d.id}" is reserved: it would collide with a page anchor ("upcoming", "deadlines" or a country slug)`);
+      else seenIds.add(d.id);
+      if (typeof d.country !== 'string' || !has(countryToRegion, d.country)) err(`${at} country must be a known country code (as in countryToRegion)`);
+      for (const [k, max, required] of [['title', 120, true], ['ruleText', 300, true], ['appliesTo', 120, false], ['weekendNote', 200, false]]) {
+        if (!required && !has(d, k)) continue;
+        const p = textProblem(k, d[k], max);
+        if (p) err(`${at} ${p}`);
+      }
+      if (has(d, 'weekendSourceUrl')) {
+        if (!has(d, 'weekendNote')) err(`${at} weekendSourceUrl is only allowed together with weekendNote`);
+        const wu = urlProblem(d.weekendSourceUrl);
+        if (wu) err(`${at} weekendSourceUrl ${wu}`);
+      }
+      if (!DL_KINDS.includes(d.kind)) err(`${at} kind must be one of ${DL_KINDS.join(', ')}`);
+      const freq = DL_FREQS.includes(d.frequency) ? d.frequency : null;
+      if (!freq) err(`${at} frequency must be one of ${DL_FREQS.join(', ')}`);
+      const r = d.rule;
+      if (!isObj(r)) err(`${at} rule must be an object`);
+      else {
+        const allowed = freq ? RULE_KEYS[freq] : Object.keys(r);
+        for (const k of Object.keys(r)) if (!allowed.includes(k)) err(`${at} rule unknown field "${k}" (allowed for ${freq}: ${allowed.join(', ')})`);
+        const month = freq === 'annual' && isInt(r.month) && r.month >= 1 && r.month <= 12 ? r.month : null;
+        const maxDay = freq === 'annual' ? (month ? dim(month) : 31) : 28;
+        if (r.day !== 'last' && !(isInt(r.day) && r.day >= 1 && r.day <= maxDay)) err(`${at} rule day must be 'last' or a whole number from 1 to ${maxDay}${freq === 'annual' && month ? ' (the length of that month; February at most 28)' : ''}`);
+        if (freq === 'monthly' && !(r.monthOffset === 0 || r.monthOffset === 1)) err(`${at} rule monthOffset must be 0 or 1 for a monthly deadline`);
+        else if ((freq === 'quarterly' || freq === 'annual') && r.monthOffset !== 0) err(`${at} rule monthOffset must be 0 for a ${freq} deadline`);
+        if (freq === 'quarterly' && !(Array.isArray(r.months) && r.months.length === 4 && r.months.every((m, j) => isInt(m) && m >= 1 && m <= 12 && (j === 0 || m > r.months[j - 1])))) err(`${at} rule months must be 4 distinct whole numbers from 1 to 12 in ascending order (the calendar months in which the due date falls)`);
+        else if (freq === 'quarterly' && !r.months.every(m => (m - r.months[0]) % 3 === 0)) err(`${at} rule months must be every third month (for example [1,4,7,10], [2,5,8,11] or [3,6,9,12]): the quarterly calendar rule repeats every 3 months`);
+        if (freq === 'annual' && !month) err(`${at} rule month must be a whole number from 1 to 12`);
+      }
+      const u = urlProblem(d.sourceUrl);
+      if (u) err(`${at} sourceUrl ${u}`);
+      const sl = textProblem('sourceLabel', d.sourceLabel, 200);
+      if (sl) err(`${at} ${sl}`);
+      else if (!/^Source: .+ - .+/.test(d.sourceLabel)) err(`${at} sourceLabel must look like "Source: <Publisher> - <page title>"`);
+      if (!isIsoDay(d.checked)) err(`${at} checked must be a real YYYY-MM-DD date`);
+      else if (d.checked > TODAY) err(`${at} checked ${d.checked} is in the future (later than ${TODAY})`);
+      else if (ageDays(d.checked) > 365) console.warn(`WARNING: ${at} deadlines checked ${d.checked} is more than 365 days ago; re-check it against the source.`);
     });
   }
 }

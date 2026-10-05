@@ -1,0 +1,54 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Intelligent Payroll//Payroll deadlines//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Intelligent Payroll: Netherlands payroll deadlines
+BEGIN:VEVENT
+UID:nl-loonaangifte-monthly@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20261031
+DTEND;VALUE=DATE:20261101
+RRULE:FREQ=MONTHLY;BYMONTHDAY=-1
+SUMMARY:Netherlands: Loonaangifte and payment of loonheffingen (monthly per
+ iod)
+DESCRIPTION:For monthly aangifte loonheffingen the latest filing and paymen
+ t date is the last day of the month after the period (period January 2026:
+  28-02-2026\; December 2026: 31-01-2027).\nApplies to: Employers whose aan
+ giftetijdvak is a calendar month\nNon-working day: If the date is a Saturd
+ ay\, Sunday or public holiday\, payment must arrive before that date.\nSou
+ rce for non-working-day rule: https://stichtingenvereniging.belastingdiens
+ t.nl/aangifte/aangifte-loonheffingen/loonheffingen-aangeven-en-betalen/\n\
+ nSource: https://download.belastingdienst.nl/belastingdienst/docs/tijdvakc
+ odes-aangiftedatums-betaaldatums-lh2101t62fd.pdf\nDetails: https://www.int
+ elligentpayroll.eu/deadlines.html#netherlands\n\nFor information only\, no
+ t legal or tax advice. Dates follow the recurring rule stated by the sourc
+ e\; weekends and holidays are not applied. Sources last checked 4 October 
+ 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#netherlands
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:nl-loonaangifte-annual@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20270131
+DTEND;VALUE=DATE:20270201
+RRULE:FREQ=YEARLY;BYMONTH=1;BYMONTHDAY=-1
+SUMMARY:Netherlands: Loonaangifte and payment of loonheffingen (annual peri
+ od)
+DESCRIPTION:For the annual period (tijdvakcode 6400) the latest filing and 
+ payment date is 31 January of the following year (31-01-2027 for 2026).\nA
+ pplies to: Employers with a year as aangiftetijdvak\nNon-working day: If t
+ he date is a Saturday\, Sunday or public holiday\, payment must arrive bef
+ ore that date.\nSource for non-working-day rule: https://stichtingenvereni
+ ging.belastingdienst.nl/aangifte/aangifte-loonheffingen/loonheffingen-aang
+ even-en-betalen/\n\nSource: https://download.belastingdienst.nl/belastingd
+ ienst/docs/tijdvakcodes-aangiftedatums-betaaldatums-lh2101t62fd.pdf\nDetai
+ ls: https://www.intelligentpayroll.eu/deadlines.html#netherlands\n\nFor in
+ formation only\, not legal or tax advice. Dates follow the recurring rule 
+ stated by the source\; weekends and holidays are not applied. Sources last
+  checked 4 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#netherlands
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR

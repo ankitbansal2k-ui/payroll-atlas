@@ -1,0 +1,106 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Intelligent Payroll//Payroll deadlines//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Intelligent Payroll: Germany payroll deadlines
+BEGIN:VEVENT
+UID:de-lohnsteuer-anmeldung-monthly@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20261010
+DTEND;VALUE=DATE:20261011
+RRULE:FREQ=MONTHLY;BYMONTHDAY=10
+SUMMARY:Germany: Lohnsteuer-Anmeldung and payment of withheld wage tax (mon
+ thly filers)
+DESCRIPTION:The employer must file the Lohnsteuer-Anmeldung and pay the wit
+ hheld wage tax to the Betriebsstättenfinanzamt no later than the tenth da
+ y after the end of each Lohnsteuer-Anmeldungszeitraum. The period is in pr
+ inciple the calendar month.\nApplies to: Employers whose Lohnsteuer-Anmeld
+ ungszeitraum is the calendar month (the default)\nNon-working-day rule: ch
+ eck the source.\n\nSource: https://www.gesetze-im-internet.de/estg/__41a.h
+ tml\nDetails: https://www.intelligentpayroll.eu/deadlines.html#germany\n\n
+ For information only\, not legal or tax advice. Dates follow the recurring
+  rule stated by the source\; weekends and holidays are not applied. Source
+ s last checked 4 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#germany
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:de-lohnsteuer-anmeldung-quarterly@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20261010
+DTEND;VALUE=DATE:20261011
+RRULE:FREQ=MONTHLY;INTERVAL=3;BYMONTHDAY=10
+SUMMARY:Germany: Lohnsteuer-Anmeldung and payment (quarterly filers)
+DESCRIPTION:No later than the tenth day after the end of the calendar quart
+ er (the period is the calendar quarter)\, if the wage tax to be remitted f
+ or the previous calendar year was more than 1\,080 euros but not more than
+  5\,000 euros.\nApplies to: Employers whose prior-year wage tax was over 1
+ \,080 and up to 5\,000 euros\nNon-working-day rule: check the source.\n\nS
+ ource: https://www.gesetze-im-internet.de/estg/__41a.html\nDetails: https:
+ //www.intelligentpayroll.eu/deadlines.html#germany\n\nFor information only
+ \, not legal or tax advice. Dates follow the recurring rule stated by the 
+ source\; weekends and holidays are not applied. Sources last checked 4 Oct
+ ober 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#germany
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:de-lohnsteuer-anmeldung-annual@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20270110
+DTEND;VALUE=DATE:20270111
+RRULE:FREQ=YEARLY;BYMONTH=1;BYMONTHDAY=10
+SUMMARY:Germany: Lohnsteuer-Anmeldung and payment (annual filers)
+DESCRIPTION:No later than the tenth day after the end of the calendar year 
+ (the period is the calendar year)\, if the wage tax to be remitted for the
+  previous calendar year was not more than 1\,080 euros.\nApplies to: Emplo
+ yers whose prior-year wage tax was 1\,080 euros or less\nNon-working-day r
+ ule: check the source.\n\nSource: https://www.gesetze-im-internet.de/estg/
+ __41a.html\nDetails: https://www.intelligentpayroll.eu/deadlines.html#germ
+ any\n\nFor information only\, not legal or tax advice. Dates follow the re
+ curring rule stated by the source\; weekends and holidays are not applied.
+  Sources last checked 4 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#germany
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:de-lohnsteuerbescheinigung@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20270228
+DTEND;VALUE=DATE:20270301
+RRULE:FREQ=YEARLY;BYMONTH=2;BYMONTHDAY=-1
+SUMMARY:Germany: Electronic Lohnsteuerbescheinigung transmitted to tax auth
+ ority
+DESCRIPTION:The electronic Lohnsteuerbescheinigung (§ 41b EStG) is transmi
+ tted per § 93c AO after the tax period\, by the last day of February of t
+ he following year.\nApplies to: Employers closing the Lohnkonto for each e
+ mployee\nNon-working-day rule: check the source.\n\nSource: https://www.ge
+ setze-im-internet.de/ao_1977/__93c.html\nDetails: https://www.intelligentp
+ ayroll.eu/deadlines.html#germany\n\nFor information only\, not legal or ta
+ x advice. Dates follow the recurring rule stated by the source\; weekends 
+ and holidays are not applied. Sources last checked 4 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#germany
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:de-uv-jahresmeldung@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20270216
+DTEND;VALUE=DATE:20270217
+RRULE:FREQ=YEARLY;BYMONTH=2;BYMONTHDAY=16
+SUMMARY:Germany: Special annual report to statutory accident insurance (Jah
+ resmeldung zur Unfallversicherung)
+DESCRIPTION:For each employee insured in accident insurance in a calendar y
+ ear\, the employer must submit a special annual report ("zum 16. Februar d
+ es Folgejahres"\, i.e. due 16 February of the following year).\nApplies to
+ : Employers with employees insured in statutory accident insurance\nNon-wo
+ rking-day rule: check the source.\n\nSource: https://www.gesetze-im-intern
+ et.de/sgb_4/__28a.html\nDetails: https://www.intelligentpayroll.eu/deadlin
+ es.html#germany\n\nFor information only\, not legal or tax advice. Dates f
+ ollow the recurring rule stated by the source\; weekends and holidays are 
+ not applied. Sources last checked 4 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#germany
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR

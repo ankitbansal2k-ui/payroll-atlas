@@ -1,0 +1,92 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Intelligent Payroll//Payroll deadlines//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Intelligent Payroll: France payroll deadlines
+BEGIN:VEVENT
+UID:fr-dsn-under50@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20261015
+DTEND;VALUE=DATE:20261016
+RRULE:FREQ=MONTHLY;BYMONTHDAY=15
+SUMMARY:France: DSN and payment of social contributions (employers under 50
+  employees)
+DESCRIPTION:Monthly DSN no later than the 15th of the month following the p
+ aid work period. Social contributions are due on the 15th of month M+1\, w
+ hatever the salary payment date.\nApplies to: Employers with fewer than 50
+  employees (average annual headcount at 31 December of the previous year)\
+ nNon-working day: If the deadline falls on a public holiday or non-working
+  day\, it moves to the next working day. Stated for the DSN filing deadlin
+ e\; the payment table does not repeat it.\n\nSource: https://entreprendre.
+ service-public.gouv.fr/vosdroits/F34059\nDetails: https://www.intelligentp
+ ayroll.eu/deadlines.html#france\n\nFor information only\, not legal or tax
+  advice. Dates follow the recurring rule stated by the source\; weekends a
+ nd holidays are not applied. Sources last checked 4 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#france
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:fr-dsn-50plus-same-month@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20261005
+DTEND;VALUE=DATE:20261006
+RRULE:FREQ=MONTHLY;BYMONTHDAY=5
+SUMMARY:France: DSN and payment of social contributions (50+ employees\, pa
+ y in same month as work)
+DESCRIPTION:Monthly DSN no later than the 5th of the month following the pa
+ id work period. For salaries paid in month M\, social contributions are du
+ e on the 5th of month M+1.\nApplies to: Employers with 50 employees or mor
+ e (payment table is headed "plus de 50") paying salary in the month worked
+ \nNon-working day: If the deadline falls on a public holiday or non-workin
+ g day\, it moves to the next working day. Stated for the DSN filing deadli
+ ne\; the payment table does not repeat it.\n\nSource: https://entreprendre
+ .service-public.gouv.fr/vosdroits/F34059\nDetails: https://www.intelligent
+ payroll.eu/deadlines.html#france\n\nFor information only\, not legal or ta
+ x advice. Dates follow the recurring rule stated by the source\; weekends 
+ and holidays are not applied. Sources last checked 4 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#france
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:fr-dsn-50plus-deferred-pay@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20261015
+DTEND;VALUE=DATE:20261016
+RRULE:FREQ=MONTHLY;BYMONTHDAY=15
+SUMMARY:France: Payment of social contributions (50+ employees\, salary pai
+ d the month after work)
+DESCRIPTION:For salaries paid in month M+1\, social contributions are due o
+ n the 15th of month M+1.\nApplies to: Employers with 50+ employees (table 
+ says "plus de 50") paying salary in the month after the work period\nNon-w
+ orking day: If the deadline falls on a public holiday or non-working day\,
+  it moves to the next working day. Stated for the DSN filing deadline\; th
+ e payment table does not repeat it.\n\nSource: https://entreprendre.servic
+ e-public.gouv.fr/vosdroits/F34059\nDetails: https://www.intelligentpayroll
+ .eu/deadlines.html#france\n\nFor information only\, not legal or tax advic
+ e. Dates follow the recurring rule stated by the source\; weekends and hol
+ idays are not applied. Sources last checked 4 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#france
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:fr-cotisations-quarterly-under11@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20261015
+DTEND;VALUE=DATE:20261016
+RRULE:FREQ=MONTHLY;INTERVAL=3;BYMONTHDAY=15
+SUMMARY:France: Quarterly payment of social contributions (option\, under 1
+ 1 employees)
+DESCRIPTION:Employers with fewer than 11 employees that opted for quarterly
+  payment pay social contributions on the 15th of the first month of the fo
+ llowing quarter.\nApplies to: Employers with fewer than 11 employees that 
+ opted for quarterly payment\nNon-working-day rule: check the source.\n\nSo
+ urce: https://entreprendre.service-public.gouv.fr/vosdroits/F34059\nDetail
+ s: https://www.intelligentpayroll.eu/deadlines.html#france\n\nFor informat
+ ion only\, not legal or tax advice. Dates follow the recurring rule stated
+  by the source\; weekends and holidays are not applied. Sources last check
+ ed 4 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#france
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR

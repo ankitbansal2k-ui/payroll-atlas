@@ -23,3 +23,4 @@ jobs:
       - run: node scripts/test-filters.mjs
       - run: node scripts/test-app.mjs
       - run: node scripts/test-print.mjs
+      - run: node scripts/test-deadlines.mjs

@@ -309,7 +309,70 @@
     });
   }
 
-  const api = { canonicalNumber, amountInText, MAX_COUNTRIES, WHENS, STATUS_LABELS, statusOf, formatEffective, CATEGORY_LABELS, WHEN_LABELS, parseCountries, serializeCountries, readSelection, readUrlState, applyFilters, slugify, csvCell, toCsv, csvFilename, coverageDepth, depthBucket, depthClass, highlight, linkTerms, foldForSearch, SEARCH_MAX_LENGTH };
+  // ---- P2-12: recurring payroll deadlines (pure calendar maths on UTC dates; no clock, weekends and holidays are NOT shifted) ----
+  const MAX_OCCURRENCES = 60;
+  const isInt = n => typeof n === 'number' && Number.isInteger(n);
+  const daysIn = (y, m) => (m === 2 ? ((y % 4 === 0 && y % 100 !== 0) || y % 400 === 0 ? 29 : 28) : [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m - 1]);
+  const pad = (n, w) => String(n).padStart(w, '0');
+  const iso = (y, m, d) => pad(y, 4) + '-' + pad(m, 2) + '-' + pad(d, 2);
+  // 'YYYY-MM-DD' (a real calendar day) -> {y, m, d}, else null.
+  function parseIsoDay(s) {
+    const x = typeof s === 'string' ? /^(\d{4})-(\d{2})-(\d{2})$/.exec(s) : null;
+    if (!x) return null;
+    const y = +x[1], m = +x[2], d = +x[3];
+    return m >= 1 && m <= 12 && d >= 1 && d <= daysIn(y, m) ? { y, m, d } : null;
+  }
+  // Validated rule -> {kind, day, months} ('months' = calendar months, ascending, in which the due date falls), or null.
+  function ruleOf(dl) {
+    if (!dl || typeof dl !== 'object' || Array.isArray(dl)) return null;
+    const f = dl.frequency, r = dl.rule;
+    if (f !== 'monthly' && f !== 'quarterly' && f !== 'annual') return null;
+    if (!r || typeof r !== 'object' || Array.isArray(r)) return null;
+    const day = r.day;
+    if (day !== 'last' && !(isInt(day) && day >= 1 && day <= 28 || (f === 'annual' && isInt(day) && isInt(r.month) && r.month >= 1 && r.month <= 12 && r.month !== 2 && day >= 1 && day <= daysIn(2001, r.month)))) return null;
+    if (f === 'monthly') return { day, months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] };
+    if (f === 'annual') return isInt(r.month) && r.month >= 1 && r.month <= 12 ? { day, months: [r.month] } : null;
+    const ms = r.months;
+    if (!Array.isArray(ms) || ms.length !== 4 || !ms.every(m => isInt(m) && m >= 1 && m <= 12) || new Set(ms).size !== 4) return null;
+    return { day, months: ms.slice().sort((a, b) => a - b) };
+  }
+  // The next `count` due dates on or after fromIso, as ascending 'YYYY-MM-DD' strings; invalid input gives [].
+  function occurrences(deadline, fromIso, count) {
+    const rule = ruleOf(deadline), from = parseIsoDay(fromIso);
+    if (!rule || !from || !isInt(count) || count < 0) return [];
+    const want = Math.min(count, MAX_OCCURRENCES), out = [], start = iso(from.y, from.m, from.d);
+    for (let y = from.y; y <= 9999 && out.length < want; y++) {
+      for (const m of rule.months) {
+        if (out.length >= want) break;
+        const s = iso(y, m, rule.day === 'last' ? daysIn(y, m) : rule.day);
+        if (s >= start) out.push(s);
+      }
+    }
+    return out;
+  }
+  // from + n calendar months, the day clamped to the length of the target month (exclusive end of the window).
+  function addMonthsIso(p, n) {
+    const t = p.y * 12 + (p.m - 1) + n, y = Math.floor(t / 12), m = (t % 12) + 1;
+    return iso(y, m, Math.min(p.d, daysIn(y, m)));
+  }
+  // Every due date d with fromIso <= d < fromIso + monthsAhead months, for the given country codes ([] or omitted = all),
+  // as [{date, deadline}] sorted by date, then country code, then id.
+  function upcomingList(deadlines, fromIso, monthsAhead, countries) {
+    const months = monthsAhead === undefined ? 12 : monthsAhead, from = parseIsoDay(fromIso);
+    if (!Array.isArray(deadlines) || !from || !isInt(months) || months < 1 || months > 24) return [];
+    const only = Array.isArray(countries) && countries.length ? countries : null, end = addMonthsIso(from, months), out = [];
+    for (const dl of deadlines) {
+      if (only && !only.includes(dl && dl.country)) continue;
+      for (const date of occurrences(dl, fromIso, MAX_OCCURRENCES)) {
+        if (date >= end) break;
+        out.push({ date, deadline: dl });
+      }
+    }
+    const key = x => [x.date, String(x.deadline.country), String(x.deadline.id)];
+    return out.sort((a, b) => { const p = key(a), q = key(b); for (let i = 0; i < 3; i++) if (p[i] !== q[i]) return p[i] < q[i] ? -1 : 1; return 0; });
+  }
+
+  const api = { occurrences, upcomingList, MAX_OCCURRENCES, canonicalNumber, amountInText, MAX_COUNTRIES, WHENS, STATUS_LABELS, statusOf, formatEffective, CATEGORY_LABELS, WHEN_LABELS, parseCountries, serializeCountries, readSelection, readUrlState, applyFilters, slugify, csvCell, toCsv, csvFilename, coverageDepth, depthBucket, depthClass, highlight, linkTerms, foldForSearch, SEARCH_MAX_LENGTH };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else if (typeof window !== 'undefined') window.PayrollFilters = api;
 })();

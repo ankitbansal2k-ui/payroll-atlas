@@ -1,0 +1,539 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Intelligent Payroll//Payroll deadlines//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Intelligent Payroll: payroll deadlines
+BEGIN:VEVENT
+UID:uk-paye-payment@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20261022
+DTEND;VALUE=DATE:20261023
+RRULE:FREQ=MONTHLY;BYMONTHDAY=22
+SUMMARY:United Kingdom: PAYE and National Insurance payment to HMRC (monthl
+ y)
+DESCRIPTION:Pay what you owe by the 22nd of the month (or the 19th if payin
+ g by post). The amount is the tax and National Insurance reported on your 
+ FPS in the previous tax month\, minus any EPS reductions.\nApplies to: Emp
+ loyers paying HMRC monthly (other than by cheque through the post)\nNon-wo
+ rking-day rule: check the source.\n\nSource: https://www.gov.uk/running-pa
+ yroll/paying-hmrc\nDetails: https://www.intelligentpayroll.eu/deadlines.ht
+ ml#united-kingdom\n\nFor information only\, not legal or tax advice. Dates
+  follow the recurring rule stated by the source\; weekends and holidays ar
+ e not applied. Sources last checked 4 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#united-kingdom
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:uk-paye-payment-post@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20261019
+DTEND;VALUE=DATE:20261020
+RRULE:FREQ=MONTHLY;BYMONTHDAY=19
+SUMMARY:United Kingdom: PAYE and National Insurance payment to HMRC by post
+  (cheque)
+DESCRIPTION:If you pay by cheque through the post\, it must reach HMRC by t
+ he 19th of the month.\nApplies to: Employers paying HMRC by cheque through
+  the post\nNon-working-day rule: check the source.\n\nSource: https://www.
+ gov.uk/pay-paye-tax\nDetails: https://www.intelligentpayroll.eu/deadlines.
+ html#united-kingdom\n\nFor information only\, not legal or tax advice. Dat
+ es follow the recurring rule stated by the source\; weekends and holidays 
+ are not applied. Sources last checked 4 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#united-kingdom
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:uk-paye-eps@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20261019
+DTEND;VALUE=DATE:20261020
+RRULE:FREQ=MONTHLY;BYMONTHDAY=19
+SUMMARY:United Kingdom: Employer Payment Summary (EPS) to claim reductions
+DESCRIPTION:In the next tax month (which starts on the 6th)\, you can claim
+  any reduction on what you'll owe HMRC (for example statutory pay) by send
+ ing an Employer Payment Summary (EPS) by the 19th.\nApplies to: Employers 
+ claiming reductions such as statutory pay\nNon-working-day rule: check the
+  source.\n\nSource: https://www.gov.uk/running-payroll/reporting-to-hmrc\n
+ Details: https://www.intelligentpayroll.eu/deadlines.html#united-kingdom\n
+ \nFor information only\, not legal or tax advice. Dates follow the recurri
+ ng rule stated by the source\; weekends and holidays are not applied. Sour
+ ces last checked 4 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#united-kingdom
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:uk-p60@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20270531
+DTEND;VALUE=DATE:20270601
+RRULE:FREQ=YEARLY;BYMONTH=5;BYMONTHDAY=31
+SUMMARY:United Kingdom: Give employees a P60
+DESCRIPTION:Give your employees a P60 by 31 May (for the tax year ending 5 
+ April).\nApplies to: Employers running payroll\nNon-working-day rule: chec
+ k the source.\n\nSource: https://www.gov.uk/payroll-annual-reporting\nDeta
+ ils: https://www.intelligentpayroll.eu/deadlines.html#united-kingdom\n\nFo
+ r information only\, not legal or tax advice. Dates follow the recurring r
+ ule stated by the source\; weekends and holidays are not applied. Sources 
+ last checked 4 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#united-kingdom
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:uk-p11d@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20270706
+DTEND;VALUE=DATE:20270707
+RRULE:FREQ=YEARLY;BYMONTH=7;BYMONTHDAY=6
+SUMMARY:United Kingdom: Report expenses and benefits to HMRC
+DESCRIPTION:You must report expenses and benefits to HMRC by 6 July.\nAppli
+ es to: Employers that provided taxable expenses and benefits\nNon-working-
+ day rule: check the source.\n\nSource: https://www.gov.uk/payroll-annual-r
+ eporting/report-expenses-and-benefits\nDetails: https://www.intelligentpay
+ roll.eu/deadlines.html#united-kingdom\n\nFor information only\, not legal 
+ or tax advice. Dates follow the recurring rule stated by the source\; week
+ ends and holidays are not applied. Sources last checked 4 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#united-kingdom
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:uk-class1a-payment@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20270722
+DTEND;VALUE=DATE:20270723
+RRULE:FREQ=YEARLY;BYMONTH=7;BYMONTHDAY=22
+SUMMARY:United Kingdom: Class 1A National Insurance payment on benefits
+DESCRIPTION:Your Class 1A National Insurance payment must be received by 22
+  July (or 19 July if you're paying by post).\nApplies to: Employers that p
+ rovided taxable expenses and benefits\nNon-working-day rule: check the sou
+ rce.\n\nSource: https://www.gov.uk/payroll-annual-reporting/report-expense
+ s-and-benefits\nDetails: https://www.intelligentpayroll.eu/deadlines.html#
+ united-kingdom\n\nFor information only\, not legal or tax advice. Dates fo
+ llow the recurring rule stated by the source\; weekends and holidays are n
+ ot applied. Sources last checked 4 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#united-kingdom
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:de-lohnsteuer-anmeldung-monthly@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20261010
+DTEND;VALUE=DATE:20261011
+RRULE:FREQ=MONTHLY;BYMONTHDAY=10
+SUMMARY:Germany: Lohnsteuer-Anmeldung and payment of withheld wage tax (mon
+ thly filers)
+DESCRIPTION:The employer must file the Lohnsteuer-Anmeldung and pay the wit
+ hheld wage tax to the Betriebsstättenfinanzamt no later than the tenth da
+ y after the end of each Lohnsteuer-Anmeldungszeitraum. The period is in pr
+ inciple the calendar month.\nApplies to: Employers whose Lohnsteuer-Anmeld
+ ungszeitraum is the calendar month (the default)\nNon-working-day rule: ch
+ eck the source.\n\nSource: https://www.gesetze-im-internet.de/estg/__41a.h
+ tml\nDetails: https://www.intelligentpayroll.eu/deadlines.html#germany\n\n
+ For information only\, not legal or tax advice. Dates follow the recurring
+  rule stated by the source\; weekends and holidays are not applied. Source
+ s last checked 4 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#germany
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:de-lohnsteuer-anmeldung-quarterly@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20261010
+DTEND;VALUE=DATE:20261011
+RRULE:FREQ=MONTHLY;INTERVAL=3;BYMONTHDAY=10
+SUMMARY:Germany: Lohnsteuer-Anmeldung and payment (quarterly filers)
+DESCRIPTION:No later than the tenth day after the end of the calendar quart
+ er (the period is the calendar quarter)\, if the wage tax to be remitted f
+ or the previous calendar year was more than 1\,080 euros but not more than
+  5\,000 euros.\nApplies to: Employers whose prior-year wage tax was over 1
+ \,080 and up to 5\,000 euros\nNon-working-day rule: check the source.\n\nS
+ ource: https://www.gesetze-im-internet.de/estg/__41a.html\nDetails: https:
+ //www.intelligentpayroll.eu/deadlines.html#germany\n\nFor information only
+ \, not legal or tax advice. Dates follow the recurring rule stated by the 
+ source\; weekends and holidays are not applied. Sources last checked 4 Oct
+ ober 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#germany
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:de-lohnsteuer-anmeldung-annual@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20270110
+DTEND;VALUE=DATE:20270111
+RRULE:FREQ=YEARLY;BYMONTH=1;BYMONTHDAY=10
+SUMMARY:Germany: Lohnsteuer-Anmeldung and payment (annual filers)
+DESCRIPTION:No later than the tenth day after the end of the calendar year 
+ (the period is the calendar year)\, if the wage tax to be remitted for the
+  previous calendar year was not more than 1\,080 euros.\nApplies to: Emplo
+ yers whose prior-year wage tax was 1\,080 euros or less\nNon-working-day r
+ ule: check the source.\n\nSource: https://www.gesetze-im-internet.de/estg/
+ __41a.html\nDetails: https://www.intelligentpayroll.eu/deadlines.html#germ
+ any\n\nFor information only\, not legal or tax advice. Dates follow the re
+ curring rule stated by the source\; weekends and holidays are not applied.
+  Sources last checked 4 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#germany
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:de-lohnsteuerbescheinigung@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20270228
+DTEND;VALUE=DATE:20270301
+RRULE:FREQ=YEARLY;BYMONTH=2;BYMONTHDAY=-1
+SUMMARY:Germany: Electronic Lohnsteuerbescheinigung transmitted to tax auth
+ ority
+DESCRIPTION:The electronic Lohnsteuerbescheinigung (§ 41b EStG) is transmi
+ tted per § 93c AO after the tax period\, by the last day of February of t
+ he following year.\nApplies to: Employers closing the Lohnkonto for each e
+ mployee\nNon-working-day rule: check the source.\n\nSource: https://www.ge
+ setze-im-internet.de/ao_1977/__93c.html\nDetails: https://www.intelligentp
+ ayroll.eu/deadlines.html#germany\n\nFor information only\, not legal or ta
+ x advice. Dates follow the recurring rule stated by the source\; weekends 
+ and holidays are not applied. Sources last checked 4 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#germany
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:de-uv-jahresmeldung@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20270216
+DTEND;VALUE=DATE:20270217
+RRULE:FREQ=YEARLY;BYMONTH=2;BYMONTHDAY=16
+SUMMARY:Germany: Special annual report to statutory accident insurance (Jah
+ resmeldung zur Unfallversicherung)
+DESCRIPTION:For each employee insured in accident insurance in a calendar y
+ ear\, the employer must submit a special annual report ("zum 16. Februar d
+ es Folgejahres"\, i.e. due 16 February of the following year).\nApplies to
+ : Employers with employees insured in statutory accident insurance\nNon-wo
+ rking-day rule: check the source.\n\nSource: https://www.gesetze-im-intern
+ et.de/sgb_4/__28a.html\nDetails: https://www.intelligentpayroll.eu/deadlin
+ es.html#germany\n\nFor information only\, not legal or tax advice. Dates f
+ ollow the recurring rule stated by the source\; weekends and holidays are 
+ not applied. Sources last checked 4 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#germany
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:fr-dsn-under50@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20261015
+DTEND;VALUE=DATE:20261016
+RRULE:FREQ=MONTHLY;BYMONTHDAY=15
+SUMMARY:France: DSN and payment of social contributions (employers under 50
+  employees)
+DESCRIPTION:Monthly DSN no later than the 15th of the month following the p
+ aid work period. Social contributions are due on the 15th of month M+1\, w
+ hatever the salary payment date.\nApplies to: Employers with fewer than 50
+  employees (average annual headcount at 31 December of the previous year)\
+ nNon-working day: If the deadline falls on a public holiday or non-working
+  day\, it moves to the next working day. Stated for the DSN filing deadlin
+ e\; the payment table does not repeat it.\n\nSource: https://entreprendre.
+ service-public.gouv.fr/vosdroits/F34059\nDetails: https://www.intelligentp
+ ayroll.eu/deadlines.html#france\n\nFor information only\, not legal or tax
+  advice. Dates follow the recurring rule stated by the source\; weekends a
+ nd holidays are not applied. Sources last checked 4 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#france
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:fr-dsn-50plus-same-month@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20261005
+DTEND;VALUE=DATE:20261006
+RRULE:FREQ=MONTHLY;BYMONTHDAY=5
+SUMMARY:France: DSN and payment of social contributions (50+ employees\, pa
+ y in same month as work)
+DESCRIPTION:Monthly DSN no later than the 5th of the month following the pa
+ id work period. For salaries paid in month M\, social contributions are du
+ e on the 5th of month M+1.\nApplies to: Employers with 50 employees or mor
+ e (payment table is headed "plus de 50") paying salary in the month worked
+ \nNon-working day: If the deadline falls on a public holiday or non-workin
+ g day\, it moves to the next working day. Stated for the DSN filing deadli
+ ne\; the payment table does not repeat it.\n\nSource: https://entreprendre
+ .service-public.gouv.fr/vosdroits/F34059\nDetails: https://www.intelligent
+ payroll.eu/deadlines.html#france\n\nFor information only\, not legal or ta
+ x advice. Dates follow the recurring rule stated by the source\; weekends 
+ and holidays are not applied. Sources last checked 4 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#france
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:fr-dsn-50plus-deferred-pay@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20261015
+DTEND;VALUE=DATE:20261016
+RRULE:FREQ=MONTHLY;BYMONTHDAY=15
+SUMMARY:France: Payment of social contributions (50+ employees\, salary pai
+ d the month after work)
+DESCRIPTION:For salaries paid in month M+1\, social contributions are due o
+ n the 15th of month M+1.\nApplies to: Employers with 50+ employees (table 
+ says "plus de 50") paying salary in the month after the work period\nNon-w
+ orking day: If the deadline falls on a public holiday or non-working day\,
+  it moves to the next working day. Stated for the DSN filing deadline\; th
+ e payment table does not repeat it.\n\nSource: https://entreprendre.servic
+ e-public.gouv.fr/vosdroits/F34059\nDetails: https://www.intelligentpayroll
+ .eu/deadlines.html#france\n\nFor information only\, not legal or tax advic
+ e. Dates follow the recurring rule stated by the source\; weekends and hol
+ idays are not applied. Sources last checked 4 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#france
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:fr-cotisations-quarterly-under11@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20261015
+DTEND;VALUE=DATE:20261016
+RRULE:FREQ=MONTHLY;INTERVAL=3;BYMONTHDAY=15
+SUMMARY:France: Quarterly payment of social contributions (option\, under 1
+ 1 employees)
+DESCRIPTION:Employers with fewer than 11 employees that opted for quarterly
+  payment pay social contributions on the 15th of the first month of the fo
+ llowing quarter.\nApplies to: Employers with fewer than 11 employees that 
+ opted for quarterly payment\nNon-working-day rule: check the source.\n\nSo
+ urce: https://entreprendre.service-public.gouv.fr/vosdroits/F34059\nDetail
+ s: https://www.intelligentpayroll.eu/deadlines.html#france\n\nFor informat
+ ion only\, not legal or tax advice. Dates follow the recurring rule stated
+  by the source\; weekends and holidays are not applied. Sources last check
+ ed 4 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#france
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:nl-loonaangifte-monthly@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20261031
+DTEND;VALUE=DATE:20261101
+RRULE:FREQ=MONTHLY;BYMONTHDAY=-1
+SUMMARY:Netherlands: Loonaangifte and payment of loonheffingen (monthly per
+ iod)
+DESCRIPTION:For monthly aangifte loonheffingen the latest filing and paymen
+ t date is the last day of the month after the period (period January 2026:
+  28-02-2026\; December 2026: 31-01-2027).\nApplies to: Employers whose aan
+ giftetijdvak is a calendar month\nNon-working day: If the date is a Saturd
+ ay\, Sunday or public holiday\, payment must arrive before that date.\nSou
+ rce for non-working-day rule: https://stichtingenvereniging.belastingdiens
+ t.nl/aangifte/aangifte-loonheffingen/loonheffingen-aangeven-en-betalen/\n\
+ nSource: https://download.belastingdienst.nl/belastingdienst/docs/tijdvakc
+ odes-aangiftedatums-betaaldatums-lh2101t62fd.pdf\nDetails: https://www.int
+ elligentpayroll.eu/deadlines.html#netherlands\n\nFor information only\, no
+ t legal or tax advice. Dates follow the recurring rule stated by the sourc
+ e\; weekends and holidays are not applied. Sources last checked 4 October 
+ 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#netherlands
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:nl-loonaangifte-annual@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20270131
+DTEND;VALUE=DATE:20270201
+RRULE:FREQ=YEARLY;BYMONTH=1;BYMONTHDAY=-1
+SUMMARY:Netherlands: Loonaangifte and payment of loonheffingen (annual peri
+ od)
+DESCRIPTION:For the annual period (tijdvakcode 6400) the latest filing and 
+ payment date is 31 January of the following year (31-01-2027 for 2026).\nA
+ pplies to: Employers with a year as aangiftetijdvak\nNon-working day: If t
+ he date is a Saturday\, Sunday or public holiday\, payment must arrive bef
+ ore that date.\nSource for non-working-day rule: https://stichtingenvereni
+ ging.belastingdienst.nl/aangifte/aangifte-loonheffingen/loonheffingen-aang
+ even-en-betalen/\n\nSource: https://download.belastingdienst.nl/belastingd
+ ienst/docs/tijdvakcodes-aangiftedatums-betaaldatums-lh2101t62fd.pdf\nDetai
+ ls: https://www.intelligentpayroll.eu/deadlines.html#netherlands\n\nFor in
+ formation only\, not legal or tax advice. Dates follow the recurring rule 
+ stated by the source\; weekends and holidays are not applied. Sources last
+  checked 4 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#netherlands
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:es-modelo-111-quarterly@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20261020
+DTEND;VALUE=DATE:20261021
+RRULE:FREQ=MONTHLY;INTERVAL=3;BYMONTHDAY=20
+SUMMARY:Spain: Modelo 111 quarterly withholding return and payment (IRPF on
+  employment income)
+DESCRIPTION:Quarterly self-assessment during the first twenty natural days 
+ of April\, July\, October and January\, for withholdings of the immediatel
+ y preceding natural quarter.\nApplies to: Withholding agents filing Modelo
+  111 quarterly (not Grandes empresas or large public administrations)\nNon
+ -working day: A deadline that falls on a Saturday or non-working day moves
+  to the next working day.\n\nSource: https://sede.agenciatributaria.gob.es
+ /Sede/todas-gestiones/impuestos-tasas/pagos-cuenta/modelo-111-reten_____mo
+ niales-imputaciones-renta-autoliquidacion_/instrucciones.html\nDetails: ht
+ tps://www.intelligentpayroll.eu/deadlines.html#spain\n\nFor information on
+ ly\, not legal or tax advice. Dates follow the recurring rule stated by th
+ e source\; weekends and holidays are not applied. Sources last checked 4 O
+ ctober 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#spain
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:es-modelo-111-monthly@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20261020
+DTEND;VALUE=DATE:20261021
+RRULE:FREQ=MONTHLY;BYMONTHDAY=20
+SUMMARY:Spain: Modelo 111 monthly withholding return and payment (large com
+ panies)
+DESCRIPTION:Monthly self-assessment during the first twenty natural days of
+  the month following the monthly self-assessment period (Grandes empresas 
+ and public administrations with annual budget over 6 million euros).\nAppl
+ ies to: Grandes empresas and public administrations with annual budget ove
+ r 6 million euros\nNon-working day: A deadline that falls on a Saturday or
+  non-working day moves to the next working day.\n\nSource: https://sede.ag
+ enciatributaria.gob.es/Sede/todas-gestiones/impuestos-tasas/pagos-cuenta/m
+ odelo-111-reten_____moniales-imputaciones-renta-autoliquidacion_/instrucci
+ ones.html\nDetails: https://www.intelligentpayroll.eu/deadlines.html#spain
+ \n\nFor information only\, not legal or tax advice. Dates follow the recur
+ ring rule stated by the source\; weekends and holidays are not applied. So
+ urces last checked 4 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#spain
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:es-modelo-190@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20270131
+DTEND;VALUE=DATE:20270201
+RRULE:FREQ=YEARLY;BYMONTH=1;BYMONTHDAY=31
+SUMMARY:Spain: Modelo 190 annual summary of withholdings (IRPF on employmen
+ t income)
+DESCRIPTION:You must file Modelo 190 if you filed Modelo 111. The period is
+ \, in general\, between 1 January and 31 January of the year following the
+  one the annual return covers.\nApplies to: Withholding agents that filed 
+ Modelo 111\nNon-working day: If the deadline falls on a non-working day\, 
+ it ends on the next working day.\n\nSource: https://sede.agenciatributaria
+ .gob.es/Sede/irpf/retenciones-ingresos-cuenta-pagos-fraccionados/retencion
+ es-ingresos-cuenta/obligaciones-retenedor.html\nDetails: https://www.intel
+ ligentpayroll.eu/deadlines.html#spain\n\nFor information only\, not legal 
+ or tax advice. Dates follow the recurring rule stated by the source\; week
+ ends and holidays are not applied. Sources last checked 4 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#spain
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:es-cotizacion-ss@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20261031
+DTEND;VALUE=DATE:20261101
+RRULE:FREQ=MONTHLY;BYMONTHDAY=-1
+SUMMARY:Spain: Social security contributions payment (Seguridad Social cuot
+ as)
+DESCRIPTION:Social security contributions are paid within the month followi
+ ng the one in which they accrue\, unless the rules of a specific scheme se
+ t another period (for example self-employed: within the same month).\nAppl
+ ies to: Employers in the general scheme (other schemes may set another per
+ iod)\nNon-working day: If the last day is a non-working day\, the deadline
+  ends on the previous working day (RD 1415/2004\, art. 8(b)).\n\nSource: h
+ ttps://www.boe.es/buscar/act.php?id=BOE-A-2004-11836\nDetails: https://www
+ .intelligentpayroll.eu/deadlines.html#spain\n\nFor information only\, not 
+ legal or tax advice. Dates follow the recurring rule stated by the source\
+ ; weekends and holidays are not applied. Sources last checked 4 October 20
+ 26.
+URL:https://www.intelligentpayroll.eu/deadlines.html#spain
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:it-ritenute-f24@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20261016
+DTEND;VALUE=DATE:20261017
+RRULE:FREQ=MONTHLY;BYMONTHDAY=16
+SUMMARY:Italy: Payment of withholding tax on employee income (F24)
+DESCRIPTION:Withholding agents (sostituti d'imposta) must pay the withholdi
+ ngs by the 16th day of the month following the month of payment\, using Fo
+ rm F24.\nApplies to: Sostituti d'imposta withholding tax on employee incom
+ e\nNon-working day: Payment is on time if made on the first working day af
+ ter a deadline that falls on a Saturday or public holiday.\n\nSource: http
+ s://www.agenziaentrate.gov.it/portale/schede/pagamenti/f24ritreddlavdip/co
+ me-e-quando-si-versa\nDetails: https://www.intelligentpayroll.eu/deadlines
+ .html#italy\n\nFor information only\, not legal or tax advice. Dates follo
+ w the recurring rule stated by the source\; weekends and holidays are not 
+ applied. Sources last checked 4 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#italy
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:it-inps-contributi@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20261016
+DTEND;VALUE=DATE:20261017
+RRULE:FREQ=MONTHLY;BYMONTHDAY=16
+SUMMARY:Italy: Payment of INPS social security contributions
+DESCRIPTION:Employers pay social security and welfare contributions by the 
+ 16th of the month following the month in which the employee performed the 
+ work.\nApplies to: Employers of dependent workers\nNon-working-day rule: c
+ heck the source.\n\nSource: https://www.inps.it/it/it/inps-comunica/diritt
+ i-e-obblighi-in-materia-di-sicurezza-sociale-nell-unione-e/per-le-imprese/
+ pagamento-dei-contributi-previdenziali.html\nDetails: https://www.intellig
+ entpayroll.eu/deadlines.html#italy\n\nFor information only\, not legal or 
+ tax advice. Dates follow the recurring rule stated by the source\; weekend
+ s and holidays are not applied. Sources last checked 4 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#italy
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:it-uniemens@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20261031
+DTEND;VALUE=DATE:20261101
+RRULE:FREQ=MONTHLY;BYMONTHDAY=-1
+SUMMARY:Italy: UniEmens monthly return to INPS
+DESCRIPTION:For employers\, the UniEmens flow must be sent by the last day 
+ of the month following the reference month. If the last day is a holiday\,
+  the deadline moves to the first working day of the following month.\nAppl
+ ies to: Employers of private companies (employers that used deferred DM10 
+ terms keep their deferred term)\nNon-working day: If the last day is a pub
+ lic holiday\, the deadline moves to the first working day of the following
+  month.\n\nSource: https://www.inps.it/it/it/dettaglio-scheda.it.schede-se
+ rvizio-strumento.schede-servizi.50252.trasmissione-uniemens-per-datori-di-
+ lavoro-di-aziende-private.html\nDetails: https://www.intelligentpayroll.eu
+ /deadlines.html#italy\n\nFor information only\, not legal or tax advice. D
+ ates follow the recurring rule stated by the source\; weekends and holiday
+ s are not applied. Sources last checked 4 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#italy
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:it-cu@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20270316
+DTEND;VALUE=DATE:20270317
+RRULE:FREQ=YEARLY;BYMONTH=3;BYMONTHDAY=16
+SUMMARY:Italy: Certificazione Unica: give to payee and transmit to Agenzia 
+ delle Entrate
+DESCRIPTION:Certificazioni Uniche for employment income\, self-employment n
+ ot habitually exercised and miscellaneous income are transmitted online to
+  the Agenzia delle Entrate by 16 March\, and given to the payee by 16 Marc
+ h.\nApplies to: Sostituti d'imposta issuing Certificazioni Uniche for empl
+ oyment income\nNon-working day: Deadlines that fall on a Saturday or publi
+ c holiday move to the next working day.\n\nSource: https://www.agenziaentr
+ ate.gov.it/portale/documents/20143/9602395/CU_istruzioni_2026.pdf/4184818b
+ -05a3-acce-5956-70811c7d2233\nDetails: https://www.intelligentpayroll.eu/d
+ eadlines.html#italy\n\nFor information only\, not legal or tax advice. Dat
+ es follow the recurring rule stated by the source\; weekends and holidays 
+ are not applied. Sources last checked 4 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#italy
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:it-770@intelligentpayroll.eu
+DTSTAMP:20261004T000000Z
+DTSTART;VALUE=DATE:20261031
+DTEND;VALUE=DATE:20261101
+RRULE:FREQ=YEARLY;BYMONTH=10;BYMONTHDAY=31
+SUMMARY:Italy: Modello 770 annual withholding agent return
+DESCRIPTION:The Mod. 770 is filed electronically by 31 October (art. 4\, pa
+ ragraph 4-bis\, DPR 322/1998). Terms falling on a Saturday or holiday move
+  to the first working day after.\nApplies to: Sostituti d'imposta\nNon-wor
+ king day: Deadlines that fall on a Saturday or public holiday move to the 
+ next working day.\n\nSource: https://www.agenziaentrate.gov.it/portale/doc
+ uments/20143/9771798/770_istr_2026.pdf/6175653a-80b7-42a6-cd77-4e48609d0df
+ c?t=1772197125449\nDetails: https://www.intelligentpayroll.eu/deadlines.ht
+ ml#italy\n\nFor information only\, not legal or tax advice. Dates follow t
+ he recurring rule stated by the source\; weekends and holidays are not app
+ lied. Sources last checked 4 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#italy
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR
