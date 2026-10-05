@@ -321,7 +321,7 @@ const DROPPED = ['cn-vat', 'do-reporting', 'qa-reporting-upcoming', 'bh-tax-upco
 test('p2_4.entries_removed', () => {
   // CHANGES comes from another vm realm: spread into a local array before strict comparison.
   assert.deepEqual([...CHANGES.filter(e => DROPPED.includes(e.section)).map(key)], [], 'dropped sections still in CHANGES');
-  assert.equal(CHANGES.length, 172);
+  assert.equal(CHANGES.length, 182);
   assert.ok(CHANGES.every(e => ['payroll', 'reporting'].includes(e.category)), 'category must be payroll|reporting');
 });
 test('p2_4.countries_keep_entries', () => {
