@@ -1488,6 +1488,12 @@ const keysOf = o => Object.keys(o).sort().join(',');
 const ldStrings = (v, out = []) => { if (typeof v === 'string') out.push(v); else if (v && typeof v === 'object') for (const x of Object.values(v)) ldStrings(x, out); return out; };
 const slugToCode = new Map(CHANGES.map(e => [P2.slugify(e.name), e.country]));
 const countryEntries = code => CHANGES.filter(e => e.country === code);
+// P4-3: pages built from data files are dated by THEIR data (newest 'checked'), not by the site-wide LAST_VERIFIED.
+const maxIso = a => a.reduce((m, x) => (x > m ? x : m), '0000-00-00');
+const mwDateOf = (facts, fallback) => { const d = []; for (const c of facts) for (const f of c.facts || []) if (f.key === 'minimumWage' && f.headline) d.push(f.checked); return d.length ? maxIso(d) : fallback; };
+const kfDateOf = (facts, fallback) => { const d = []; for (const c of facts) for (const f of c.facts || []) d.push(f.checked); return d.length ? maxIso(d) : fallback; };
+const countryModOf = (facts, code, lv) => maxIso([lv, ...(facts.find(c => c.code === code)?.facts || []).map(f => f.checked)]);
+const sitemapMod = (xml, file) => { const m = xml.match(new RegExp('<loc>' + (SITE_URL + file).replace(/[.\/]/g, '\\$&') + '</loc><lastmod>([^<]+)</lastmod>')); assert.ok(m, 'sitemap entry for ' + (file || 'home')); return m[1]; };
 const inTemp = (s, file, fn) => { const p = path.join(s.dir, file); fs.writeFileSync(p, fn(fs.readFileSync(p, 'utf8'))); };
 
 test('p4_1.country_titles_and_descriptions_follow_the_formulas', () => {
@@ -1838,7 +1844,7 @@ test('p4_1.sitemap_lists_exactly_the_public_pages_with_lastmod_and_robots_points
   assert.equal(entries.length, (x.match(/<url>/g) || []).length, 'every <url> has loc and lastmod');
   assert.deepEqual(entries.map(e => e[1]).sort(), publicPages().map(urlOfPage).sort(), 'sitemap = index + every generated page (incl. keyfacts.html), nothing else (no 404.html)');
   for (const [, loc, mod] of entries) assert.ok(isDay(mod), `${loc}: lastmod ${mod}`);
-  assert.equal(entries.find(e => e[1] === SITE_URL + 'keyfacts.html')[2], VER22, 'keyfacts.html lastmod = last verified date');
+  assert.equal(entries.find(e => e[1] === SITE_URL + 'keyfacts.html')[2], kfDateOf(loadFacts(), VER22), 'keyfacts.html lastmod = newest checked date over ALL facts (P4-3; was LAST_VERIFIED)');
   const rb = read('robots.txt');
   assert.match(rb, /^Sitemap: https:\/\/www\.intelligentpayroll\.eu\/sitemap\.xml$/m); assert.ok(!/^\s*Disallow:\s*\/\s*$/m.test(rb), 'robots.txt does not block the site');
 });
@@ -2052,7 +2058,7 @@ test('p4_2.page_exists_with_seo_head_jsonld_and_sitemap', () => {
   const bc = byType(ldGraph(h, MW_FILE), 'BreadcrumbList');
   assert.equal(bc.length, 1);
   assert.deepEqual(bc[0].itemListElement.map(i => [i.position, i.name, i.item]), [[1, 'Home', SITE_URL], [2, 'Minimum wage in Europe', url]]);
-  assert.match(read('sitemap.xml'), new RegExp(`<loc>${url.replace(/\./g, '\\.')}</loc><lastmod>${VER22}</lastmod>`), 'in sitemap.xml with lastmod = last verified');
+  assert.match(read('sitemap.xml'), new RegExp(`<loc>${url.replace(/\./g, '\\.')}</loc><lastmod>${mwDateOf(loadFacts(), VER22)}</lastmod>`), 'in sitemap.xml with lastmod = newest checked date of the displayed minimumWage facts (P4-3; was LAST_VERIFIED)');
   assert.ok(publicPages().includes(MW_FILE), 'part of the public page set (SEO and uniqueness tests cover it)');
 });
 test('p4_2.page_links_footers_keyfacts_and_no_nav_change', () => {
@@ -2130,7 +2136,7 @@ test('p4_2.fixture_page_is_data_driven_and_deterministic', () => {
     assert.ok(got.none.items[0].includes('<span class="note">Sectoral agreements set the floors &amp; &quot;minimums&quot;.</span>'), 'note shown and escaped: ' + got.none.items[0]);
     assert.ok(!/Poland|Germany|Sweden/.test(got.main), 'no hard-coded countries');
     const sx = seoOf(h, MW_FILE); assert.equal(sx.title, expectedMwTitle('2027'), 'title uses the fixture year'); assert.ok(/(^|\D)1(\D|$)/.test(sx.desc), 'description names 1 country: ' + sx.desc);
-    assert.match(fs.readFileSync(path.join(s.dir, 'sitemap.xml'), 'utf8'), /minimum-wage-europe\.html<\/loc><lastmod>2027-02-03<\/lastmod>/);
+    assert.match(fs.readFileSync(path.join(s.dir, 'sitemap.xml'), 'utf8'), /minimum-wage-europe\.html<\/loc><lastmod>2026-10-01<\/lastmod>/, 'lastmod = the fixture facts checked date 2026-10-01, not LAST_VERIFIED 2027-02-03 (P4-3)');
     assert.ok(fs.readFileSync(path.join(s.dir, 'keyfacts.html'), 'utf8').includes('href="minimum-wage-europe.html"'));
     const a = h; s.run('build-pages.mjs'); assert.equal(fs.readFileSync(file, 'utf8'), a, 'second build byte-identical');
     // sorted by name regardless of file order, hourly column used for hour amounts
@@ -2212,6 +2218,125 @@ test('p4_2.readme_and_example', () => {
   assert.ok(!/\(WebSite, Organization, FAQPage\)/.test(seo) && !/update the FAQPage/.test(seo) && !/FAQPage JSON-LD does not match/.test(seo), 'README On-page SEO no longer describes FAQ structured data');
   assert.match(seo, /WebSite, Organization/); assert.match(seo, /minimum-wage-europe/, 'On-page SEO documents the new page title/description');
   assert.match(seo, /no FAQ|without FAQ|FAQ structured data (was|is) removed|no FAQPage/i, 'README states that the visible FAQ has no structured data');
+});
+
+// ---------- P4-3: pages built from data files carry THEIR OWN data date ----------
+// CONTRACT
+//  FACT_DATE(page) = the newest ISO 'checked' among the facts the page displays; the site-wide LAST_VERIFIED is NOT changed.
+//  minimum-wage-europe.html: facts = minimumWage facts that have a headline (table rows AND the no-statutory list; a minimumWage fact without headline
+//    and every other key are ignored). description ends "... checked <D>." (D = FACT_DATE as 'd MMMM yyyy'; case of "checked" not asserted);
+//    page footer note "Sources last checked <D>."; sitemap lastmod = FACT_DATE (ISO). h1/title/caption YEAR stays LAST_VERIFIED's year.
+//  keyfacts.html: FACT_DATE = newest 'checked' over ALL facts in data/facts.json; footer note and sitemap lastmod use it, no other date appears.
+//  Country pages: page-level meta line, description and footer note keep LAST_VERIFIED; sitemap lastmod = max(LAST_VERIFIED, newest 'checked' of that country's facts).
+//  glossary.html: sitemap lastmod = newest glossary 'checked' (existing logic). Pages without data dates (index, countries, upcoming, suggest) keep LAST_VERIFIED
+//    in footer and sitemap. privacy/terms keep operator.legalUpdated.
+//  No facts for a page (empty facts.json): FACT_DATE falls back to LAST_VERIFIED. Output stays deterministic; build-pages --check tracks it and the SEO checks pass.
+//  The shared footer() helper takes an optional date override (internal; observable only through the page output above).
+const hasWords = (h, d) => h.includes(fmtLong(d));
+test('p4_3.real_min_wage_page_is_dated_by_its_own_facts', () => {
+  const facts = loadFacts(), D = mwDateOf(facts, VER22), h = read(MW_FILE), s = seoOf(h, MW_FILE);
+  assert.match(D, /^\d{4}-\d{2}-\d{2}$/);
+  assert.ok(s.desc.toLowerCase().endsWith('checked ' + fmtLong(D).toLowerCase() + '.'), 'description ends with "checked ' + fmtLong(D) + '.": ' + s.desc);
+  assert.ok(footerOf(h).includes('Sources last checked ' + fmtLong(D) + '.'), 'footer note uses the facts date ' + fmtLong(D));
+  if (D !== VER22) assert.ok(!hasWords(h, VER22), 'the page must not state the site-wide ' + fmtLong(VER22) + ' (the reported bug)');
+  assert.equal(sitemapMod(read('sitemap.xml'), MW_FILE), D, 'sitemap lastmod = FACT_DATE');
+  assert.ok(s.desc.length >= DESC_MIN && s.desc.length <= DESC_MAX, 'description length ' + s.desc.length);
+});
+test('p4_3.real_keyfacts_page_is_dated_by_its_own_facts', () => {
+  const facts = loadFacts(), D = kfDateOf(facts, VER22), h = read('keyfacts.html'), s = seoOf(h, 'keyfacts.html');
+  assert.ok(footerOf(h).includes('Sources last checked ' + fmtLong(D) + '.'), 'footer note uses the facts date ' + fmtLong(D));
+  if (D !== VER22) assert.ok(!hasWords(h, VER22), 'keyfacts.html must not state the site-wide ' + fmtLong(VER22));
+  if (/checked/i.test(s.desc)) assert.ok(s.desc.includes(fmtLong(D)), 'if the description states a check date it is the facts date');
+  assert.equal(sitemapMod(read('sitemap.xml'), 'keyfacts.html'), D, 'sitemap lastmod = newest checked over all facts');
+});
+test('p4_3.real_country_and_other_pages_keep_last_verified_text_but_sitemap_follows_data', () => {
+  const x = read('sitemap.xml'), facts = loadFacts(), files = countryFiles.filter(f => f.endsWith('.html'));
+  assert.equal(files.length, 75);
+  for (const f of files) {
+    const code = slugToCode.get(f.replace(/\.html$/, '')), h = read('countries/' + f);
+    assert.equal(sitemapMod(x, 'countries/' + f), countryModOf(facts, code, VER22), f + ': lastmod = max(LAST_VERIFIED, newest checked of its facts)');
+    assert.ok(footerOf(h).includes('Sources last checked ' + fmtLong(VER22) + '.'), f + ': page-level footer note stays LAST_VERIFIED');
+    assert.ok(h.includes('sources last checked ' + fmtLong(VER22) + '</p>'), f + ': meta line stays LAST_VERIFIED');
+    assert.ok(seoOf(h, f).desc.endsWith('checked ' + fmtLong(VER22) + '.'), f + ': description stays LAST_VERIFIED');
+  }
+  for (const f of ['countries.html', 'upcoming.html', 'suggest.html']) { assert.equal(sitemapMod(x, f), VER22, f + ': no data dates, lastmod = LAST_VERIFIED'); assert.ok(footerOf(read(f)).includes('Sources last checked ' + fmtLong(VER22) + '.'), f + ': footer'); }
+  assert.equal(sitemapMod(x, ''), VER22, 'index lastmod = LAST_VERIFIED');
+  assert.equal(sitemapMod(x, 'glossary.html'), maxIso(JSON.parse(read('data/glossary.json')).map(t => t.checked)), 'glossary lastmod = its own newest checked date');
+});
+
+const dateFixture = () => [
+  fixCountry({ code: 'france', facts: [fixFact({ checked: '2026-11-05', headline: { amount: '1,000', period: 'month', scope: 'full-time' } }), fixFact({ key: 'ssEmployer', label: "Employer's social security", value: 'About 40% of gross pay', checked: '2026-12-31' })] }),
+  fixCountry({ code: 'spain', facts: [fixFact({ value: 'No statutory national minimum wage', checked: '2026-12-20', headline: { statutory: false } })] }),
+  fixCountry({ code: 'germany', facts: [fixFact({ value: 'EUR 13.90 per hour', checked: '2027-01-15' })] }),
+  fixCountry({ code: 'poland', currency: 'PLN', facts: [fixFact({ value: 'PLN 4,806 per month', checked: '2026-09-01', headline: { amount: '4,806', period: 'month', scope: 'all employees' } })] }),
+];
+const MW_D = '2026-12-20', KF_D = '2027-01-15';
+const withLv = lv => ({ appEdit: js => js.replace(/(new Date\(')\d{4}-\d{2}-\d{2}(T)/, (_, a, b) => a + lv + b) });
+for (const lv of ['2026-12-01', '2027-02-03']) {
+  test('p4_3.fixture_pages_follow_their_data_not_last_verified_nor_first_fact (LAST_VERIFIED ' + lv + ')', () => {
+    const s = factsSite(undefined, withLv(lv));
+    try {
+      const data = dateFixture(), rd = f => fs.readFileSync(path.join(s.dir, f), 'utf8');
+      assert.equal(mwDateOf(data, lv), MW_D); assert.equal(kfDateOf(data, lv), KF_D);
+      let r = s.build(data); assert.ok(r.ok, r.out.slice(0, 400));
+      const x = rd('sitemap.xml'), mw = rd(MW_FILE), kf = rd('keyfacts.html');
+      // minimum wage: max over headline facts only (spain statutory:false counts; germany's headline-less fact and france's ssEmployer do not)
+      assert.ok(seoOf(mw, MW_FILE).desc.endsWith('hecked ' + fmtLong(MW_D) + '.'), 'mw description: ' + seoOf(mw, MW_FILE).desc);
+      assert.ok(footerOf(mw).includes('Sources last checked ' + fmtLong(MW_D) + '.'), 'mw footer');
+      for (const wrong of [lv, '2026-11-05', '2026-09-01', KF_D, '2026-12-31']) assert.ok(!hasWords(mw, wrong), 'mw page must not show ' + fmtLong(wrong));
+      assert.equal(sitemapMod(x, MW_FILE), MW_D, 'mw lastmod');
+      // keyfacts: max over every fact
+      assert.ok(footerOf(kf).includes('Sources last checked ' + fmtLong(KF_D) + '.'), 'keyfacts footer');
+      for (const wrong of [lv, MW_D, '2026-11-05']) assert.ok(!hasWords(kf, wrong), 'keyfacts page must not show ' + fmtLong(wrong));
+      assert.equal(sitemapMod(x, 'keyfacts.html'), KF_D, 'keyfacts lastmod');
+      // country pages: text stays LAST_VERIFIED, lastmod = max(LAST_VERIFIED, newest own fact)
+      for (const f of s.pages()) {
+        const code = slugToCode.get(f.replace(/\.html$/, '')), h = rd('countries/' + f);
+        assert.equal(sitemapMod(x, 'countries/' + f), countryModOf(data, code, lv), f + ' lastmod');
+        assert.ok(footerOf(h).includes('Sources last checked ' + fmtLong(lv) + '.') && h.includes('sources last checked ' + fmtLong(lv) + '</p>'), f + ' page-level text = LAST_VERIFIED');
+      }
+      const exp = lv === '2026-12-01' ? { france: '2026-12-31', spain: MW_D, germany: KF_D, poland: lv } : { france: lv, spain: lv, germany: lv, poland: lv };
+      for (const [slug, d] of Object.entries(exp)) assert.equal(sitemapMod(x, 'countries/' + slug + '.html'), d, slug + ' expected lastmod');
+      // pages without data dates, and glossary
+      for (const f of ['countries.html', 'upcoming.html', 'suggest.html']) { assert.equal(sitemapMod(x, f), lv, f); assert.ok(footerOf(rd(f)).includes('Sources last checked ' + fmtLong(lv) + '.'), f + ' footer'); }
+      assert.equal(sitemapMod(x, ''), lv, 'home');
+      assert.equal(sitemapMod(x, 'glossary.html'), maxIso(JSON.parse(rd('data/glossary.json')).map(t => t.checked)), 'glossary');
+      // SEO rules still hold, descriptions unique, --check green, build deterministic
+      const descs = new Map();
+      for (const f of ['index.html', 'countries.html', 'upcoming.html', 'glossary.html', 'privacy.html', 'terms.html', 'suggest.html', 'keyfacts.html', MW_FILE, ...s.pages().map(p => 'countries/' + p)]) {
+        const d = seoOf(rd(f), f).desc; assert.ok(d.length >= DESC_MIN && d.length <= DESC_MAX && d.endsWith('.'), f + ' description ' + d.length);
+        assert.ok(!descs.has(d), 'duplicate description ' + f + ' / ' + descs.get(d)); descs.set(d, f);
+      }
+      r = s.run('build-pages.mjs', '--check'); assert.ok(r.ok, '--check must pass (no SEO or stale problem): ' + r.out.slice(0, 400));
+      s.run('build-pages.mjs'); assert.equal(rd(MW_FILE), mw); assert.equal(rd('keyfacts.html'), kf); assert.equal(rd('sitemap.xml'), x, 'deterministic');
+    } finally { s.done(); }
+  });
+}
+test('p4_3.no_facts_fall_back_to_last_verified', () => {
+  const s = factsSite(undefined, withLv('2027-02-03'));
+  try {
+    const r = s.build([]); assert.ok(r.ok, r.out.slice(0, 300));
+    const rd = f => fs.readFileSync(path.join(s.dir, f), 'utf8'), x = rd('sitemap.xml');
+    for (const f of [MW_FILE, 'keyfacts.html']) { assert.equal(sitemapMod(x, f), '2027-02-03', f + ' lastmod'); assert.ok(footerOf(rd(f)).includes('Sources last checked 3 February 2027.'), f + ' footer'); }
+    assert.ok(seoOf(rd(MW_FILE), MW_FILE).desc.endsWith('hecked 3 February 2027.'));
+    assert.ok(s.run('build-pages.mjs', '--check').ok);
+  } finally { s.done(); }
+});
+test('p4_3.check_tracks_the_data_dates', () => {
+  const s = factsSite();
+  try {
+    const data = dateFixture(); let r = s.build(data); assert.ok(r.ok, r.out.slice(0, 300));
+    r = s.run('build-pages.mjs', '--check'); assert.ok(r.ok, r.out.slice(0, 300));
+    // a newer 'checked' on a fact the minimum wage page does not show: keyfacts + sitemap + that country go stale, the minimum wage page does not
+    const a = JSON.parse(JSON.stringify(data)); a.find(c => c.code === 'germany').facts[0].checked = '2027-01-20'; s.setFacts(a);
+    r = s.run('build-pages.mjs', '--check');
+    assert.ok(!r.ok && /keyfacts\.html is out of date/.test(r.out) && /sitemap\.xml is out of date/.test(r.out) && /countries\/germany\.html is out of date/.test(r.out), 'kf-only change: ' + r.out.slice(0, 500));
+    assert.ok(!/minimum-wage-europe\.html is out of date/.test(r.out), 'a fact without headline must not touch the minimum wage page: ' + r.out.slice(0, 500));
+    // a newer 'checked' on a headline fact makes the minimum wage page stale
+    const b = JSON.parse(JSON.stringify(data)); b.find(c => c.code === 'spain').facts[0].checked = '2027-01-10'; s.setFacts(b);
+    r = s.run('build-pages.mjs', '--check'); assert.ok(!r.ok && /minimum-wage-europe\.html is out of date/.test(r.out), 'headline date change: ' + r.out.slice(0, 500));
+    s.run('build-pages.mjs'); assert.ok(s.run('build-pages.mjs', '--check').ok, 'rebuilt = green again');
+  } finally { s.done(); }
 });
 
 console.log(`${passed} site tests passed.`);

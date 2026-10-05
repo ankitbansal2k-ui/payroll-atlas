@@ -83,6 +83,13 @@ for (const t of GLOSSARY) if (!slugify(t.term)) throw new Error(`glossary term "
 if (new Set(GLOSSARY.map(t => slugify(t.term))).size !== GLOSSARY.length) throw new Error('glossary: duplicate slug');
 // The glossary page and its sitemap entry are dated by the newest 'checked' date, not by the changelog's last-verified date.
 const GLOSS_CHECKED = GLOSSARY.reduce((m, t) => (t.checked > m ? t.checked : m), '0000-00-00');
+// Page-level data dates: a page built from facts.json is dated by the newest 'checked' of the facts it displays (LAST_VERIFIED when it has none).
+const maxIso = a => a.reduce((m, x) => (x > m ? x : m), '0000-00-00');
+const factsOf = f => f.facts || [];
+const factDate = (facts, pick = () => true) => { const d = facts.filter(pick).map(x => x.checked).filter(x => typeof x === 'string'); return d.length ? maxIso(d) : VERIFIED_ISO; };
+const MW_ISO = factDate(FACTS.flatMap(factsOf), x => x.key === 'minimumWage' && x.headline);
+const KF_ISO = factDate(FACTS.flatMap(factsOf));
+const countryModIso = code => maxIso([VERIFIED_ISO, ...factsOf(FACTS_BY_CODE.get(code) || {}).map(x => x.checked).filter(x => typeof x === 'string')]);
 const REQ_TYPES = { country: 'New country', rule: 'Missing rule', feature: 'Feature idea' };
 const REQ_STATUS = { requested: 'Requested', researching: 'Researching', added: 'Added' };
 function requestsSection() {
@@ -162,8 +169,8 @@ const head = ({ title, desc, url, depth, noindex, graph }) => `<!DOCTYPE html>
 </head>`;
 
 const header = depth => `  <header><a href="${depth || './'}">Intelligent Payroll</a> <a class="nav" href="${depth}countries.html">All countries</a> <a class="nav" href="${depth}keyfacts.html">Key facts</a> <a class="nav" href="${depth}glossary.html">Glossary</a></header>`;
-const footer = depth => `  <footer>
-    <p>For information only, not legal or tax advice. Sources last checked ${VERIFIED}. Found an error? <a href="${ISSUES}" rel="noopener">Tell us</a>.</p>
+const footer = (depth, date = VERIFIED) => `  <footer>
+    <p>For information only, not legal or tax advice. Sources last checked ${date}. Found an error? <a href="${ISSUES}" rel="noopener">Tell us</a>.</p>
     <p><a href="${depth || './'}">Home</a> &middot; <a href="${depth}countries.html">All countries</a> &middot; <a href="${depth}upcoming.html">What's coming</a> &middot; <a href="${depth}keyfacts.html">Key facts</a> &middot; <a href="${depth}minimum-wage-europe.html">Minimum wage</a> &middot; <a href="${depth}glossary.html">Glossary</a> &middot; <a href="${depth}suggest.html">Suggest a change</a> &middot; <a href="${depth}feed.xml">RSS feed</a> &middot; <a href="${depth}privacy.html">Privacy</a> &middot; <a href="${depth}terms.html">Terms and disclaimer</a></p>
   </footer>`;
 
@@ -340,7 +347,7 @@ ${header('')}
 
 ${sections}
   </main>
-${footer('')}
+${footer('', fmtDay(KF_ISO))}
 </body>
 </html>
 `;
@@ -362,7 +369,7 @@ function minWagePage() {
   const rows = items.filter(i => i.h.statutory !== false);
   const none = items.filter(i => i.h.statutory === false);
   const title = withBrand(`Minimum wage in Europe ${YEAR}: statutory rates by country`);
-  const desc = `Statutory minimum wage in ${rows.length} European ${rows.length === 1 ? 'country' : 'countries'}, in local currency and not converted, each linked to its source. Checked ${VERIFIED}.`;
+  const desc = `Statutory minimum wage in ${rows.length} European ${rows.length === 1 ? 'country' : 'countries'}, in local currency and not converted, each linked to its source. Checked ${fmtDay(MW_ISO)}.`;
   const table = rows.length ? `    <div class="table-scroll" tabindex="0" role="region" aria-label="Minimum wage by country table"><table class="min-wage"><caption>Statutory minimum wage by country, ${YEAR}: monthly and hourly rates as stated by each source</caption>
       <thead><tr><th scope="col">Country</th><th scope="col">Currency</th><th scope="col">Monthly</th><th scope="col">Hourly</th><th scope="col">Applies to</th><th scope="col">Valid from</th><th scope="col">Source</th></tr></thead>
       <tbody>
@@ -383,7 +390,7 @@ ${header('')}
     <h1>Minimum wage in Europe ${YEAR}</h1>
     <p>The statutory minimum wage of each country, side by side, as stated by its official or professional source. Amounts are in each country's own currency and are not converted. Each country defines the minimum differently, by hours worked or by the month, and many have age bands or other lower or higher rates, so the "Applies to" column names the rate shown; check the source and the <a href="keyfacts.html">key facts</a> page of the country for the full rules. Looking for another country? See <a href="countries.html">all countries</a>. Monthly figures are not comparable across countries: the number of salary payments per year (12, 13 or 14), working hours and the gross/net basis differ, and the monthly and hourly columns measure different things. Some figures are set by collective agreement or apply to one region; the Applies to column says which. For information only, not legal or tax advice.</p>
 ${table}${noneSection}  </main>
-${footer('')}
+${footer('', fmtDay(MW_ISO))}
 </body>
 </html>
 `;
@@ -589,10 +596,12 @@ for (const c of icsCountries) out.set(icsName(c), icsCalendar(`Intelligent Payro
 out.set('worker/countries.json', JSON.stringify(Object.fromEntries(list.map(c => [c.code, c.name])), null, 0) + '\n');
 for (const c of list) out.set(`countries/${c.slug}.html`, countryPage(c));
 
+const lastmodOf = u => u === 'keyfacts.html' ? KF_ISO : u === 'minimum-wage-europe.html' ? MW_ISO
+  : u.startsWith('countries/') ? countryModIso(list.find(c => `countries/${c.slug}.html` === u).code) : VERIFIED_ISO;
 const urls = ['', 'countries.html', ...list.map(c => `countries/${c.slug}.html`), 'upcoming.html', 'keyfacts.html', 'minimum-wage-europe.html', 'glossary.html', 'suggest.html', 'privacy.html', 'terms.html'];
 out.set('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls.map(u => `  <url><loc>${SITE}${u}</loc><lastmod>${VERIFIED_ISO}</lastmod></url>`).join('\n')}
+${urls.map(u => `  <url><loc>${SITE}${u}</loc><lastmod>${lastmodOf(u)}</lastmod></url>`).join('\n')}
 </urlset>
 `);
 // Atom feed of the newest entries (by added/updated date). Entry ids are stable tag: URIs, so readers
