@@ -1,0 +1,46 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Intelligent Payroll//Payroll deadlines//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Intelligent Payroll: Belgium payroll deadlines
+BEGIN:VEVENT
+UID:be-onss-contributions-quarterly@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261031
+DTEND;VALUE=DATE:20261101
+RRULE:FREQ=MONTHLY;INTERVAL=3;BYMONTHDAY=-1
+SUMMARY:Belgium: ONSS/RSZ social security contributions payment (quarterly)
+DESCRIPTION:The employer pays contributions quarterly. They must reach the 
+ ONSS at the latest on the last day of the month following the quarter: 30 
+ April\, 31 July\, 31 October and 31 January.\nApplies to: Employers regist
+ ered with the ONSS/RSZ\nNon-working-day rule: check the source.\n\nSource:
+  https://www.socialsecurity.be/employer/instructions/dmfa/fr/latest/instru
+ ctions/obligations/obligations_nsso/contributionpayment_obligations_period
+ icity/generalrule.html\nDetails: https://www.intelligentpayroll.eu/deadlin
+ es.html#belgium\n\nFor information only\, not legal or tax advice. Dates f
+ ollow the recurring rule stated by the source\; weekends and holidays are 
+ not applied. Sources last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#belgium
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:be-dmfa-quarterly@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261031
+DTEND;VALUE=DATE:20261101
+RRULE:FREQ=MONTHLY;INTERVAL=3;BYMONTHDAY=-1
+SUMMARY:Belgium: DmfA quarterly social security declaration
+DESCRIPTION:The employer (or its mandatary) files the DmfA with the ONSS in
+  the month following the quarter: by 30 April\, 31 July\, 31 October and 3
+ 1 January.\nApplies to: Employers registered with the ONSS/RSZ\nNon-workin
+ g-day rule: check the source.\n\nSource: https://www.socialsecurity.be/emp
+ loyer/instructions/dmfa/fr/latest/instructions/obligations/obligations_nss
+ o/dmfa/general.html\nDetails: https://www.intelligentpayroll.eu/deadlines.
+ html#belgium\n\nFor information only\, not legal or tax advice. Dates foll
+ ow the recurring rule stated by the source\; weekends and holidays are not
+  applied. Sources last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#belgium
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR

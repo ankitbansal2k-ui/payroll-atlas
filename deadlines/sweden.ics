@@ -1,0 +1,29 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Intelligent Payroll//Payroll deadlines//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Intelligent Payroll: Sweden payroll deadlines
+BEGIN:VEVENT
+UID:se-agd-large-employers@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261026
+DTEND;VALUE=DATE:20261027
+RRULE:FREQ=MONTHLY;BYMONTHDAY=26
+SUMMARY:Sweden: Employer declaration (arbetsgivardeklaration) - turnover ov
+ er SEK 40 million
+DESCRIPTION:For employers with turnover above SEK 40 million the declaratio
+ n is normally due on the 26th of the month after pay-out\, moved to the ne
+ xt working day on a weekend (for example 27 April 2026). Payment is due ea
+ rlier\, by the 12th (17th in January).\nApplies to: Employers with turnove
+ r over SEK 40 million per income year\nNon-working-day rule: check the sou
+ rce.\n\nSource: https://www.skatteverket.se/foretag/arbetsgivare/lamnaarbe
+ tsgivardeklaration/narskajaglamnaarbetsgivardeklaration.4.361dc8c15312eff6
+ fd13c11.html\nDetails: https://www.intelligentpayroll.eu/deadlines.html#sw
+ eden\n\nFor information only\, not legal or tax advice. Dates follow the r
+ ecurring rule stated by the source\; weekends and holidays are not applied
+ . Sources last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#sweden
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR

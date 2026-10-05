@@ -1,0 +1,67 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Intelligent Payroll//Payroll deadlines//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Intelligent Payroll: Ireland payroll deadlines
+BEGIN:VEVENT
+UID:ie-paye-payment-monthly@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261014
+DTEND;VALUE=DATE:20261015
+RRULE:FREQ=MONTHLY;BYMONTHDAY=14
+SUMMARY:Ireland: PAYE\, PRSI and USC payment to Revenue (monthly remitters)
+DESCRIPTION:Monthly remitters pay the total liability within 14 days after 
+ the end of each month. The employer accepts the monthly statement by the 1
+ 4th of the following month.\nApplies to: Employers remitting monthly who d
+ o not use the ROS extension\nNon-working-day rule: check the source.\n\nSo
+ urce: https://www.revenue.ie/en/employing-people/paying-your-employees-tax
+ -to-revenue/paying-tax-to-revenue.aspx\nDetails: https://www.intelligentpa
+ yroll.eu/deadlines.html#ireland\n\nFor information only\, not legal or tax
+  advice. Dates follow the recurring rule stated by the source\; weekends a
+ nd holidays are not applied. Sources last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#ireland
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:ie-paye-payment-monthly-ros@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261023
+DTEND;VALUE=DATE:20261024
+RRULE:FREQ=MONTHLY;BYMONTHDAY=23
+SUMMARY:Ireland: PAYE\, PRSI and USC payment to Revenue (monthly\, ROS exte
+ nsion)
+DESCRIPTION:The payment deadline extends to 23 days after the end of the mo
+ nth if the employer files the return and pays the tax on the Revenue Onlin
+ e Service (ROS).\nApplies to: Monthly remitters who file and pay through R
+ OS\nNon-working-day rule: check the source.\n\nSource: https://www.revenue
+ .ie/en/employing-people/paying-your-employees-tax-to-revenue/paying-tax-to
+ -revenue.aspx\nDetails: https://www.intelligentpayroll.eu/deadlines.html#i
+ reland\n\nFor information only\, not legal or tax advice. Dates follow the
+  recurring rule stated by the source\; weekends and holidays are not appli
+ ed. Sources last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#ireland
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:ie-paye-payment-quarterly@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261014
+DTEND;VALUE=DATE:20261015
+RRULE:FREQ=MONTHLY;INTERVAL=3;BYMONTHDAY=14
+SUMMARY:Ireland: PAYE\, PRSI and USC payment to Revenue (quarterly remitter
+ s)
+DESCRIPTION:Quarterly remitters pay by 14 April\, 14 July\, 14 October and 
+ 14 January (23rd of the same months with the ROS extension). Quarterly rem
+ itting is for employers with yearly payments of EUR 28\,800 or less who ap
+ ply.\nApplies to: Employers approved to remit quarterly (yearly PAYE\, PRS
+ I and USC of EUR 28\,800 or less)\nNon-working-day rule: check the source.
+ \n\nSource: https://www.revenue.ie/en/employing-people/paying-your-employe
+ es-tax-to-revenue/paying-tax-to-revenue.aspx\nDetails: https://www.intelli
+ gentpayroll.eu/deadlines.html#ireland\n\nFor information only\, not legal 
+ or tax advice. Dates follow the recurring rule stated by the source\; week
+ ends and holidays are not applied. Sources last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#ireland
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR

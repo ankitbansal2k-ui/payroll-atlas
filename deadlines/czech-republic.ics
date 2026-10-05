@@ -1,0 +1,90 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Intelligent Payroll//Payroll deadlines//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Intelligent Payroll: Czech Republic payroll deadlines
+BEGIN:VEVENT
+UID:cz-income-tax-advances@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261020
+DTEND;VALUE=DATE:20261021
+RRULE:FREQ=MONTHLY;BYMONTHDAY=20
+SUMMARY:Czech Republic: Withheld income tax advances on employment income (
+ monthly remittance)
+DESCRIPTION:The monthly remittance of the total advances withheld on employ
+ ment income for a month is due on the 20th of the following month. The tax
+  calendar lists a later date when the 20th falls on a weekend (for example
+  22 June and 21 September 2026).\nApplies to: Employers withholding income
+  tax advances\nNon-working-day rule: check the source.\n\nSource: https://
+ financnisprava.gov.cz/cs/danovy-kalendar\nDetails: https://www.intelligent
+ payroll.eu/deadlines.html#czech-republic\n\nFor information only\, not leg
+ al or tax advice. Dates follow the recurring rule stated by the source\; w
+ eekends and holidays are not applied. Sources last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#czech-republic
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:cz-cssz-contributions@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261020
+DTEND;VALUE=DATE:20261021
+RRULE:FREQ=MONTHLY;BYMONTHDAY=20
+SUMMARY:Czech Republic: Social security contributions and monthly report to
+  ČSSZ
+DESCRIPTION:Employer contributions for a calendar month are payable from th
+ e 1st to the 20th day of the following calendar month. Within the same per
+ iod the employer submits the unified monthly report (jednotné měsíční
+  hlášení) with the assessment base and contribution amount to the CSSZ.
+ \nApplies to: Employers\nNon-working-day rule: check the source.\n\nSource
+ : https://www.cssz.gov.cz/platba-a-terminy\nDetails: https://www.intellige
+ ntpayroll.eu/deadlines.html#czech-republic\n\nFor information only\, not l
+ egal or tax advice. Dates follow the recurring rule stated by the source\;
+  weekends and holidays are not applied. Sources last checked 5 October 202
+ 6.
+URL:https://www.intelligentpayroll.eu/deadlines.html#czech-republic
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:cz-health-insurance-payment@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261020
+DTEND;VALUE=DATE:20261021
+RRULE:FREQ=MONTHLY;BYMONTHDAY=20
+SUMMARY:Czech Republic: Health insurance contributions for employees (VZP)
+DESCRIPTION:Employee health insurance contributions are paid for each calen
+ dar month and are payable from the 1st to the 20th day of the following ca
+ lendar month.\nApplies to: Employers\nNon-working day: If the last day of 
+ the payment period falls on a Saturday\, Sunday or public holiday\, the la
+ st day is the nearest following working day.\nSource for non-working-day r
+ ule: https://www.vzp.cz/platci/informace/zamestnavatel/splatnost-a-dalsi-z
+ asady-pro-platbu-pojistneho/splatnost-pojistneho\n\nSource: https://www.vz
+ p.cz/platci/informace/zamestnavatel/splatnost-a-dalsi-zasady-pro-platbu-po
+ jistneho/splatnost-pojistneho\nDetails: https://www.intelligentpayroll.eu/
+ deadlines.html#czech-republic\n\nFor information only\, not legal or tax a
+ dvice. Dates follow the recurring rule stated by the source\; weekends and
+  holidays are not applied. Sources last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#czech-republic
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:cz-health-insurance-statement@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261020
+DTEND;VALUE=DATE:20261021
+RRULE:FREQ=MONTHLY;BYMONTHDAY=20
+SUMMARY:Czech Republic: Statement of health insurance payments (Přehled o 
+ platbách pojistného)
+DESCRIPTION:Employers send each health insurer a statement of insurance pay
+ ments for their insured employees no later than the 20th day of the follow
+ ing month.\nApplies to: Employers\nNon-working-day rule: check the source.
+ \n\nSource: https://www.vzp.cz/platci/informace/zamestnavatel/povinnosti-z
+ amestnavatele/povinnost-podat-prehled-o-platbe-pojistneho\nDetails: https:
+ //www.intelligentpayroll.eu/deadlines.html#czech-republic\n\nFor informati
+ on only\, not legal or tax advice. Dates follow the recurring rule stated 
+ by the source\; weekends and holidays are not applied. Sources last checke
+ d 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#czech-republic
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR

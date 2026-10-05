@@ -6,7 +6,7 @@ METHOD:PUBLISH
 X-WR-CALNAME:Intelligent Payroll: payroll deadlines
 BEGIN:VEVENT
 UID:uk-paye-payment@intelligentpayroll.eu
-DTSTAMP:20261004T000000Z
+DTSTAMP:20261005T000000Z
 DTSTART;VALUE=DATE:20261022
 DTEND;VALUE=DATE:20261023
 RRULE:FREQ=MONTHLY;BYMONTHDAY=22
@@ -26,7 +26,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:uk-paye-payment-post@intelligentpayroll.eu
-DTSTAMP:20261004T000000Z
+DTSTAMP:20261005T000000Z
 DTSTART;VALUE=DATE:20261019
 DTEND;VALUE=DATE:20261020
 RRULE:FREQ=MONTHLY;BYMONTHDAY=19
@@ -44,7 +44,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:uk-paye-eps@intelligentpayroll.eu
-DTSTAMP:20261004T000000Z
+DTSTAMP:20261005T000000Z
 DTSTART;VALUE=DATE:20261019
 DTEND;VALUE=DATE:20261020
 RRULE:FREQ=MONTHLY;BYMONTHDAY=19
@@ -63,7 +63,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:uk-p60@intelligentpayroll.eu
-DTSTAMP:20261004T000000Z
+DTSTAMP:20261005T000000Z
 DTSTART;VALUE=DATE:20270531
 DTEND;VALUE=DATE:20270601
 RRULE:FREQ=YEARLY;BYMONTH=5;BYMONTHDAY=31
@@ -80,7 +80,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:uk-p11d@intelligentpayroll.eu
-DTSTAMP:20261004T000000Z
+DTSTAMP:20261005T000000Z
 DTSTART;VALUE=DATE:20270706
 DTEND;VALUE=DATE:20270707
 RRULE:FREQ=YEARLY;BYMONTH=7;BYMONTHDAY=6
@@ -97,7 +97,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:uk-class1a-payment@intelligentpayroll.eu
-DTSTAMP:20261004T000000Z
+DTSTAMP:20261005T000000Z
 DTSTART;VALUE=DATE:20270722
 DTEND;VALUE=DATE:20270723
 RRULE:FREQ=YEARLY;BYMONTH=7;BYMONTHDAY=22
@@ -115,7 +115,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:de-lohnsteuer-anmeldung-monthly@intelligentpayroll.eu
-DTSTAMP:20261004T000000Z
+DTSTAMP:20261005T000000Z
 DTSTART;VALUE=DATE:20261010
 DTEND;VALUE=DATE:20261011
 RRULE:FREQ=MONTHLY;BYMONTHDAY=10
@@ -136,7 +136,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:de-lohnsteuer-anmeldung-quarterly@intelligentpayroll.eu
-DTSTAMP:20261004T000000Z
+DTSTAMP:20261005T000000Z
 DTSTART;VALUE=DATE:20261010
 DTEND;VALUE=DATE:20261011
 RRULE:FREQ=MONTHLY;INTERVAL=3;BYMONTHDAY=10
@@ -156,7 +156,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:de-lohnsteuer-anmeldung-annual@intelligentpayroll.eu
-DTSTAMP:20261004T000000Z
+DTSTAMP:20261005T000000Z
 DTSTART;VALUE=DATE:20270110
 DTEND;VALUE=DATE:20270111
 RRULE:FREQ=YEARLY;BYMONTH=1;BYMONTHDAY=10
@@ -175,7 +175,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:de-lohnsteuerbescheinigung@intelligentpayroll.eu
-DTSTAMP:20261004T000000Z
+DTSTAMP:20261005T000000Z
 DTSTART;VALUE=DATE:20270228
 DTEND;VALUE=DATE:20270301
 RRULE:FREQ=YEARLY;BYMONTH=2;BYMONTHDAY=-1
@@ -194,7 +194,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:de-uv-jahresmeldung@intelligentpayroll.eu
-DTSTAMP:20261004T000000Z
+DTSTAMP:20261005T000000Z
 DTSTART;VALUE=DATE:20270216
 DTEND;VALUE=DATE:20270217
 RRULE:FREQ=YEARLY;BYMONTH=2;BYMONTHDAY=16
@@ -214,7 +214,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:fr-dsn-under50@intelligentpayroll.eu
-DTSTAMP:20261004T000000Z
+DTSTAMP:20261005T000000Z
 DTSTART;VALUE=DATE:20261015
 DTEND;VALUE=DATE:20261016
 RRULE:FREQ=MONTHLY;BYMONTHDAY=15
@@ -236,7 +236,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:fr-dsn-50plus-same-month@intelligentpayroll.eu
-DTSTAMP:20261004T000000Z
+DTSTAMP:20261005T000000Z
 DTSTART;VALUE=DATE:20261005
 DTEND;VALUE=DATE:20261006
 RRULE:FREQ=MONTHLY;BYMONTHDAY=5
@@ -258,7 +258,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:fr-dsn-50plus-deferred-pay@intelligentpayroll.eu
-DTSTAMP:20261004T000000Z
+DTSTAMP:20261005T000000Z
 DTSTART;VALUE=DATE:20261015
 DTEND;VALUE=DATE:20261016
 RRULE:FREQ=MONTHLY;BYMONTHDAY=15
@@ -279,7 +279,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:fr-cotisations-quarterly-under11@intelligentpayroll.eu
-DTSTAMP:20261004T000000Z
+DTSTAMP:20261005T000000Z
 DTSTART;VALUE=DATE:20261015
 DTEND;VALUE=DATE:20261016
 RRULE:FREQ=MONTHLY;INTERVAL=3;BYMONTHDAY=15
@@ -299,7 +299,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:nl-loonaangifte-monthly@intelligentpayroll.eu
-DTSTAMP:20261004T000000Z
+DTSTAMP:20261005T000000Z
 DTSTART;VALUE=DATE:20261031
 DTEND;VALUE=DATE:20261101
 RRULE:FREQ=MONTHLY;BYMONTHDAY=-1
@@ -323,7 +323,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:nl-loonaangifte-annual@intelligentpayroll.eu
-DTSTAMP:20261004T000000Z
+DTSTAMP:20261005T000000Z
 DTSTART;VALUE=DATE:20270131
 DTEND;VALUE=DATE:20270201
 RRULE:FREQ=YEARLY;BYMONTH=1;BYMONTHDAY=-1
@@ -346,7 +346,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:es-modelo-111-quarterly@intelligentpayroll.eu
-DTSTAMP:20261004T000000Z
+DTSTAMP:20261005T000000Z
 DTSTART;VALUE=DATE:20261020
 DTEND;VALUE=DATE:20261021
 RRULE:FREQ=MONTHLY;INTERVAL=3;BYMONTHDAY=20
@@ -369,7 +369,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:es-modelo-111-monthly@intelligentpayroll.eu
-DTSTAMP:20261004T000000Z
+DTSTAMP:20261005T000000Z
 DTSTART;VALUE=DATE:20261020
 DTEND;VALUE=DATE:20261021
 RRULE:FREQ=MONTHLY;BYMONTHDAY=20
@@ -392,7 +392,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:es-modelo-190@intelligentpayroll.eu
-DTSTAMP:20261004T000000Z
+DTSTAMP:20261005T000000Z
 DTSTART;VALUE=DATE:20270131
 DTEND;VALUE=DATE:20270201
 RRULE:FREQ=YEARLY;BYMONTH=1;BYMONTHDAY=31
@@ -413,7 +413,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:es-cotizacion-ss@intelligentpayroll.eu
-DTSTAMP:20261004T000000Z
+DTSTAMP:20261005T000000Z
 DTSTART;VALUE=DATE:20261031
 DTEND;VALUE=DATE:20261101
 RRULE:FREQ=MONTHLY;BYMONTHDAY=-1
@@ -435,7 +435,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:it-ritenute-f24@intelligentpayroll.eu
-DTSTAMP:20261004T000000Z
+DTSTAMP:20261005T000000Z
 DTSTART;VALUE=DATE:20261016
 DTEND;VALUE=DATE:20261017
 RRULE:FREQ=MONTHLY;BYMONTHDAY=16
@@ -455,7 +455,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:it-inps-contributi@intelligentpayroll.eu
-DTSTAMP:20261004T000000Z
+DTSTAMP:20261005T000000Z
 DTSTART;VALUE=DATE:20261016
 DTEND;VALUE=DATE:20261017
 RRULE:FREQ=MONTHLY;BYMONTHDAY=16
@@ -474,7 +474,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:it-uniemens@intelligentpayroll.eu
-DTSTAMP:20261004T000000Z
+DTSTAMP:20261005T000000Z
 DTSTART;VALUE=DATE:20261031
 DTEND;VALUE=DATE:20261101
 RRULE:FREQ=MONTHLY;BYMONTHDAY=-1
@@ -496,7 +496,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:it-cu@intelligentpayroll.eu
-DTSTAMP:20261004T000000Z
+DTSTAMP:20261005T000000Z
 DTSTART;VALUE=DATE:20270316
 DTEND;VALUE=DATE:20270317
 RRULE:FREQ=YEARLY;BYMONTH=3;BYMONTHDAY=16
@@ -518,7 +518,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:it-770@intelligentpayroll.eu
-DTSTAMP:20261004T000000Z
+DTSTAMP:20261005T000000Z
 DTSTART;VALUE=DATE:20261031
 DTEND;VALUE=DATE:20261101
 RRULE:FREQ=YEARLY;BYMONTH=10;BYMONTHDAY=31
@@ -534,6 +534,440 @@ DESCRIPTION:The Mod. 770 is filed electronically by 31 October (art. 4\, pa
  he recurring rule stated by the source\; weekends and holidays are not app
  lied. Sources last checked 4 October 2026.
 URL:https://www.intelligentpayroll.eu/deadlines.html#italy
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:at-lohnabgaben-payment@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261015
+DTEND;VALUE=DATE:20261016
+RRULE:FREQ=MONTHLY;BYMONTHDAY=15
+SUMMARY:Austria: Payroll taxes: Lohnsteuer\, Dienstgeberbeitrag and DB surc
+ harge payment
+DESCRIPTION:Wage-related levies (Lohnsteuer\, Dienstgeberbeitrag\, Zuschlag
+  zum Dienstgeberbeitrag) are due on the 15th of the following month.\nAppl
+ ies to: Employers in Austria\nNon-working day: Taxes due on a Saturday\, S
+ unday\, public holiday\, Good Friday or 24 December are payable on the nex
+ t working day.\nSource for non-working-day rule: https://www.usp.gv.at/the
+ men/steuern-finanzen/steuerliche-rechte-und-pflichten/weitere-informatione
+ n-zu-steuerlichen-rechten-und-pflichten-als-unternehmen/fristen-und-faelli
+ gkeiten.html\n\nSource: https://www.bmf.gv.at/themen/steuern/fristen-verfa
+ hren/fristen-faelligkeiten.html\nDetails: https://www.intelligentpayroll.e
+ u/deadlines.html#austria\n\nFor information only\, not legal or tax advice
+ . Dates follow the recurring rule stated by the source\; weekends and holi
+ days are not applied. Sources last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#austria
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:at-kommunalsteuer-payment@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261015
+DTEND;VALUE=DATE:20261016
+RRULE:FREQ=MONTHLY;BYMONTHDAY=15
+SUMMARY:Austria: Kommunalsteuer (municipal payroll tax) payment
+DESCRIPTION:Kommunalsteuer is among the wage-related levies that are due on
+  the 15th of the following month.\nApplies to: Employers in Austria\nNon-w
+ orking day: Taxes due on a Saturday\, Sunday\, public holiday\, Good Frida
+ y or 24 December are payable on the next working day.\nSource for non-work
+ ing-day rule: https://www.usp.gv.at/themen/steuern-finanzen/steuerliche-re
+ chte-und-pflichten/weitere-informationen-zu-steuerlichen-rechten-und-pflic
+ hten-als-unternehmen/fristen-und-faelligkeiten.html\n\nSource: https://www
+ .bmf.gv.at/themen/steuern/fristen-verfahren/fristen-faelligkeiten.html\nDe
+ tails: https://www.intelligentpayroll.eu/deadlines.html#austria\n\nFor inf
+ ormation only\, not legal or tax advice. Dates follow the recurring rule s
+ tated by the source\; weekends and holidays are not applied. Sources last 
+ checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#austria
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:at-sv-mbgm@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261015
+DTEND;VALUE=DATE:20261016
+RRULE:FREQ=MONTHLY;BYMONTHDAY=15
+SUMMARY:Austria: Monthly contribution base report (mBGM) to health insuranc
+ e fund
+DESCRIPTION:In the self-assessment procedure the mBGM is submitted by the 1
+ 5th after the end of each contribution period. If employment starts after 
+ the 15th\, the deadline is the 15th of the month after next.\nApplies to: 
+ Employers in the self-assessment procedure (Selbstabrechner)\nNon-working-
+ day rule: check the source.\n\nSource: https://www.oegk.at/cdscontent/?con
+ tentid=10007.905072&portal=oegkdgportal\nDetails: https://www.intelligentp
+ ayroll.eu/deadlines.html#austria\n\nFor information only\, not legal or ta
+ x advice. Dates follow the recurring rule stated by the source\; weekends 
+ and holidays are not applied. Sources last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#austria
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:at-sv-contributions-payment@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261015
+DTEND;VALUE=DATE:20261016
+RRULE:FREQ=MONTHLY;BYMONTHDAY=15
+SUMMARY:Austria: Social insurance contributions payment (ÖGK)
+DESCRIPTION:General contributions fall due on the last day of the calendar 
+ month in which the contribution period ends. They count as paid on time if
+  credited within 15 days after that due date\, which means by the 15th of 
+ the following month.\nApplies to: Employers paying contributions to the he
+ alth insurance fund\nNon-working day: If the last day of the 15-day period
+  falls on a Saturday\, Sunday\, public holiday\, Good Friday or 24 Decembe
+ r\, the period extends to the next bank working day.\nSource for non-worki
+ ng-day rule: https://www.oegk.at/cdscontent/?contentid=10007.905055&portal
+ =oegkdgportal\n\nSource: https://www.oegk.at/cdscontent/?contentid=10007.9
+ 05055&portal=oegkdgportal\nDetails: https://www.intelligentpayroll.eu/dead
+ lines.html#austria\n\nFor information only\, not legal or tax advice. Date
+ s follow the recurring rule stated by the source\; weekends and holidays a
+ re not applied. Sources last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#austria
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:at-lohnzettel-annual@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20270228
+DTEND;VALUE=DATE:20270301
+RRULE:FREQ=YEARLY;BYMONTH=2;BYMONTHDAY=-1
+SUMMARY:Austria: Annual wage statements (Lohnzettel) to the tax office
+DESCRIPTION:After the calendar year the employer must send the Lohnzettel f
+ or each employee electronically via ELDA\, in principle by the end of Febr
+ uary of the following year.\nApplies to: Employers in Austria\nNon-working
+ -day rule: check the source.\n\nSource: https://www.bmf.gv.at/themen/steue
+ rn/fristen-verfahren/fristen-faelligkeiten.html\nDetails: https://www.inte
+ lligentpayroll.eu/deadlines.html#austria\n\nFor information only\, not leg
+ al or tax advice. Dates follow the recurring rule stated by the source\; w
+ eekends and holidays are not applied. Sources last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#austria
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:be-onss-contributions-quarterly@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261031
+DTEND;VALUE=DATE:20261101
+RRULE:FREQ=MONTHLY;INTERVAL=3;BYMONTHDAY=-1
+SUMMARY:Belgium: ONSS/RSZ social security contributions payment (quarterly)
+DESCRIPTION:The employer pays contributions quarterly. They must reach the 
+ ONSS at the latest on the last day of the month following the quarter: 30 
+ April\, 31 July\, 31 October and 31 January.\nApplies to: Employers regist
+ ered with the ONSS/RSZ\nNon-working-day rule: check the source.\n\nSource:
+  https://www.socialsecurity.be/employer/instructions/dmfa/fr/latest/instru
+ ctions/obligations/obligations_nsso/contributionpayment_obligations_period
+ icity/generalrule.html\nDetails: https://www.intelligentpayroll.eu/deadlin
+ es.html#belgium\n\nFor information only\, not legal or tax advice. Dates f
+ ollow the recurring rule stated by the source\; weekends and holidays are 
+ not applied. Sources last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#belgium
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:be-dmfa-quarterly@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261031
+DTEND;VALUE=DATE:20261101
+RRULE:FREQ=MONTHLY;INTERVAL=3;BYMONTHDAY=-1
+SUMMARY:Belgium: DmfA quarterly social security declaration
+DESCRIPTION:The employer (or its mandatary) files the DmfA with the ONSS in
+  the month following the quarter: by 30 April\, 31 July\, 31 October and 3
+ 1 January.\nApplies to: Employers registered with the ONSS/RSZ\nNon-workin
+ g-day rule: check the source.\n\nSource: https://www.socialsecurity.be/emp
+ loyer/instructions/dmfa/fr/latest/instructions/obligations/obligations_nss
+ o/dmfa/general.html\nDetails: https://www.intelligentpayroll.eu/deadlines.
+ html#belgium\n\nFor information only\, not legal or tax advice. Dates foll
+ ow the recurring rule stated by the source\; weekends and holidays are not
+  applied. Sources last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#belgium
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:cz-income-tax-advances@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261020
+DTEND;VALUE=DATE:20261021
+RRULE:FREQ=MONTHLY;BYMONTHDAY=20
+SUMMARY:Czech Republic: Withheld income tax advances on employment income (
+ monthly remittance)
+DESCRIPTION:The monthly remittance of the total advances withheld on employ
+ ment income for a month is due on the 20th of the following month. The tax
+  calendar lists a later date when the 20th falls on a weekend (for example
+  22 June and 21 September 2026).\nApplies to: Employers withholding income
+  tax advances\nNon-working-day rule: check the source.\n\nSource: https://
+ financnisprava.gov.cz/cs/danovy-kalendar\nDetails: https://www.intelligent
+ payroll.eu/deadlines.html#czech-republic\n\nFor information only\, not leg
+ al or tax advice. Dates follow the recurring rule stated by the source\; w
+ eekends and holidays are not applied. Sources last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#czech-republic
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:cz-cssz-contributions@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261020
+DTEND;VALUE=DATE:20261021
+RRULE:FREQ=MONTHLY;BYMONTHDAY=20
+SUMMARY:Czech Republic: Social security contributions and monthly report to
+  ČSSZ
+DESCRIPTION:Employer contributions for a calendar month are payable from th
+ e 1st to the 20th day of the following calendar month. Within the same per
+ iod the employer submits the unified monthly report (jednotné měsíční
+  hlášení) with the assessment base and contribution amount to the CSSZ.
+ \nApplies to: Employers\nNon-working-day rule: check the source.\n\nSource
+ : https://www.cssz.gov.cz/platba-a-terminy\nDetails: https://www.intellige
+ ntpayroll.eu/deadlines.html#czech-republic\n\nFor information only\, not l
+ egal or tax advice. Dates follow the recurring rule stated by the source\;
+  weekends and holidays are not applied. Sources last checked 5 October 202
+ 6.
+URL:https://www.intelligentpayroll.eu/deadlines.html#czech-republic
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:cz-health-insurance-payment@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261020
+DTEND;VALUE=DATE:20261021
+RRULE:FREQ=MONTHLY;BYMONTHDAY=20
+SUMMARY:Czech Republic: Health insurance contributions for employees (VZP)
+DESCRIPTION:Employee health insurance contributions are paid for each calen
+ dar month and are payable from the 1st to the 20th day of the following ca
+ lendar month.\nApplies to: Employers\nNon-working day: If the last day of 
+ the payment period falls on a Saturday\, Sunday or public holiday\, the la
+ st day is the nearest following working day.\nSource for non-working-day r
+ ule: https://www.vzp.cz/platci/informace/zamestnavatel/splatnost-a-dalsi-z
+ asady-pro-platbu-pojistneho/splatnost-pojistneho\n\nSource: https://www.vz
+ p.cz/platci/informace/zamestnavatel/splatnost-a-dalsi-zasady-pro-platbu-po
+ jistneho/splatnost-pojistneho\nDetails: https://www.intelligentpayroll.eu/
+ deadlines.html#czech-republic\n\nFor information only\, not legal or tax a
+ dvice. Dates follow the recurring rule stated by the source\; weekends and
+  holidays are not applied. Sources last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#czech-republic
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:cz-health-insurance-statement@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261020
+DTEND;VALUE=DATE:20261021
+RRULE:FREQ=MONTHLY;BYMONTHDAY=20
+SUMMARY:Czech Republic: Statement of health insurance payments (Přehled o 
+ platbách pojistného)
+DESCRIPTION:Employers send each health insurer a statement of insurance pay
+ ments for their insured employees no later than the 20th day of the follow
+ ing month.\nApplies to: Employers\nNon-working-day rule: check the source.
+ \n\nSource: https://www.vzp.cz/platci/informace/zamestnavatel/povinnosti-z
+ amestnavatele/povinnost-podat-prehled-o-platbe-pojistneho\nDetails: https:
+ //www.intelligentpayroll.eu/deadlines.html#czech-republic\n\nFor informati
+ on only\, not legal or tax advice. Dates follow the recurring rule stated 
+ by the source\; weekends and holidays are not applied. Sources last checke
+ d 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#czech-republic
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:ie-paye-payment-monthly@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261014
+DTEND;VALUE=DATE:20261015
+RRULE:FREQ=MONTHLY;BYMONTHDAY=14
+SUMMARY:Ireland: PAYE\, PRSI and USC payment to Revenue (monthly remitters)
+DESCRIPTION:Monthly remitters pay the total liability within 14 days after 
+ the end of each month. The employer accepts the monthly statement by the 1
+ 4th of the following month.\nApplies to: Employers remitting monthly who d
+ o not use the ROS extension\nNon-working-day rule: check the source.\n\nSo
+ urce: https://www.revenue.ie/en/employing-people/paying-your-employees-tax
+ -to-revenue/paying-tax-to-revenue.aspx\nDetails: https://www.intelligentpa
+ yroll.eu/deadlines.html#ireland\n\nFor information only\, not legal or tax
+  advice. Dates follow the recurring rule stated by the source\; weekends a
+ nd holidays are not applied. Sources last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#ireland
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:ie-paye-payment-monthly-ros@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261023
+DTEND;VALUE=DATE:20261024
+RRULE:FREQ=MONTHLY;BYMONTHDAY=23
+SUMMARY:Ireland: PAYE\, PRSI and USC payment to Revenue (monthly\, ROS exte
+ nsion)
+DESCRIPTION:The payment deadline extends to 23 days after the end of the mo
+ nth if the employer files the return and pays the tax on the Revenue Onlin
+ e Service (ROS).\nApplies to: Monthly remitters who file and pay through R
+ OS\nNon-working-day rule: check the source.\n\nSource: https://www.revenue
+ .ie/en/employing-people/paying-your-employees-tax-to-revenue/paying-tax-to
+ -revenue.aspx\nDetails: https://www.intelligentpayroll.eu/deadlines.html#i
+ reland\n\nFor information only\, not legal or tax advice. Dates follow the
+  recurring rule stated by the source\; weekends and holidays are not appli
+ ed. Sources last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#ireland
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:ie-paye-payment-quarterly@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261014
+DTEND;VALUE=DATE:20261015
+RRULE:FREQ=MONTHLY;INTERVAL=3;BYMONTHDAY=14
+SUMMARY:Ireland: PAYE\, PRSI and USC payment to Revenue (quarterly remitter
+ s)
+DESCRIPTION:Quarterly remitters pay by 14 April\, 14 July\, 14 October and 
+ 14 January (23rd of the same months with the ROS extension). Quarterly rem
+ itting is for employers with yearly payments of EUR 28\,800 or less who ap
+ ply.\nApplies to: Employers approved to remit quarterly (yearly PAYE\, PRS
+ I and USC of EUR 28\,800 or less)\nNon-working-day rule: check the source.
+ \n\nSource: https://www.revenue.ie/en/employing-people/paying-your-employe
+ es-tax-to-revenue/paying-tax-to-revenue.aspx\nDetails: https://www.intelli
+ gentpayroll.eu/deadlines.html#ireland\n\nFor information only\, not legal 
+ or tax advice. Dates follow the recurring rule stated by the source\; week
+ ends and holidays are not applied. Sources last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#ireland
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:pl-pit-advance-payment@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261020
+DTEND;VALUE=DATE:20261021
+RRULE:FREQ=MONTHLY;BYMONTHDAY=20
+SUMMARY:Poland: Employee PIT advance (zaliczka) payment to the tax office (
+ monthly)
+DESCRIPTION:The employer pays the PIT advance withheld from salaries by the
+  20th day of the month following the month in which the salary was paid.\n
+ Applies to: Employers withholding PIT on salaries\nNon-working-day rule: c
+ heck the source.\n\nSource: https://www.biznes.gov.pl/pl/portal/00234\nDet
+ ails: https://www.intelligentpayroll.eu/deadlines.html#poland\n\nFor infor
+ mation only\, not legal or tax advice. Dates follow the recurring rule sta
+ ted by the source\; weekends and holidays are not applied. Sources last ch
+ ecked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#poland
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:pl-zus-contributions-legal-entities@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261015
+DTEND;VALUE=DATE:20261016
+RRULE:FREQ=MONTHLY;BYMONTHDAY=15
+SUMMARY:Poland: ZUS contributions and DRA declaration - payers with legal p
+ ersonality
+DESCRIPTION:The ZUS DRA declaration and monthly reports are submitted and c
+ ontributions paid by the 15th day of the following month by payers with le
+ gal personality (for example limited companies).\nApplies to: Payers with 
+ legal personality (e.g. sp. z o.o.\, S.A.\, foundations)\nNon-working day:
+  If the end of the deadline falls on a public holiday\, Saturday or Sunday
+ \, the next working day counts as the last day.\nSource for non-working-da
+ y rule: https://www.zus.pl/en/firmy/rozliczenia-z-zus/dokumenty-rozliczeni
+ owe/termin-skladania-dokumentow-i-oplacania-skladek\n\nSource: https://www
+ .zus.pl/en/firmy/rozliczenia-z-zus/dokumenty-rozliczeniowe/termin-skladani
+ a-dokumentow-i-oplacania-skladek\nDetails: https://www.intelligentpayroll.
+ eu/deadlines.html#poland\n\nFor information only\, not legal or tax advice
+ . Dates follow the recurring rule stated by the source\; weekends and holi
+ days are not applied. Sources last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#poland
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:pl-zus-contributions-other-payers@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261020
+DTEND;VALUE=DATE:20261021
+RRULE:FREQ=MONTHLY;BYMONTHDAY=20
+SUMMARY:Poland: ZUS contributions and DRA declaration - other payers
+DESCRIPTION:The ZUS DRA declaration and monthly reports are submitted and c
+ ontributions paid by the 20th day of the following month by other payers\,
+  such as sole traders and partnerships without legal personality that empl
+ oy staff.\nApplies to: Payers without legal personality that employ staff 
+ (e.g. sole traders\, partnerships)\nNon-working day: If the end of the dea
+ dline falls on a public holiday\, Saturday or Sunday\, the next working da
+ y counts as the last day.\nSource for non-working-day rule: https://www.zu
+ s.pl/en/firmy/rozliczenia-z-zus/dokumenty-rozliczeniowe/termin-skladania-d
+ okumentow-i-oplacania-skladek\n\nSource: https://www.zus.pl/en/firmy/rozli
+ czenia-z-zus/dokumenty-rozliczeniowe/termin-skladania-dokumentow-i-oplacan
+ ia-skladek\nDetails: https://www.intelligentpayroll.eu/deadlines.html#pola
+ nd\n\nFor information only\, not legal or tax advice. Dates follow the rec
+ urring rule stated by the source\; weekends and holidays are not applied. 
+ Sources last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#poland
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:pl-pit-11-annual@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20270131
+DTEND;VALUE=DATE:20270201
+RRULE:FREQ=YEARLY;BYMONTH=1;BYMONTHDAY=-1
+SUMMARY:Poland: PIT-11 annual income information to the tax office
+DESCRIPTION:PIT-11 and PIT-R are sent to the tax office by the end of Janua
+ ry of the year following the tax year (and PIT-11 to the taxpayer by the e
+ nd of February).\nApplies to: Employers and other payers of employment inc
+ ome\nNon-working-day rule: check the source.\n\nSource: https://www.podatk
+ i.gov.pl/podatki-osobiste/pit/platnik\nDetails: https://www.intelligentpay
+ roll.eu/deadlines.html#poland\n\nFor information only\, not legal or tax a
+ dvice. Dates follow the recurring rule stated by the source\; weekends and
+  holidays are not applied. Sources last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#poland
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:pl-pit-4r-annual@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20270131
+DTEND;VALUE=DATE:20270201
+RRULE:FREQ=YEARLY;BYMONTH=1;BYMONTHDAY=-1
+SUMMARY:Poland: PIT-4R annual return of withheld advances
+DESCRIPTION:PIT-4R is prepared and sent only to the tax office by the end o
+ f January of the year following the tax year.\nApplies to: Employers and o
+ ther payers withholding PIT advances\nNon-working-day rule: check the sour
+ ce.\n\nSource: https://www.podatki.gov.pl/podatki-osobiste/pit/platnik\nDe
+ tails: https://www.intelligentpayroll.eu/deadlines.html#poland\n\nFor info
+ rmation only\, not legal or tax advice. Dates follow the recurring rule st
+ ated by the source\; weekends and holidays are not applied. Sources last c
+ hecked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#poland
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:ro-d112-monthly@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261025
+DTEND;VALUE=DATE:20261026
+RRULE:FREQ=MONTHLY;BYMONTHDAY=25
+SUMMARY:Romania: Declaration 112 and payment of salary income tax and socia
+ l contributions (monthly)
+DESCRIPTION:Employers file Form 112 monthly. The ANAF tax calendar sets the
+  25th of the following month\, moved to the next working day when it falls
+  on a weekend (for example 26 January and 27 April 2026). Payment is due b
+ y the same date as the declaration.\nApplies to: Employers and equivalent 
+ payers of salary income\nNon-working-day rule: check the source.\n\nSource
+ : https://static.anaf.ro/static/10/Anaf/AsistentaContribuabili_r/Calendar/
+ Calendar_obligatii_fiscale_2025.htm\nDetails: https://www.intelligentpayro
+ ll.eu/deadlines.html#romania\n\nFor information only\, not legal or tax ad
+ vice. Dates follow the recurring rule stated by the source\; weekends and 
+ holidays are not applied. Sources last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#romania
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:se-agd-large-employers@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261026
+DTEND;VALUE=DATE:20261027
+RRULE:FREQ=MONTHLY;BYMONTHDAY=26
+SUMMARY:Sweden: Employer declaration (arbetsgivardeklaration) - turnover ov
+ er SEK 40 million
+DESCRIPTION:For employers with turnover above SEK 40 million the declaratio
+ n is normally due on the 26th of the month after pay-out\, moved to the ne
+ xt working day on a weekend (for example 27 April 2026). Payment is due ea
+ rlier\, by the 12th (17th in January).\nApplies to: Employers with turnove
+ r over SEK 40 million per income year\nNon-working-day rule: check the sou
+ rce.\n\nSource: https://www.skatteverket.se/foretag/arbetsgivare/lamnaarbe
+ tsgivardeklaration/narskajaglamnaarbetsgivardeklaration.4.361dc8c15312eff6
+ fd13c11.html\nDetails: https://www.intelligentpayroll.eu/deadlines.html#sw
+ eden\n\nFor information only\, not legal or tax advice. Dates follow the r
+ ecurring rule stated by the source\; weekends and holidays are not applied
+ . Sources last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#sweden
 TRANSP:TRANSPARENT
 END:VEVENT
 END:VCALENDAR

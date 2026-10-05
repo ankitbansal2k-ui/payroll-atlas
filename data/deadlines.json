@@ -457,5 +457,374 @@
     "sourceUrl": "https://www.agenziaentrate.gov.it/portale/documents/20143/9771798/770_istr_2026.pdf/6175653a-80b7-42a6-cd77-4e48609d0dfc?t=1772197125449",
     "sourceLabel": "Source: Agenzia delle Entrate - Modello 770/2026: istruzioni",
     "checked": "2026-10-04"
+  },
+  {
+    "id": "at-lohnabgaben-payment",
+    "country": "austria",
+    "title": "Payroll taxes: Lohnsteuer, Dienstgeberbeitrag and DB surcharge payment",
+    "kind": "payment",
+    "frequency": "monthly",
+    "rule": {
+      "day": 15,
+      "monthOffset": 1
+    },
+    "ruleText": "Wage-related levies (Lohnsteuer, Dienstgeberbeitrag, Zuschlag zum Dienstgeberbeitrag) are due on the 15th of the following month.",
+    "appliesTo": "Employers in Austria",
+    "weekendNote": "Taxes due on a Saturday, Sunday, public holiday, Good Friday or 24 December are payable on the next working day.",
+    "weekendSourceUrl": "https://www.usp.gv.at/themen/steuern-finanzen/steuerliche-rechte-und-pflichten/weitere-informationen-zu-steuerlichen-rechten-und-pflichten-als-unternehmen/fristen-und-faelligkeiten.html",
+    "sourceUrl": "https://www.bmf.gv.at/themen/steuern/fristen-verfahren/fristen-faelligkeiten.html",
+    "sourceLabel": "Source: BMF - Fristen und Fälligkeiten",
+    "checked": "2026-10-05"
+  },
+  {
+    "id": "at-kommunalsteuer-payment",
+    "country": "austria",
+    "title": "Kommunalsteuer (municipal payroll tax) payment",
+    "kind": "payment",
+    "frequency": "monthly",
+    "rule": {
+      "day": 15,
+      "monthOffset": 1
+    },
+    "ruleText": "Kommunalsteuer is among the wage-related levies that are due on the 15th of the following month.",
+    "appliesTo": "Employers in Austria",
+    "weekendNote": "Taxes due on a Saturday, Sunday, public holiday, Good Friday or 24 December are payable on the next working day.",
+    "weekendSourceUrl": "https://www.usp.gv.at/themen/steuern-finanzen/steuerliche-rechte-und-pflichten/weitere-informationen-zu-steuerlichen-rechten-und-pflichten-als-unternehmen/fristen-und-faelligkeiten.html",
+    "sourceUrl": "https://www.bmf.gv.at/themen/steuern/fristen-verfahren/fristen-faelligkeiten.html",
+    "sourceLabel": "Source: BMF - Fristen und Fälligkeiten",
+    "checked": "2026-10-05"
+  },
+  {
+    "id": "at-sv-mbgm",
+    "country": "austria",
+    "title": "Monthly contribution base report (mBGM) to health insurance fund",
+    "kind": "filing",
+    "frequency": "monthly",
+    "rule": {
+      "day": 15,
+      "monthOffset": 1
+    },
+    "ruleText": "In the self-assessment procedure the mBGM is submitted by the 15th after the end of each contribution period. If employment starts after the 15th, the deadline is the 15th of the month after next.",
+    "appliesTo": "Employers in the self-assessment procedure (Selbstabrechner)",
+    "sourceUrl": "https://www.oegk.at/cdscontent/?contentid=10007.905072&portal=oegkdgportal",
+    "sourceLabel": "Source: ÖGK - Meldefristen",
+    "checked": "2026-10-05"
+  },
+  {
+    "id": "at-sv-contributions-payment",
+    "country": "austria",
+    "title": "Social insurance contributions payment (ÖGK)",
+    "kind": "payment",
+    "frequency": "monthly",
+    "rule": {
+      "day": 15,
+      "monthOffset": 1
+    },
+    "ruleText": "General contributions fall due on the last day of the calendar month in which the contribution period ends. They count as paid on time if credited within 15 days after that due date, which means by the 15th of the following month.",
+    "appliesTo": "Employers paying contributions to the health insurance fund",
+    "weekendNote": "If the last day of the 15-day period falls on a Saturday, Sunday, public holiday, Good Friday or 24 December, the period extends to the next bank working day.",
+    "sourceUrl": "https://www.oegk.at/cdscontent/?contentid=10007.905055&portal=oegkdgportal",
+    "sourceLabel": "Source: ÖGK - Zahlungsfrist",
+    "checked": "2026-10-05",
+    "weekendSourceUrl": "https://www.oegk.at/cdscontent/?contentid=10007.905055&portal=oegkdgportal"
+  },
+  {
+    "id": "at-lohnzettel-annual",
+    "country": "austria",
+    "title": "Annual wage statements (Lohnzettel) to the tax office",
+    "kind": "filing",
+    "frequency": "annual",
+    "rule": {
+      "day": "last",
+      "monthOffset": 0,
+      "month": 2
+    },
+    "ruleText": "After the calendar year the employer must send the Lohnzettel for each employee electronically via ELDA, in principle by the end of February of the following year.",
+    "appliesTo": "Employers in Austria",
+    "sourceUrl": "https://www.bmf.gv.at/themen/steuern/fristen-verfahren/fristen-faelligkeiten.html",
+    "sourceLabel": "Source: BMF - Fristen und Fälligkeiten",
+    "checked": "2026-10-05"
+  },
+  {
+    "id": "be-onss-contributions-quarterly",
+    "country": "belgium",
+    "title": "ONSS/RSZ social security contributions payment (quarterly)",
+    "kind": "payment",
+    "frequency": "quarterly",
+    "rule": {
+      "day": "last",
+      "monthOffset": 0,
+      "months": [
+        1,
+        4,
+        7,
+        10
+      ]
+    },
+    "ruleText": "The employer pays contributions quarterly. They must reach the ONSS at the latest on the last day of the month following the quarter: 30 April, 31 July, 31 October and 31 January.",
+    "appliesTo": "Employers registered with the ONSS/RSZ",
+    "sourceUrl": "https://www.socialsecurity.be/employer/instructions/dmfa/fr/latest/instructions/obligations/obligations_nsso/contributionpayment_obligations_periodicity/generalrule.html",
+    "sourceLabel": "Source: Sécurité sociale (ONSS) - Instructions administratives: Règle générale de paiement",
+    "checked": "2026-10-05"
+  },
+  {
+    "id": "be-dmfa-quarterly",
+    "country": "belgium",
+    "title": "DmfA quarterly social security declaration",
+    "kind": "filing",
+    "frequency": "quarterly",
+    "rule": {
+      "day": "last",
+      "monthOffset": 0,
+      "months": [
+        1,
+        4,
+        7,
+        10
+      ]
+    },
+    "ruleText": "The employer (or its mandatary) files the DmfA with the ONSS in the month following the quarter: by 30 April, 31 July, 31 October and 31 January.",
+    "appliesTo": "Employers registered with the ONSS/RSZ",
+    "sourceUrl": "https://www.socialsecurity.be/employer/instructions/dmfa/fr/latest/instructions/obligations/obligations_nsso/dmfa/general.html",
+    "sourceLabel": "Source: Sécurité sociale (ONSS) - Instructions administratives: DmfA, généralités",
+    "checked": "2026-10-05"
+  },
+  {
+    "id": "cz-income-tax-advances",
+    "country": "czechia",
+    "title": "Withheld income tax advances on employment income (monthly remittance)",
+    "kind": "payment",
+    "frequency": "monthly",
+    "rule": {
+      "day": 20,
+      "monthOffset": 1
+    },
+    "ruleText": "The monthly remittance of the total advances withheld on employment income for a month is due on the 20th of the following month. The tax calendar lists a later date when the 20th falls on a weekend (for example 22 June and 21 September 2026).",
+    "appliesTo": "Employers withholding income tax advances",
+    "sourceUrl": "https://financnisprava.gov.cz/cs/danovy-kalendar",
+    "sourceLabel": "Source: Finanční správa - Daňový kalendář",
+    "checked": "2026-10-05"
+  },
+  {
+    "id": "cz-cssz-contributions",
+    "country": "czechia",
+    "title": "Social security contributions and monthly report to ČSSZ",
+    "kind": "both",
+    "frequency": "monthly",
+    "rule": {
+      "day": 20,
+      "monthOffset": 1
+    },
+    "ruleText": "Employer contributions for a calendar month are payable from the 1st to the 20th day of the following calendar month. Within the same period the employer submits the unified monthly report (jednotné měsíční hlášení) with the assessment base and contribution amount to the CSSZ.",
+    "appliesTo": "Employers",
+    "sourceUrl": "https://www.cssz.gov.cz/platba-a-terminy",
+    "sourceLabel": "Source: ČSSZ - Platba a termíny",
+    "checked": "2026-10-05"
+  },
+  {
+    "id": "cz-health-insurance-payment",
+    "country": "czechia",
+    "title": "Health insurance contributions for employees (VZP)",
+    "kind": "payment",
+    "frequency": "monthly",
+    "rule": {
+      "day": 20,
+      "monthOffset": 1
+    },
+    "ruleText": "Employee health insurance contributions are paid for each calendar month and are payable from the 1st to the 20th day of the following calendar month.",
+    "appliesTo": "Employers",
+    "weekendNote": "If the last day of the payment period falls on a Saturday, Sunday or public holiday, the last day is the nearest following working day.",
+    "sourceUrl": "https://www.vzp.cz/platci/informace/zamestnavatel/splatnost-a-dalsi-zasady-pro-platbu-pojistneho/splatnost-pojistneho",
+    "sourceLabel": "Source: VZP - Splatnost pojistného",
+    "checked": "2026-10-05",
+    "weekendSourceUrl": "https://www.vzp.cz/platci/informace/zamestnavatel/splatnost-a-dalsi-zasady-pro-platbu-pojistneho/splatnost-pojistneho"
+  },
+  {
+    "id": "cz-health-insurance-statement",
+    "country": "czechia",
+    "title": "Statement of health insurance payments (Přehled o platbách pojistného)",
+    "kind": "filing",
+    "frequency": "monthly",
+    "rule": {
+      "day": 20,
+      "monthOffset": 1
+    },
+    "ruleText": "Employers send each health insurer a statement of insurance payments for their insured employees no later than the 20th day of the following month.",
+    "appliesTo": "Employers",
+    "sourceUrl": "https://www.vzp.cz/platci/informace/zamestnavatel/povinnosti-zamestnavatele/povinnost-podat-prehled-o-platbe-pojistneho",
+    "sourceLabel": "Source: VZP - Povinnost podat přehled o platbě pojistného",
+    "checked": "2026-10-05"
+  },
+  {
+    "id": "ie-paye-payment-monthly",
+    "country": "ireland",
+    "title": "PAYE, PRSI and USC payment to Revenue (monthly remitters)",
+    "kind": "payment",
+    "frequency": "monthly",
+    "rule": {
+      "day": 14,
+      "monthOffset": 1
+    },
+    "ruleText": "Monthly remitters pay the total liability within 14 days after the end of each month. The employer accepts the monthly statement by the 14th of the following month.",
+    "appliesTo": "Employers remitting monthly who do not use the ROS extension",
+    "sourceUrl": "https://www.revenue.ie/en/employing-people/paying-your-employees-tax-to-revenue/paying-tax-to-revenue.aspx",
+    "sourceLabel": "Source: Revenue - Paying your employees' tax to Revenue",
+    "checked": "2026-10-05"
+  },
+  {
+    "id": "ie-paye-payment-monthly-ros",
+    "country": "ireland",
+    "title": "PAYE, PRSI and USC payment to Revenue (monthly, ROS extension)",
+    "kind": "payment",
+    "frequency": "monthly",
+    "rule": {
+      "day": 23,
+      "monthOffset": 1
+    },
+    "ruleText": "The payment deadline extends to 23 days after the end of the month if the employer files the return and pays the tax on the Revenue Online Service (ROS).",
+    "appliesTo": "Monthly remitters who file and pay through ROS",
+    "sourceUrl": "https://www.revenue.ie/en/employing-people/paying-your-employees-tax-to-revenue/paying-tax-to-revenue.aspx",
+    "sourceLabel": "Source: Revenue - Paying your employees' tax to Revenue",
+    "checked": "2026-10-05"
+  },
+  {
+    "id": "ie-paye-payment-quarterly",
+    "country": "ireland",
+    "title": "PAYE, PRSI and USC payment to Revenue (quarterly remitters)",
+    "kind": "payment",
+    "frequency": "quarterly",
+    "rule": {
+      "day": 14,
+      "monthOffset": 0,
+      "months": [
+        1,
+        4,
+        7,
+        10
+      ]
+    },
+    "ruleText": "Quarterly remitters pay by 14 April, 14 July, 14 October and 14 January (23rd of the same months with the ROS extension). Quarterly remitting is for employers with yearly payments of EUR 28,800 or less who apply.",
+    "appliesTo": "Employers approved to remit quarterly (yearly PAYE, PRSI and USC of EUR 28,800 or less)",
+    "sourceUrl": "https://www.revenue.ie/en/employing-people/paying-your-employees-tax-to-revenue/paying-tax-to-revenue.aspx",
+    "sourceLabel": "Source: Revenue - Paying your employees' tax to Revenue",
+    "checked": "2026-10-05"
+  },
+  {
+    "id": "pl-pit-advance-payment",
+    "country": "poland",
+    "title": "Employee PIT advance (zaliczka) payment to the tax office (monthly)",
+    "kind": "payment",
+    "frequency": "monthly",
+    "rule": {
+      "day": 20,
+      "monthOffset": 1
+    },
+    "ruleText": "The employer pays the PIT advance withheld from salaries by the 20th day of the month following the month in which the salary was paid.",
+    "appliesTo": "Employers withholding PIT on salaries",
+    "sourceUrl": "https://www.biznes.gov.pl/pl/portal/00234",
+    "sourceLabel": "Source: biznes.gov.pl - Jak rozliczać PIT pracownika",
+    "checked": "2026-10-05"
+  },
+  {
+    "id": "pl-zus-contributions-legal-entities",
+    "country": "poland",
+    "title": "ZUS contributions and DRA declaration - payers with legal personality",
+    "kind": "both",
+    "frequency": "monthly",
+    "rule": {
+      "day": 15,
+      "monthOffset": 1
+    },
+    "ruleText": "The ZUS DRA declaration and monthly reports are submitted and contributions paid by the 15th day of the following month by payers with legal personality (for example limited companies).",
+    "appliesTo": "Payers with legal personality (e.g. sp. z o.o., S.A., foundations)",
+    "weekendNote": "If the end of the deadline falls on a public holiday, Saturday or Sunday, the next working day counts as the last day.",
+    "sourceUrl": "https://www.zus.pl/en/firmy/rozliczenia-z-zus/dokumenty-rozliczeniowe/termin-skladania-dokumentow-i-oplacania-skladek",
+    "sourceLabel": "Source: ZUS - Termin składania dokumentów i opłacania składek",
+    "checked": "2026-10-05",
+    "weekendSourceUrl": "https://www.zus.pl/en/firmy/rozliczenia-z-zus/dokumenty-rozliczeniowe/termin-skladania-dokumentow-i-oplacania-skladek"
+  },
+  {
+    "id": "pl-zus-contributions-other-payers",
+    "country": "poland",
+    "title": "ZUS contributions and DRA declaration - other payers",
+    "kind": "both",
+    "frequency": "monthly",
+    "rule": {
+      "day": 20,
+      "monthOffset": 1
+    },
+    "ruleText": "The ZUS DRA declaration and monthly reports are submitted and contributions paid by the 20th day of the following month by other payers, such as sole traders and partnerships without legal personality that employ staff.",
+    "appliesTo": "Payers without legal personality that employ staff (e.g. sole traders, partnerships)",
+    "weekendNote": "If the end of the deadline falls on a public holiday, Saturday or Sunday, the next working day counts as the last day.",
+    "sourceUrl": "https://www.zus.pl/en/firmy/rozliczenia-z-zus/dokumenty-rozliczeniowe/termin-skladania-dokumentow-i-oplacania-skladek",
+    "sourceLabel": "Source: ZUS - Termin składania dokumentów i opłacania składek",
+    "checked": "2026-10-05",
+    "weekendSourceUrl": "https://www.zus.pl/en/firmy/rozliczenia-z-zus/dokumenty-rozliczeniowe/termin-skladania-dokumentow-i-oplacania-skladek"
+  },
+  {
+    "id": "pl-pit-11-annual",
+    "country": "poland",
+    "title": "PIT-11 annual income information to the tax office",
+    "kind": "filing",
+    "frequency": "annual",
+    "rule": {
+      "day": "last",
+      "monthOffset": 0,
+      "month": 1
+    },
+    "ruleText": "PIT-11 and PIT-R are sent to the tax office by the end of January of the year following the tax year (and PIT-11 to the taxpayer by the end of February).",
+    "appliesTo": "Employers and other payers of employment income",
+    "sourceUrl": "https://www.podatki.gov.pl/podatki-osobiste/pit/platnik",
+    "sourceLabel": "Source: podatki.gov.pl - Serwis o podatkach: płatnik",
+    "checked": "2026-10-05"
+  },
+  {
+    "id": "pl-pit-4r-annual",
+    "country": "poland",
+    "title": "PIT-4R annual return of withheld advances",
+    "kind": "filing",
+    "frequency": "annual",
+    "rule": {
+      "day": "last",
+      "monthOffset": 0,
+      "month": 1
+    },
+    "ruleText": "PIT-4R is prepared and sent only to the tax office by the end of January of the year following the tax year.",
+    "appliesTo": "Employers and other payers withholding PIT advances",
+    "sourceUrl": "https://www.podatki.gov.pl/podatki-osobiste/pit/platnik",
+    "sourceLabel": "Source: podatki.gov.pl - Serwis o podatkach: płatnik",
+    "checked": "2026-10-05"
+  },
+  {
+    "id": "ro-d112-monthly",
+    "country": "romania",
+    "title": "Declaration 112 and payment of salary income tax and social contributions (monthly)",
+    "kind": "both",
+    "frequency": "monthly",
+    "rule": {
+      "day": 25,
+      "monthOffset": 1
+    },
+    "ruleText": "Employers file Form 112 monthly. The ANAF tax calendar sets the 25th of the following month, moved to the next working day when it falls on a weekend (for example 26 January and 27 April 2026). Payment is due by the same date as the declaration.",
+    "appliesTo": "Employers and equivalent payers of salary income",
+    "sourceUrl": "https://static.anaf.ro/static/10/Anaf/AsistentaContribuabili_r/Calendar/Calendar_obligatii_fiscale_2025.htm",
+    "sourceLabel": "Source: ANAF - Calendarul obligațiilor fiscale",
+    "checked": "2026-10-05"
+  },
+  {
+    "id": "se-agd-large-employers",
+    "country": "sweden",
+    "title": "Employer declaration (arbetsgivardeklaration) - turnover over SEK 40 million",
+    "kind": "filing",
+    "frequency": "monthly",
+    "rule": {
+      "day": 26,
+      "monthOffset": 1
+    },
+    "ruleText": "For employers with turnover above SEK 40 million the declaration is normally due on the 26th of the month after pay-out, moved to the next working day on a weekend (for example 27 April 2026). Payment is due earlier, by the 12th (17th in January).",
+    "appliesTo": "Employers with turnover over SEK 40 million per income year",
+    "sourceUrl": "https://www.skatteverket.se/foretag/arbetsgivare/lamnaarbetsgivardeklaration/narskajaglamnaarbetsgivardeklaration.4.361dc8c15312eff6fd13c11.html",
+    "sourceLabel": "Source: Skatteverket - När ska jag lämna arbetsgivardeklaration?",
+    "checked": "2026-10-05"
   }
 ]

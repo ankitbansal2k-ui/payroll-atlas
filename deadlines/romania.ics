@@ -1,0 +1,28 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Intelligent Payroll//Payroll deadlines//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Intelligent Payroll: Romania payroll deadlines
+BEGIN:VEVENT
+UID:ro-d112-monthly@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261025
+DTEND;VALUE=DATE:20261026
+RRULE:FREQ=MONTHLY;BYMONTHDAY=25
+SUMMARY:Romania: Declaration 112 and payment of salary income tax and socia
+ l contributions (monthly)
+DESCRIPTION:Employers file Form 112 monthly. The ANAF tax calendar sets the
+  25th of the following month\, moved to the next working day when it falls
+  on a weekend (for example 26 January and 27 April 2026). Payment is due b
+ y the same date as the declaration.\nApplies to: Employers and equivalent 
+ payers of salary income\nNon-working-day rule: check the source.\n\nSource
+ : https://static.anaf.ro/static/10/Anaf/AsistentaContribuabili_r/Calendar/
+ Calendar_obligatii_fiscale_2025.htm\nDetails: https://www.intelligentpayro
+ ll.eu/deadlines.html#romania\n\nFor information only\, not legal or tax ad
+ vice. Dates follow the recurring rule stated by the source\; weekends and 
+ holidays are not applied. Sources last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#romania
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR

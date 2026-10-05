@@ -1,0 +1,113 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Intelligent Payroll//Payroll deadlines//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Intelligent Payroll: Austria payroll deadlines
+BEGIN:VEVENT
+UID:at-lohnabgaben-payment@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261015
+DTEND;VALUE=DATE:20261016
+RRULE:FREQ=MONTHLY;BYMONTHDAY=15
+SUMMARY:Austria: Payroll taxes: Lohnsteuer\, Dienstgeberbeitrag and DB surc
+ harge payment
+DESCRIPTION:Wage-related levies (Lohnsteuer\, Dienstgeberbeitrag\, Zuschlag
+  zum Dienstgeberbeitrag) are due on the 15th of the following month.\nAppl
+ ies to: Employers in Austria\nNon-working day: Taxes due on a Saturday\, S
+ unday\, public holiday\, Good Friday or 24 December are payable on the nex
+ t working day.\nSource for non-working-day rule: https://www.usp.gv.at/the
+ men/steuern-finanzen/steuerliche-rechte-und-pflichten/weitere-informatione
+ n-zu-steuerlichen-rechten-und-pflichten-als-unternehmen/fristen-und-faelli
+ gkeiten.html\n\nSource: https://www.bmf.gv.at/themen/steuern/fristen-verfa
+ hren/fristen-faelligkeiten.html\nDetails: https://www.intelligentpayroll.e
+ u/deadlines.html#austria\n\nFor information only\, not legal or tax advice
+ . Dates follow the recurring rule stated by the source\; weekends and holi
+ days are not applied. Sources last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#austria
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:at-kommunalsteuer-payment@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261015
+DTEND;VALUE=DATE:20261016
+RRULE:FREQ=MONTHLY;BYMONTHDAY=15
+SUMMARY:Austria: Kommunalsteuer (municipal payroll tax) payment
+DESCRIPTION:Kommunalsteuer is among the wage-related levies that are due on
+  the 15th of the following month.\nApplies to: Employers in Austria\nNon-w
+ orking day: Taxes due on a Saturday\, Sunday\, public holiday\, Good Frida
+ y or 24 December are payable on the next working day.\nSource for non-work
+ ing-day rule: https://www.usp.gv.at/themen/steuern-finanzen/steuerliche-re
+ chte-und-pflichten/weitere-informationen-zu-steuerlichen-rechten-und-pflic
+ hten-als-unternehmen/fristen-und-faelligkeiten.html\n\nSource: https://www
+ .bmf.gv.at/themen/steuern/fristen-verfahren/fristen-faelligkeiten.html\nDe
+ tails: https://www.intelligentpayroll.eu/deadlines.html#austria\n\nFor inf
+ ormation only\, not legal or tax advice. Dates follow the recurring rule s
+ tated by the source\; weekends and holidays are not applied. Sources last 
+ checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#austria
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:at-sv-mbgm@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261015
+DTEND;VALUE=DATE:20261016
+RRULE:FREQ=MONTHLY;BYMONTHDAY=15
+SUMMARY:Austria: Monthly contribution base report (mBGM) to health insuranc
+ e fund
+DESCRIPTION:In the self-assessment procedure the mBGM is submitted by the 1
+ 5th after the end of each contribution period. If employment starts after 
+ the 15th\, the deadline is the 15th of the month after next.\nApplies to: 
+ Employers in the self-assessment procedure (Selbstabrechner)\nNon-working-
+ day rule: check the source.\n\nSource: https://www.oegk.at/cdscontent/?con
+ tentid=10007.905072&portal=oegkdgportal\nDetails: https://www.intelligentp
+ ayroll.eu/deadlines.html#austria\n\nFor information only\, not legal or ta
+ x advice. Dates follow the recurring rule stated by the source\; weekends 
+ and holidays are not applied. Sources last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#austria
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:at-sv-contributions-payment@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20261015
+DTEND;VALUE=DATE:20261016
+RRULE:FREQ=MONTHLY;BYMONTHDAY=15
+SUMMARY:Austria: Social insurance contributions payment (ÖGK)
+DESCRIPTION:General contributions fall due on the last day of the calendar 
+ month in which the contribution period ends. They count as paid on time if
+  credited within 15 days after that due date\, which means by the 15th of 
+ the following month.\nApplies to: Employers paying contributions to the he
+ alth insurance fund\nNon-working day: If the last day of the 15-day period
+  falls on a Saturday\, Sunday\, public holiday\, Good Friday or 24 Decembe
+ r\, the period extends to the next bank working day.\nSource for non-worki
+ ng-day rule: https://www.oegk.at/cdscontent/?contentid=10007.905055&portal
+ =oegkdgportal\n\nSource: https://www.oegk.at/cdscontent/?contentid=10007.9
+ 05055&portal=oegkdgportal\nDetails: https://www.intelligentpayroll.eu/dead
+ lines.html#austria\n\nFor information only\, not legal or tax advice. Date
+ s follow the recurring rule stated by the source\; weekends and holidays a
+ re not applied. Sources last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#austria
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:at-lohnzettel-annual@intelligentpayroll.eu
+DTSTAMP:20261005T000000Z
+DTSTART;VALUE=DATE:20270228
+DTEND;VALUE=DATE:20270301
+RRULE:FREQ=YEARLY;BYMONTH=2;BYMONTHDAY=-1
+SUMMARY:Austria: Annual wage statements (Lohnzettel) to the tax office
+DESCRIPTION:After the calendar year the employer must send the Lohnzettel f
+ or each employee electronically via ELDA\, in principle by the end of Febr
+ uary of the following year.\nApplies to: Employers in Austria\nNon-working
+ -day rule: check the source.\n\nSource: https://www.bmf.gv.at/themen/steue
+ rn/fristen-verfahren/fristen-faelligkeiten.html\nDetails: https://www.inte
+ lligentpayroll.eu/deadlines.html#austria\n\nFor information only\, not leg
+ al or tax advice. Dates follow the recurring rule stated by the source\; w
+ eekends and holidays are not applied. Sources last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#austria
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR
