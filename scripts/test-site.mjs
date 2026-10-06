@@ -321,14 +321,14 @@ const DROPPED = ['cn-vat', 'do-reporting', 'qa-reporting-upcoming', 'bh-tax-upco
 test('p2_4.entries_removed', () => {
   // CHANGES comes from another vm realm: spread into a local array before strict comparison.
   assert.deepEqual([...CHANGES.filter(e => DROPPED.includes(e.section)).map(key)], [], 'dropped sections still in CHANGES');
-  assert.equal(CHANGES.length, 182);
+  assert.equal(CHANGES.length, 190);
   assert.ok(CHANGES.every(e => ['payroll', 'reporting'].includes(e.category)), 'category must be payroll|reporting');
 });
 test('p2_4.countries_keep_entries', () => {
   const { countryToRegion } = loadSite();
   const missing = Object.keys(countryToRegion).filter(c => !CHANGES.some(e => e.country === c));
   assert.deepEqual(missing, [], 'countries without entries');
-  assert.equal(Object.keys(countryToRegion).length, 75);
+  assert.equal(Object.keys(countryToRegion).length, 78);
 });
 test('p2_4.generated_clean', () => {
   const files = ['feed.xml', 'calendar.ics', 'upcoming.html', 'countries.html', 'sitemap.xml',
@@ -1535,7 +1535,7 @@ test('p4_1.country_description_clipping_rules_hold_for_long_titles', () => {
 });
 // Independent of the generator rule: the finished sentence must read cleanly on every real country page.
 test('p4_1.country_descriptions_read_cleanly_on_all_pages', () => {
-  const files = countryFiles.filter(f => f.endsWith('.html')); assert.equal(files.length, 75);
+  const files = countryFiles.filter(f => f.endsWith('.html')); assert.equal(files.length, 78);
   for (const f of files) {
     const d = seoOf(read(`countries/${f}`), f).desc;
     assert.match(d, /^\d+ tracked payroll changes? in .+\. Sources linked, checked \d{1,2} \w+ \d{4}\.$/, `${f}: shape: ${d}`);
@@ -2259,7 +2259,7 @@ test('p4_3.real_keyfacts_page_is_dated_by_its_own_facts', () => {
 });
 test('p4_3.real_country_and_other_pages_keep_last_verified_text_but_sitemap_follows_data', () => {
   const x = read('sitemap.xml'), facts = loadFacts(), files = countryFiles.filter(f => f.endsWith('.html'));
-  assert.equal(files.length, 75);
+  assert.equal(files.length, 78);
   for (const f of files) {
     const code = slugToCode.get(f.replace(/\.html$/, '')), h = read('countries/' + f);
     assert.equal(sitemapMod(x, 'countries/' + f), countryModOf(facts, code, VER22), f + ': lastmod = max(LAST_VERIFIED, newest checked of its facts)');

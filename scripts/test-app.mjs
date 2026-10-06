@@ -432,7 +432,7 @@ test('picker.css: styles.css has rules for the picker classes', () => {
     assert.match(css, new RegExp(`\\.${c}(?![\\w-])`), `styles.css has no .${c} rule`);
 });
 
-test('options.complete: one checkbox per country (75) grouped under 5 regions, values = codes', () => {
+test('options.complete: one checkbox per country (78) grouped under 5 regions, values = codes', () => {
   const p = makePage('');
   const b = p.boxes();
   assert.equal(b.length, CODES.length, `expected ${CODES.length} checkboxes in #country-picker-list`);

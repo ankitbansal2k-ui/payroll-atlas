@@ -1,6 +1,6 @@
 # Intelligent Payroll
 
-A free, source-linked tracker for statutory and legislative payroll changes across 75 countries in Europe, APAC, MENAT, LATAM and Africa. Every entry links to the page it was checked against: a government authority where one could be retrieved, otherwise a published summary from a major tax advisory firm.
+A free, source-linked tracker for statutory and legislative payroll changes across 78 countries in Europe, APAC, MENAT, LATAM and Africa. Every entry links to the page it was checked against: a government authority where one could be retrieved, otherwise a published summary from a major tax advisory firm.
 
 **Live site:** https://www.intelligentpayroll.eu/
 
