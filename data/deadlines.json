@@ -1029,5 +1029,41 @@
     "sourceUrl": "https://www.ahv-iv.ch/p/2.01.d",
     "sourceLabel": "Source: AHV-IV.ch (Bundesamt für Sozialversicherungen) - Merkblatt 2.01 Lohnbeiträge an die AHV, die IV und die EO",
     "checked": "2026-10-05"
+  },
+  {
+    "id": "cz-annual-withholding-settlement-electronic",
+    "country": "czechia",
+    "title": "Annual statement of withheld employment income tax (vyúčtování daně), electronic filing",
+    "kind": "filing",
+    "frequency": "annual",
+    "rule": {
+      "day": 20,
+      "monthOffset": 0,
+      "month": 3
+    },
+    "ruleText": "Employers (payers of the tax) file the annual statement (vyúčtování) of income tax from employment withheld as advances for the previous year. Electronic filing is due by 20 March; paper filing is due within two months after the end of the year.",
+    "appliesTo": "Employers (payers of the tax) withholding income tax advances on employment income, filing electronically",
+    "weekendNote": "If the last day of a time limit falls on a Saturday, Sunday or public holiday, the last day is the nearest following working day (Tax Code, section 33(4)).",
+    "weekendSourceUrl": "https://www.zakonyprolidi.cz/cs/2009-280",
+    "sourceUrl": "https://financnisprava.gov.cz/cs/dane/dane/dan-z-prijmu/zamestnanci-zamestnavatele/dotazy-a-odpovedi/2025/aktualni-dotazy-a-odpovedi-dzp-2024-a-2025",
+    "sourceLabel": "Source: Finanční správa - Aktuální dotazy a odpovědi k dani z příjmů ze závislé činnosti (§ 38j odst. 5 ZDP)",
+    "checked": "2026-10-06"
+  },
+  {
+    "id": "ie-psa-application",
+    "country": "ireland",
+    "title": "PAYE Settlement Agreement (PSA) application for minor, irregular benefits",
+    "kind": "filing",
+    "frequency": "annual",
+    "rule": {
+      "day": "last",
+      "monthOffset": 0,
+      "month": 12
+    },
+    "ruleText": "An employer that wants to pay the tax on minor and irregular employee benefits through a PAYE Settlement Agreement must apply to Revenue in writing. The application must be received on or before 31 December of the relevant tax year.",
+    "appliesTo": "Employers that choose to settle tax on minor, irregular benefits via a PSA (optional)",
+    "sourceUrl": "https://www.revenue.ie/en/employing-people/paying-your-employees-tax-to-revenue/paying-tax-on-employees-minor-and-irregular-benefits.aspx",
+    "sourceLabel": "Source: Revenue - Paying tax on an employee's minor and irregular benefits",
+    "checked": "2026-10-06"
   }
 ]

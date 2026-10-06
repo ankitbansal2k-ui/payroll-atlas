@@ -6,7 +6,7 @@ METHOD:PUBLISH
 X-WR-CALNAME:Intelligent Payroll: Ireland payroll deadlines
 BEGIN:VEVENT
 UID:ie-paye-payment-monthly@intelligentpayroll.eu
-DTSTAMP:20261005T000000Z
+DTSTAMP:20261006T000000Z
 DTSTART;VALUE=DATE:20261014
 DTEND;VALUE=DATE:20261015
 RRULE:FREQ=MONTHLY;BYMONTHDAY=14
@@ -25,7 +25,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:ie-paye-payment-monthly-ros@intelligentpayroll.eu
-DTSTAMP:20261005T000000Z
+DTSTAMP:20261006T000000Z
 DTSTART;VALUE=DATE:20261023
 DTEND;VALUE=DATE:20261024
 RRULE:FREQ=MONTHLY;BYMONTHDAY=23
@@ -45,7 +45,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:ie-paye-payment-quarterly@intelligentpayroll.eu
-DTSTAMP:20261005T000000Z
+DTSTAMP:20261006T000000Z
 DTSTART;VALUE=DATE:20261014
 DTEND;VALUE=DATE:20261015
 RRULE:FREQ=MONTHLY;INTERVAL=3;BYMONTHDAY=14
@@ -61,6 +61,28 @@ DESCRIPTION:Quarterly remitters pay by 14 April\, 14 July\, 14 October and
  gentpayroll.eu/deadlines.html#ireland\n\nFor information only\, not legal 
  or tax advice. Dates follow the recurring rule stated by the source\; week
  ends and holidays are not applied. Sources last checked 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#ireland
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:ie-psa-application@intelligentpayroll.eu
+DTSTAMP:20261006T000000Z
+DTSTART;VALUE=DATE:20261231
+DTEND;VALUE=DATE:20270101
+RRULE:FREQ=YEARLY;BYMONTH=12;BYMONTHDAY=-1
+SUMMARY:Ireland: PAYE Settlement Agreement (PSA) application for minor\, ir
+ regular benefits
+DESCRIPTION:An employer that wants to pay the tax on minor and irregular em
+ ployee benefits through a PAYE Settlement Agreement must apply to Revenue 
+ in writing. The application must be received on or before 31 December of t
+ he relevant tax year.\nApplies to: Employers that choose to settle tax on 
+ minor\, irregular benefits via a PSA (optional)\nNon-working-day rule: che
+ ck the source.\n\nSource: https://www.revenue.ie/en/employing-people/payin
+ g-your-employees-tax-to-revenue/paying-tax-on-employees-minor-and-irregula
+ r-benefits.aspx\nDetails: https://www.intelligentpayroll.eu/deadlines.html
+ #ireland\n\nFor information only\, not legal or tax advice. Dates follow t
+ he recurring rule stated by the source\; weekends and holidays are not app
+ lied. Sources last checked 6 October 2026.
 URL:https://www.intelligentpayroll.eu/deadlines.html#ireland
 TRANSP:TRANSPARENT
 END:VEVENT

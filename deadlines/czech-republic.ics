@@ -6,7 +6,7 @@ METHOD:PUBLISH
 X-WR-CALNAME:Intelligent Payroll: Czech Republic payroll deadlines
 BEGIN:VEVENT
 UID:cz-income-tax-advances@intelligentpayroll.eu
-DTSTAMP:20261005T000000Z
+DTSTAMP:20261006T000000Z
 DTSTART;VALUE=DATE:20261020
 DTEND;VALUE=DATE:20261021
 RRULE:FREQ=MONTHLY;BYMONTHDAY=20
@@ -26,7 +26,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:cz-cssz-contributions@intelligentpayroll.eu
-DTSTAMP:20261005T000000Z
+DTSTAMP:20261006T000000Z
 DTSTART;VALUE=DATE:20261020
 DTEND;VALUE=DATE:20261021
 RRULE:FREQ=MONTHLY;BYMONTHDAY=20
@@ -47,7 +47,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:cz-health-insurance-payment@intelligentpayroll.eu
-DTSTAMP:20261005T000000Z
+DTSTAMP:20261006T000000Z
 DTSTART;VALUE=DATE:20261020
 DTEND;VALUE=DATE:20261021
 RRULE:FREQ=MONTHLY;BYMONTHDAY=20
@@ -69,7 +69,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:cz-health-insurance-statement@intelligentpayroll.eu
-DTSTAMP:20261005T000000Z
+DTSTAMP:20261006T000000Z
 DTSTART;VALUE=DATE:20261020
 DTEND;VALUE=DATE:20261021
 RRULE:FREQ=MONTHLY;BYMONTHDAY=20
@@ -84,6 +84,32 @@ DESCRIPTION:Employers send each health insurer a statement of insurance pay
  on only\, not legal or tax advice. Dates follow the recurring rule stated 
  by the source\; weekends and holidays are not applied. Sources last checke
  d 5 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#czech-republic
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:cz-annual-withholding-settlement-electronic@intelligentpayroll.eu
+DTSTAMP:20261006T000000Z
+DTSTART;VALUE=DATE:20270320
+DTEND;VALUE=DATE:20270321
+RRULE:FREQ=YEARLY;BYMONTH=3;BYMONTHDAY=20
+SUMMARY:Czech Republic: Annual statement of withheld employment income tax 
+ (vyúčtování daně)\, electronic filing
+DESCRIPTION:Employers (payers of the tax) file the annual statement (vyúč
+ tování) of income tax from employment withheld as advances for the previ
+ ous year. Electronic filing is due by 20 March\; paper filing is due withi
+ n two months after the end of the year.\nApplies to: Employers (payers of 
+ the tax) withholding income tax advances on employment income\, filing ele
+ ctronically\nNon-working day: If the last day of a time limit falls on a S
+ aturday\, Sunday or public holiday\, the last day is the nearest following
+  working day (Tax Code\, section 33(4)).\nSource for non-working-day rule:
+  https://www.zakonyprolidi.cz/cs/2009-280\n\nSource: https://financnisprav
+ a.gov.cz/cs/dane/dane/dan-z-prijmu/zamestnanci-zamestnavatele/dotazy-a-odp
+ ovedi/2025/aktualni-dotazy-a-odpovedi-dzp-2024-a-2025\nDetails: https://ww
+ w.intelligentpayroll.eu/deadlines.html#czech-republic\n\nFor information o
+ nly\, not legal or tax advice. Dates follow the recurring rule stated by t
+ he source\; weekends and holidays are not applied. Sources last checked 6 
+ October 2026.
 URL:https://www.intelligentpayroll.eu/deadlines.html#czech-republic
 TRANSP:TRANSPARENT
 END:VEVENT
