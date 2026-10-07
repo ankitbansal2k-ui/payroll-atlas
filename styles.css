@@ -106,6 +106,21 @@
       color: var(--blue-accent);
     }
 
+    /* Grouped header navigation: Home, Changelog and three <details> dropdown groups. */
+    .nav-group { position: relative; }
+    .nav-group summary { cursor: pointer; list-style: none; display: block; white-space: nowrap; color: var(--text-secondary); font-size: 0.95rem; transition: color 0.3s; }
+    .nav-group summary::-webkit-details-marker { display: none; }
+    .nav-group summary::after { content: " ▾"; font-size: 0.8em; }
+    .nav-group[open] summary, .nav-group summary:hover { color: var(--blue-accent); }
+    .nav-group summary:focus-visible { outline: 2px solid var(--blue-accent); outline-offset: 3px; border-radius: 4px; }
+    .nav-menu { position: absolute; z-index: 110; top: calc(100% + 0.5rem); left: 0; min-width: 12rem; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.35rem 0; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); }
+    .nav-menu a { display: block; padding: 0.45rem 1rem; white-space: nowrap; }
+    @media (max-width: 768px) {
+      .nav-group[open] { flex: 1 0 100%; }
+      .nav-menu { position: static; min-width: 0; background: transparent; border: 0; box-shadow: none; padding: 0.15rem 0 0.3rem 0.75rem; }
+      .nav-menu a { padding: 0.3rem 0; }
+    }
+
     .country-selector {
       max-width: 100%;
       min-width: 0;

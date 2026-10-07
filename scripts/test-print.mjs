@@ -285,7 +285,7 @@ test('p3_1.print_new_nav_and_done_button_hidden', () => {
   assert.ok(hdr(indexHtml).includes('href="glossary.html"'), 'index.html header has the Glossary link');
   assert.ok(fs.existsSync(path.join(ROOT, 'keyfacts.html')), 'keyfacts.html not generated');
   const kf = read('keyfacts.html');
-  assert.ok(hdr(kf).includes('href="keyfacts.html">Key facts</a>'), 'keyfacts.html header has Key facts link (hidden by the legal.css print rule for header)');
+  assert.ok(/href="keyfacts\.html"[^>]*>Key facts<\/a>/.test(hdr(kf)), 'keyfacts.html header has Key facts link (in the Reference menu, aria-current allowed; hidden by the legal.css print rule for header)');
   assert.ok(kf.includes('<link rel="stylesheet" href="legal.css">'));
   assert.ok(!kf.includes('data-action="print"'));
 });
@@ -338,6 +338,35 @@ test('p2_12.print_keeps_deadline_tables_and_list_hides_filter_and_calendar_contr
     assert.ok(hit, `need ${base} a[href^="http"]::after { content: " (" attr(href) ")" } so the printed page shows each source address`);
   }
   assert.ok(!/data-action="print"/.test(page), 'no print button on the page');
+});
+
+// ---------- P5-1: social-security-tax-rates-europe.html prints ----------
+// Contract (see test-site.mjs p5_1.*): <div class="table-scroll"><table class="rates"> with 5 columns; each rate cell is "N%" plus a <small> scope/reason text beneath it
+// and a source link; legal.css only. In print the table must not clip, rows must not split across pages, the scope text must stay visible and dark on white, and every
+// source address is printed.
+test('p5_1.print_keeps_rates_table_on_white_with_visible_scope_text_borders_and_urls', () => {
+  assert.ok(fs.existsSync(path.join(ROOT, 'social-security-tax-rates-europe.html')), 'social-security-tax-rates-europe.html not generated');
+  const page = read('social-security-tax-rates-europe.html');
+  for (const s of ['.table-scroll', '.rates', '.rates th', '.rates td', '.rates small', 'a[href^="http"]']) assert.ok(existsIn(page, s), 'page contains ' + s);
+  assert.ok(page.includes('<link rel="stylesheet" href="legal.css">'));
+  const rs = printRules('legal.css');
+  for (const r of rs.filter(r => val(r.decls.display) === 'none')) for (const s of r.selectors) assert.ok(!/rates|small|table-scroll|^(main|section|table|tr|td|th|ul|li|caption|thead|tbody)$/.test(s), 'print rule hides the rates table, its notes or its scope text: ' + s);
+  assert.equal(val(declOf(rs, '.table-scroll', 'overflow')) || val(declOf(rs, '.table-scroll', 'overflow-x')), 'visible', 'no clipping of columns in print');
+  assert.ok(/^(0|0rem|none|auto)$/.test(val(declOf(rs, '.rates', 'min-width'))), 'print resets the screen min-width of .rates so 5 columns fit the paper');
+  const cell = rs.find(r => r.selectors.includes('.rates th') && r.selectors.includes('.rates td'));
+  assert.ok(cell, 'print rule for .rates th, .rates td');
+  assert.match(cell.decls.border || '', /#000/, 'visible black cell borders'); assert.ok(isWhite(cell.decls.background || cell.decls['background-color']), 'white cell background');
+  const bi = val(declOf(rs, '.rates tr', 'break-inside')) || val(declOf(rs, '.rates tr', 'page-break-inside'));
+  assert.equal(bi, 'avoid', 'a row is not split across pages');
+  const hit = rs.find(r => r.selectors.some(s => /^\.rates\s+a\[href\^="http"\]::after$/.test(s)) && /attr\(\s*href\s*\)/.test(r.decls.content || ''));
+  assert.ok(hit, 'need .rates a[href^="http"]::after { content: " (" attr(href) ")" } so the printed table shows each source address');
+  // the scope / reason text beneath each rate (a <small>) is dark on white and shown, never hidden or shrunk to nothing
+  const small = rs.find(r => r.selectors.some(s => s === '.rates small' || s === '.rates td small'));
+  assert.ok(small, 'print rule for .rates small: the scope text stays readable on paper');
+  assert.ok(isDark(small.decls.color), 'print colour of .rates small is dark (the screen colour is muted for the dark UI)');
+  assert.ok(val(small.decls.display) !== 'none' && val(small.decls.visibility) !== 'hidden', '.rates small is shown in print');
+  const fs8 = (val(small.decls['font-size']) || '9pt').match(/^(\d+(?:\.\d+)?)pt$/); assert.ok(!fs8 || Number(fs8[1]) >= 7, 'print font size of the scope text is at least 7pt');
+  assert.ok(!existsIn(page, 'script') || !/data-action="print"/.test(page));
 });
 
 console.log(`\n${pass} passed, ${fail} failed`);

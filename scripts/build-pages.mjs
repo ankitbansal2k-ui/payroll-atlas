@@ -90,6 +90,8 @@ const factsOf = f => f.facts || [];
 const factDate = (facts, pick = () => true) => { const d = facts.filter(pick).map(x => x.checked).filter(x => typeof x === 'string'); return d.length ? maxIso(d) : VERIFIED_ISO; };
 const MW_ISO = factDate(FACTS.flatMap(factsOf), x => x.key === 'minimumWage' && x.headline);
 const KF_ISO = factDate(FACTS.flatMap(factsOf));
+const RATE_KEYS = ['ssEmployer', 'ssEmployee', 'taxBands'];
+const RT_ISO = factDate(FACTS.flatMap(factsOf), x => RATE_KEYS.includes(x.key) && x.headline);
 const countryModIso = code => maxIso([VERIFIED_ISO, ...factsOf(FACTS_BY_CODE.get(code) || {}).map(x => x.checked).filter(x => typeof x === 'string')]);
 // Payroll deadlines (data/deadlines.json): the deadlines page, deadlines.json and the deadline calendars. Schema checked in validate.mjs.
 const DEADLINES = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/deadlines.json'), 'utf8'));
@@ -175,12 +177,17 @@ const head = ({ title, desc, url, depth, noindex, graph }) => `<!DOCTYPE html>
   <link rel="icon" type="image/svg+xml" href="${depth}design/assets/favicons/favicon.svg">
   <link rel="alternate" type="application/atom+xml" title="Intelligent Payroll: latest payroll changes" href="${depth}feed.xml">
   <link rel="stylesheet" href="${depth}legal.css">
+  <script src="${depth}nav.js" defer></script>
 </head>`;
 
-const header = depth => `  <header><a href="${depth || './'}">Intelligent Payroll</a> <a class="nav" href="${depth}countries.html">All countries</a> <a class="nav" href="${depth}keyfacts.html">Key facts</a> <a class="nav" href="${depth}glossary.html">Glossary</a></header>`;
+// Grouped header navigation: Home, Changelog, then three <details> dropdown groups (shared by every generated page; index.html has the same groups by hand).
+const NAV_GROUPS = [["Plan ahead",[["What's coming","upcoming.html"],["Deadlines","deadlines.html"]]],["Compare",[["Minimum wage","minimum-wage-europe.html"],["Rates","social-security-tax-rates-europe.html"]]],["Reference",[["Key facts","keyfacts.html"],["Glossary","glossary.html"],["All countries","countries.html"]]]];
+const header = depth => `  <header><a href="${depth || './'}">Intelligent Payroll</a> <nav aria-label="Main"><a href="${depth || './'}">Home</a> <a href="${depth}index.html#changelog">Changelog</a>${NAV_GROUPS.map(([label, links]) => ` <details class="nav-group"><summary>${label}</summary><div class="nav-menu">${links.map(([t, h]) => `<a href="${depth}${h}">${esc(t)}</a>`).join('')}</div></details>`).join('')}</nav></header>`;
+// Marks the header link that points at the page itself with aria-current="page" (applied to every generated page just before it is written).
+const markCurrent = (file, html) => html.replace(/<header>[\s\S]*?<\/header>/, h => h.replace(/<a href="([^"#]*)">/g, (m, href) => (path.posix.normalize(path.posix.join(path.posix.dirname(file), href || '.')) === file ? `<a href="${href}" aria-current="page">` : m)));
 const footer = (depth, date = VERIFIED) => `  <footer>
     <p>For information only, not legal or tax advice. Sources last checked ${date}. Found an error? <a href="${ISSUES}" rel="noopener">Tell us</a>.</p>
-    <p><a href="${depth || './'}">Home</a> &middot; <a href="${depth}countries.html">All countries</a> &middot; <a href="${depth}upcoming.html">What's coming</a> &middot; <a href="${depth}keyfacts.html">Key facts</a> &middot; <a href="${depth}minimum-wage-europe.html">Minimum wage</a> &middot; <a href="${depth}deadlines.html">Deadlines</a> &middot; <a href="${depth}glossary.html">Glossary</a> &middot; <a href="${depth}suggest.html">Suggest a change</a> &middot; <a href="${depth}feed.xml">RSS feed</a> &middot; <a href="${depth}privacy.html">Privacy</a> &middot; <a href="${depth}terms.html">Terms and disclaimer</a></p>
+    <p><a href="${depth || './'}">Home</a> &middot; <a href="${depth}countries.html">All countries</a> &middot; <a href="${depth}upcoming.html">What's coming</a> &middot; <a href="${depth}keyfacts.html">Key facts</a> &middot; <a href="${depth}minimum-wage-europe.html">Minimum wage</a> &middot; <a href="${depth}social-security-tax-rates-europe.html">Rates</a> &middot; <a href="${depth}deadlines.html">Deadlines</a> &middot; <a href="${depth}glossary.html">Glossary</a> &middot; <a href="${depth}suggest.html">Suggest a change</a> &middot; <a href="${depth}feed.xml">RSS feed</a> &middot; <a href="${depth}privacy.html">Privacy</a> &middot; <a href="${depth}terms.html">Terms and disclaimer</a></p>
   </footer>`;
 
 // items are HTML (already escaped, possibly with glossary links).
@@ -401,6 +408,54 @@ ${header('')}
     <p>The statutory minimum wage of each country, side by side, as stated by its official or professional source. Amounts are in each country's own currency and are not converted. Each country defines the minimum differently, by hours worked or by the month, and many have age bands or other lower or higher rates, so the "Applies to" column names the rate shown; check the source and the <a href="keyfacts.html">key facts</a> page of the country for the full rules. Looking for another country? See <a href="countries.html">all countries</a>. Monthly figures are not comparable across countries: the number of salary payments per year (12, 13 or 14), working hours and the gross/net basis differ, and the monthly and hourly columns measure different things. Some figures are set by collective agreement or apply to one region; the Applies to column says which. For information only, not legal or tax advice.</p>
 ${table}${noneSection}  </main>
 ${footer('', fmtDay(MW_ISO))}
+</body>
+</html>
+`;
+}
+
+// Social security and income tax rates in Europe: one comparison table built only from the `headline` of each country's
+// ssEmployer, ssEmployee and taxBands facts in data/facts.json (see README "Country key facts"). Nothing is typed by hand here.
+function ratesPage() {
+  const url = `${SITE}social-security-tax-rates-europe.html`;
+  const items = [];
+  for (const d of FACTS) {
+    const by = k => (d.facts || []).find(x => x.key === k && x.headline);
+    const f = { er: by('ssEmployer'), ee: by('ssEmployee'), tx: by('taxBands') };
+    if (f.er || f.ee || f.tx) items.push({ d, f, c: countries.get(d.code) });
+  }
+  items.sort((a, b) => a.c.name.localeCompare(b.c.name));
+  const pct = r => (r.includes('.') ? r.replace(/0+$/, '').replace(/\.$/, '') : r) + '%';
+  const src = f => `<a href="${escF(f.sourceUrl)}" rel="noopener">${escF(f.sourceLabel)}</a>`;
+  const rateCell = (f, isTax) => {
+    if (!f) return '—';
+    const h = f.headline;
+    if (h.notComparable !== undefined) return `Not comparable<br><small>${escF(h.notComparable)}</small><br><small>${src(f)}</small>`;
+    const add = isTax && h.addOns ? `<br><small>Not included: ${h.addOns.map(escF).join(', ')}</small>` : '';
+    return `${pct(h.rate)}<br><small>${escF(h.scope)}</small>${add}<br><small>${src(f)}</small>`;
+  };
+  const fromCell = f => (!f || f.headline.notComparable !== undefined ? '—' : f.headline.from === null ? 'Flat rate' : escF(f.headline.from));
+  const link = i => `<a href="countries/${i.c.slug}.html#key-facts">${i.c.flag} ${escF(i.c.name)}</a>`;
+  const h1 = `Social security and income tax rates in Europe ${YEAR}`;
+  const title = withBrand(h1);
+  const desc = `Employer and employee social security and top income tax rates for ${items.length} European ${items.length === 1 ? 'country' : 'countries'}, side by side, each linked to its source. Checked ${fmtDay(RT_ISO)}.`;
+  const table = items.length ? `    <div class="table-scroll" tabindex="0" role="region" aria-label="Social security and income tax rates by country table"><table class="rates"><caption>Employer and employee social security and top income tax rate by country, ${YEAR}: headline figures as stated by each source</caption>
+      <thead><tr><th scope="col">Country</th><th scope="col">Employer social security</th><th scope="col">Employee social security</th><th scope="col">Top income tax rate</th><th scope="col">Starts at</th></tr></thead>
+      <tbody>
+${items.map(i => `        <tr><th scope="row">${link(i)}</th><td>${rateCell(i.f.er, false)}</td><td>${rateCell(i.f.ee, false)}</td><td>${rateCell(i.f.tx, true)}</td><td>${fromCell(i.f.tx)}</td></tr>`).join('\n')}
+      </tbody>
+    </table></div>
+` : '';
+  return `${head({ title, desc, url, depth: '', graph: [breadcrumbs([['Social security and income tax rates in Europe', url]])] })}
+<body>
+${header('')}
+  <main>
+    <h1>${h1}</h1>
+    <p>Employer and employee social security contribution rates and the top income tax rate of each country, side by side, as stated by its official or professional source. Rates are percentages of gross pay unless the note under a figure says otherwise, and the "Starts at" column shows the income above which the top income tax rate applies, in the local currency.</p>
+${table}    <h2>How to read this table</h2>
+    <p>Each country builds its contributions and taxes differently, so only figures that can honestly be compared are shown. Where a country has several rates, such as by sector, age, region or contract type, the note under the figure says which one it is, and where no single figure is fair the cell says "Not comparable" and why. Rates exclude local taxes such as municipal, regional or church taxes unless the note says otherwise. Data as of ${fmtDay(RT_ISO)}. This is for information only and is not legal or tax advice, so always confirm with the source.</p>
+    <p>For the full list of facts behind each figure, see <a href="keyfacts.html">key facts by country</a>. For minimum wages, see the <a href="minimum-wage-europe.html">minimum wage in Europe</a> table.</p>
+  </main>
+${footer('', fmtDay(RT_ISO))}
 </body>
 </html>
 `;
@@ -667,6 +722,7 @@ out.set('suggest.html', suggestPage());
 out.set('glossary.html', glossaryPage());
 out.set('keyfacts.html', keyfactsPage());
 out.set('minimum-wage-europe.html', minWagePage());
+out.set('social-security-tax-rates-europe.html', ratesPage());
 out.set('upcoming.html', upcomingPage());
 out.set('calendar.ics', icsCalendar("Intelligent Payroll: what's coming", CHANGES));
 for (const c of icsCountries) out.set(icsName(c), icsCalendar(`Intelligent Payroll: ${c.name}`, c.entries));
@@ -677,9 +733,9 @@ for (const c of DL_COUNTRIES) out.set(`deadlines/${c.slug}.ics`, deadlineCalenda
 out.set('worker/countries.json', JSON.stringify(Object.fromEntries(list.map(c => [c.code, c.name])), null, 0) + '\n');
 for (const c of list) out.set(`countries/${c.slug}.html`, countryPage(c));
 
-const lastmodOf = u => u === 'keyfacts.html' ? KF_ISO : u === 'minimum-wage-europe.html' ? MW_ISO
+const lastmodOf = u => u === 'keyfacts.html' ? KF_ISO : u === 'minimum-wage-europe.html' ? MW_ISO : u === 'social-security-tax-rates-europe.html' ? RT_ISO
   : u === 'deadlines.html' ? DL_ISO : u.startsWith('countries/') ? countryModIso(list.find(c => `countries/${c.slug}.html` === u).code) : VERIFIED_ISO;
-const urls = ['', 'countries.html', ...list.map(c => `countries/${c.slug}.html`), 'upcoming.html', 'keyfacts.html', 'minimum-wage-europe.html', 'deadlines.html', 'glossary.html', 'suggest.html', 'privacy.html', 'terms.html'];
+const urls = ['', 'countries.html', ...list.map(c => `countries/${c.slug}.html`), 'upcoming.html', 'keyfacts.html', 'minimum-wage-europe.html', 'social-security-tax-rates-europe.html', 'deadlines.html', 'glossary.html', 'suggest.html', 'privacy.html', 'terms.html'];
 out.set('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.map(u => `  <url><loc>${SITE}${u}</loc><lastmod>${lastmodOf(u)}</lastmod></url>`).join('\n')}
@@ -750,7 +806,7 @@ const fill = tpl => tpl
   .replaceAll('{{AUTHORITY}}', authority).replaceAll('{{GOVERNING_LAW}}', esc(op.governingLaw));
 for (const f of ['privacy.html', 'terms.html']) {
   const crumb = f === 'privacy.html' ? 'Privacy notice' : 'Terms of use and disclaimer';
-  const rendered = fill(fs.readFileSync(path.join(ROOT, 'scripts/templates', f), 'utf8')).replaceAll('{{JSONLD}}', () => ldScript([breadcrumbs([[crumb, SITE + f]])]));
+  const rendered = fill(fs.readFileSync(path.join(ROOT, 'scripts/templates', f), 'utf8')).replaceAll('{{HEADER}}', () => header('')).replaceAll('{{JSONLD}}', () => ldScript([breadcrumbs([[crumb, SITE + f]])]));
   const left = rendered.match(/\{\{[A-Z_]+\}\}/g);
   if (left) throw new Error(`${f}: unfilled template tokens ${left.join(', ')}`);
   out.set(f, rendered);
@@ -815,6 +871,7 @@ function seoProblems(pages) {
   if (!ans.startsWith(want)) bad.push(`index.html: FAQ "Which countries are covered?" must start with: ${want}`);
   return bad;
 }
+for (const [f, content] of out) if (/\.html$/.test(f)) out.set(f, markCurrent(f, content));
 {
   const pages = [['index.html', html, SITE]];
   for (const [f, content] of out) if (/\.html$/.test(f)) pages.push([f, content, SITE + f]);

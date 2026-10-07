@@ -113,6 +113,26 @@ a.term:hover, a.term:focus-visible { color: var(--accent); text-decoration-style
 .tax-bands td { color: var(--text); }
 .tax-bands td:nth-child(-n+2) { white-space: nowrap; overflow-wrap: normal; }
 
+/* Grouped header navigation: Home, Changelog and three <details> dropdown groups. */
+header nav { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.25rem 1rem; }
+header nav > a, .nav-group summary { font-weight: 400; font-size: 0.9rem; color: var(--muted); }
+header nav a[aria-current="page"] { color: var(--accent); }
+.nav-group { position: relative; }
+.nav-group summary { cursor: pointer; list-style: none; display: block; white-space: nowrap; padding: 0.15rem 0; }
+.nav-group summary::-webkit-details-marker { display: none; }
+.nav-group summary::after { content: " ▾"; font-size: 0.8em; }
+.nav-group[open] summary { color: var(--text); }
+.nav-group summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.nav-menu { position: absolute; z-index: 20; top: 100%; left: 0; min-width: 12rem; background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 0.35rem 0; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35); }
+header .nav-menu a { display: block; padding: 0.4rem 0.9rem; font-weight: 400; font-size: 0.9rem; white-space: nowrap; color: var(--text); }
+header .nav-menu a:hover, header .nav-menu a[aria-current="page"] { color: var(--accent); }
+@media (max-width: 720px) {
+  header nav { width: 100%; }
+  .nav-group[open] { flex: 1 0 100%; }
+  .nav-menu { position: static; min-width: 0; background: transparent; border: 0; box-shadow: none; padding: 0.1rem 0 0.25rem 0.75rem; }
+  header .nav-menu a { padding: 0.3rem 0; }
+}
+
 /* P4-2: minimum-wage-europe.html comparison table (7 columns scroll inside .table-scroll, never the page) */
 .min-wage thead th { background: rgba(45, 212, 163, 0.08); color: var(--text); font-weight: 700; white-space: nowrap; }
 .min-wage { border-collapse: collapse; width: 100%; min-width: 60rem; margin: 0.25rem 0 0.75rem; font-size: 0.9rem; }
@@ -124,6 +144,16 @@ a.term:hover, a.term:focus-visible { color: var(--accent); text-decoration-style
 .min-wage td:nth-child(5) { min-width: 11rem; }
 .min-wage td:last-child { min-width: 16rem; }
 .no-min-wage { overflow-wrap: anywhere; }
+
+/* P5-1: social-security-tax-rates-europe.html comparison table (5 columns scroll inside .table-scroll, never the page) */
+.rates { border-collapse: collapse; width: 100%; min-width: 64rem; margin: 0.25rem 0 0.75rem; font-size: 0.9rem; }
+.rates caption { text-align: left; caption-side: top; color: var(--muted); font-size: 0.85rem; padding-bottom: 0.4rem; }
+.rates thead th { background: rgba(45, 212, 163, 0.08); color: var(--text); font-weight: 700; white-space: nowrap; }
+.rates tbody th { font-weight: 700; white-space: nowrap; position: sticky; left: 0; background: var(--bg); }
+.rates th, .rates td { border: 1px solid var(--border); padding: 0.4rem 0.7rem; text-align: left; vertical-align: top; font-variant-numeric: tabular-nums; }
+.rates td { color: var(--text); min-width: 11rem; }
+.rates td:last-child { min-width: 7rem; }
+.rates td small { color: var(--muted); display: block; overflow-wrap: anywhere; }
 
 /* P2-12: deadlines.html. Five-column tables scroll inside .table-scroll, never the page. */
 .deadlines { border-collapse: collapse; width: 100%; min-width: 48rem; margin: 0.25rem 0 0.75rem; font-size: 0.9rem; }
@@ -178,6 +208,15 @@ a.term:hover, a.term:focus-visible { color: var(--accent); text-decoration-style
   .min-wage tr { break-inside: avoid; page-break-inside: avoid; }
   .min-wage a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 8pt; word-break: break-all; }
   .no-min-wage li { break-inside: avoid; }
+  /* P5-1: rates comparison table on white paper, all 5 columns fit, rows unbroken */
+  .rates { min-width: 0; font-size: 9pt; }
+  .rates th, .rates td { border: 1px solid #000; background: #fff; white-space: normal; }
+  .rates thead th, .rates tbody th { white-space: normal; }
+  .rates td, .rates td:last-child { min-width: 0; }
+  .rates tbody th { position: static; background: #fff; }
+  .rates small { color: #000; }
+  .rates tr { break-inside: avoid; page-break-inside: avoid; }
+  .rates a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 8pt; word-break: break-all; }
   /* P2-12: deadline tables and the month list on white paper; the filter and calendar controls do not print; source addresses are printed */
   .deadline-filter, .deadline-subscribe { display: none !important; }
   .deadlines { min-width: 0; font-size: 9pt; }

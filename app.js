@@ -498,7 +498,7 @@
       // Handles ?countries= and legacy ?country= (via readSelection); unknown values are dropped.
       const initial = PayrollFilters.readUrlState(search, countryToRegion);
       state = {countries: initial.countries, region: initial.region, filter: initial.filter, when: initial.when, search: (initial.search || '').trim().toLowerCase()};
-      if(/[?&](countries|country|filter|region|when|q)=/.test(search)){
+      if(/[?&](countries|country|filter|region|when|q)=/.test(search) || window.location.hash === '#changelog'){
         showChangelogNav();
         renderChangelog();
       } else {

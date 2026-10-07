@@ -1290,18 +1290,44 @@ test('p2_8.key_facts_precede_partial_coverage_notice', () => {
 //    <li><a href="countries/<slug>.html#key-facts">FLAG Name</a> <span class="count">CUR</span></li>   (CUR = facts.json currency; flag+name from the changelog data).
 //    Listed in sitemap.xml. Escaped, no inline script/style/handlers.
 //  Generated header (every generated page, incl. countries/*.html with '../'):
-//    <header><a ...>Intelligent Payroll</a> <a class="nav" href="[../]countries.html">All countries</a> <a class="nav" href="[../]keyfacts.html">Key facts</a> <a class="nav" href="[../]glossary.html">Glossary</a></header>
+//    (superseded by the grouped navigation, see NAV_SPEC below: All countries, Key facts and Glossary now live in the "Reference" group)
 //  Generated footer: adds <a href="[../]keyfacts.html">Key facts</a> (next to Glossary). Footers have no link to the GitHub repo root nor "View source";
 //    the "Tell us" issues link (github.com/.../issues) stays.
 //  legal.css: header must wrap (flex-wrap: wrap) so 4 items fit at 375px.
-//  index.html: header nav gets <a href="keyfacts.html" class="nav-link">Key facts</a> and <a href="glossary.html" class="nav-link">Glossary</a> after Changelog
-//    (no data-view); footer drops "View source on GitHub"; keeps "Report an error or contact us" (issues URL).
+//  index.html: header nav links to keyfacts.html and glossary.html (now inside the "Reference" group, no data-view); footer drops "View source on GitHub"; keeps "Report an error or contact us" (issues URL).
 const REPO_ROOT_LINK = /href="https:\/\/github\.com\/ankitbansal2k-ui\/payroll-atlas\/?"/;
 const footerOf = h => (h.match(/<footer[\s\S]*?<\/footer>/) || [''])[0];
 const headerOf = h => (h.match(/<header[\s\S]*?<\/header>/) || [''])[0];
-const allGenerated = () => ['countries.html', 'upcoming.html', 'glossary.html', 'privacy.html', 'terms.html', 'suggest.html', 'keyfacts.html', 'minimum-wage-europe.html', 'deadlines.html', ...countryFiles.filter(f => f.endsWith('.html')).map(f => `countries/${f}`)].filter(f => fs.existsSync(path.join(ROOT, f)));
+const allGenerated = () => ['countries.html', 'upcoming.html', 'glossary.html', 'privacy.html', 'terms.html', 'suggest.html', 'keyfacts.html', 'minimum-wage-europe.html', 'social-security-tax-rates-europe.html', 'deadlines.html', ...countryFiles.filter(f => f.endsWith('.html')).map(f => `countries/${f}`)].filter(f => fs.existsSync(path.join(ROOT, f)));
+// ---------- Grouped header navigation (menu restructure) ----------
+// Contract (index.html and every generated page, incl. countries/*.html with depth '../'):
+//   <header> ... <nav aria-label="Main"> Home, Changelog, then three <details class="nav-group"><summary>Label</summary><div class="nav-menu">links</div></details>
+//   in this order: "Plan ahead" (What's coming, Deadlines), "Compare" (Minimum wage; more may be appended later), "Reference" (Key facts, Glossary, All countries).
+//   index.html: links are relative, groups sit before <select class="country-selector">, Home/Changelog keep data-view. Generated pages: Home and Changelog both
+//   lead to the home page (app.js has no hash routing, so no #changelog anchor exists), with different hrefs. The link to the page itself carries aria-current="page".
+//   Footers are unchanged. nav.js (src="nav.js", "../nav.js" on country pages) closes groups on outside click / Escape and keeps at most one open.
+const NAV_SPEC = [
+  { label: 'Plan ahead', links: [["What's coming", 'upcoming.html'], ['Deadlines', 'deadlines.html']], appendable: false },
+  { label: 'Compare', links: [['Minimum wage', 'minimum-wage-europe.html']], appendable: true },
+  { label: 'Reference', links: [['Key facts', 'keyfacts.html'], ['Glossary', 'glossary.html'], ['All countries', 'countries.html']], appendable: false },
+];
+const attrOf = (attrs, n) => (attrs.match(new RegExp(`(?:^|\\s)${n}="([^"]*)"`)) || [])[1];
+const NAV_DETAILS_RE = /<details\b([^>]*)>\s*<summary([^>]*)>([^<]*)<\/summary>\s*<div class="nav-menu">([\s\S]*?)<\/div>\s*<\/details>/g;
+const parseLinks = s => [...s.matchAll(/<a\b([^>]*)>([^<]*)<\/a>/g)].map(a => ({ attrs: a[1], href: attrOf(a[1], 'href'), text: decode(a[2]), pos: a.index }));
+// Parses the header <nav>; null when the header has no <nav>. top = anchors outside the groups, pos values are offsets inside the nav.
+function navModel(h) {
+  const header = headerOf(h), m = header.match(/<nav\b([^>]*)>([\s\S]*?)<\/nav>/);
+  if (!m) return null;
+  const inner = m[2];
+  const groups = [...inner.matchAll(NAV_DETAILS_RE)].map(g => ({ detailsAttrs: g[1], summaryAttrs: g[2], label: decode(g[3]), pos: g.index, raw: g[0], links: parseLinks(g[4]) }));
+  const outside = inner.replace(NAV_DETAILS_RE, x => ' '.repeat(x.length));
+  return { header, navAttrs: m[1], inner, groups, top: parseLinks(outside), allLinks: [...parseLinks(outside), ...groups.flatMap(g => g.links)] };
+}
+const depthOf = f => (f.startsWith('countries/') ? '../' : '');
+const groupOf = (f, label) => { const g = navModelOf(f).groups.find(x => x.label === label); assert.ok(g, `${f}: header has a "${label}" group (<details class="nav-group">)`); return g; };
+const navModelOf = f => { const n = navModel(read(f)); assert.ok(n, `${f}: header has no <nav>`); return n; };
 const REGION_LABELS = ['Europe', 'APAC', 'MENAT', 'LATAM', 'Africa'];
-const REGION_OF = { europe: 'Europe', apac: 'APAC', menat: 'MENAT', latam: 'LATAM', africa: 'Africa' };
+const REGION_OF ={ europe: 'Europe', apac: 'APAC', menat: 'MENAT', latam: 'LATAM', africa: 'Africa' };
 const keyfactsExpect = () => {
   const facts = JSON.parse(read('data/facts.json')), site = loadSite();
   const info = new Map(CHANGES.map(e => [e.country, e]));
@@ -1359,10 +1385,10 @@ test('p3_1.keyfacts_in_sitemap_and_footers_and_headers', () => {
   assert.ok(gen.length > 70);
   for (const f of gen) {
     const d = f.startsWith('countries/') ? '../' : '';
-    const hd = headerOf(read(f)), ft = footerOf(read(f));
-    assert.ok(hd.includes(`<a class="nav" href="${d}keyfacts.html">Key facts</a>`), `${f}: header Key facts link`);
-    assert.ok(hd.includes(`<a class="nav" href="${d}glossary.html">Glossary</a>`), `${f}: header Glossary link`);
-    assert.ok(hd.includes(`<a class="nav" href="${d}countries.html">All countries</a>`), `${f}: header All countries kept`);
+    const ft = footerOf(read(f)), ref = (navModelOf(f).groups.find(g => g.label === 'Reference') || { links: [] }).links;
+    for (const [text, file] of [['Key facts', 'keyfacts.html'], ['Glossary', 'glossary.html'], ['All countries', 'countries.html']]) {
+      assert.ok(ref.some(l => l.text === text && l.href === `${d}${file}`), `${f}: header "Reference" group links "${text}" to ${d}${file}`);
+    }
     assert.ok(ft.includes(`<a href="${d}keyfacts.html">Key facts</a>`), `${f}: footer Key facts link`);
     assert.ok(ft.includes(`<a href="${d}glossary.html">Glossary</a>`), `${f}: footer Glossary link kept`);
   }
@@ -1385,16 +1411,15 @@ test('p3_1.no_github_repo_link_or_view_source_in_user_facing_footers', () => {
   }
 });
 test('p3_1.index_header_nav_links', () => {
-  const idx = read('index.html'), nav = (idx.match(/<header>[\s\S]*?<nav>([\s\S]*?)<\/nav>/) || [])[1] || '';
-  const a = [...nav.matchAll(/<a\b([^>]*)>([^<]*)<\/a>/g)].map(m => ({ attrs: m[1], text: m[2] }));
-  assert.deepEqual(a.map(x => x.text), ['Home', 'Changelog', 'Key facts', 'Glossary'], 'nav order');
+  const n = navModelOf('index.html');
+  assert.deepEqual(n.allLinks.map(x => x.text), ['Home', 'Changelog', "What's coming", 'Deadlines', 'Minimum wage', 'Rates', 'Key facts', 'Glossary', 'All countries'], 'header nav links in order (grouped menu, P3-1 Key facts and Glossary now sit in "Reference")');
   for (const [t, href] of [['Key facts', 'keyfacts.html'], ['Glossary', 'glossary.html']]) {
-    const x = a.find(y => y.text === t);
-    assert.match(x.attrs, new RegExp(`\\bhref="${href}"`), `${t}: real href`);
-    assert.match(x.attrs, /\bclass="nav-link"/, `${t}: class nav-link`);
+    const x = n.groups.find(g => g.label === 'Reference').links.find(y => y.text === t);
+    assert.ok(x, `${t}: in the Reference group`);
+    assert.equal(x.href, href, `${t}: real relative href`);
     assert.ok(!/data-view/.test(x.attrs), `${t}: no data-view (real navigation)`);
   }
-  assert.match(a[0].attrs, /data-view="view-home"/); assert.match(a[1].attrs, /data-view="view-changelog"/);
+  assert.match(n.top[0].attrs, /data-view="view-home"/); assert.match(n.top[1].attrs, /data-view="view-changelog"/);
 });
 
 // ---------- P4-1: on-page SEO (titles, descriptions, JSON-LD, FAQ wording, internal links, sitemap) ----------
@@ -1679,7 +1704,7 @@ test('p4_1.check_ignores_visible_faq_edits_and_rejects_extra_index_nodes', () =>
     r = s.run('build-pages.mjs', '--check'); assert.ok(r.ok, r.out.slice(0, 300));
   } finally { s.done(); }
 });
-const CRUMB_NAMES = { 'countries.html': ['All countries'], 'upcoming.html': ["What's coming"], 'glossary.html': ['Glossary'], 'keyfacts.html': ['Key facts'], 'minimum-wage-europe.html': ['Minimum wage in Europe'], 'deadlines.html': ['Payroll deadlines'], 'suggest.html': ['Suggest a change'], 'privacy.html': ['Privacy notice'], 'terms.html': ['Terms of use and disclaimer'] };
+const CRUMB_NAMES = { 'countries.html': ['All countries'], 'upcoming.html': ["What's coming"], 'glossary.html': ['Glossary'], 'keyfacts.html': ['Key facts'], 'minimum-wage-europe.html': ['Minimum wage in Europe'], 'social-security-tax-rates-europe.html': ['Social security and income tax rates in Europe'], 'deadlines.html': ['Payroll deadlines'], 'suggest.html': ['Suggest a change'], 'privacy.html': ['Privacy notice'], 'terms.html': ['Terms of use and disclaimer'] };
 test('p4_1.jsonld_breadcrumbs_on_every_generated_page', () => {
   const pages = allGenerated(); assert.ok(pages.length > 80);
   for (const f of pages) {
@@ -1808,7 +1833,8 @@ test('p4_1.faq_countries_answer_uses_current_wording_and_data_counts', () => {
   assert.ok(!/country selector in the header/i.test(a) && !/see the full list/i.test(a), 'stale wording removed');
   const idx = read('index.html');
   assert.ok(/<summary id="country-picker-summary">Countries<\/summary>/.test(idx), 'a Countries picker exists');
-  assert.ok(/<a href="keyfacts\.html" class="nav-link">Key facts<\/a>/.test(idx) && /<a href="glossary\.html" class="nav-link">Glossary<\/a>/.test(idx), 'Key facts and Glossary menu items exist');
+  const refLinks = groupOf('index.html', 'Reference').links;
+  assert.ok(refLinks.some(l => l.text === 'Key facts' && l.href === 'keyfacts.html') && refLinks.some(l => l.text === 'Glossary' && l.href === 'glossary.html'), 'Key facts and Glossary menu items exist in the Reference group');
 });
 
 // --- internal linking ---
@@ -1978,7 +2004,7 @@ test('p4_2.validate_rejects_bad_headlines', () => {
   const H = (o, value) => hlCountry({ ...good, ...o }, value);
   const noKey = (o, k) => { const { [k]: _, ...rest } = o; return rest; };
   const cases = {
-    on_other_key: [[fixCountry({ facts: [fixFact({ key: 'ssEmployer', label: 'Employer', headline: good })] })], /headline is only allowed on a minimumWage fact/],
+    on_other_key: [[fixCountry({ facts: [fixFact({ key: 'ssCeiling', label: 'Ceiling', headline: good })] })], /headline is only allowed on a minimumWage/], // P5-1: ssEmployer/ssEmployee/taxBands now take their own headline shape, so this uses ssCeiling; the full new message is pinned in p5_1.validate_*
     not_object: [hlCountry('13.90'), /headline must be an object/],
     array: [hlCountry([]), /headline must be an object/],
     null_value: [hlCountry(null), /headline must be an object/],
@@ -2076,12 +2102,15 @@ test('p4_2.page_links_footers_keyfacts_and_no_nav_change', () => {
     const a = `<a href="${d}minimum-wage-europe.html">Minimum wage</a>`;
     assert.ok(ft.includes(a), `${f}: footer link "Minimum wage"`);
     assert.ok(ft.indexOf(`<a href="${d}keyfacts.html">Key facts</a>`) < ft.indexOf(a) && ft.indexOf(a) < ft.indexOf(`<a href="${d}glossary.html">Glossary</a>`), `${f}: footer order Key facts, Minimum wage, Glossary`);
-    assert.ok(!/minimum-wage-europe/.test(headerOf(h)), `${f}: no header nav change`);
+    const cmp = navModelOf(f).groups.find(g => g.label === 'Compare');
+    assert.ok(cmp && cmp.links[0] && cmp.links[0].text === 'Minimum wage' && cmp.links[0].href === `${d}minimum-wage-europe.html`, `${f}: header "Compare" group starts with Minimum wage`);
+    assert.equal(headerOf(h).split('minimum-wage-europe.html').length - 1, 1, `${f}: header links the page exactly once`);
   }
   const idx = read('index.html');
-  assert.ok(!/minimum-wage-europe/.test((idx.match(/<header>[\s\S]*?<\/header>/) || [''])[0]), 'index.html header nav unchanged');
-  assert.match(footerOf(idx), /<a href="glossary\.html">Glossary<\/a>\s*<a href="minimum-wage-europe\.html">Minimum wage<\/a>\s*<a href="deadlines\.html">Deadlines<\/a>\s*<a href="suggest\.html">/, 'index.html footer nav: Minimum wage link right after Glossary, then Deadlines (P2-12)');
-  assert.equal(idx.split('href="minimum-wage-europe.html"').length - 1, 1, 'index.html links the page exactly once (footer)');
+  const cmpIdx = navModelOf('index.html').groups.find(g => g.label === 'Compare');
+  assert.ok(cmpIdx && cmpIdx.links[0].text === 'Minimum wage' && cmpIdx.links[0].href === 'minimum-wage-europe.html', 'index.html header "Compare" group starts with Minimum wage');
+  assert.match(footerOf(idx), /<a href="glossary\.html">Glossary<\/a>\s*<a href="minimum-wage-europe\.html">Minimum wage<\/a>\s*(<a href="social-security-tax-rates-europe\.html">Rates<\/a>\s*)?<a href="deadlines\.html">Deadlines<\/a>\s*<a href="suggest\.html">/, 'index.html footer nav: Minimum wage link right after Glossary, then (P5-1) Rates, then Deadlines (P2-12)');
+  assert.equal(idx.split('href="minimum-wage-europe.html"').length - 1, 2, 'index.html links the page exactly twice (header Compare menu and footer)');
   const kmain = (read('keyfacts.html').match(/<main>[\s\S]*?<\/main>/) || [''])[0];
   assert.equal(kmain.split('href="minimum-wage-europe.html"').length - 1, 1, 'keyfacts.html main links to the page once');
   assert.ok(((kmain.match(/<\/h1>\s*<p>([\s\S]*?)<\/p>/) || ['', ''])[1]).includes('<a href="minimum-wage-europe.html">'), 'keyfacts.html: the intro paragraph (first <p> after the h1) holds the link');
@@ -2638,8 +2667,8 @@ test('p2_12.page_exists_with_seo_head_jsonld_sitemap_and_scripts', () => {
   assert.ok(!/unsafe-/.test(csp) && !/script-src 'none'/.test(csp) && /(default-src|script-src) 'self'/.test(csp), 'CSP allows same-origin scripts and fetch (default-src or script-src/connect-src self) and nothing unsafe: ' + csp);
   assert.ok(!/connect-src 'none'/.test(csp), 'CSP must not block fetch of deadlines.json');
   assert.ok(!/\son[a-z]+=|\sstyle=/i.test(h) && !INLINE_SCRIPT.test(h), 'CSP: no inline handlers/styles/scripts');
-  const scripts = [...h.matchAll(/<script\b[^>]*>/g)].map(m => m[0]).filter(t => !/application\/ld\+json/.test(t));
-  assert.deepEqual(scripts, ['<script src="filters.js">', '<script src="deadlines.js">'], 'external scripts: filters.js then deadlines.js');
+  const scripts = [...h.matchAll(/<script\b[^>]*>/g)].map(m => m[0]).filter(t => !/application\/ld\+json/.test(t) && !/\ssrc="nav\.js"/.test(t));
+  assert.deepEqual(scripts, ['<script src="filters.js">', '<script src="deadlines.js">'], 'external scripts: filters.js then deadlines.js (the shared nav.js is checked separately)');
   assert.ok(h.indexOf('<script src="deadlines.js">') > h.indexOf('</footer>'), 'scripts come after the footer');
   const bc = byType(ldGraph(h, 'deadlines.html'), 'BreadcrumbList');
   assert.equal(bc.length, 1); assert.deepEqual(bc[0].itemListElement.map(i => [i.position, i.name, i.item]), [[1, 'Home', SITE_URL], [2, 'Payroll deadlines', url]]);
@@ -2676,11 +2705,14 @@ test('p2_12.footers_nav_keyfacts_and_country_pages_link_to_the_page', () => {
     const d = f.startsWith('countries/') ? '../' : '', h = read(f), ft = footerOf(h), a = `<a href="${d}deadlines.html">Deadlines</a>`;
     assert.ok(ft.includes(a), `${f}: footer link "Deadlines"`);
     assert.ok(ft.indexOf(`<a href="${d}minimum-wage-europe.html">Minimum wage</a>`) < ft.indexOf(a) && ft.indexOf(a) < ft.indexOf(`<a href="${d}glossary.html">Glossary</a>`), `${f}: footer order Minimum wage, Deadlines, Glossary`);
-    assert.ok(!/deadlines\.html/.test(headerOf(h)), `${f}: no header nav change`);
+    const plan = navModelOf(f).groups.find(g => g.label === 'Plan ahead');
+    assert.ok(plan && plan.links.some(l => l.text === 'Deadlines' && l.href === `${d}deadlines.html`), `${f}: header "Plan ahead" group links Deadlines`);
+    assert.equal(headerOf(h).split('deadlines.html').length - 1, 1, `${f}: header links the page exactly once`);
   }
   const idx = read('index.html');
-  assert.ok(!/deadlines\.html/.test((idx.match(/<header>[\s\S]*?<\/header>/) || [''])[0]), 'index.html header unchanged');
-  assert.equal(idx.split('href="deadlines.html"').length - 1, 1, 'index.html links the page once (footer)');
+  const planIdx = navModelOf('index.html').groups.find(g => g.label === 'Plan ahead');
+  assert.ok(planIdx && planIdx.links.some(l => l.text === 'Deadlines' && l.href === 'deadlines.html'), 'index.html header "Plan ahead" group links Deadlines');
+  assert.equal(idx.split('href="deadlines.html"').length - 1, 2, 'index.html links the page twice (header Plan ahead menu and footer)');
   const kmain = mainOf(read('keyfacts.html'));
   assert.equal(kmain.split('href="deadlines.html"').length - 1, 1, 'keyfacts.html main links to the page once');
   assert.ok(((kmain.match(/<\/h1>\s*<p>([\s\S]*?)<\/p>/) || ['', ''])[1]).includes('<a href="deadlines.html">'), 'keyfacts.html: the intro paragraph holds the link');
@@ -2920,5 +2952,985 @@ test('p2_12.css_deadlines_table_at_375px', () => {
   assert.match(screen, /\.deadline-items[^{]*\{/, 'upcoming list is styled'); assert.ok(!/\.deadlines[^{]*\{[^}]*display\s*:\s*none/.test(screen), 'nothing in the table is hidden on screen');
   assert.match(screen, /\.deadline-(filter|chip)[^{]*\{[^}]*(flex-wrap\s*:\s*wrap|display\s*:\s*inline-flex|display\s*:\s*inline-block)/, 'chips wrap onto several lines on a phone');
 });
+
+// ---------- Grouped header navigation: structure, order, targets, accessibility (contract at NAV_SPEC) ----------
+const OPEN_RE = /(^|\s)open(\s|=|$)/;
+const resolveFrom = (f, href) => path.posix.normalize(path.posix.join(path.posix.dirname(f), href.split('#')[0] || '.'));
+// Home/Changelog on generated pages: app.js has no hash routing, so both lead to the home page, with different hrefs.
+const APP_ROUTES_CHANGELOG_HASH = /location\.hash[\s\S]{0,300}changelog|['"]#changelog['"]/i.test(js);
+
+test('nav.generated_headers_have_main_landmark_and_three_groups_in_order', () => {
+  const gen = allGenerated(); assert.ok(gen.length > 70, 'checks every generated page, countries included');
+  for (const f of gen) {
+    const n = navModelOf(f), d = depthOf(f);
+    assert.equal(attrOf(n.navAttrs, 'aria-label'), 'Main', `${f}: header <nav> has aria-label="Main"`);
+    assert.equal((read(f).match(/<nav\b[^>]*aria-label="Main"/g) || []).length, 1, `${f}: exactly one Main navigation landmark`);
+    assert.ok(new RegExp(`^\\s*<header>\\s*<a href="${d || './'}">Intelligent Payroll</a>`).test(n.header), `${f}: header still starts with the brand link to the home page`);
+    assert.deepEqual(n.groups.map(g => g.label), NAV_SPEC.map(g => g.label), `${f}: three groups, labels and order exactly "Plan ahead", "Compare", "Reference"`);
+    assert.equal((n.header.match(/<details\b/g) || []).length, 3, `${f}: no other <details> in the header`);
+    for (const g of n.groups) {
+      assert.equal(attrOf(g.detailsAttrs, 'class'), 'nav-group', `${f}: <details class="nav-group"> (${g.label})`);
+      assert.ok(!OPEN_RE.test(g.detailsAttrs), `${f}: ${g.label} is closed in the markup (no open attribute, even on the current page)`);
+    }
+  }
+});
+test('nav.generated_group_links_are_exact_with_depth_prefix', () => {
+  for (const f of allGenerated()) {
+    const n = navModelOf(f), d = depthOf(f);
+    NAV_SPEC.forEach((spec, i) => {
+      const want = spec.links.map(([t, h]) => [t, d + h]), got = (n.groups[i] ? n.groups[i].links : []).map(l => [l.text, l.href]);
+      assert.deepEqual(spec.appendable ? got.slice(0, want.length) : got, want, `${f}: "${spec.label}" links (label, href)${spec.appendable ? ' (more may be appended later)' : ''}`);
+    });
+  }
+});
+test('nav.generated_home_and_changelog_lead_to_the_home_page_with_distinct_hrefs', () => {
+  for (const f of allGenerated()) {
+    const n = navModelOf(f), d = depthOf(f);
+    assert.deepEqual(n.top.map(l => l.text), ['Home', 'Changelog'], `${f}: the only links outside the groups are Home, Changelog (in that order)`);
+    const homes = [d || './', `${d}index.html`], logs = [`${d}index.html`].concat(APP_ROUTES_CHANGELOG_HASH ? [`${d}#changelog`, `${d}index.html#changelog`] : []);
+    assert.ok(homes.includes(n.top[0].href), `${f}: Home href ${n.top[0].href} should be one of ${homes.join(' | ')}`);
+    assert.ok(logs.includes(n.top[1].href), `${f}: Changelog href ${n.top[1].href} should be one of ${logs.join(' | ')} (the SPA has no #changelog route unless app.js reads the hash)`);
+    assert.notEqual(n.top[0].href, n.top[1].href, `${f}: Home and Changelog hrefs differ`);
+  }
+});
+test('nav.generated_order_home_changelog_then_groups', () => {
+  for (const f of allGenerated()) {
+    const n = navModelOf(f), p = [n.top[0].pos, n.top[1].pos, ...n.groups.map(g => g.pos)];
+    assert.equal(p.length, 5, `${f}: five nav items`);
+    assert.ok(p.every((x, i) => i === 0 || x > p[i - 1]), `${f}: order Home, Changelog, Plan ahead, Compare, Reference (offsets ${p})`);
+    assert.ok(n.inner.slice(n.groups[2].pos + n.groups[2].raw.length).trim() === '', `${f}: nothing follows the Reference group inside the nav`);
+  }
+});
+test('nav.no_duplicate_hrefs_and_every_target_exists', () => {
+  for (const f of allGenerated()) {
+    const n = navModelOf(f), hrefs = n.allLinks.map(l => l.href);
+    assert.ok(hrefs.every(Boolean) && n.allLinks.every(l => l.text.trim()), `${f}: every nav link has an href and a label`);
+    assert.equal(new Set(hrefs).size, hrefs.length, `${f}: duplicate hrefs in the header nav: ${hrefs.filter((h, i) => hrefs.indexOf(h) !== i)}`);
+    for (const l of n.allLinks) assert.ok(fs.existsSync(path.join(ROOT, resolveFrom(f, l.href))), `${f}: nav target ${l.href} (${l.text}) does not exist`);
+  }
+});
+test('nav.summary_is_the_only_interactive_wrapper_no_role_or_handler_overrides', () => {
+  for (const f of [...allGenerated(), 'index.html']) {
+    const n = navModelOf(f);
+    for (const g of n.groups) {
+      assert.ok(!/\s(role|tabindex|onclick|style|aria-haspopup|aria-hidden)=/.test(g.raw), `${f}: ${g.label}: no role/tabindex/inline handler/style overrides inside the group`);
+      assert.ok(!/<(button|input|select|summary)\b/.test(g.raw.replace(/<summary\b/, '')), `${f}: ${g.label}: summary is the only control (no buttons or inputs)`);
+      assert.equal((g.raw.match(/<summary\b/g) || []).length, 1, `${f}: ${g.label}: exactly one summary`);
+      assert.ok(g.label.trim() !== '' && !/[<>]/.test(g.label), `${f}: summary text is plain`);
+    }
+    assert.ok(!/\son[a-z]+=|\sstyle=/i.test(n.header), `${f}: no inline handlers or styles in the header (CSP)`);
+  }
+});
+test('nav.aria_current_marks_the_link_to_the_page_itself_and_nothing_else', () => {
+  const expectCurrent = { 'upcoming.html': "What's coming", 'deadlines.html': 'Deadlines', 'minimum-wage-europe.html': 'Minimum wage', 'social-security-tax-rates-europe.html': 'Rates', 'keyfacts.html': 'Key facts', 'glossary.html': 'Glossary', 'countries.html': 'All countries' };
+  for (const f of allGenerated()) {
+    const n = navModelOf(f), cur = n.allLinks.filter(l => /(^|\s)aria-current=/.test(l.attrs));
+    for (const l of cur) assert.equal(attrOf(l.attrs, 'aria-current'), 'page', `${f}: aria-current value on ${l.text}`);
+    const selfLinks = n.allLinks.filter(l => resolveFrom(f, l.href) === f);
+    assert.deepEqual(cur.map(l => l.href), selfLinks.map(l => l.href), `${f}: aria-current="page" exactly on the link that points at this page`);
+    if (f in expectCurrent) assert.deepEqual(cur.map(l => l.text), [expectCurrent[f]], `${f}: its own menu link is the current page`);
+    else assert.equal(cur.length, 0, `${f}: no menu link is the current page`);
+    for (const g of n.groups) assert.ok(!OPEN_RE.test(g.detailsAttrs), `${f}: the group of the current page is not force-opened`);
+  }
+});
+test('nav.index_header_grouped_structure', () => {
+  const n = navModelOf('index.html'), idx = read('index.html');
+  assert.equal(attrOf(n.navAttrs, 'aria-label'), 'Main', 'index.html header <nav aria-label="Main">');
+  assert.deepEqual(n.groups.map(g => g.label), NAV_SPEC.map(g => g.label), 'index.html: three groups in order');
+  NAV_SPEC.forEach((spec, i) => {
+    const want = spec.links.map(([t, h]) => [t, h]), got = n.groups[i].links.map(l => [l.text, l.href]);
+    assert.deepEqual(spec.appendable ? got.slice(0, want.length) : got, want, `index.html: "${spec.label}" links relative, exact`);
+    assert.equal(attrOf(n.groups[i].detailsAttrs, 'class'), 'nav-group');
+    assert.ok(!OPEN_RE.test(n.groups[i].detailsAttrs), `${spec.label} closed in markup`);
+    for (const l of n.groups[i].links) assert.ok(!/data-view|aria-current/.test(l.attrs) && fs.existsSync(path.join(ROOT, l.href)), `index.html: ${l.text}: real navigation to an existing file, no data-view`);
+  });
+  assert.deepEqual(n.top.map(l => l.text), ['Home', 'Changelog'], 'only Home and Changelog outside the groups');
+  assert.match(n.top[0].attrs, /data-view="view-home"/); assert.match(n.top[1].attrs, /data-view="view-changelog"/);
+  const sel = n.inner.indexOf('<select class="country-selector"');
+  assert.ok(sel > 0, 'country selector still in the header nav');
+  const p = [n.top[0].pos, n.top[1].pos, ...n.groups.map(g => g.pos), sel];
+  assert.ok(p.length === 6 && p.every((x, i) => i === 0 || x > p[i - 1]), `order: Home, Changelog, Plan ahead, Compare, Reference, country selector (offsets ${p})`);
+  const hrefs = n.allLinks.map(l => l.href).filter(h => h !== '#');
+  assert.equal(new Set(hrefs).size, hrefs.length, 'no duplicate hrefs in the index header');
+  assert.equal((idx.match(/<details\b[^>]*class="nav-group"/g) || []).length, 3, 'exactly three nav groups in index.html');
+});
+test('nav.footers_unchanged', () => {
+  for (const f of allGenerated()) {
+    const d = depthOf(f), ft = footerOf(read(f));
+    if (f === 'privacy.html' || f === 'terms.html') {
+      const at = ['keyfacts.html', 'minimum-wage-europe.html', 'deadlines.html', 'glossary.html'].map(x => ft.indexOf(`<a href="${x}">`));
+      assert.ok(at.every((x, i) => x > 0 && (i === 0 || x > at[i - 1])), `${f}: legal-page footer keeps Key facts, Minimum wage, Deadlines, Glossary in order`);
+      assert.ok(!/nav-group|nav-menu|<details/.test(ft), `${f}: no dropdown markup in the footer`);
+      continue;
+    }
+    assert.ok(ft.includes(`<a href="${d || './'}">Home</a> &middot; <a href="${d}countries.html">All countries</a> &middot; <a href="${d}upcoming.html">What's coming</a> &middot; <a href="${d}keyfacts.html">Key facts</a> &middot; <a href="${d}minimum-wage-europe.html">Minimum wage</a> &middot; <a href="${d}social-security-tax-rates-europe.html">Rates</a> &middot; <a href="${d}deadlines.html">Deadlines</a> &middot; <a href="${d}glossary.html">Glossary</a> &middot; <a href="${d}suggest.html">Suggest a change</a>`), `${f}: footer link row keeps What's coming, Key facts, Minimum wage, Deadlines, Glossary in the same order`);
+    assert.ok(!/nav-group|nav-menu|<details/.test(ft), `${f}: no dropdown markup in the footer`);
+  }
+  const fl = (read('index.html').match(/<nav class="footer-links" aria-label="Footer">([\s\S]*?)<\/nav>/) || [])[1] || '';
+  assert.deepEqual([...fl.matchAll(/<a href="([^"]+)"/g)].map(m => m[1]), ['countries.html', 'privacy.html', 'terms.html', 'upcoming.html', 'glossary.html', 'minimum-wage-europe.html', 'social-security-tax-rates-europe.html', 'deadlines.html', 'suggest.html', 'feed.xml', 'https://github.com/ankitbansal2k-ui/payroll-atlas/issues'], 'index.html footer link row unchanged');
+});
+test('nav.sitemap_and_build_unaffected', () => {
+  const sm = read('sitemap.xml');
+  assert.ok(!/nav\.js/.test(sm), 'nav.js is not a page: not in sitemap.xml');
+  for (const f of ['upcoming.html', 'deadlines.html', 'minimum-wage-europe.html', 'keyfacts.html', 'glossary.html', 'countries.html']) assert.ok(sm.includes(`/${f}</loc>`), `sitemap.xml still lists ${f}`);
+});
+
+// ---- nav.js: loaded on every page, CSP-safe ----
+const NAV_JS = 'nav.js';
+test('nav_js.file_exists_and_is_csp_safe_static_script', () => {
+  assert.ok(fs.existsSync(path.join(ROOT, NAV_JS)), 'nav.js missing (shared dropdown behaviour for index.html and every generated page)');
+  const src = read(NAV_JS).replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/[^\n]*/g, '$1');
+  assert.ok(src.trim().length > 100, 'nav.js is not empty');
+  for (const [re, why] of [[/\b(fetch|XMLHttpRequest|WebSocket|EventSource|sendBeacon|importScripts)\b/, 'no network access'], [/\beval\s*\(|\bnew\s+Function\b|\bFunction\s*\(/, 'no eval / Function constructor'], [/\.(innerHTML|outerHTML)\b|insertAdjacentHTML|document\.write/, 'no HTML string injection'], [/\bsetTimeout\s*\(\s*['"`]|\bsetInterval\s*\(\s*['"`]/, 'no string timers'], [/\bimport\s*\(|\bimport\s+[\w{*]/, 'no module imports'], [/https?:\/\//, 'no URLs'], [/localStorage|sessionStorage|document\.cookie|indexedDB/, 'no storage (no tracking, nothing to persist)'], [/javascript:/i, 'no javascript: URLs']]) {
+    assert.ok(!re.test(src), `nav.js: ${why} (matched ${re})`);
+  }
+  assert.match(src, /Escape/, 'nav.js handles the Escape key');
+  assert.match(src, /nav-group/, 'nav.js targets .nav-group');
+});
+test('nav_js.script_tag_on_every_page_no_inline_code', () => {
+  for (const f of [...allGenerated(), 'index.html']) {
+    const h = read(f), d = depthOf(f), tags = [...h.matchAll(/<script\b([^>]*)>\s*<\/script>/g)].filter(m => /\ssrc="[^"]*nav\.js"/.test(' ' + m[1]));
+    assert.equal(tags.length, 1, `${f}: exactly one <script src="${d}nav.js"> (found ${tags.length})`);
+    assert.equal(attrOf(tags[0][1], 'src'), `${d}nav.js`, `${f}: script src relative to the page`);
+    assert.ok(!INLINE_SCRIPT.test(h), `${f}: no inline script (JSON-LD data excepted)`);
+    assert.ok(!/\son[a-z]+=/i.test(h), `${f}: no inline event handlers`);
+    const csp = (h.match(/http-equiv="Content-Security-Policy" content="([^"]*)"/) || [])[1] || '';
+    assert.ok(csp && !/unsafe-inline|unsafe-eval/.test(csp) && /(default-src|script-src) 'self'/.test(csp), `${f}: CSP allows own-origin scripts only`);
+  }
+});
+test('nav_js.index_keeps_app_scripts_and_loads_nav_js', () => {
+  const idx = read('index.html');
+  assert.ok(/<script src="nav\.js"[^>]*><\/script>/.test(idx), 'index.html loads nav.js');
+  assert.ok(/<script src="app\.js"><\/script>/.test(idx), 'index.html still loads app.js');
+});
+
+// ---- nav.js behaviour in a minimal fake DOM (node:vm). Events follow the browser model: pointer/mouse/click then the default action
+// (a summary click toggles its <details>), keydown/keyup, and a non-bubbling 'toggle' event whenever a <details> changes state. ----
+function navDom({ groups = 3, picker = true } = {}) {
+  const all = [], timers = [], net = [];
+  class N {
+    constructor(tag, { cls = [], attrs = {}, parent = null, id = '' } = {}) {
+      this.tagName = tag.toUpperCase(); this.nodeType = 1; this._cls = new Set(cls); this._attrs = { ...attrs }; if (id) this._attrs.id = id;
+      this.parentElement = parent; this.children = []; this._ls = {}; this.style = {}; this.textContent = ''; this.isConnected = true;
+      if (parent) parent.children.push(this);
+      this.classList = { add: (...c) => c.forEach(x => this._cls.add(x)), remove: (...c) => c.forEach(x => this._cls.delete(x)), contains: c => this._cls.has(c), toggle: (c, f) => { const on = f === undefined ? !this._cls.has(c) : f; on ? this._cls.add(c) : this._cls.delete(c); return on; } };
+      if (this.tagName === 'DETAILS') { this._reported = false; all.push(this); }
+    }
+    get id() { return this._attrs.id || ''; }
+    get className() { return [...this._cls].join(' '); }
+    get parentNode() { return this.parentElement; }
+    get open() { return 'open' in this._attrs; }
+    set open(v) { if (v) this._attrs.open = ''; else delete this._attrs.open; }
+    get dataset() { return {}; }
+    getAttribute(n) { if (n === 'class') return this._cls.size ? this.className : null; return n in this._attrs ? this._attrs[n] : null; }
+    setAttribute(n, v) { if (n === 'class') this._cls = new Set(String(v).split(/\s+/).filter(Boolean)); else this._attrs[n] = String(v); }
+    removeAttribute(n) { delete this._attrs[n]; }
+    hasAttribute(n) { return this.getAttribute(n) !== null; }
+    contains(o) { for (let e = o; e; e = e.parentElement) if (e === this) return true; return false; }
+    matches(sel) { return parseSel(sel).some(ch => matchChain(this, ch)); }
+    closest(sel) { const chains = parseSel(sel); for (let e = this; e; e = e.parentElement) if (chains.some(ch => matchChain(e, ch))) return e; return null; }
+    querySelectorAll(sel) { const chains = parseSel(sel), out = []; const walk = n => n.children.forEach(c => { if (chains.some(ch => matchChain(c, ch))) out.push(c); walk(c); }); walk(this); return out; }
+    querySelector(sel) { return this.querySelectorAll(sel)[0] || null; }
+    focus() { DOC.activeElement = this; }
+    blur() { if (DOC.activeElement === this) DOC.activeElement = DOC.body; }
+    addEventListener(t, fn, o) { (this._ls[t] ||= []).push({ fn, capture: o === true || !!(o && o.capture) }); }
+    removeEventListener(t, fn) { this._ls[t] = (this._ls[t] || []).filter(l => l.fn !== fn); }
+    dispatchEvent(ev) { fire(ev.type, this, ev); return true; }
+  }
+  const parseComp = p => {
+    const m = p.match(/^(\*|[a-z][a-z0-9]*)?((?:[.#][\w-]+)*)((?:\[[^\]]+\])*)$/i);
+    if (!m) throw new Error(`nav test harness: unsupported selector part "${p}" (keep nav.js selectors to tag, .class, #id, [attr], descendant and child combinators)`);
+    return { tag: m[1] && m[1] !== '*' ? m[1].toUpperCase() : null, toks: m[2].match(/[.#][\w-]+/g) || [], attrs: (m[3].match(/\[[^\]]+\]/g) || []).map(a => a.match(/^\[([\w-]+)(?:(\^?=)"?([^"\]]*)"?)?\]$/)) };
+  };
+  const parseSel = sel => sel.split(',').map(s => s.trim()).filter(Boolean).map(s => { const chain = []; let comb = ' '; for (const p of s.replace(/\s*>\s*/g, ' > ').split(/\s+/)) { if (p === '>') { comb = '>'; continue; } chain.push({ comb, c: parseComp(p) }); comb = ' '; } return chain; });
+  const matchComp = (el, c) => {
+    if (c.tag && el.tagName !== c.tag) return false;
+    for (const t of c.toks) if (t[0] === '.' ? !el._cls.has(t.slice(1)) : el.id !== t.slice(1)) return false;
+    for (const a of c.attrs) { const v = a[1] === 'open' ? (el.open ? '' : null) : el.getAttribute(a[1]); if (v === null || v === undefined) return false; if (a[2] === '=' && v !== a[3]) return false; if (a[2] === '^=' && !v.startsWith(a[3])) return false; }
+    return !el.tagName.startsWith('#');
+  };
+  const matchChain = (el, chain) => {
+    const up = (e, i) => { if (i < 0) return true; if (chain[i + 1].comb === '>') { const p = e.parentElement; return !!p && matchComp(p, chain[i].c) && up(p, i - 1); } for (let p = e.parentElement; p; p = p.parentElement) if (matchComp(p, chain[i].c) && up(p, i - 1)) return true; return false; };
+    return matchComp(el, chain.at(-1).c) && up(el, chain.length - 2);
+  };
+  const WIN = new N('#window'), DOC = new N('#document'); DOC.parentElement = WIN; WIN.children.push(DOC);
+  const html = new N('html', { parent: DOC }), body = new N('body', { parent: html }); html.parentElement = DOC;
+  DOC.body = body; DOC.documentElement = html; DOC.activeElement = body; DOC.readyState = 'complete'; DOC.defaultView = WIN; WIN.document = DOC;
+  DOC.getElementById = id => { let r = null; const walk = n => n.children.forEach(c => { if (!r && c.id === id) r = c; walk(c); }); walk(html); return r; };
+  DOC.createElement = t => new N(t);
+  DOC.querySelectorAll = s => html.matches(s) ? [html, ...html.querySelectorAll(s)] : html.querySelectorAll(s);
+  DOC.querySelector = s => DOC.querySelectorAll(s)[0] || null;
+  const header = new N('header', { parent: body }), main = new N('main', { parent: body }), out = {};
+  out.groups = [];
+  if (groups) {
+    const nav = new N('nav', { parent: header, attrs: { 'aria-label': 'Main' } });
+    out.home = new N('a', { parent: nav, attrs: { href: 'index.html' } }); out.changelog = new N('a', { parent: nav, attrs: { href: 'index.html#c' } });
+    for (let i = 0; i < groups; i++) {
+      const d = new N('details', { parent: nav, cls: ['nav-group'], id: `g${i}` }), summary = new N('summary', { parent: d }), menu = new N('div', { parent: d, cls: ['nav-menu'] });
+      out.groups.push({ d, summary, menu, links: [new N('a', { parent: menu, attrs: { href: `p${i}a.html` } }), new N('a', { parent: menu, attrs: { href: `p${i}b.html` } })] });
+    }
+  }
+  out.outside = new N('p', { parent: main, id: 'outside' }); out.outsideLink = new N('a', { parent: main, attrs: { href: 'x.html' } });
+  if (picker) { out.picker = new N('details', { parent: main, cls: ['country-picker'], id: 'country-picker' }); out.pickerSummary = new N('summary', { parent: out.picker, id: 'country-picker-summary' }); new N('div', { parent: out.picker, cls: ['country-picker-panel'] }); }
+  function fire(type, target, init = {}) {
+    const ev = Object.assign({ type, target, defaultPrevented: false, bubbles: type !== 'toggle', cancelable: true, _stop: false, preventDefault() { this.defaultPrevented = true; }, stopPropagation() { this._stop = true; }, stopImmediatePropagation() { this._stop = true; this._imm = true; } }, init);
+    const chain = []; for (let e = target; e; e = e.parentElement) chain.push(e);
+    const call = (node, pred) => { for (const l of [...(node._ls[type] || [])]) { if (ev._imm || !pred(l)) continue; ev.currentTarget = node; (typeof l.fn === 'function' ? l.fn : l.fn.handleEvent).call(node, ev); } };
+    for (const n of chain.slice(1).reverse()) { if (ev._stop) break; call(n, l => l.capture); }
+    if (!ev._stop) call(target, () => true);
+    if (ev.bubbles) for (const n of chain.slice(1)) { if (ev._stop) break; call(n, l => !l.capture); }
+    return ev;
+  }
+  const settle = () => {
+    for (let i = 0; i < 50; i++) {
+      let changed = false;
+      for (const d of all) if (d.open !== d._reported) { d._reported = d.open; fire('toggle', d); changed = true; }
+      const q = timers.splice(0); q.forEach(f => f());
+      if (!changed && !q.length) return;
+    }
+    throw new Error('nav.js keeps changing <details> state in a loop (toggle handlers must not re-trigger each other)');
+  };
+  out.click = (el, { beforeDefault } = {}) => {
+    for (const t of ['pointerdown', 'mousedown', 'mouseup']) fire(t, el, { button: 0 });
+    const ev = fire('click', el, { button: 0 });
+    if (beforeDefault) beforeDefault();
+    const s = el.closest('summary');
+    if (!ev.defaultPrevented && s && s.parentElement.tagName === 'DETAILS') s.parentElement.open = !s.parentElement.open;
+    settle();
+  };
+  out.press = (key, el) => { const init = { key, code: key, keyCode: key === 'Escape' ? 27 : 0, which: key === 'Escape' ? 27 : 0 }; fire('keydown', el, init); fire('keyup', el, init); settle(); };
+  out.focus = el => el.focus();
+  out.state = () => out.groups.map(g => g.d.open);
+  out.focused = () => DOC.activeElement;
+  out.net = net; out.DOC = DOC;
+  const ctx = { document: DOC, window: WIN, Element: N, HTMLElement: N, HTMLDetailsElement: N, Node: N, EventTarget: N, console, navigator: { sendBeacon: () => net.push('sendBeacon') }, fetch: () => { net.push('fetch'); return Promise.reject(new Error('no network')); }, XMLHttpRequest: function () { net.push('xhr'); }, setTimeout: fn => { timers.push(fn); return timers.length; }, clearTimeout() {}, requestAnimationFrame: fn => { timers.push(fn); return timers.length; }, location: { hash: '', href: 'https://example.test/', pathname: '/' }, matchMedia: () => ({ matches: false, addEventListener() {}, removeEventListener() {} }) };
+  Object.assign(WIN, { location: ctx.location, fetch: ctx.fetch, navigator: ctx.navigator, setTimeout: ctx.setTimeout, requestAnimationFrame: ctx.requestAnimationFrame, matchMedia: ctx.matchMedia, innerWidth: 1024, getComputedStyle: () => ({}) });
+  ctx.self = WIN;
+  vm.createContext(ctx);
+  new vm.Script(read(NAV_JS), { filename: 'nav.js' }).runInContext(ctx);
+  for (const t of [DOC, WIN]) for (const ty of ['DOMContentLoaded', 'load']) if ((t._ls[ty] || []).length) fire(ty, t);
+  settle();
+  return out;
+}
+test('nav_js.opening_a_group_closes_the_others', () => {
+  const t = navDom();
+  assert.deepEqual(t.state(), [false, false, false], 'all closed after load');
+  t.click(t.groups[0].summary); assert.deepEqual(t.state(), [true, false, false], 'click opens group 1');
+  t.click(t.groups[1].summary); assert.deepEqual(t.state(), [false, true, false], 'opening group 2 closes group 1');
+  t.click(t.groups[2].summary); assert.deepEqual(t.state(), [false, false, true], 'opening group 3 closes group 2');
+  t.click(t.groups[2].summary); assert.deepEqual(t.state(), [false, false, false], 'clicking the open group\'s own summary closes it (the script must not re-open it)');
+  t.click(t.groups[0].summary); t.click(t.groups[0].summary); assert.deepEqual(t.state(), [false, false, false], 'toggle open then closed again');
+});
+test('nav_js.click_outside_closes_an_open_group', () => {
+  const t = navDom();
+  for (const [name, el] of [['page content', t.outside], ['a link elsewhere on the page', t.outsideLink], ['a top-level nav link (Home)', t.home], ['the header itself', t.DOC.querySelector('header')]]) {
+    t.click(t.groups[1].summary); assert.deepEqual(t.state(), [false, true, false], 'precondition');
+    t.click(el); assert.deepEqual(t.state(), [false, false, false], `click on ${name} closes the open group`);
+  }
+  t.click(t.groups[2].summary);
+  t.click(t.pickerSummary); assert.deepEqual(t.state(), [false, false, false], 'click on another widget\'s summary counts as outside');
+});
+test('nav_js.click_on_own_summary_is_not_pre_closed', () => {
+  const t = navDom();
+  t.click(t.groups[1].summary);
+  t.click(t.groups[1].summary, { beforeDefault: () => assert.equal(t.groups[1].d.open, true, 'a click on the open group\'s own summary must not close it before the browser default runs (that would re-open it)') });
+  assert.deepEqual(t.state(), [false, false, false]);
+});
+test('nav_js.escape_closes_the_open_group_and_returns_focus_to_its_summary', () => {
+  const t = navDom();
+  t.click(t.groups[1].summary); t.focus(t.groups[1].links[0]);
+  t.press('Escape', t.groups[1].links[0]);
+  assert.deepEqual(t.state(), [false, false, false], 'Escape closes the open group');
+  assert.equal(t.focused(), t.groups[1].summary, 'focus returns to the summary of the group that was open');
+  t.click(t.groups[2].summary); t.focus(t.groups[2].summary);
+  t.press('Escape', t.groups[2].summary);
+  assert.deepEqual(t.state(), [false, false, false], 'Escape on the summary itself closes its group');
+  assert.equal(t.focused(), t.groups[2].summary, 'focus stays on the summary');
+});
+test('nav_js.other_keys_and_closed_state_leave_everything_alone', () => {
+  const t = navDom();
+  t.click(t.groups[0].summary); t.focus(t.groups[0].links[1]);
+  for (const k of ['Enter', 'Tab', 'ArrowDown', 'a', ' ', 'Shift']) { t.press(k, t.groups[0].links[1]); assert.deepEqual(t.state(), [true, false, false], `${JSON.stringify(k)} must not close the group`); assert.equal(t.focused(), t.groups[0].links[1], `${JSON.stringify(k)} must not move focus`); }
+  t.press('Escape', t.groups[0].links[1]);
+  t.focus(t.outsideLink); t.click(t.pickerSummary); assert.ok(t.picker.open, 'precondition: other widget open');
+  t.focus(t.outsideLink); t.press('Escape', t.outsideLink);
+  assert.equal(t.focused(), t.outsideLink, 'Escape with no open nav group does not steal focus');
+  assert.ok(t.picker.open, 'nav.js only manages details.nav-group: the country picker is not closed by Escape');
+  t.click(t.outside); assert.ok(t.picker.open, 'nav.js leaves the country picker to app.js on outside clicks');
+});
+test('nav_js.no_network_no_errors_without_nav_markup', () => {
+  const t = navDom();
+  t.click(t.groups[0].summary); t.press('Escape', t.groups[0].summary); t.click(t.outside);
+  assert.deepEqual(t.net, [], 'nav.js makes no network calls');
+  const bare = navDom({ groups: 0, picker: false });
+  bare.click(bare.outside); bare.press('Escape', bare.outside);
+  assert.deepEqual(bare.net, [], 'page without nav markup: no errors, no network');
+});
+
+// ---- CSS: dropdown on wide screens, inline block on narrow ones, visible focus, no overflow hacks ----
+function cssRules(src) {
+  const css = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/@(import|charset)[^;]*;/g, ''), out = [];
+  const walk = (text, media) => {
+    let i = 0;
+    while (i < text.length) {
+      const open = text.indexOf('{', i); if (open < 0) break;
+      const sel = text.slice(i, open).trim(); let depth = 1, j = open + 1;
+      while (j < text.length && depth) { if (text[j] === '{') depth++; else if (text[j] === '}') depth--; j++; }
+      const body = text.slice(open + 1, j - 1);
+      if (/^@media\b/.test(sel)) walk(body, media.concat(sel.slice(6).trim()));
+      else if (!sel.startsWith('@')) out.push({ media, selectors: sel.split(',').map(s => s.trim().replace(/\s+/g, ' ').replace(/\s*>\s*/g, ' > ')), body });
+      i = j;
+    }
+  };
+  walk(css, []); return out;
+}
+for (const cssFile of ['legal.css', 'styles.css']) {
+  test(`nav_css.${cssFile}: dropdown on wide screens, inline on narrow, visible focus, no overflow hacks`, () => {
+    const rules = cssRules(read(cssFile)), screen = rules.filter(r => !r.media.some(m => /\bprint\b/.test(m)));
+    const wide = screen.filter(r => !r.media.some(m => /max-width/.test(m)));
+    const narrow = screen.filter(r => r.media.some(m => { const w = (m.match(/\(\s*max-width\s*:\s*(\d+)px\s*\)/) || [])[1]; return w && Number(w) >= 640 && Number(w) <= 800; }));
+    const decl = (rs, endsWith) => rs.filter(r => r.selectors.some(s => new RegExp(`${endsWith.replace(/\./g, '\\.')}$`).test(s))).map(r => r.body).join(';');
+    const group = decl(wide, '.nav-group');
+    assert.match(group, /position\s*:\s*relative/, `${cssFile}: .nav-group is the positioning context for its dropdown`);
+    const menu = decl(wide, '.nav-menu');
+    assert.match(menu, /position\s*:\s*absolute/, `${cssFile}: .nav-menu is an absolutely positioned dropdown on wide screens`);
+    assert.match(menu, /background/, `${cssFile}: the dropdown has its own background (readable over page content)`);
+    assert.ok(narrow.length > 0, `${cssFile}: a max-width media query between 640px and 800px exists`);
+    const menuNarrow = decl(narrow, '.nav-menu');
+    assert.match(menuNarrow, /position\s*:\s*static/, `${cssFile}: .nav-menu is static (inline block) on narrow screens so nothing overflows`);
+    assert.ok(!/position\s*:\s*absolute/.test(menuNarrow), `${cssFile}: narrow rule does not keep the dropdown absolute`);
+    const focus = screen.filter(r => r.selectors.some(s => /\.nav-group(?: >)? summary:focus-visible$/.test(s))).map(r => r.body).join(';');
+    assert.match(focus, /outline\s*:\s*(?!none|0\b)[^;]*\S/, `${cssFile}: .nav-group summary:focus-visible has a visible outline`);
+    assert.ok(!screen.some(r => r.selectors.some(s => /\.nav-group(?: >)? summary$/.test(s)) && /outline\s*:\s*(none|0)\b/.test(r.body)), `${cssFile}: summary never removes its outline`);
+    for (const r of screen) {
+      const hit = r.selectors.filter(s => /(^|[\s>])(html|body|header|nav)(?=$|[\s>.:#\[])|nav-group|nav-menu|header-container/.test(s));
+      if (!hit.length) continue;
+      assert.ok(!/overflow(-x)?\s*:\s*(hidden|scroll|auto|clip)/.test(r.body), `${cssFile}: no overflow rule on ${hit.join(', ')} (clips the dropdown, hides overflow instead of fixing it)`);
+    }
+  });
+}
+
+// ---------- P5-1 rates comparison: social-security-tax-rates-europe.html + `headline` on ssEmployer / ssEmployee / taxBands ----------
+// BEGIN P5-1 rates comparison (behaviour gate; written before the feature exists; the <header> menu is NOT tested here)
+// CONTRACT
+//  data/facts.json: three more keys may carry an OPTIONAL `headline` object (shape per key; unknown fields rejected; any other key refused):
+//    ssEmployer, ssEmployee : EITHER {notComparable: "<reason>"} (nothing else; reason: plain text, trimmed, 10..120 chars)
+//                             OR {rate, kind: "stated"|"sum", parts?: ["7.3", ...], scope: "<5..100 chars plain text>"}
+//        rate: string /^\d+(\.\d{1,3})?$/ (never a number, never "15%"). Displayed as "N%" with trailing zeros trimmed ("15.50" -> "15.5%", "21.045" -> "21.045%").
+//        stated: rate must literally occur in the fact `value` as a number IMMEDIATELY followed by "%" (same number normalisation as amountInText/canonicalNumber:
+//                "30,65%" is a hit for 30.65; "115%", "15.5%", "0.15%", "15 percent" and a bare "EUR 15" are misses for 15). `parts` is not allowed with stated.
+//        sum:    parts = >= 2 strings (each /^\d+(\.\d{1,3})?$/), each literally in `value` followed by "%"; sum(parts) equals rate within 0.0005.
+//    taxBands               : EITHER {notComparable: "<reason>"} OR {rate, from: string|null, scope: "<5..100 chars>", addOns?: ["municipal"|"regional"|"church"|"surcharge"|"cantonal"|"social", ...]}
+//        rate: same string form; must equal (numerically) the HIGHEST percentage found in the fact's `bands` array (every "N%" token of every band `rate` text, point decimals)
+//              and its number must appear in the fact `value` text (amountInText normalisation, "%" not required). A taxBands fact without bands cannot carry a rate headline.
+//        from: must equal the `from` string of the band that holds the highest percentage; null is allowed only when the fact has exactly ONE band (flat tax).
+//  Messages (every one contains "facts", the fact path and "headline ..."):
+//    "headline is only allowed on a minimumWage, ssEmployer, ssEmployee or taxBands fact", "headline must be an object", 'headline unknown field "x"',
+//    "headline rate is required unless notComparable is given", "headline rate must be digits ... (for example 21.045), as a string", 'headline rate "16" does not appear in value ...',
+//    'headline rate "11" is not the highest ...' (tax), "headline rate ... bands" (tax without bands), "headline kind ...", "headline parts ...", 'headline part "1.8" does not appear in value ...',
+//    "headline parts sum ...", "headline from ...", 'headline from "x" ... band', "headline addOns ...", "headline scope ..." (plain text / control / 100 / min 5),
+//    "headline notComparable ..." (also when combined with any other field). validFrom older than 400 days keeps its existing WARNING (exit 0).
+//  social-security-tax-rates-europe.html (build-pages.mjs, from data/facts.json ONLY):
+//    h1 "Social security and income tax rates in Europe <YEAR>" (YEAR as the minimum wage page: year of LAST_VERIFIED); title = h1, plus " | Intelligent Payroll" only when the total stays <= 70
+//    (it does not: the shipped title is the 51-character h1; the brief's longer "...: employer, employee and top rate" cannot fit in 70). Description 70..158, plain, ends "checked <D>.",
+//    names the number of rows; canonical/og/twitter as every page; BreadcrumbList Home > "Social security and income tax rates in Europe"; one h1; h1 then h2 only; in sitemap.xml with
+//    lastmod = D; CSP meta, legal.css only, no inline script/style/handler. D = newest `checked` among the ssEmployer/ssEmployee/taxBands facts that HAVE a headline (fallback LAST_VERIFIED);
+//    footer note "Sources last checked <D>."; LAST_VERIFIED and every other page's date unchanged. Footer of every generated page and of index.html: <a href="[../]social-security-tax-rates-europe.html">Rates</a>
+//    right after Minimum wage and before Deadlines (index.html keeps its nav list; no link on the home page except the footer).
+//    Body: exactly <div class="table-scroll" tabindex="0" role="region" aria-label="... by country table"><table class="rates"><caption>...<YEAR>...</caption>
+//      <thead><tr><th scope="col">Country</th>Employer social security | Employee social security | Top income tax rate | Starts at</tr></thead><tbody>rows</tbody></table></div>
+//    row = countries (sorted by name.localeCompare, like the minimum wage page) with a headline on at least one of the three facts:
+//      <tr><th scope="row"><a href="countries/<slug>.html#key-facts">FLAG Name</a></th><td>employer</td><td>employee</td><td>top tax</td><td>starts at</td></tr>  (<td> may carry attributes)
+//    a rate cell: the rate as "N%" as the only text outside <small> and <a>, then <small>scope</small>, then (tax with addOns) text "Not included: municipal, regional" and ONE source link
+//      <a href="sourceUrl" rel="noopener">sourceLabel</a> (the link may sit inside a <small>). A notComparable cell: the text "Not comparable" (no digits), <small>reason</small>, the source link, no rate.
+//    starts-at cell: the headline `from` string, "Flat rate" when from is null, "—" (U+2014) for a notComparable tax cell. A fact without headline (country has another one): the cell is "—" with no link.
+//    After the table: method note + caveats (rates exclude local taxes, "data as of <D>", not legal or tax advice); main links to keyfacts.html and minimum-wage-europe.html.
+//    A page with no rows has no table. Hostile strings are escaped. A country page's Key facts box and keyfacts.html are NOT changed by headlines.
+const RT_FILE = 'social-security-tax-rates-europe.html';
+const RT_H1 = year => `Social security and income tax rates in Europe ${year}`;
+const expectedRtTitle = (year = YEAR) => { const full = `${RT_H1(year)} | Intelligent Payroll`; return full.length <= TITLE_MAX ? full : RT_H1(year); };
+const RT_CRUMB = 'Social security and income tax rates in Europe';
+const RT_KEYS = ['ssEmployer', 'ssEmployee', 'taxBands'];
+const RT_ADDONS = ['municipal', 'regional', 'church', 'surcharge', 'cantonal', 'social'];
+const RT_THEAD = '<thead><tr><th scope="col">Country</th><th scope="col">Employer social security</th><th scope="col">Employee social security</th><th scope="col">Top income tax rate</th><th scope="col">Starts at</th></tr></thead>';
+// ----- independent references of the contract (used on the real data and the fixtures) -----
+const rtFmt = r => (r.includes('.') ? r.replace(/0+$/, '').replace(/\.$/, '') : r) + '%';
+const pctIn = (rate, value) => (String(value).match(/\d+(?:[.,]\d+)*(?=%)/g) || []).some(t => canonNum(t) === canonNum(rate));
+const rtSumOk = (rate, parts) => Math.abs(parts.reduce((a, p) => a + Number(p), 0) - Number(rate)) <= 0.0005 + 1e-9;
+const bandPcts = b => [...String(b.rate).matchAll(/(\d+(?:[.,]\d+)?)\s*%/g)].map(m => Number(m[1].replace(',', '.')));
+const topBandOf = bands => { let top = -1, from = null; for (const b of bands) for (const v of bandPcts(b)) if (v > top) { top = v; from = b.from; } return { top, from }; };
+const rtDateOf = (facts, fallback) => { const d = []; for (const c of facts) for (const f of c.facts || []) if (RT_KEYS.includes(f.key) && f.headline) d.push(f.checked); return d.length ? maxIso(d) : fallback; };
+const rtItems = facts => {
+  const items = [];
+  for (const c of facts) {
+    const by = k => (c.facts || []).find(x => x.key === k && x.headline), f = { er: by('ssEmployer'), ee: by('ssEmployee'), tx: by('taxBands') };
+    if (!f.er && !f.ee && !f.tx) continue;
+    const e = mwInfo.get(c.code); items.push({ c, f, name: e.name, flag: e.flag, slug: P2.slugify(e.name) });
+  }
+  return items.sort((a, b) => a.name.localeCompare(b.name));
+};
+// ----- reading the page (tolerant about the inner markup of a cell, strict about what it must say) -----
+const rtCell = td => {
+  const links = [...td.matchAll(/<a href="([^"]*)"([^>]*)>([\s\S]*?)<\/a>/g)].map(m => ({ href: decode(m[1]), rel: (m[2].match(/\srel="([^"]*)"/) || [])[1], text: normWs(m[3]) }));
+  const noA = td.replace(/<a [^>]*>[\s\S]*?<\/a>/g, ''), bare = noA.replace(/<small>[\s\S]*?<\/small>/g, '');
+  return { links, smalls: [...noA.matchAll(/<small>([\s\S]*?)<\/small>/g)].map(m => normWs(m[1])).filter(Boolean), lead: normWs(bare), bare, text: normWs(td) };
+};
+const rtParts = html => {
+  const q = squash(html), main = (q.match(/<main>[\s\S]*<\/main>/) || [''])[0], END = '</table></div>';
+  const t = main.match(/<div class="table-scroll" tabindex="0" role="region" aria-label="([^"]*)"><table class="rates"><caption>([^<]*)<\/caption>(<thead>[\s\S]*?<\/thead>)<tbody>([\s\S]*?)<\/tbody><\/table><\/div>/);
+  const rows = t ? (t[4].match(/<tr>[\s\S]*?<\/tr>/g) || []).map(r => {
+    const m = r.match(/^<tr><th scope="row">([\s\S]*?)<\/th>([\s\S]*)<\/tr>$/); assert.ok(m, 'row shape <tr><th scope="row">..</th><td>..</td>x4</tr>: ' + r.slice(0, 200));
+    const tds = [...m[2].matchAll(/<td(?: [^>]*)?>([\s\S]*?)<\/td>/g)].map(x => x[1]); assert.equal(tds.length, 4, 'four <td> per row: ' + r.slice(0, 200));
+    return { html: r, th: m[1], tds };
+  }) : [];
+  return { q, main, table: t && { label: t[1], caption: t[2], thead: t[3] }, rows, after: t ? main.slice(main.indexOf(END) + END.length) : '' };
+};
+const assertRateCell = (td, fact, what, tax = false) => {
+  const cell = rtCell(td), h = fact && fact.headline;
+  if (!h) { assert.equal(cell.lead, '—', `${what}: no headline, no cell value`); assert.equal(cell.links.length, 0, `${what}: no link without a headline`); assert.deepEqual(cell.smalls, [], `${what}: nothing beneath`); return cell; }
+  assert.equal(cell.links.length, 1, `${what}: exactly one source link: ${td.slice(0, 300)}`);
+  assert.deepEqual([cell.links[0].href, cell.links[0].rel, cell.links[0].text], [fact.sourceUrl, 'noopener', fact.sourceLabel], `${what}: the link is the fact's sourceUrl (rel=noopener) with its sourceLabel`);
+  if (h.notComparable !== undefined) {
+    assert.equal(cell.lead, 'Not comparable', `${what}: notComparable cell says so and shows no number`); assert.ok(!/\d|%/.test(cell.lead), `${what}: no number`);
+    assert.ok(cell.smalls.includes(h.notComparable), `${what}: the reason is in a <small>: ${JSON.stringify(cell.smalls)}`);
+  } else {
+    assert.equal(cell.lead, rtFmt(h.rate), `${what}: the rate as N%`);
+    assert.ok(cell.smalls.includes(h.scope), `${what}: the scope is in a <small>: ${JSON.stringify(cell.smalls)}`);
+    if (tax && h.addOns && h.addOns.length) assert.ok(cell.text.includes('Not included: ' + h.addOns.join(', ')), `${what}: add-ons "Not included: ${h.addOns.join(', ')}"`);
+    else assert.ok(!/Not included/.test(cell.text), `${what}: no add-ons text`);
+  }
+  return cell;
+};
+const assertStartsCell = (td, fact, what) => {
+  const h = fact && fact.headline, want = !h || h.notComparable !== undefined ? '—' : h.from === null ? 'Flat rate' : h.from;
+  assert.equal(rtCell(td).lead, want, `${what}: "Starts at" cell`);
+};
+const assertRtMatches = (html, facts, what) => {
+  const items = rtItems(facts), got = rtParts(html);
+  if (!items.length) { assert.ok(!got.table && !/<table\b/.test(html), `${what}: no table without rows`); return got; }
+  assert.ok(got.table, `${what}: table.rates inside .table-scroll`); assert.equal(got.table.thead, RT_THEAD, `${what}: header cells`);
+  assert.equal(got.rows.length, items.length, `${what}: one row per country with a headline, no more, no fewer`);
+  items.forEach((i, n) => {
+    const r = got.rows[n], at = `${what}/${i.c.code}`;
+    assert.equal(r.th, `<a href="countries/${i.slug}.html#key-facts">${i.flag} ${escH(i.name)}</a>`, `${at}: row header (sorted by name)`);
+    assertRateCell(r.tds[0], i.f.er, at + ' employer'); assertRateCell(r.tds[1], i.f.ee, at + ' employee'); assertRateCell(r.tds[2], i.f.tx, at + ' tax', true); assertStartsCell(r.tds[3], i.f.tx, at);
+  });
+  return got;
+};
+// ----- fixtures -----
+const rtBands = () => [{ from: '0', to: '10,000', rate: '0%' }, { from: '10,001', to: '50,000', rate: '20%' }, { from: '50,001', to: null, rate: '30%' }];
+const SUM_VALUE = 'Health 7.3% plus half of the fund rate 1.345%; pension 9.3%; unemployment 1.3%; care 1.8%';
+const SUM_PARTS = ['7.3', '1.345', '9.3', '1.3', '1.8'];
+const rtLabels = { ssEmployer: "Employer's social security", ssEmployee: "Employee's social security", taxBands: 'Income tax bands' };
+const rf = (code, key, headline, value, extra = {}) => fixFact({ key, label: rtLabels[key], value, sourceUrl: `https://example.org/${code}/${key}?a=1&b=2`, sourceLabel: `Source: Example ${code} - ${key} & "more"`, headline, ...extra });
+const ratesFixture = () => [
+  fixCountry({ code: 'france', facts: [
+    rf('france', 'ssEmployer', { rate: '15.50', kind: 'stated', scope: 'private sector; "q" & more' }, 'Employer 15.50% of gross pay'),
+    rf('france', 'ssEmployee', { notComparable: 'health insurance is a separate fact & not like-for-like' }, 'Employee 8% of gross pay plus CSG'),
+    rf('france', 'taxBands', { rate: '30', from: '50,001', scope: 'single person; national scale', addOns: ['municipal', 'regional'] }, 'Progressive: 0% to 30% of taxable income per year', { bands: rtBands() }),
+  ] }),
+  fixCountry({ code: 'spain', facts: [
+    rf('spain', 'ssEmployer', { rate: '15.5', kind: 'sum', parts: ['10', '5.5'], scope: 'indefinite contract' }, 'Common contingencies 10%; unemployment 5.5%'),
+    rf('spain', 'ssEmployee', { rate: '6', kind: 'stated', scope: 'indefinite contract' }, 'Employee 6% of gross pay'),
+    rf('spain', 'taxBands', { rate: '10', from: null, scope: 'flat rate on salary income' }, 'Flat 10% income tax on salary', { bands: [{ from: '0', to: null, rate: '10%' }] }),
+  ] }),
+  fixCountry({ code: 'germany', facts: [
+    rf('germany', 'ssEmployer', { rate: '21.045', kind: 'sum', parts: SUM_PARTS, scope: 'TK fund; Saxony differs' }, SUM_VALUE),
+    rf('germany', 'ssEmployee', { rate: '21.045', kind: 'sum', parts: SUM_PARTS, scope: '1 child, TK fund' }, SUM_VALUE),
+    rf('germany', 'taxBands', { notComparable: 'formula based zones, no single top band rate' }, 'Progressive formula zones; top zone 0.45 x income minus a constant'),
+  ] }),
+];
+const ratesKeyOf = c => (c.facts || []).map(f => f.key);
+
+// ===== validate.mjs: headline on ssEmployer / ssEmployee / taxBands =====
+const SS_VALUE = 'Employer 15% of gross pay; 2% above the ceiling';
+const ssGood = { rate: '15', kind: 'stated', scope: 'category A, above the threshold' };
+const ssRaw = (headline, value = SS_VALUE, key = 'ssEmployer', extra = {}) => [fixCountry({ facts: [fixFact({ key, label: rtLabels[key], value, headline, ...extra })] })];
+const ssH = (o, value, key) => ssRaw({ ...ssGood, ...o }, value, key);
+const sumH = (o, value = SUM_VALUE) => ssRaw({ rate: '21.045', kind: 'sum', parts: SUM_PARTS, scope: 'TK fund; Saxony differs', ...o }, value);
+const TX_VALUE = 'Progressive: 0% to 30% of taxable income per year';
+const txGood = { rate: '30', from: '50,001', scope: 'single person; national scale' };
+const txRaw = (headline, extra = {}) => [fixCountry({ facts: [fixFact({ key: 'taxBands', label: rtLabels.taxBands, value: TX_VALUE, bands: rtBands(), headline, ...extra })] })];
+const txH = (o, extra) => txRaw({ ...txGood, ...o }, extra);
+const NC_OK = 'health insurance is a separate fact';
+
+test('p5_1.reference_percent_and_band_helpers', () => {
+  for (const [r, v] of [['15', 'Employer 15% of pay'], ['15.5', '15.50% of pay'], ['30.65', 'Employer 30,65% of gross'], ['21.045', 'fund 1.345%; total 21.045%'], ['8', 'AM-bidrag 8% of pay'], ['2.25', 'CAM 2.25% of gross'], ['15', 'rate 15.00%']]) assert.ok(pctIn(r, v), `hit expected: ${r} in "${v}"`);
+  for (const [r, v] of [['15', 'rate 115%'], ['15', '15 percent of pay'], ['15', 'EUR 15 per month'], ['5', 'rate 15%'], ['1.5', 'rate 15%'], ['15', 'rate 0.15%'], ['15', 'rate 15.5%'], ['2', 'a 12% and 2.5%'], ['16', SS_VALUE]]) assert.ok(!pctIn(r, v), `miss expected: ${r} in "${v}"`);
+  assert.deepEqual(['15', '15.0', '15.50', '21.045', '0.250', '100'].map(rtFmt), ['15%', '15%', '15.5%', '21.045%', '0.25%', '100%']);
+  assert.ok(rtSumOk('21.045', SUM_PARTS) && rtSumOk('15.5', ['10', '5.5']) && !rtSumOk('21.046', SUM_PARTS) && !rtSumOk('21.5', SUM_PARTS));
+  assert.deepEqual(topBandOf(rtBands()), { top: 30, from: '50,001' });
+  assert.deepEqual(topBandOf([{ from: '0 zl', rate: '12% minus 3,600 zl' }, { from: '120,001 zl', rate: '10,800 zl + 32% of the excess' }]), { top: 32, from: '120,001 zl' });
+});
+
+test('p5_1.validate_accepts_valid_rate_headlines', () => {
+  const s = factsSite();
+  try {
+    const ok = (name, data) => { const r = s.validate(data); assert.ok(r.ok, `${name} must pass: ` + r.out.slice(0, 600)); };
+    ok('stated employer', ssH({}));
+    ok('stated employee', ssH({}, SS_VALUE, 'ssEmployee'));
+    ok('stated, value in European comma form', ssH({ rate: '30.65' }, 'Employer 30,65% of gross pay'));
+    ok('stated, value with trailing zeros', ssH({ rate: '15' }, 'Employer 15.00% of gross pay'));
+    ok('stated, rate with trailing zero', ssH({ rate: '15.50' }, 'Employer 15.5% of gross pay'));
+    ok('stated, 3 decimals', ssH({ rate: '21.045' }, 'Employer 21.045% of gross pay'));
+    ok('stated, rate 0', ssH({ rate: '0' }, 'No employer contribution: 0% of gross pay'));
+    ok('sum (Germany like, float sum 21.044999...)', sumH({}));
+    ok('sum of two parts', ssRaw({ rate: '15.5', kind: 'sum', parts: ['10', '5.5'], scope: 'two parts' }, 'A 10% and B 5.5%'));
+    ok('sum, parts with trailing zeros vs value', ssRaw({ rate: '30.65', kind: 'sum', parts: ['23.60', '5.50', '0.20', '0.60', '0.75'], scope: 'indefinite contract' }, 'Common 23.6%; unemployment 5.5%; FOGASA 0.2%; training 0.6%; MEI 0.75%'));
+    ok('scope of exactly 5 chars', ssH({ scope: 'x'.repeat(5) }));
+    ok('scope of exactly 100 chars', ssH({ scope: 'x'.repeat(100) }));
+    ok('notComparable of exactly 10 chars', ssRaw({ notComparable: 'x'.repeat(10) }));
+    ok('notComparable of exactly 120 chars', ssRaw({ notComparable: 'x'.repeat(120) }, SS_VALUE, 'ssEmployee'));
+    ok('notComparable needs no number in value', ssRaw({ notComparable: NC_OK }, 'Several premiums, see the source'));
+    ok('headline without validFrom', ssH({}));
+    ok('tax, top band of three', txH({}));
+    ok('tax, rate "30.0" equals 30% and value shows 30', txH({ rate: '30.0' }));
+    ok('tax, every add-on', txH({ addOns: RT_ADDONS }));
+    ok('tax, one add-on', txH({ addOns: ['church'] }));
+    ok('tax, flat tax with null from (single band)', txRaw({ rate: '10', from: null, scope: 'flat rate on salary income' }, { value: 'Flat 10% income tax on salary', bands: [{ from: '0', to: null, rate: '10%' }] }));
+    ok('tax, rate text next to a formula (Germany like)', txRaw({ rate: '45', from: '277,826', scope: 'income tax only; Soli extra' }, { value: 'Top band 45% from 277,826', bands: [{ from: '0', to: '12,348', rate: '0' }, { from: '12,349', to: '277,825', rate: '42%: 0.42*x - 11,135.63' }, { from: '277,826', to: null, rate: '45%: 0.45*x - 19,470.38' }] }));
+    ok('tax, several percentages in one band text (Poland like)', txRaw({ rate: '32', from: '120,001 zl', scope: 'PIT scale; solidarity levy extra' }, { value: '12% up to 120,000 zl; above: 10,800 zl plus 32% of the excess', bands: [{ from: '0 zl', to: '120,000 zl', rate: '12% minus 3,600 zl' }, { from: '120,001 zl', to: null, rate: '10,800 zl + 32% of the excess over 120,000 zl' }] }));
+    ok('tax, decimal rate 49.50 written 49.50% in the band', txRaw({ rate: '49.50', from: '78,426', scope: 'box 1; premiums in bracket one' }, { value: 'Over 78,426: 49.50%', bands: [{ from: '0', to: '78,425', rate: '35.75%' }, { from: '78,426', to: null, rate: '49.50%' }] }));
+    ok('tax, notComparable with bands', txRaw({ notComparable: NC_OK }));
+    ok('tax, notComparable without bands', txRaw({ notComparable: NC_OK }, { bands: undefined }));
+    ok('whole fixtures', ratesFixture());
+    ok('minimum wage headline unchanged', [fixCountry({ facts: [fixFact({ headline: { amount: '1,000', period: 'month', scope: 'full-time' } })] })]);
+    ok('fact on a key that may carry a headline but has none', ssRaw(undefined));
+    const withHl = s.validate(ssRaw({ ...ssGood }, SS_VALUE, 'ssEmployer', { validFrom: '2020-01-01' }));
+    assert.ok(withHl.ok && /WARNING/.test(withHl.out) && /facts validFrom 2020-01-01 is more than 400 days ago/.test(withHl.out), 'an old validFrom on a headline fact only warns (existing warning), exit 0: ' + withHl.out.slice(0, 400));
+  } finally { s.done(); }
+});
+
+test('p5_1.validate_rejects_bad_ss_headlines', () => {
+  const s = factsSite();
+  const cases = {
+    not_object: [ssRaw('15'), /headline must be an object/], array: [ssRaw([]), /headline must be an object/], null_value: [ssRaw(null), /headline must be an object/],
+    unknown_field: [ssH({ extra: 1 }), /headline unknown field "extra"/], tax_field_from: [ssH({ from: '50,001' }), /headline unknown field "from"/], tax_field_addOns: [ssH({ addOns: ['church'] }), /headline unknown field "addOns"/],
+    min_wage_field_amount: [ssH({ amount: '13.90' }), /headline unknown field "amount"/], min_wage_field_statutory: [ssRaw({ statutory: false }), /headline unknown field "statutory"/],
+    empty_object: [ssRaw({}), /headline rate.*required/], kind_scope_only: [ssRaw({ kind: 'stated', scope: 'long enough' }), /headline rate.*required/],
+    rate_number: [ssH({ rate: 15 }), /headline rate/], rate_percent_sign: [ssH({ rate: '15%' }), /headline rate/], rate_padded: [ssH({ rate: ' 15' }), /headline rate/], rate_comma: [ssH({ rate: '15,5' }), /headline rate/],
+    rate_four_decimals: [ssH({ rate: '15.5555' }), /headline rate/], rate_leading_dot: [ssH({ rate: '.5' }), /headline rate/], rate_trailing_dot: [ssH({ rate: '15.' }), /headline rate/], rate_exponent: [ssH({ rate: '1e1' }), /headline rate/],
+    rate_negative: [ssH({ rate: '-5' }), /headline rate/], rate_empty: [ssH({ rate: '' }), /headline rate/], rate_markup: [ssH({ rate: '<b>1</b>' }), /headline rate/], rate_null: [ssH({ rate: null }), /headline rate/],
+    rate_not_in_value: [ssH({ rate: '16' }), /headline rate "16" .*value/], rate_is_part_of_longer_number: [ssH({ rate: '5' }), /headline rate "5" .*value/], rate_decimal_not_integer: [ssH({ rate: '1.5' }), /headline rate "1\.5" .*value/],
+    rate_without_percent_sign: [ssH({ rate: '15' }, 'Employer EUR 15 per month'), /headline rate "15" .*value/], rate_with_percent_word: [ssH({ rate: '15' }, 'Employer 15 percent of gross pay'), /headline rate "15" .*value/],
+    rate_longer_number: [ssH({ rate: '15' }, 'Employer 115% of gross pay'), /headline rate "15" .*value/], rate_leading_zero_number: [ssH({ rate: '15' }, 'Employer 0.15% of gross pay'), /headline rate "15" .*value/],
+    rate_other_decimals: [ssH({ rate: '15' }, 'Employer 15.5% of gross pay'), /headline rate "15" .*value/],
+    kind_missing: [ssH({ kind: undefined }), /headline kind/], kind_range: [ssH({ kind: 'range' }), /headline kind/], kind_case: [ssH({ kind: 'Stated' }), /headline kind/], kind_number: [ssH({ kind: 1 }), /headline kind/],
+    stated_with_parts: [ssH({ parts: ['10', '5'] }, '15% 10% 5%'), /headline parts/],
+    sum_without_parts: [sumH({ parts: undefined }), /headline parts/], sum_empty_parts: [sumH({ parts: [] }), /headline parts/], sum_one_part: [sumH({ rate: '7.3', parts: ['7.3'] }), /headline parts/], sum_parts_string: [sumH({ parts: '7.3' }), /headline parts/],
+    sum_part_number: [sumH({ parts: [7.3, '1.345', '9.3', '1.3', '1.8'] }), /headline part/], sum_part_percent: [sumH({ parts: ['7.3%', '1.345', '9.3', '1.3', '1.8'] }), /headline part/], sum_part_comma: [sumH({ parts: ['7,3', '1.345', '9.3', '1.3', '1.8'] }), /headline part/],
+    sum_part_empty: [sumH({ parts: ['', '1.345', '9.3', '1.3', '1.8'] }), /headline part/],
+    sum_part_not_in_value: [sumH({}, 'Health 7.3% plus fund 1.345%; pension 9.3%; unemployment 1.3%'), /headline part "1\.8" .*value/],
+    sum_part_without_percent_sign: [sumH({}, 'Health 7.3% plus fund 1.345%; pension 9.3%; unemployment 1.3%; care EUR 1.8'), /headline part "1\.8" .*value/],
+    sum_part_longer_number: [sumH({}, 'Health 7.3% plus fund 1.345%; pension 9.3%; unemployment 1.3%; care 11.8%'), /headline part "1\.8" .*value/],
+    sum_mismatch_by_a_thousandth: [sumH({ rate: '21.046' }), /headline parts sum/], sum_mismatch_far: [sumH({ rate: '21.5' }), /headline parts sum/],
+    scope_missing: [ssH({ scope: undefined }), /headline scope/], scope_empty: [ssH({ scope: '' }), /headline scope/], scope_untrimmed: [ssH({ scope: ' category A' }), /headline scope/], scope_number: [ssH({ scope: 5 }), /headline scope/],
+    scope_too_short: [ssH({ scope: 'x'.repeat(4) }), /headline scope/], scope_markup: [ssH({ scope: 'age <b>21</b> only' }), /headline scope.*plain text/], scope_gt: [ssH({ scope: 'a > b and more' }), /headline scope.*plain text/],
+    scope_newline: [ssH({ scope: 'category\nA only' }), /headline scope.*control/], scope_long: [ssH({ scope: 'x'.repeat(101) }), /headline scope.*100/],
+    nc_not_string: [ssRaw({ notComparable: 5 }), /headline notComparable/], nc_empty: [ssRaw({ notComparable: '' }), /headline notComparable/], nc_too_short: [ssRaw({ notComparable: 'x'.repeat(9) }), /headline notComparable/],
+    nc_too_long: [ssRaw({ notComparable: 'x'.repeat(121) }), /headline notComparable.*120/], nc_untrimmed: [ssRaw({ notComparable: ' ' + NC_OK }), /headline notComparable/], nc_markup: [ssRaw({ notComparable: 'reason <b>bold</b> here' }), /headline notComparable.*plain text/],
+    nc_newline: [ssRaw({ notComparable: 'reason\nsecond line' }), /headline notComparable.*control/], nc_null: [ssRaw({ notComparable: null }), /headline notComparable/], nc_true: [ssRaw({ notComparable: true }), /headline notComparable/],
+    nc_with_rate: [ssRaw({ notComparable: NC_OK, rate: '15' }), /headline notComparable/], nc_with_kind: [ssRaw({ notComparable: NC_OK, kind: 'stated' }), /headline notComparable/],
+    nc_with_scope: [ssRaw({ notComparable: NC_OK, scope: 'long enough' }), /headline notComparable/], nc_with_parts: [ssRaw({ notComparable: NC_OK, parts: ['1', '2'] }), /headline notComparable/], nc_with_everything: [ssH({ notComparable: NC_OK }), /headline notComparable/],
+    employee_same_rules_rate: [ssH({ rate: '16' }, SS_VALUE, 'ssEmployee'), /headline rate "16" .*value/], employee_same_rules_kind: [ssH({ kind: 'range' }, SS_VALUE, 'ssEmployee'), /headline kind/], employee_same_rules_unknown: [ssH({ from: '1' }, SS_VALUE, 'ssEmployee'), /headline unknown field "from"/],
+  };
+  try {
+    assert.ok(s.validate(ssH({})).ok && s.validate(sumH({})).ok, 'baselines pass');
+    for (const [name, [data, re]] of Object.entries(cases)) {
+      const r = s.validate(data);
+      assert.ok(!r.ok && /facts/i.test(r.out) && /headline/.test(r.out) && re.test(r.out), `validate.mjs must reject ss headline case "${name}" naming "facts" and matching ${re}: ` + r.out.slice(0, 500));
+    }
+    for (const cp of bidiAndInvisible) {
+      for (const [what, data, re] of [['scope', ssH({ scope: 'category' + String.fromCharCode(cp) + ' A' }), /headline scope.*control/], ['notComparable', ssRaw({ notComparable: 'health' + String.fromCharCode(cp) + ' insurance is separate' }), /headline notComparable.*control/]]) {
+        const r = s.validate(data); assert.ok(!r.ok && re.test(r.out), `U+${cp.toString(16).toUpperCase()} in headline ${what} must be rejected: ` + r.out.slice(0, 300));
+      }
+    }
+  } finally { s.done(); }
+});
+
+test('p5_1.validate_rejects_bad_tax_headlines', () => {
+  const s = factsSite();
+  const cases = {
+    not_object: [txRaw('30'), /headline must be an object/], null_value: [txRaw(null), /headline must be an object/], array: [txRaw([]), /headline must be an object/],
+    unknown_field: [txH({ extra: 1 }), /headline unknown field "extra"/], ss_field_kind: [txH({ kind: 'stated' }), /headline unknown field "kind"/], ss_field_parts: [txH({ parts: ['10', '20'] }), /headline unknown field "parts"/],
+    min_wage_field_amount: [txH({ amount: '30' }), /headline unknown field "amount"/], min_wage_field_statutory: [txRaw({ statutory: false }), /headline unknown field "statutory"/],
+    empty_object: [txRaw({}), /headline rate.*required/], from_scope_only: [txRaw({ from: '50,001', scope: 'long enough' }), /headline rate.*required/],
+    rate_number: [txH({ rate: 30 }), /headline rate/], rate_percent_sign: [txH({ rate: '30%' }), /headline rate/], rate_comma: [txH({ rate: '30,5' }), /headline rate/], rate_four_decimals: [txH({ rate: '30.1234' }), /headline rate/],
+    rate_empty: [txH({ rate: '' }), /headline rate/], rate_padded: [txH({ rate: '30 ' }), /headline rate/], rate_negative: [txH({ rate: '-30' }), /headline rate/], rate_markup: [txH({ rate: '<b>3</b>' }), /headline rate/],
+    rate_not_the_highest: [txH({ rate: '20', from: '10,001' }, { value: 'Progressive: 0% to 30%; basic rate 20%' }), /headline rate "20" .*highest/],
+    rate_not_in_bands: [txH({ rate: '31' }, { value: 'Progressive: 0% to 31% of taxable income' }), /headline rate "31" .*highest/],
+    rate_higher_than_any_band: [txH({ rate: '35' }, { value: 'Progressive: up to 35%' }), /headline rate "35" .*highest/],
+    rate_not_in_value: [txH({}, { value: 'Progressive income tax, see the source' }), /headline rate "30" .*value/],
+    rate_not_in_value_longer_number: [txH({}, { value: 'Progressive: up to 130 per cent' }), /headline rate "30" .*value/],
+    rate_without_bands: [txH({}, { bands: undefined }), /headline rate .*bands|headline .*bands/],
+    rate_sweden_like_state_tax_is_not_the_highest: [txRaw({ rate: '20', from: '643,001 kr', scope: 'state tax only' }, { value: 'Municipal tax average 32.38%; plus 20% state tax above 643,000 kr', bands: [{ from: '0 kr', to: '643,000 kr', rate: 'Municipal tax only (average 32.38%)' }, { from: '643,001 kr', to: null, rate: 'Municipal tax plus 20% state tax' }] }), /headline rate "20" .*highest/],
+    from_missing: [txH({ from: undefined }), /headline from/], from_number: [txH({ from: 50001 }), /headline from/], from_empty: [txH({ from: '' }), /headline from/], from_object: [txH({ from: {} }), /headline from/],
+    from_wrong_string: [txH({ from: '50,000' }), /headline from "50,000" .*band/], from_of_a_lower_band: [txH({ from: '10,001' }), /headline from "10,001" .*band/], from_untrimmed: [txH({ from: ' 50,001' }), /headline from/],
+    from_null_on_a_progressive_tax: [txH({ from: null }), /headline from/],
+    addOns_string: [txH({ addOns: 'church' }), /headline addOns/], addOns_object: [txH({ addOns: {} }), /headline addOns/], addOns_unknown_value: [txH({ addOns: ['local'] }), /headline addOns/], addOns_case: [txH({ addOns: ['Municipal'] }), /headline addOns/],
+    addOns_number: [txH({ addOns: [1] }), /headline addOns/], addOns_one_bad_of_two: [txH({ addOns: ['church', 'tax'] }), /headline addOns/], addOns_null: [txH({ addOns: null }), /headline addOns/],
+    scope_missing: [txH({ scope: undefined }), /headline scope/], scope_empty: [txH({ scope: '' }), /headline scope/], scope_untrimmed: [txH({ scope: ' x scale' }), /headline scope/], scope_too_short: [txH({ scope: 'x'.repeat(4) }), /headline scope/],
+    scope_markup: [txH({ scope: 'a <b>scale</b>' }), /headline scope.*plain text/], scope_newline: [txH({ scope: 'one\ntwo scale' }), /headline scope.*control/], scope_long: [txH({ scope: 'x'.repeat(101) }), /headline scope.*100/], scope_number: [txH({ scope: 12345 }), /headline scope/],
+    nc_empty: [txRaw({ notComparable: '' }), /headline notComparable/], nc_too_short: [txRaw({ notComparable: 'x'.repeat(9) }), /headline notComparable/], nc_too_long: [txRaw({ notComparable: 'x'.repeat(121) }), /headline notComparable.*120/],
+    nc_markup: [txRaw({ notComparable: 'reason <i>x</i> here' }), /headline notComparable.*plain text/], nc_not_string: [txRaw({ notComparable: ['reason'] }), /headline notComparable/],
+    nc_with_rate: [txRaw({ notComparable: NC_OK, rate: '30' }), /headline notComparable/], nc_with_from: [txRaw({ notComparable: NC_OK, from: null }), /headline notComparable/], nc_with_addOns: [txRaw({ notComparable: NC_OK, addOns: ['church'] }), /headline notComparable/],
+    nc_with_scope: [txRaw({ notComparable: NC_OK, scope: 'long enough' }), /headline notComparable/], nc_with_everything: [txH({ notComparable: NC_OK }), /headline notComparable/],
+  };
+  try {
+    assert.ok(s.validate(txH({})).ok, 'baseline passes');
+    for (const [name, [data, re]] of Object.entries(cases)) {
+      const r = s.validate(data);
+      assert.ok(!r.ok && /facts/i.test(r.out) && /headline/.test(r.out) && re.test(r.out), `validate.mjs must reject tax headline case "${name}" naming "facts" and matching ${re}: ` + r.out.slice(0, 500));
+    }
+    for (const cp of bidiAndInvisible) {
+      const r = s.validate(txH({ scope: 'national' + String.fromCharCode(cp) + ' scale' })); assert.ok(!r.ok && /headline scope.*control/.test(r.out), `U+${cp.toString(16).toUpperCase()} in tax headline scope must be rejected: ` + r.out.slice(0, 300));
+    }
+  } finally { s.done(); }
+});
+
+test('p5_1.validate_headline_only_on_its_four_keys_with_per_key_field_sets', () => {
+  const s = factsSite(), MSG = /headline is only allowed on a minimumWage, ssEmployer, ssEmployee or taxBands fact/;
+  try {
+    for (const key of ['ssCeiling', 'payFrequency', 'other']) {
+      for (const [what, h] of [['ss shape', ssGood], ['tax shape', txGood], ['notComparable', { notComparable: NC_OK }], ['min wage shape', { amount: '13.90', period: 'hour', scope: 'x' }]]) {
+        const r = s.validate([fixCountry({ facts: [fixFact({ key, label: 'Some fact', value: SS_VALUE + ' 13.90 hour 30%', headline: h })] })]);
+        assert.ok(!r.ok && /facts/i.test(r.out) && MSG.test(r.out), `headline (${what}) on ${key} must be refused with the four-key message: ` + r.out.slice(0, 400));
+      }
+    }
+    // per-key field sets: a headline shaped for one of the keys is refused on another
+    for (const [what, data, re] of [
+      ['ss shape on taxBands', txRaw(ssGood), /headline unknown field "kind"/], ['tax shape on ssEmployer', ssRaw(txGood), /headline unknown field "from"/], ['tax shape on ssEmployee', ssRaw(txGood, SS_VALUE, 'ssEmployee'), /headline unknown field "from"/],
+      ['ss shape on minimumWage', [fixCountry({ facts: [fixFact({ headline: { rate: '15', kind: 'stated', scope: 'long enough' } })] })], /headline unknown field "rate"/],
+      ['notComparable on minimumWage', [fixCountry({ facts: [fixFact({ headline: { notComparable: NC_OK } })] })], /headline unknown field "notComparable"/],
+      ['min wage shape on ssEmployer', ssRaw({ amount: '15', period: 'month', scope: 'long enough' }), /headline unknown field "amount"/],
+    ]) { const r = s.validate(data); assert.ok(!r.ok && /facts/i.test(r.out) && re.test(r.out), `${what}: ` + r.out.slice(0, 400)); }
+    // an existing minimum wage headline keeps working next to the new ones in one country
+    const r = s.validate([fixCountry({ facts: [fixFact({ headline: { amount: '1,000', period: 'month', scope: 'full-time' } }), rf('france', 'ssEmployer', { rate: '15', kind: 'stated', scope: 'category A' }, SS_VALUE), rf('france', 'ssEmployee', { notComparable: NC_OK }, SS_VALUE), rf('france', 'taxBands', txGood, TX_VALUE, { bands: rtBands() })] })]);
+    assert.ok(r.ok, 'minimum wage + ss + tax headlines in one country: ' + r.out.slice(0, 400));
+  } finally { s.done(); }
+});
+
+// ===== the page =====
+test('p5_1.page_exists_with_seo_head_jsonld_and_sitemap', () => {
+  assert.ok(fs.existsSync(path.join(ROOT, RT_FILE)), `${RT_FILE} not generated by build-pages.mjs`);
+  const h = read(RT_FILE), s = seoOf(h, RT_FILE), url = SITE_URL + RT_FILE, facts = loadFacts(), D = rtDateOf(facts, VER22), rows = rtItems(facts).length;
+  assert.equal(rows, 20, 'one row for each of the 20 fact countries');
+  assert.equal(s.title, expectedRtTitle(), 'title'); assert.ok(s.title.startsWith(RT_H1(YEAR)) && s.title.length <= TITLE_MAX, 'title uses the last-verified YEAR and is <= 70');
+  assert.ok(s.desc.length >= DESC_MIN && s.desc.length <= DESC_MAX && /\.$/.test(s.desc) && !/[<>]/.test(s.desc), `description 70..158, plain, ends with a period (${s.desc.length})`);
+  assert.ok(new RegExp(`(^|\\D)${rows}(\\D|$)`).test(s.desc.replace(/checked.*$/i, '')), `description names the number of countries in the table (${rows}): ${s.desc}`);
+  assert.ok(/social security/i.test(s.desc) && /tax/i.test(s.desc), 'description says what is compared: ' + s.desc);
+  assert.ok(s.desc.toLowerCase().endsWith('checked ' + fmtLong(D).toLowerCase() + '.'), `description ends with "checked ${fmtLong(D)}.": ${s.desc}`);
+  assert.equal(s.canonical, url); assert.equal(s.ogUrl, url); assert.equal(s.h1s, 1);
+  assert.equal(s.ogTitle, s.title); assert.equal(s.twTitle, s.title); assert.equal(s.ogDesc, s.desc); assert.equal(s.twDesc, s.desc);
+  assert.ok(h.includes(`<h1>${RT_H1(YEAR)}</h1>`), 'h1 carries the year');
+  assert.match(h, /<link rel="stylesheet" href="legal\.css">/); assert.match(h, /<meta http-equiv="Content-Security-Policy" content="default-src 'self'/);
+  assert.ok(!/\son[a-z]+=|\sstyle=/i.test(h) && !INLINE_SCRIPT.test(h), 'CSP: no inline handlers/scripts/styles');
+  assert.ok([...h.matchAll(/<script\b[^>]*>/g)].every(m => /type="application\/ld\+json"|\ssrc="[^"]+"/.test(m[0])), 'every script element is the JSON-LD data block or an external file (no inline code)');
+  const g = ldGraph(h, RT_FILE), bc = byType(g, 'BreadcrumbList');
+  assert.equal(bc.length, 1); assert.ok(g.every(n => ['BreadcrumbList', 'WebSite', 'Organization'].includes(n['@type'])), 'JSON-LD: breadcrumb (and at most WebSite/Organization), no Dataset or other claims');
+  assert.deepEqual(bc[0].itemListElement.map(i => [i.position, i.name, i.item]), [[1, 'Home', SITE_URL], [2, RT_CRUMB, url]]);
+  assert.equal(sitemapMod(read('sitemap.xml'), RT_FILE), D, 'sitemap lastmod = newest checked date of the displayed rate facts (not LAST_VERIFIED unless equal)');
+  assert.ok(publicPages().includes(RT_FILE), 'part of the public page set (SEO, uniqueness, breadcrumb and sitemap tests cover it)');
+  assert.ok(footerOf(h).includes('Sources last checked ' + fmtLong(D) + '.'), 'footer note uses the facts date');
+});
+test('p5_1.page_links_footers_and_main_links', () => {
+  const gen = allGenerated(); assert.ok(gen.includes(RT_FILE), `${RT_FILE} is part of the generated set`);
+  for (const f of gen) {
+    const d = f.startsWith('countries/') ? '../' : '', ft = footerOf(read(f)), a = `<a href="${d}${RT_FILE}">Rates</a>`;
+    assert.ok(ft.includes(a), `${f}: footer link "Rates"`); assert.equal(ft.split(a).length - 1, 1, `${f}: footer links Rates once`);
+    const mw = ft.indexOf(`<a href="${d}minimum-wage-europe.html">Minimum wage</a>`), dl = ft.indexOf(`<a href="${d}deadlines.html">Deadlines</a>`);
+    assert.ok(mw >= 0 && mw < ft.indexOf(a) && ft.indexOf(a) < dl, `${f}: footer order Minimum wage, Rates, Deadlines`);
+    assert.ok(ft.indexOf(`<a href="${d}keyfacts.html">Key facts</a>`) < ft.indexOf(a) && ft.indexOf(a) < ft.indexOf(`<a href="${d}glossary.html">Glossary</a>`), `${f}: footer order Key facts, Rates, Glossary`);
+  }
+  const idx = read('index.html');
+  assert.match(footerOf(idx), /<a href="minimum-wage-europe\.html">Minimum wage<\/a>\s*<a href="social-security-tax-rates-europe\.html">Rates<\/a>\s*<a href="deadlines\.html">Deadlines<\/a>/, 'index.html footer nav: Rates right after Minimum wage, before Deadlines');
+  assert.equal(footerOf(idx).split('href="social-security-tax-rates-europe.html"').length - 1, 1, 'index.html footer links the page exactly once (the header Compare menu links it too)');
+  const m = rtParts(read(RT_FILE));
+  assert.ok(m.main.includes('href="keyfacts.html"') && m.main.includes('href="minimum-wage-europe.html"'), 'page main links to keyfacts.html and the minimum wage page');
+  const rowLinks = m.rows.map(r => r.th.match(/href="([^"]+)"/)[1]);
+  assert.equal(rowLinks.length, 20); assert.equal(new Set(rowLinks).size, 20, 'each country is linked once in the table');
+  for (const l of rowLinks) { assert.match(l, /^countries\/[a-z0-9-]+\.html#key-facts$/); assert.ok(resolves(l), `${l} resolves`); }
+  for (const x of m.main.matchAll(/href="(countries\/[^"]+)"/g)) assert.ok(resolves(x[1]), `${x[1]} resolves`);
+});
+test('p5_1.page_structure_notes_and_caveats', () => {
+  const h = read(RT_FILE), m = rtParts(h), D = rtDateOf(loadFacts(), VER22);
+  assert.ok(m.table, 'one scroll container with table.rates, caption, thead, tbody'); assert.equal((h.match(/<table\b/g) || []).length, 1, 'exactly one <table>');
+  assert.match(m.table.label, /by country table$/); assert.ok(m.table.caption.includes(YEAR) && /social security/i.test(m.table.caption) && /income tax/i.test(m.table.caption), 'caption names the year and both topics: ' + m.table.caption);
+  assert.equal(m.table.thead, RT_THEAD, 'five column headers with scope=col'); assert.equal(m.rows.length, 20);
+  assert.equal((m.main.match(/<th\b/g) || []).length, 5 + 20, 'only header cells: 5 columns + 20 row headers'); assert.equal((m.main.match(/<th scope="(col|row)">/g) || []).length, 25, 'every th carries scope=col or scope=row');
+  assert.ok(!/<h[3-6]\b/.test(m.main) && (m.q.match(/<h1[\s>]/g) || []).length === 1, 'heading levels: h1 then h2 only');
+  const note = normWs(m.after);
+  for (const re of [/local/i, /not legal or tax advice/i, new RegExp('as of ' + fmtLong(D))]) assert.match(note, re, `method note / caveats below the table match ${re}: ${note.slice(0, 400)}`);
+  assert.ok(/<h2\b/.test(m.after), 'the method note has its own h2');
+  assert.ok(m.main.indexOf('<h1>') < m.main.indexOf('<table'), 'h1 before the table');
+  assert.ok(!/\sstyle=/.test(m.main), 'no inline style');
+});
+
+// ===== real data =====
+const RT_NC_BOTH = ['czechia', 'poland', 'switzerland', 'italy', 'france', 'netherlands'];
+test('p5_1.data.every_country_has_three_valid_headlines_matching_its_value', () => {
+  const facts = loadFacts(); assert.equal(facts.length, 20);
+  let ncSs = 0, rateSs = 0, ncTax = 0, rateTax = 0;
+  const plain = (at, label, v, min, max) => assert.ok(typeof v === 'string' && v.trim() === v && v.length >= min && v.length <= max && !/[<>\u0000-\u001F]/.test(v), `${at}: ${label} plain text ${min}..${max}: ${JSON.stringify(v)}`);
+  for (const c of facts) {
+    for (const key of RT_KEYS) {
+      const f = c.facts.find(x => x.key === key), at = `${c.code}/${key}`;
+      if (!f) { assert.ok((key === 'taxBands' && c.code === 'switzerland') || (key !== 'taxBands' && c.code === 'italy'), `${at}: the fact must exist (only Switzerland's taxBands and Italy's social-security facts are missing today: no verified source, so those cells are an em dash)`); continue; }
+      assert.ok(f.headline && typeof f.headline === 'object' && !Array.isArray(f.headline), `${at}: needs a headline (rate or notComparable)`);
+      const h = f.headline, keys = Object.keys(h).sort().join(',');
+      if (h.notComparable !== undefined) {
+        assert.equal(keys, 'notComparable', `${at}: notComparable carries nothing else`); plain(at, 'notComparable', h.notComparable, 10, 120); key === 'taxBands' ? ncTax++ : ncSs++; continue;
+      }
+      assert.match(h.rate, /^\d+(\.\d{1,3})?$/, `${at}: rate format`); plain(at, 'scope', h.scope, 5, 100);
+      if (key === 'taxBands') {
+        rateTax++; assert.equal(keys, h.addOns === undefined ? 'from,rate,scope' : 'addOns,from,rate,scope', `${at}: tax headline fields`);
+        assert.ok(Array.isArray(f.bands) && f.bands.length, `${at}: bands`); const top = topBandOf(f.bands);
+        assert.equal(Number(h.rate), top.top, `${at}: rate ${h.rate} is the highest band percentage ${top.top}`);
+        assert.ok((f.value.match(/\d+(?:[.,]\d+)*/g) || []).some(t => canonNum(t) === canonNum(h.rate)), `${at}: rate ${h.rate} appears in value: ${f.value}`);
+        if (h.from === null) assert.equal(f.bands.length, 1, `${at}: null from only for a single-band flat tax`); else assert.equal(h.from, top.from, `${at}: from is the top band's from`);
+        if (h.addOns !== undefined) assert.ok(Array.isArray(h.addOns) && h.addOns.every(a => RT_ADDONS.includes(a)), `${at}: addOns`);
+      } else {
+        rateSs++; assert.equal(keys, h.parts === undefined ? 'kind,rate,scope' : 'kind,parts,rate,scope', `${at}: ss headline fields`); assert.ok(['stated', 'sum'].includes(h.kind), `${at}: kind`);
+        if (h.kind === 'stated') { assert.ok(h.parts === undefined, `${at}: stated has no parts`); assert.ok(pctIn(h.rate, f.value), `${at}: stated rate ${h.rate}% appears in value: ${f.value}`); }
+        else { assert.ok(Array.isArray(h.parts) && h.parts.length >= 2, `${at}: sum needs >= 2 parts`); for (const p of h.parts) { assert.match(p, /^\d+(\.\d{1,3})?$/, `${at}: part format`); assert.ok(pctIn(p, f.value), `${at}: part ${p}% appears in value: ${f.value}`); } assert.ok(rtSumOk(h.rate, h.parts), `${at}: parts sum to ${h.rate}`); }
+      }
+    }
+  }
+  // the editorial decisions: social-only figures that are not like-for-like are marked as such
+  for (const code of RT_NC_BOTH.filter(x => x !== 'italy')) for (const key of ['ssEmployer', 'ssEmployee']) { const f = facts.find(c => c.code === code).facts.find(x => x.key === key); assert.ok(f && f.headline && f.headline.notComparable, `${code}/${key} is a fact with a notComparable headline (italy has no ssEmployer/ssEmployee facts yet: they must be added, with their official source, to carry the headline and the link)`); }
+  assert.ok(String(facts.find(c => c.code === 'czechia').facts.find(x => x.key === 'ssEmployer').headline.notComparable).length >= 10);
+  assert.ok(ncSs >= 12 && rateSs >= 20, `a useful mix of cells: ${rateSs} comparable and ${ncSs} not comparable social security cells (${rateTax} rate and ${ncTax} not comparable tax cells)`); assert.ok(rateTax >= 12, `most top tax rates are comparable (${rateTax})`);
+});
+test('p5_1.data.page_matches_data_exactly', () => {
+  const facts = loadFacts(); assert.ok(fs.existsSync(path.join(ROOT, RT_FILE)), `${RT_FILE} missing`);
+  const got = assertRtMatches(read(RT_FILE), facts, 'real data');
+  assert.equal(got.rows.length, 20, 'exactly 20 rows'); const names = got.rows.map(r => normWs(r.th).replace(/^\S+ /, ''));
+  assert.equal(new Set(names).size, 20, 'every country exactly once'); assert.deepEqual(names, [...names].sort((a, b) => a.localeCompare(b)), 'rows sorted by name (like the minimum wage page)');
+  assert.deepEqual([...names].sort(), facts.map(c => mwInfo.get(c.code).name).sort(), 'the rows are exactly the facts.json countries');
+  const mwNames = [...squash(read(MW_FILE)).matchAll(/<th scope="row"><a href="countries\/[^"]+">[^ ]+ ([^<(]*?)(?: \([^<]*\))?<\/a><\/th>/g)].map(x => decode(x[1]));
+  assert.ok(mwNames.length > 0 && mwNames.every(n => names.includes(n)), 'every country on the minimum wage page is on this page too, in the same relative order');
+  assert.deepEqual(names.filter(n => mwNames.includes(n)), mwNames, 'same order as the minimum wage page');
+});
+test('p5_1.data.pinned_spot_checks_in_the_rendered_html', () => {
+  const m = rtParts(read(RT_FILE)); assert.equal(m.rows.length, 20, 'table rendered');
+  const row = code => { const nm = mwInfo.get(code).name, r = m.rows.find(x => normWs(x.th).endsWith(' ' + nm)); assert.ok(r, `row for ${nm}`); return { er: rtCell(r.tds[0]), ee: rtCell(r.tds[1]), tx: rtCell(r.tds[2]), st: rtCell(r.tds[3]) }; };
+  assert.equal(row('uk').er.lead, '15%', 'UK employer 15%');
+  assert.equal(row('germany').er.lead, '21.045%', 'Germany employer 21.045%'); assert.equal(row('germany').ee.lead, '21.045%', 'Germany employee 21.045%');
+  assert.equal(row('spain').er.lead, '30.65%', 'Spain employer 30.65%');
+  assert.equal(row('austria').tx.lead, '55%', 'Austria top tax 55%'); assert.equal(row('austria').st.lead, '€1,000,001', 'Austria starts at €1,000,001');
+  assert.equal(row('romania').er.lead, '2.25%', 'Romania employer 2.25%');
+  assert.equal(row('hungary').tx.lead, '15%', 'Hungary top tax 15%'); assert.equal(row('hungary').st.lead, 'Flat rate', 'Hungary flat rate');
+  assert.equal(row('ireland').tx.lead, '40%', 'Ireland top tax 40%');
+  assert.equal(row('poland').er.lead, 'Not comparable', 'Poland employer not comparable'); assert.equal(row('switzerland').er.lead, 'Not comparable', 'Switzerland employer not comparable');
+  for (const code of RT_NC_BOTH.filter(x => x !== 'italy')) for (const k of ['er', 'ee']) { const c = row(code)[k]; assert.equal(c.lead, 'Not comparable', `${code} ${k}`); assert.ok(c.smalls.length >= 1 && c.smalls[0].length >= 10, `${code} ${k}: the reason is given in words`); assert.ok(!/\d+(\.\d+)?%/.test(c.bare), `${code} ${k}: no rate shown`); }
+  assert.ok(row('uk').er.smalls.length >= 1 && row('uk').er.smalls[0].length >= 5, 'a comparable cell shows its scope beneath the rate');
+});
+test('p5_1.data.no_foreign_percentages_and_links_are_the_facts_source_urls', () => {
+  const facts = loadFacts(), m = rtParts(read(RT_FILE)); assert.equal(m.rows.length, 20);
+  const allRates = new Set(); const urls = new Set();
+  for (const c of facts) for (const f of c.facts) { urls.add(f.sourceUrl); if (RT_KEYS.includes(f.key) && f.headline && f.headline.rate !== undefined) allRates.add(rtFmt(f.headline.rate)); }
+  assert.ok(allRates.size >= 15, 'a spread of distinct rates: ' + allRates.size);
+  m.rows.forEach(r => {
+    assert.ok(!/%/.test(normWs(r.th)), 'no percentage in a row header');
+    r.tds.forEach((td, i) => {
+      const cell = rtCell(td);
+      for (const p of cell.bare.matchAll(/\d[\d.,]*\s*%/g)) assert.ok(allRates.has(p[0].replace(/\s/g, '')), `percentage "${p[0]}" outside the scope/notes text is not a headline rate: ${normWs(td).slice(0, 120)}`);
+      if (i < 3) for (const l of cell.links) { assert.match(l.href, /^https:\/\//, 'https link'); assert.ok(urls.has(l.href), `link ${l.href} is a facts.json sourceUrl`); assert.equal(l.rel, 'noopener'); }
+      if (i === 3) assert.equal(cell.links.length, 0, 'the "Starts at" cell carries no link');
+    });
+  });
+  const hrefs = [...m.main.matchAll(/href="([^"]*)"/g)].map(x => decode(x[1]));
+  for (const hr of hrefs) assert.ok(!/^http:\/\//i.test(hr) && !/^(javascript|data):/i.test(hr), `no http:, javascript: or data: link: ${hr}`);
+  for (const hr of hrefs.filter(x => /^https?:/.test(x))) assert.ok(urls.has(hr) || hr.startsWith(SITE_URL), `every absolute link in main is a source URL or the site: ${hr}`);
+});
+
+// ===== fixtures: data-driven, escaped, deterministic =====
+test('p5_1.fixture_page_is_data_driven_and_deterministic', () => {
+  const setYear = js => js.replace(/(new Date\(')\d{4}-\d{2}-\d{2}(T)/, (_, a, b) => `${a}2027-02-03${b}`);
+  const s = factsSite(undefined, { appEdit: setYear });
+  try {
+    const data = ratesFixture();
+    { const v = factsSite(); try { const vr = v.validate(data); assert.ok(vr.ok, 'the fixture is valid data: ' + vr.out.slice(0, 400)); } finally { v.done(); } }
+    const r = s.build(data); assert.ok(r.ok, r.out.slice(0, 400));
+    const file = path.join(s.dir, RT_FILE); assert.ok(fs.existsSync(file), `${RT_FILE} not generated`);
+    const h = fs.readFileSync(file, 'utf8'), got = assertRtMatches(h, data, 'fixture');
+    assert.deepEqual(got.rows.map(x => normWs(x.th).replace(/^\S+ /, '')), ['France', 'Germany', 'Spain'], 'sorted by name');
+    const fr = got.rows[0].tds.map(rtCell), sp = got.rows[2].tds.map(rtCell), de = got.rows[1].tds.map(rtCell);
+    assert.equal(fr[0].lead, '15.5%', 'trailing zero trimmed'); assert.ok(fr[0].smalls.includes('private sector; "q" & more')); assert.equal(fr[1].lead, 'Not comparable'); assert.ok(fr[1].smalls.includes('health insurance is a separate fact & not like-for-like'));
+    assert.equal(fr[2].lead, '30%'); assert.ok(fr[2].text.includes('Not included: municipal, regional')); assert.equal(fr[3].lead, '50,001');
+    assert.equal(sp[0].lead, '15.5%', 'a sum is shown as its rate'); assert.equal(sp[2].lead, '10%'); assert.equal(sp[3].lead, 'Flat rate'); assert.ok(!/Not included/.test(sp[2].text), 'no add-ons: no "Not included" text');
+    assert.equal(de[0].lead, '21.045%', 'three decimals kept'); assert.equal(de[2].lead, 'Not comparable'); assert.equal(de[3].lead, '—', 'notComparable tax: "Starts at" is an em dash');
+    assert.equal(got.rows[0].tds[0].includes('href="https://example.org/france/ssEmployer?a=1&amp;b=2"'), true, 'source href escaped');
+    assert.ok(!/Poland|Switzerland|Sweden|Hungary|Austria/.test(got.rows.map(x => x.html).join('')), 'no hard-coded countries');
+    const sx = seoOf(h, RT_FILE); assert.equal(sx.title, expectedRtTitle('2027'), 'title uses the fixture year'); assert.ok(h.includes(`<h1>${RT_H1('2027')}</h1>`));
+    assert.ok(/(^|\D)3(\D|$)/.test(sx.desc.replace(/checked.*$/i, '')), 'description names 3 countries: ' + sx.desc); assert.ok(sx.desc.length >= DESC_MIN && sx.desc.length <= DESC_MAX);
+    assert.equal(sitemapMod(fs.readFileSync(path.join(s.dir, 'sitemap.xml'), 'utf8'), RT_FILE), '2026-10-01', 'lastmod = the fixture facts checked date, not LAST_VERIFIED 2027-02-03');
+    const a = h; s.run('build-pages.mjs'); assert.equal(fs.readFileSync(file, 'utf8'), a, 'second build byte-identical');
+    const chk = s.run('build-pages.mjs', '--check'); assert.ok(chk.ok, '--check passes on the fresh build: ' + chk.out.slice(0, 300));
+    // file order does not matter: the page is sorted by name
+    assert.ok(s.build([...data].reverse()).ok); assert.equal(fs.readFileSync(file, 'utf8'), a, 'reversed input order gives the same page');
+    // changing a number in the data changes the page (no hand-typed numbers)
+    const d2 = JSON.parse(JSON.stringify(data)); d2[0].facts[0].value = 'Employer 16% of gross pay'; d2[0].facts[0].headline.rate = '16';
+    assert.ok(s.build(d2).ok); const g2 = assertRtMatches(fs.readFileSync(file, 'utf8'), d2, 'changed fixture'); assert.equal(rtCell(g2.rows[0].tds[0]).lead, '16%');
+  } finally { s.done(); }
+});
+test('p5_1.fixture_partial_headlines_and_empty_data', () => {
+  const s = factsSite();
+  try {
+    // france has only an employer headline (other cells "—"), spain has facts but no headline (no row), germany has a minimum wage headline only (no row)
+    const data = [
+      fixCountry({ code: 'france', facts: [rf('france', 'ssEmployer', { rate: '15', kind: 'stated', scope: 'private sector' }, 'Employer 15% of gross pay'), rf('france', 'ssEmployee', undefined, 'Employee 8% of gross pay'), fixFact({ headline: { amount: '1,000', period: 'month', scope: 'full-time' } })] }),
+      fixCountry({ code: 'spain', facts: [rf('spain', 'ssEmployer', undefined, 'Employer 30% of gross pay'), rf('spain', 'taxBands', undefined, 'Up to 47%', { bands: [{ from: '0', to: null, rate: '47%' }] })] }),
+      fixCountry({ code: 'germany', facts: [fixFact({ value: 'EUR 13.90 per hour', headline: { amount: '13.90', period: 'hour', scope: 'age 18 and over' } })] }),
+    ];
+    let r = s.build(data); assert.ok(r.ok, r.out.slice(0, 400));
+    let h = s.read(RT_FILE), got = assertRtMatches(h, data, 'partial'); assert.equal(got.rows.length, 1, 'only france has a headline');
+    assert.deepEqual(got.rows[0].tds.map(td => rtCell(td).lead), ['15%', '—', '—', '—'], 'missing cells are an em dash');
+    assert.ok(/(^|\D)1(\D|$)/.test(seoOf(h, RT_FILE).desc.replace(/checked.*$/i, '')), 'description counts the rows: ' + seoOf(h, RT_FILE).desc);
+    assert.ok(s.run('build-pages.mjs', '--check').ok, '--check passes with a partial table');
+    // minimum wage headlines alone do not make rows
+    r = s.build([fixCountry({ facts: [fixFact({ headline: { amount: '1,000', period: 'month', scope: 'full-time' } })] })]); assert.ok(r.ok, r.out.slice(0, 300));
+    assert.ok(!/<table\b/.test(s.read(RT_FILE)), 'no rate headline: no table'); assert.ok(s.run('build-pages.mjs', '--check').ok, 'no rows: --check green');
+    // empty facts: the page is still generated, valid, without a table; description rules hold
+    r = s.build([]); assert.ok(r.ok, r.out.slice(0, 300)); h = s.read(RT_FILE); assert.ok(!/<table\b/.test(h), 'empty facts: no table');
+    const sx = seoOf(h, RT_FILE); assert.ok(sx.desc.length >= DESC_MIN && sx.desc.length <= DESC_MAX && sx.desc.endsWith('.'), 'description still within 70..158: ' + sx.desc);
+    assert.ok(s.run('build-pages.mjs', '--check').ok, 'empty facts: --check green');
+  } finally { s.done(); }
+});
+test('p5_1.fixture_escapes_hostile_strings', () => {
+  const s = factsSite();
+  try {
+    const evil = '<img src=x onerror=alert(1)>';
+    const data = [
+      fixCountry({ code: 'france', facts: [
+        rf('france', 'ssEmployer', { rate: '15', kind: 'stated', scope: `${evil} & "s" 't'` }, 'Employer 15% of gross pay', { sourceLabel: 'Source: <i>X</i> - "Y"', sourceUrl: 'https://example.org/a"onmouseover="x&y=1' }),
+        rf('france', 'ssEmployee', { notComparable: `${evil} & "n" 'm' reason` }, 'Employee 8%', { sourceLabel: 'Source: <u>Z</u> - "W"' }),
+        rf('france', 'taxBands', { rate: '30', from: `${evil} & "f"`, scope: `${evil} <script>alert(2)</script>`, addOns: ['municipal'] }, 'Up to 30%', { bands: [{ from: '0', to: null, rate: '30%' }, { from: `${evil} & "f"`, to: null, rate: '30%' }] }),
+      ] }),
+    ];
+    const r = s.build(data); assert.ok(r.ok, 'build without validate must not crash on hostile text: ' + r.out.slice(0, 400));
+    const h = s.read(RT_FILE), m = rtParts(h);
+    assert.ok(m.rows.length === 1, 'row rendered'); assertRtMatches(h, data, 'hostile');
+    assert.ok(!/<(img|b|i|u|script)\b/i.test(m.main.replace(/<a href="[^"]*"/g, '<a')), 'no raw tags from data');
+    assert.ok(!/<[^>]*\son[a-z]+=/i.test(h), 'no event-handler attribute inside any tag'); assert.ok(!INLINE_SCRIPT.test(h), 'hostile data created no inline script');
+    assert.ok(!/<script>alert/i.test(h), 'no injected script element'); assert.equal([...h.matchAll(/<script\b[^>]*>/g)].filter(m => !/\ssrc="[^"]+"/.test(m[0])).length, 1, 'only the JSON-LD script element is inline (external script files are allowed)');
+    assert.ok(h.includes('&lt;img src=x onerror=alert(1)&gt;'), 'hostile text is shown as escaped text');
+    assert.ok(h.includes('href="https://example.org/a&quot;onmouseover=&quot;x&amp;y=1"'), 'href attribute-escaped');
+    assert.ok(h.includes('&quot;') && h.includes('&#39;'), 'quotes escaped');
+  } finally { s.done(); }
+});
+test('p5_1.check_tracks_the_page', () => {
+  const s = factsSite();
+  try {
+    const real = JSON.parse(read('data/facts.json')); let r = s.build(real); assert.ok(r.ok, r.out.slice(0, 300));
+    r = s.run('build-pages.mjs', '--check'); assert.ok(r.ok, r.out.slice(0, 300));
+    const file = path.join(s.dir, RT_FILE); assert.ok(fs.existsSync(file), `${RT_FILE} generated by the build`); const orig = fs.readFileSync(file, 'utf8');
+    fs.writeFileSync(file, orig.replace('</main>', '<p>tampered</p></main>')); r = s.run('build-pages.mjs', '--check');
+    assert.ok(!r.ok && /social-security-tax-rates-europe\.html is out of date/.test(r.out), 'tampered page: ' + r.out.slice(0, 300));
+    fs.rmSync(file); r = s.run('build-pages.mjs', '--check'); assert.ok(!r.ok && /social-security-tax-rates-europe\.html is missing/.test(r.out), 'deleted page: ' + r.out.slice(0, 300));
+    s.run('build-pages.mjs'); assert.equal(fs.readFileSync(file, 'utf8'), orig, 'rebuild restores the same bytes (idempotent)');
+    const find = pred => { for (const c of real) for (const f of c.facts) if (RT_KEYS.includes(f.key) && f.headline && pred(f)) return f; return null; };
+    const mutate = (what, pred, fn) => {
+      const changed = JSON.parse(JSON.stringify(real)); let hit = null;
+      for (const c of changed) for (const f of c.facts) if (!hit && RT_KEYS.includes(f.key) && f.headline && pred(f)) hit = f;
+      assert.ok(hit, `facts.json has a headline to change for "${what}"`); fn(hit); s.setFacts(changed);
+      const x = s.run('build-pages.mjs', '--check'); assert.ok(!x.ok && /social-security-tax-rates-europe\.html is out of date/.test(x.out), `${what} makes the page stale: ` + x.out.slice(0, 300));
+      s.setFacts(real); assert.ok(s.run('build-pages.mjs', '--check').ok, `restored: green again (${what})`);
+    };
+    assert.ok(find(f => f.headline.rate !== undefined && f.key !== 'taxBands'), 'a comparable social security headline exists');
+    mutate('a changed scope', f => f.headline.scope !== undefined, f => { f.headline.scope = 'a changed scope text'; });
+    mutate('a changed notComparable reason', f => f.headline.notComparable !== undefined, f => { f.headline.notComparable = 'a changed reason in words'; });
+    mutate('a changed rate', f => f.headline.rate !== undefined && f.key !== 'taxBands', f => { f.headline.rate = f.headline.rate === '7' ? '8' : '7'; });
+    mutate('a changed source url', f => true, f => { f.sourceUrl = 'https://example.org/changed'; });
+    mutate('a changed "from"', f => f.key === 'taxBands' && typeof f.headline.from === 'string', f => { f.headline.from = 'changed 1'; });
+    mutate('a changed add-on', f => f.key === 'taxBands' && f.headline.rate !== undefined, f => { f.headline.addOns = [...(f.headline.addOns || []), 'cantonal']; });
+  } finally { s.done(); }
+});
+
+// ===== data date (P4-3 semantics) =====
+const rtDateFixture = () => [
+  fixCountry({ code: 'france', facts: [
+    rf('france', 'ssEmployer', { notComparable: NC_OK }, 'Several premiums', { checked: '2026-11-05' }), rf('france', 'ssEmployee', { notComparable: NC_OK }, 'Several premiums', { checked: '2026-12-20' }),
+    rf('france', 'taxBands', { rate: '30', from: '50,001', scope: 'single person; national' }, 'Progressive up to 30%', { checked: '2026-10-15', bands: rtBands() }),
+    fixFact({ headline: { amount: '1,000', period: 'month', scope: 'full-time' }, checked: '2027-01-03' }), fixFact({ key: 'ssCeiling', label: 'Ceiling', value: 'EUR 4,000 per month', checked: '2027-01-02' }),
+  ] }),
+  fixCountry({ code: 'spain', facts: [rf('spain', 'ssEmployer', undefined, 'Employer 30%', { checked: '2027-01-15' }), rf('spain', 'taxBands', { notComparable: NC_OK }, 'Progressive', { checked: '2026-12-10' })] }),
+  fixCountry({ code: 'germany', facts: [rf('germany', 'ssEmployee', undefined, 'Employee 20%', { checked: '2026-12-31' }), rf('germany', 'ssEmployer', { notComparable: NC_OK }, 'Several premiums', { checked: '2026-09-01' })] }),
+];
+const RT_D = '2026-12-20';
+for (const lv of ['2026-12-01', '2027-02-03']) {
+  test('p5_1.fixture_page_is_dated_by_its_own_facts_not_last_verified (LAST_VERIFIED ' + lv + ')', () => {
+    const s = factsSite(undefined, withLv(lv));
+    try {
+      const data = rtDateFixture(), rd = f => s.read(f); assert.equal(rtDateOf(data, lv), RT_D);
+      const r = s.build(data); assert.ok(r.ok, r.out.slice(0, 400));
+      const x = rd('sitemap.xml'), h = rd(RT_FILE), sx = seoOf(h, RT_FILE);
+      assert.ok(sx.desc.endsWith('hecked ' + fmtLong(RT_D) + '.'), 'description: ' + sx.desc); assert.ok(footerOf(h).includes('Sources last checked ' + fmtLong(RT_D) + '.'), 'footer note');
+      assert.ok(normWs(rtParts(h).after).includes('as of ' + fmtLong(RT_D)), '"data as of <D>" in the method note');
+      for (const wrong of [lv, '2027-01-15', '2027-01-03', '2027-01-02', '2026-12-31', '2026-11-05', '2026-10-15', '2026-12-10', '2026-09-01']) assert.ok(!hasWords(h, wrong), 'rates page must not show ' + fmtLong(wrong));
+      assert.equal(sitemapMod(x, RT_FILE), RT_D, 'rates lastmod = newest checked of the facts WITH a headline (spain/germany facts without headline, the minimum wage fact and the ceiling are ignored)');
+      // the other data pages keep their own dates; LAST_VERIFIED is untouched
+      assert.equal(sitemapMod(x, MW_FILE), mwDateOf(data, lv), 'minimum wage lastmod unchanged'); assert.equal(sitemapMod(x, 'keyfacts.html'), kfDateOf(data, lv), 'keyfacts lastmod unchanged (all facts)');
+      assert.equal(sitemapMod(x, ''), lv, 'home'); for (const f of ['countries.html', 'upcoming.html', 'suggest.html']) { assert.equal(sitemapMod(x, f), lv, f); assert.ok(footerOf(rd(f)).includes('Sources last checked ' + fmtLong(lv) + '.'), f + ' footer'); }
+      assert.ok(footerOf(rd(MW_FILE)).includes('Sources last checked ' + fmtLong(mwDateOf(data, lv)) + '.'), 'minimum wage footer unchanged');
+      assert.ok(s.run('build-pages.mjs', '--check').ok, '--check green: ' + s.run('build-pages.mjs', '--check').out.slice(0, 300));
+      s.run('build-pages.mjs'); assert.equal(rd(RT_FILE), h); assert.equal(rd('sitemap.xml'), x, 'deterministic');
+      const descs = new Set(); for (const f of ['index.html', 'countries.html', 'keyfacts.html', MW_FILE, RT_FILE]) { const d = seoOf(rd(f), f).desc; assert.ok(!descs.has(d) && d.length >= DESC_MIN && d.length <= DESC_MAX && d.endsWith('.'), f + ' description unique and within 70..158'); descs.add(d); }
+    } finally { s.done(); }
+  });
+}
+test('p5_1.no_rate_headlines_fall_back_to_last_verified', () => {
+  const s = factsSite(undefined, withLv('2027-02-03'));
+  try {
+    const r = s.build([]); assert.ok(r.ok, r.out.slice(0, 300));
+    assert.equal(sitemapMod(s.read('sitemap.xml'), RT_FILE), '2027-02-03', 'lastmod'); assert.ok(footerOf(s.read(RT_FILE)).includes('Sources last checked 3 February 2027.'), 'footer');
+    assert.ok(seoOf(s.read(RT_FILE), RT_FILE).desc.endsWith('hecked 3 February 2027.'), 'description'); assert.ok(s.run('build-pages.mjs', '--check').ok);
+  } finally { s.done(); }
+});
+test('p5_1.check_tracks_the_data_dates', () => {
+  const s = factsSite();
+  try {
+    const data = rtDateFixture(); let r = s.build(data); assert.ok(r.ok, r.out.slice(0, 300)); r = s.run('build-pages.mjs', '--check'); assert.ok(r.ok, r.out.slice(0, 300));
+    // a newer 'checked' on facts the rates page does not show: keyfacts + that country go stale, the rates page does not
+    const a = JSON.parse(JSON.stringify(data)); a.find(c => c.code === 'spain').facts[0].checked = '2027-01-20'; a.find(c => c.code === 'france').facts[3].checked = '2027-01-25'; a.find(c => c.code === 'france').facts[4].checked = '2027-01-26'; s.setFacts(a);
+    r = s.run('build-pages.mjs', '--check'); assert.ok(!r.ok && /keyfacts\.html is out of date/.test(r.out), 'keyfacts follows: ' + r.out.slice(0, 400));
+    assert.ok(!/social-security-tax-rates-europe\.html is out of date/.test(r.out), 'facts without a rate headline (and other keys) must not touch the rates page: ' + r.out.slice(0, 500));
+    // a newer 'checked' on a fact WITH a rate headline makes the page stale
+    const b = JSON.parse(JSON.stringify(data)); b.find(c => c.code === 'spain').facts[1].checked = '2027-01-10'; s.setFacts(b);
+    r = s.run('build-pages.mjs', '--check'); assert.ok(!r.ok && /social-security-tax-rates-europe\.html is out of date/.test(r.out) && /sitemap\.xml is out of date/.test(r.out), 'headline date change: ' + r.out.slice(0, 500));
+    s.run('build-pages.mjs'); assert.ok(s.run('build-pages.mjs', '--check').ok, 'rebuilt = green again');
+  } finally { s.done(); }
+});
+
+// ===== a headline never changes the key facts views =====
+test('p5_1.country_pages_and_keyfacts_do_not_change_with_headlines', () => {
+  const s = factsSite();
+  try {
+    const withHl = ratesFixture(), without = JSON.parse(JSON.stringify(withHl)); for (const c of without) for (const f of c.facts) delete f.headline;
+    assert.ok(s.build(withHl).ok); const snap = () => Object.fromEntries(['keyfacts.html', 'countries.html', 'upcoming.html', 'glossary.html', ...s.pages().map(f => 'countries/' + f)].map(f => [f, s.read(f)]));
+    const a = snap(); assert.ok(s.build(without).ok); const b = snap();
+    for (const f of Object.keys(a)) assert.equal(a[f], b[f], `${f} is byte-identical with and without headlines`);
+    for (const c of withHl) { const pg = a['countries/' + P2.slugify(mwInfo.get(c.code).name) + '.html']; assert.ok(pg, 'country page for ' + c.code); assert.ok(squash(pg).includes(renderFacts(c)), `${c.code}: Key facts box exactly as before`); assert.ok(!/Not comparable|Not included|Flat rate/.test(pg), `${c.code}: headline text is not shown on the country page`); }
+    assert.ok(!/Not comparable|Flat rate/.test(a['keyfacts.html']), 'keyfacts.html does not show headline text');
+  } finally { s.done(); }
+});
+
+test('p5_1.css_rates_table_at_375px', () => {
+  const css = read('legal.css').replace(/\/\*[\s\S]*?\*\//g, '');
+  const screen = css.replace(/@media\s+print\s*\{[\s\S]*$/, '');
+  const rule = sel => [...screen.matchAll(/(?<=^|\})\s*([^{}]*)\{([^}]*)\}/g)].filter(m => m[1].split(',').map(x => x.trim().replace(/\s+/g, ' ')).includes(sel)).map(m => m[2]).join(';');
+  const t = rule('.rates');
+  assert.match(t, /border-collapse\s*:\s*collapse/, '.rates border-collapse'); assert.match(t, /width\s*:\s*100%/, '.rates width: 100%');
+  const mw = t.match(/min-width\s*:\s*(\d+(?:\.\d+)?)rem/); assert.ok(mw && Number(mw[1]) >= 34 && Number(mw[1]) <= 64, '.rates min-width in rem (34 to 64) so 5 columns scroll inside .table-scroll instead of crushing at 375px');
+  const cells = rule('.rates th') + ';' + rule('.rates td') + ';' + [...screen.matchAll(/\.rates th,\s*\.rates td\s*\{([^}]*)\}/g)].map(m => m[1]).join(';');
+  assert.match(cells, /border\s*:\s*1px solid var\(--border\)/); assert.match(cells, /padding\s*:/); assert.match(cells, /text-align\s*:\s*left/); assert.match(cells, /vertical-align\s*:\s*top/);
+  assert.match(rule('.rates caption'), /text-align\s*:\s*left/, '.rates caption');
+  const th = rule('.rates tbody th'); assert.match(th, /position\s*:\s*sticky/, 'first column sticks on screen'); assert.match(th, /left\s*:\s*0/); assert.match(th, /background\s*:\s*var\(--bg\)/, 'opaque background');
+  assert.match(css.match(/@media\s+print\s*\{[\s\S]*$/)[0], /\.rates tbody th\s*\{[^}]*position\s*:\s*static/, 'print: no sticky');
+  assert.match(rule('.rates small') + ';' + rule('.rates td small'), /display\s*:\s*block/, 'the scope text sits beneath the rate (small as a block)');
+  assert.ok(!/\.rates[^{]*\{[^}]*display\s*:\s*none/.test(screen), 'nothing in the table is hidden on screen');
+  assert.match(screen, /\.table-scroll\s*\{[^}]*overflow-x\s*:\s*auto/); assert.match(read(RT_FILE), /<meta name="viewport" content="width=device-width, initial-scale=1\.0">/);
+});
+// END P5-1 rates comparison
 
 console.log(`${passed} site tests passed.`);

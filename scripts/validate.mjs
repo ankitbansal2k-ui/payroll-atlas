@@ -51,7 +51,7 @@ function periodOf(v) {
 // A badge "restates the date" when, after an optional leading Effective/In force/Confirmed for (day/month dates only)/Applies to/From,
 // it equals the formatted effective date (short or long month), or when it is just a status label.
 // Uses filters.js, the code the site renders with (required, as in build-pages.mjs).
-const { formatEffective, STATUS_LABELS, statusOf, slugify, amountInText } = createRequire(import.meta.url)('../filters.js');
+const { formatEffective, STATUS_LABELS, statusOf, slugify, amountInText, canonicalNumber } = createRequire(import.meta.url)('../filters.js');
 const LONG_MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 function restatesDate(badge, effective, entry) {
   const b = badge.trim().toLowerCase();
@@ -320,6 +320,68 @@ const textProblem = (label, v, max) => {
 const utcToday = new Date().toISOString().slice(0, 10);
 const ageDays = iso => Math.floor((Date.parse(utcToday + 'T00:00:00Z') - Date.parse(iso + 'T00:00:00Z')) / 864e5);
 
+// Optional rate headlines on ssEmployer / ssEmployee / taxBands facts (social-security-tax-rates-europe.html). Returns problem messages.
+const RATE_RE = /^\d+(\.\d{1,3})?$/;
+const RATE_ADDONS = ['municipal', 'regional', 'church', 'surcharge', 'cantonal', 'social'];
+const pctInText = (rate, text) => [...String(text).matchAll(/\d+(?:[.,]\d+)*(?=%)/g)].some(m => canonicalNumber(m[0]) === canonicalNumber(rate));
+const bandPcts = b => [...String((b && b.rate) || '').matchAll(/(\d+(?:[.,]\d+)?)\s*%/g)].map(m => Number(m[1].replace(',', '.')));
+function rateHeadlineProblems(f, h, hat, fat) {
+  const out = [], isTax = f.key === 'taxBands';
+  const allowed = new Set(isTax ? ['rate', 'from', 'scope', 'addOns', 'notComparable'] : ['rate', 'kind', 'parts', 'scope', 'notComparable']);
+  for (const k of Object.keys(h)) if (!allowed.has(k)) out.push(`${hat} unknown field "${k}" (allowed: ${[...allowed].join(', ')})`);
+  if (has(h, 'notComparable')) {
+    const p = textProblem('headline notComparable', h.notComparable, 120);
+    if (p) out.push(`${fat} ${p}`);
+    else if (h.notComparable.length < 10) out.push(`${hat} notComparable is ${h.notComparable.length} characters (min 10)`);
+    if (Object.keys(h).some(k => k !== 'notComparable')) out.push(`${hat} notComparable cannot be combined with any other field`);
+    return out;
+  }
+  if (!has(h, 'rate')) { out.push(`${hat} rate is required unless notComparable is given`); return out; }
+  if (typeof h.rate !== 'string' || !RATE_RE.test(h.rate)) { out.push(`${hat} rate must be digits with up to 3 decimals after a point (for example 21.045), as a string`); return out; }
+  const sp = textProblem('headline scope', h.scope, 100);
+  if (sp) out.push(`${fat} ${sp}`); else if (h.scope.length < 5) out.push(`${hat} scope is ${h.scope.length} characters (min 5)`);
+  const value = typeof f.value === 'string' ? f.value : '';
+  if (isTax) {
+    if (has(h, 'kind') || has(h, 'parts')) out.push(`${hat} kind and parts are not allowed on a taxBands fact`);
+    if (!Array.isArray(f.bands) || !f.bands.length) { out.push(`${hat} rate needs the fact's bands (a taxBands fact without bands cannot carry a rate)`); return out; }
+    let top = -1, from = null, count = 0;
+    for (const b of f.bands) for (const v of bandPcts(b)) { count++; if (v > top) { top = v; from = b.from; } }
+    if (!count) out.push(`${hat} rate: no percentage found in the bands`);
+    else if (Math.abs(top - Number(h.rate)) > 1e-9) out.push(`${hat} rate "${h.rate}" is not the highest rate in bands (${top}%)`);
+    if (!amountInText(h.rate, value)) out.push(`${hat} rate "${h.rate}" does not appear in value (the headline must repeat a figure stated in value)`);
+    if (!has(h, 'from')) out.push(`${hat} from is required (the start of the top band, or null for a flat tax)`);
+    else if (h.from === null) { if (f.bands.length !== 1) out.push(`${hat} from may be null only for a flat tax with exactly one band`); }
+    else if (typeof h.from !== 'string' || !h.from.trim()) out.push(`${hat} from must be a non-empty string or null`);
+    else if (count && h.from !== from) out.push(`${hat} from "${h.from}" is not the start of the highest band ("${from}")`);
+    if (has(h, 'addOns')) {
+      if (!Array.isArray(h.addOns) || !h.addOns.length) out.push(`${hat} addOns must be a non-empty array`);
+      else {
+        for (const a of h.addOns) if (!RATE_ADDONS.includes(a)) out.push(`${hat} addOns entry "${a}" is not one of ${RATE_ADDONS.join(', ')}`);
+        if (new Set(h.addOns).size !== h.addOns.length) out.push(`${hat} addOns has duplicate entries`);
+      }
+    }
+  } else {
+    if (has(h, 'addOns') || has(h, 'from')) out.push(`${hat} addOns and from are only allowed on a taxBands fact`);
+    if (h.kind !== 'stated' && h.kind !== 'sum') out.push(`${hat} kind must be "stated" or "sum"`);
+    else if (h.kind === 'stated') {
+      if (has(h, 'parts')) out.push(`${hat} parts are not allowed with kind stated`);
+      if (!pctInText(h.rate, value)) out.push(`${hat} rate "${h.rate}" does not appear in value as a percentage (the headline must repeat a figure stated in value)`);
+    } else {
+      if (!Array.isArray(h.parts) || h.parts.length < 2) out.push(`${hat} parts must list at least 2 rates for kind sum`);
+      else {
+        let sum = 0;
+        for (const p of h.parts) {
+          if (typeof p !== 'string' || !RATE_RE.test(p)) { out.push(`${hat} parts entry must be digits with up to 3 decimals, as a string`); continue; }
+          sum += Number(p);
+          if (!pctInText(p, value)) out.push(`${hat} part "${p}" does not appear in value as a percentage`);
+        }
+        if (Math.abs(sum - Number(h.rate)) > 0.0005 + 1e-9) out.push(`${hat} parts sum to ${Math.round(sum * 1e4) / 1e4}, not the rate ${h.rate}`);
+      }
+    }
+  }
+  return out;
+}
+
 // Country key facts (data/facts.json): rendered as the "Key facts" box on the generated country pages.
 // Rules are documented in README.md ("Country key facts").
 {
@@ -359,8 +421,9 @@ const ageDays = iso => Math.floor((Date.parse(utcToday + 'T00:00:00Z') - Date.pa
         // Optional minimum-wage headline for minimum-wage-europe.html: {amount, period, scope} or {statutory:false}.
         if (has(f, 'headline')) {
           const h = f.headline, hat = `${fat} headline`;
-          if (f.key !== 'minimumWage') err(`${hat} is only allowed on a minimumWage fact`);
+          if (!['minimumWage', 'ssEmployer', 'ssEmployee', 'taxBands'].includes(f.key)) err(`${hat} is only allowed on a minimumWage, ssEmployer, ssEmployee or taxBands fact`);
           else if (!isObj(h)) err(`${hat} must be an object`);
+          else if (f.key !== 'minimumWage') rateHeadlineProblems(f, h, hat, fat).forEach(m => err(m));
           else {
             for (const k of Object.keys(h)) if (!HEADLINE_FIELDS.has(k)) err(`${hat} unknown field "${k}" (allowed: ${[...HEADLINE_FIELDS].join(', ')})`);
             if (has(h, 'statutory')) {

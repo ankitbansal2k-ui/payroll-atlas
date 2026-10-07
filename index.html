@@ -34,11 +34,12 @@
   <header>
     <div class="header-container">
       <div class="logo">intelligent-payroll</div>
-      <nav>
+      <nav aria-label="Main">
         <a href="#" class="nav-link" data-view="view-home">Home</a>
         <a href="#" class="nav-link" data-view="view-changelog">Changelog</a>
-        <a href="keyfacts.html" class="nav-link">Key facts</a>
-        <a href="glossary.html" class="nav-link">Glossary</a>
+        <details class="nav-group"><summary>Plan ahead</summary><div class="nav-menu"><a href="upcoming.html">What&#39;s coming</a><a href="deadlines.html">Deadlines</a></div></details>
+        <details class="nav-group"><summary>Compare</summary><div class="nav-menu"><a href="minimum-wage-europe.html">Minimum wage</a><a href="social-security-tax-rates-europe.html">Rates</a></div></details>
+        <details class="nav-group"><summary>Reference</summary><div class="nav-menu"><a href="keyfacts.html">Key facts</a><a href="glossary.html">Glossary</a><a href="countries.html">All countries</a></div></details>
         <select class="country-selector">
           <option value="">Select Country</option>
           <optgroup label="Europe">
@@ -513,6 +514,7 @@
       <a href="upcoming.html">What's coming</a>
       <a href="glossary.html">Glossary</a>
       <a href="minimum-wage-europe.html">Minimum wage</a>
+      <a href="social-security-tax-rates-europe.html">Rates</a>
       <a href="deadlines.html">Deadlines</a>
       <a href="suggest.html">Suggest a change</a>
       <a href="feed.xml">RSS feed</a>
@@ -525,6 +527,7 @@
   <script src="vendor/topojson.min.js"></script>
   <script src="reveal.js"></script>
 
+  <script src="nav.js"></script>
   <script src="filters.js"></script>
   <script src="app.js"></script>
 

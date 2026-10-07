@@ -207,6 +207,21 @@ test('harness.sanity: nav to changelog renders every change', () => {
   assert.equal(p.cards(), CHANGES.length);
 });
 
+test('nav.js_loads_with_app_js: the shared menu script is a plain index.html script and cannot disturb the app', () => {
+  const html = read('index.html');
+  assert.ok(/<script src="nav\.js"[^>]*><\/script>/.test(html), 'index.html must load nav.js (shared dropdown behaviour)');
+  const p = makePage('');
+  assert.ok(p.srcs.includes('nav.js'), 'harness loads nav.js together with filters.js and app.js');
+  // nav.js listens on document for outside clicks and Escape; with no open group it must neither throw nor change app state.
+  p.fire('click', p.btn('nav-link', 'view', 'view-changelog'));
+  const before = p.list();
+  p.fire('click', p.ctx.document.getElementById('view-changelog'));
+  p.fireRaw('keydown', { type: 'keydown', key: 'Escape', code: 'Escape', target: p.ctx.document.getElementById('view-changelog'), preventDefault() {} });
+  p.fireRaw('keyup', { type: 'keyup', key: 'Escape', code: 'Escape', target: p.ctx.document.getElementById('view-changelog'), preventDefault() {} });
+  assert.equal(p.list(), before, 'outside click and Escape do not touch the rendered changelog');
+  assert.equal(p.ctx.document.getElementById('view-changelog').classList.contains('hidden'), false, 'changelog view stays visible');
+});
+
 test('index.script_order: filters.js before app.js, no inline script', () => {
   const html = read('index.html');
   const i = html.indexOf('<script src="filters.js"></script>'), j = html.indexOf('<script src="app.js"></script>');
@@ -1283,9 +1298,11 @@ const clickEv = target => ({ type: 'click', target, defaultPrevented: false, pre
 
 test('p3_1.spa.nav_links_are_real_links', () => {
   const html = read('index.html');
-  const nav = (html.match(/<header>[\s\S]*?<nav>([\s\S]*?)<\/nav>/) || [])[1] || '';
-  assert.match(nav, /<a href="keyfacts\.html" class="nav-link">Key facts<\/a>/, 'Key facts nav link');
-  assert.match(nav, /<a href="glossary\.html" class="nav-link">Glossary<\/a>/, 'Glossary nav link');
+  const nav = (html.match(/<header>[\s\S]*?<nav\b[^>]*>([\s\S]*?)<\/nav>/) || [])[1] || '';
+  // Grouped menu: Key facts and Glossary are real links inside the "Reference" <details class="nav-group">.
+  const ref = (nav.match(/<details class="nav-group">\s*<summary>Reference<\/summary>\s*<div class="nav-menu">([\s\S]*?)<\/div>\s*<\/details>/) || [])[1] || '';
+  assert.match(ref, /<a href="keyfacts\.html"[^>]*>Key facts<\/a>/, 'Key facts nav link (Reference group)');
+  assert.match(ref, /<a href="glossary\.html"[^>]*>Glossary<\/a>/, 'Glossary nav link (Reference group)');
   assert.ok(!/<a[^>]*(keyfacts|glossary)\.html[^>]*data-view/.test(nav), 'no data-view on the new links');
   assert.match(nav, /<a href="#" class="nav-link" data-view="view-home">Home<\/a>[\s\S]*<a href="#" class="nav-link" data-view="view-changelog">Changelog<\/a>/, 'Home/Changelog unchanged');
 });
