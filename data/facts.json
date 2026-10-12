@@ -1741,7 +1741,7 @@
   },
   {
     "code": "greece",
-    "asOf": "2026-10-04",
+    "asOf": "2026-10-12",
     "currency": "EUR",
     "facts": [
       {
@@ -1766,7 +1766,7 @@
         "note": "Table of coverage packages (ΚΠΚ) in e-EFKA circular 38/2024: package 101 shows insured 13.37%, employer 21.79%, total 35.16%. Other packages differ (e.g. 102: employer 22.79%).",
         "sourceUrl": "https://www.e-efka.gov.gr/sites/default/files/2024-12/%CE%95%CE%93%CE%9A.%2038_2024_%CE%9C%CE%95%CE%99%CE%A9%CE%A3%CE%97%20%CE%91%CE%A3%CE%A6.%20%CE%95%CE%99%CE%A3%CE%A6%CE%9F%CE%A1%CE%A9%CE%9D%20%CE%99%CE%94%CE%99%CE%A9%CE%A4.%20%CE%94%CE%99%CE%9A%CE%91%CE%99%CE%9F%CE%A5%202025%20(971%CE%A546%CE%9C%CE%91%CE%A0%CE%A3-348).pdf",
         "sourceLabel": "Source: e-EFKA - Εγκύκλιος 38/2024, Μείωση ασφαλιστικών εισφορών κλάδου υγειονομικής περίθαλψης από 01.01.2025 (πίνακας ΚΠΚ)",
-        "checked": "2026-10-04",
+        "checked": "2026-10-12",
         "validFrom": "2025-01-01",
         "headline": {
           "rate": "21.79",
@@ -1781,7 +1781,7 @@
         "note": "Same table of coverage packages (ΚΠΚ) in e-EFKA circular 38/2024. Other packages differ (e.g. 105: insured 16.82%; 103: 10.37%).",
         "sourceUrl": "https://www.e-efka.gov.gr/sites/default/files/2024-12/%CE%95%CE%93%CE%9A.%2038_2024_%CE%9C%CE%95%CE%99%CE%A9%CE%A3%CE%97%20%CE%91%CE%A3%CE%A6.%20%CE%95%CE%99%CE%A3%CE%A6%CE%9F%CE%A1%CE%A9%CE%9D%20%CE%99%CE%94%CE%99%CE%A9%CE%A4.%20%CE%94%CE%99%CE%9A%CE%91%CE%99%CE%9F%CE%A5%202025%20(971%CE%A546%CE%9C%CE%91%CE%A0%CE%A3-348).pdf",
         "sourceLabel": "Source: e-EFKA - Εγκύκλιος 38/2024, Μείωση ασφαλιστικών εισφορών κλάδου υγειονομικής περίθαλψης από 01.01.2025 (πίνακας ΚΠΚ)",
-        "checked": "2026-10-04",
+        "checked": "2026-10-12",
         "validFrom": "2025-01-01",
         "headline": {
           "rate": "13.37",
@@ -1797,7 +1797,7 @@
         "note": "Set by Ministry of Labour document Δ.15/Δ΄/1865/23-01-2026 (Gazette B 318/29-01-2026), per e-EFKA. The minimum monthly base for full-time employees is EUR 920.00 from 1 April 2026.",
         "sourceUrl": "https://www.e-efka.gov.gr/el/sychnes-eroteseis/asphalisi-eisphores/asphalismenoi/misthotoi-0/genikes-eroteseis",
         "sourceLabel": "Source: e-EFKA - Γενικές ερωτήσεις (Μισθωτοί)",
-        "checked": "2026-10-04"
+        "checked": "2026-10-12"
       },
       {
         "key": "taxBands",
