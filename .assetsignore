@@ -12,5 +12,6 @@ wrangler.jsonc
 vercel.json
 README.md
 SECURITY.md
+CLAUDE.md
 *.log
 .env*
