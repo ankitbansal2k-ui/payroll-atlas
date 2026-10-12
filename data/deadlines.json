@@ -1065,5 +1065,103 @@
     "sourceUrl": "https://www.revenue.ie/en/employing-people/paying-your-employees-tax-to-revenue/paying-tax-on-employees-minor-and-irregular-benefits.aspx",
     "sourceLabel": "Source: Revenue - Paying tax on an employee's minor and irregular benefits",
     "checked": "2026-10-06"
+  },
+  {
+    "id": "is-tryggingagjald-monthly",
+    "country": "iceland",
+    "title": "Monthly levy (tryggingagjald) payment, due date",
+    "kind": "payment",
+    "frequency": "monthly",
+    "rule": {
+      "day": 1,
+      "monthOffset": 1
+    },
+    "ruleText": "The payment period is the calendar month. The due date (gjalddagi) is the 1st of each month for the previous month's pay; the final date (eindagi) is 14 days later.",
+    "appliesTo": "Employers paying tryggingagjald",
+    "sourceUrl": "https://www.skatturinn.is/atvinnurekstur/skattar-og-gjold/tryggingagjald/",
+    "sourceLabel": "Source: Skatturinn - Tryggingagjald",
+    "checked": "2026-10-12"
+  },
+  {
+    "id": "is-tryggingagjald-benefits-july",
+    "country": "iceland",
+    "title": "Annual levy on pay and benefits outside withholding, due date",
+    "kind": "payment",
+    "frequency": "annual",
+    "rule": {
+      "day": 1,
+      "monthOffset": 0,
+      "month": 7
+    },
+    "ruleText": "The due date for levy on pay, payments and benefits outside withholding is 1 July each year and the final date is one month later; benefits of the previous year are paid in one sum.",
+    "appliesTo": "Payers of pay or benefits outside withholding",
+    "sourceUrl": "https://www.skatturinn.is/atvinnurekstur/skattar-og-gjold/tryggingagjald/",
+    "sourceLabel": "Source: Skatturinn - Tryggingagjald",
+    "checked": "2026-10-12"
+  },
+  {
+    "id": "rs-pp-od-o-monthly",
+    "country": "serbia",
+    "title": "Contributions for founders and members of companies",
+    "kind": "payment",
+    "frequency": "monthly",
+    "rule": {
+      "day": 15,
+      "monthOffset": 1
+    },
+    "ruleText": "Contributions for founders and members of a company are calculated and paid by the 15th of the month for the previous month (Law on Mandatory Social Insurance Contributions, Art. 53 and Art. 60 para 3).",
+    "appliesTo": "Companies, for founders or members only; not ordinary employees (paid with wages)",
+    "sourceUrl": "https://purs.gov.rs/upload/media/2025/12/15/760519/%D0%97%D0%B0%D0%BA%D0%BE%D0%BD_%D0%BE_%D0%B4%D0%BE%D0%BF%D1%80%D0%B8%D0%BD%D0%BE%D1%81%D0%B8%D0%BC%D0%B0_%D0%B7%D0%B0_%D0%BE%D0%B1%D0%B0%D0%B2%D0%B5%D0%B7%D0%BD%D0%BE_%D1%81%D0%BE%D1%86%D0%B8%D1%98%D0%B0%D0%BB%D0%BD%D0%BE_%D0%BE%D1%81%D0%B8%D0%B3%D1%83%D1%80%D0%B0%D1%9A%D0%B5_-_%D1%83_%D0%BF%D1%80%D0%B8%D0%BC%D0%B5%D0%BD%D0%B8_%D0%BE%D0%B4_01012026.pdf",
+    "sourceLabel": "Source: Tax Administration - Zakon o doprinosima za obavezno socijalno osiguranje (primena od 1.1.2026)",
+    "checked": "2026-10-12"
+  },
+  {
+    "id": "jo-ssc-contributions",
+    "country": "jo",
+    "title": "Social security contributions payment to the Social Security Corporation",
+    "kind": "payment",
+    "frequency": "monthly",
+    "rule": {
+      "day": 15,
+      "monthOffset": 1
+    },
+    "ruleText": "The firm must pay the contributions deducted from its insured workers and those it pays for them during the first 15 days of the month after they fall due. Default interest of 1% per month applies to overdue contributions.",
+    "appliesTo": "Firms (employers) with insured workers under the Social Security Law",
+    "sourceUrl": "https://www.ssc.gov.jo/wp-content/uploads/2025/02/law-26.1.2025-compressed.pdf",
+    "sourceLabel": "Source: Social Security Corporation - Social Security Law No. 1 of 2014 and its amendments (to 16 April 2023)",
+    "checked": "2026-10-12"
+  },
+  {
+    "id": "jo-ssc-worker-list",
+    "country": "jo",
+    "title": "Annual list of workers in employment in January (names and wages) to the Social Security Corporation",
+    "kind": "filing",
+    "frequency": "annual",
+    "rule": {
+      "day": 31,
+      "monthOffset": 0,
+      "month": 3
+    },
+    "ruleText": "The firm must give the Corporation detailed data, with names and wages, for workers in employment as of January, not later than the end of March every year.",
+    "appliesTo": "Firms (employers) with insured workers under the Social Security Law",
+    "sourceUrl": "https://www.ssc.gov.jo/wp-content/uploads/2025/02/law-26.1.2025-compressed.pdf",
+    "sourceLabel": "Source: Social Security Corporation - Social Security Law No. 1 of 2014 and its amendments (to 16 April 2023)",
+    "checked": "2026-10-12"
+  },
+  {
+    "id": "jo-ssc-starters-leavers",
+    "country": "jo",
+    "title": "New starters and leavers data to the Social Security Corporation",
+    "kind": "filing",
+    "frequency": "monthly",
+    "rule": {
+      "day": "last",
+      "monthOffset": 1
+    },
+    "ruleText": "Data on workers who start employment, and on workers whose service ends, must reach the Corporation not later than the end of the month following the month of the start or the termination.",
+    "appliesTo": "Firms (employers) with insured workers under the Social Security Law",
+    "sourceUrl": "https://www.ssc.gov.jo/wp-content/uploads/2025/02/law-26.1.2025-compressed.pdf",
+    "sourceLabel": "Source: Social Security Corporation - Social Security Law No. 1 of 2014 and its amendments (to 16 April 2023)",
+    "checked": "2026-10-12"
   }
 ]

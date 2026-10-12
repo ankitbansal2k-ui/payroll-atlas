@@ -129,7 +129,7 @@ const clipWords = (s, max) => { if (s.length <= max) return s; let cut = s.slice
 // ("<n> tracked ... in <Name><F>. [Payroll law changes, updated every two weeks.] Sources linked ..."). F names the Key facts box, without repeating
 // "minimum wage" when T already says it.
 const STOP = new Set('to by from for with of in on at and or new the a an up as than into per under over earning who that is are be will between after before when'.split(' '));
-function countryDescription(n, nm, hasFacts, firstTitle) {
+function countryDescription(n, nm, hasFacts, firstTitle, hasMinWage = true) {
   const lead = `${n} tracked payroll ${n === 1 ? 'change' : 'changes'} in ${nm}`;
   const FULL = ', plus minimum wage, contributions and tax bands', SHORT = ', plus contributions and tax bands';
   const end = `. Sources linked, checked ${VERIFIED}.`;
@@ -141,7 +141,7 @@ function countryDescription(n, nm, hasFacts, firstTitle) {
     t = trimTail(w.join(' '));
     if (t.length < 12 || t.length < 0.6 * title.length) t = '';
   }
-  const f = hasFacts ? (/minimum wage/i.test(t) ? SHORT : FULL) : '';
+  const f = hasFacts ? (/minimum wage/i.test(t) || !hasMinWage ? SHORT : FULL) : '';
   let d = t ? `${lead}: ${t}${f}${end}` : `${lead}${f}${end}`;
   if (d.length < DESC_MIN) d = `${lead}${f}. Payroll law changes, updated every two weeks. Sources linked, checked ${VERIFIED}.`;
   return d;
@@ -263,7 +263,7 @@ function countryPage(c) {
   const nm = clipWords(c.name.replace(/[<>]/g, '').replace(/\s+/g, ' ').trim(), TITLE_MAX - (hasFacts ? 39 : 25) - YEAR.length);
   const title = withBrand(hasFacts ? `${nm} payroll ${YEAR}: key facts and law changes` : `${nm} payroll law changes ${YEAR}`);
   // Description: count, first entry title (clipped at a word boundary to fit DESC_MAX), what the page adds, last-verified date.
-  const desc = countryDescription(n, nm, hasFacts, ordered[0].title);
+  const desc = countryDescription(n, nm, hasFacts, ordered[0].title, hasFacts && FACTS_BY_CODE.get(c.code).facts.some(f => f.key === 'minimumWage'));
   const graph = [breadcrumbs([['All countries', `${SITE}countries.html`], [c.name, url]])];
   const introLinks = hasFacts
     ? ` <a href="#key-facts">Key facts</a> for ${esc(c.name)} are below; <a href="../keyfacts.html">key facts for other countries</a>. See the <a href="../glossary.html">Glossary</a> for abbreviations.`

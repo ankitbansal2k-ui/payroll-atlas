@@ -1,0 +1,68 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Intelligent Payroll//Payroll deadlines//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Intelligent Payroll: Jordan payroll deadlines
+BEGIN:VEVENT
+UID:jo-ssc-contributions@intelligentpayroll.eu
+DTSTAMP:20261012T000000Z
+DTSTART;VALUE=DATE:20261015
+DTEND;VALUE=DATE:20261016
+RRULE:FREQ=MONTHLY;BYMONTHDAY=15
+SUMMARY:Jordan: Social security contributions payment to the Social Securit
+ y Corporation
+DESCRIPTION:The firm must pay the contributions deducted from its insured w
+ orkers and those it pays for them during the first 15 days of the month af
+ ter they fall due. Default interest of 1% per month applies to overdue con
+ tributions.\nApplies to: Firms (employers) with insured workers under the 
+ Social Security Law\nNon-working-day rule: check the source.\n\nSource: ht
+ tps://www.ssc.gov.jo/wp-content/uploads/2025/02/law-26.1.2025-compressed.p
+ df\nDetails: https://www.intelligentpayroll.eu/deadlines.html#jordan\n\nFo
+ r information only\, not legal or tax advice. Dates follow the recurring r
+ ule stated by the source\; weekends and holidays are not applied. Sources 
+ last checked 12 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#jordan
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:jo-ssc-worker-list@intelligentpayroll.eu
+DTSTAMP:20261012T000000Z
+DTSTART;VALUE=DATE:20270331
+DTEND;VALUE=DATE:20270401
+RRULE:FREQ=YEARLY;BYMONTH=3;BYMONTHDAY=31
+SUMMARY:Jordan: Annual list of workers in employment in January (names and 
+ wages) to the Social Security Corporation
+DESCRIPTION:The firm must give the Corporation detailed data\, with names a
+ nd wages\, for workers in employment as of January\, not later than the en
+ d of March every year.\nApplies to: Firms (employers) with insured workers
+  under the Social Security Law\nNon-working-day rule: check the source.\n\
+ nSource: https://www.ssc.gov.jo/wp-content/uploads/2025/02/law-26.1.2025-c
+ ompressed.pdf\nDetails: https://www.intelligentpayroll.eu/deadlines.html#j
+ ordan\n\nFor information only\, not legal or tax advice. Dates follow the 
+ recurring rule stated by the source\; weekends and holidays are not applie
+ d. Sources last checked 12 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#jordan
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:jo-ssc-starters-leavers@intelligentpayroll.eu
+DTSTAMP:20261012T000000Z
+DTSTART;VALUE=DATE:20261031
+DTEND;VALUE=DATE:20261101
+RRULE:FREQ=MONTHLY;BYMONTHDAY=-1
+SUMMARY:Jordan: New starters and leavers data to the Social Security Corpor
+ ation
+DESCRIPTION:Data on workers who start employment\, and on workers whose ser
+ vice ends\, must reach the Corporation not later than the end of the month
+  following the month of the start or the termination.\nApplies to: Firms (
+ employers) with insured workers under the Social Security Law\nNon-working
+ -day rule: check the source.\n\nSource: https://www.ssc.gov.jo/wp-content/
+ uploads/2025/02/law-26.1.2025-compressed.pdf\nDetails: https://www.intelli
+ gentpayroll.eu/deadlines.html#jordan\n\nFor information only\, not legal o
+ r tax advice. Dates follow the recurring rule stated by the source\; weeke
+ nds and holidays are not applied. Sources last checked 12 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#jordan
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR

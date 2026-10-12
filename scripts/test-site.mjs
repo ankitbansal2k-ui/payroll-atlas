@@ -321,14 +321,38 @@ const DROPPED = ['cn-vat', 'do-reporting', 'qa-reporting-upcoming', 'bh-tax-upco
 test('p2_4.entries_removed', () => {
   // CHANGES comes from another vm realm: spread into a local array before strict comparison.
   assert.deepEqual([...CHANGES.filter(e => DROPPED.includes(e.section)).map(key)], [], 'dropped sections still in CHANGES');
-  assert.equal(CHANGES.length, 190);
+  assert.equal(CHANGES.length, 200);
   assert.ok(CHANGES.every(e => ['payroll', 'reporting'].includes(e.category)), 'category must be payroll|reporting');
 });
 test('p2_4.countries_keep_entries', () => {
   const { countryToRegion } = loadSite();
   const missing = Object.keys(countryToRegion).filter(c => !CHANGES.some(e => e.country === c));
   assert.deepEqual(missing, [], 'countries without entries');
-  assert.equal(Object.keys(countryToRegion).length, 78);
+  assert.equal(Object.keys(countryToRegion).length, 81);
+});
+test('p6_1.serbia_iceland_jordan_added', () => {
+  const { countryToRegion } = loadSite();
+  assert.deepEqual([countryToRegion.serbia, countryToRegion.iceland, countryToRegion.jo], ['europe', 'europe', 'menat']);
+  const count = c => CHANGES.filter(e => e.country === c).length;
+  assert.deepEqual([count('serbia'), count('iceland'), count('jo')], [4, 4, 2]);
+  assert.ok(!JSON.parse(read('data/facts.json')).some(c => c.code === 'jo'), 'Jordan has no key facts box: the comparison pages are Europe-only');
+  assert.ok(!CHANGES.some(e => e.country === 'iq'), 'Iraq is not added: nothing verifiable from official sources');
+  const app = read('app.js');
+  for (const [k, iso] of [['serbia', '688'], ['iceland', '352'], ['jo', '400']]) assert.ok(new RegExp(`\\b${k}:'${iso}'`).test(app), `COUNTRY_ISO ${k}`);
+  const idx = read('index.html');
+  for (const v of ['serbia', 'iceland', 'jo']) assert.equal((idx.match(new RegExp(`<option value="${v}">`, 'g')) || []).length, 2, `${v} in both selectors`);
+  assert.ok(read('worker/countries.json').includes('"serbia":"Serbia"'), 'suggestion worker list');
+  assert.ok(read('suggest.html').includes('value="iceland"'), 'suggest.html list');
+});
+test('p6_2.new_country_statuses_follow_the_sources', () => {
+  const by = id => CHANGES.find(e => e.section === id);
+  for (const e of CHANGES.filter(e => ['serbia', 'iceland', 'jo'].includes(e.country))) {
+    assert.ok(!e.draft, `${e.section}: adopted or in force, not a draft`);
+    assert.ok(e.detail.sourceUrl.startsWith('https://'), e.section);
+  }
+  for (const id of ['rs-minimum-wage-2027', 'rs-non-taxable-amount-2027', 'rs-new-hire-refund-2028']) assert.equal(by(id).upcoming, true, id);
+  assert.equal(by('rs-contribution-base-2026').upcoming, false);
+  assert.ok(!JSON.stringify(CHANGES.filter(e => e.country === 'serbia')).includes('34,521'), 'the 34,521 typo is not used');
 });
 test('p2_4.generated_clean', () => {
   const files = ['feed.xml', 'calendar.ics', 'upcoming.html', 'countries.html', 'sitemap.xml',
@@ -828,7 +852,8 @@ test('p2_7.every_term_links_somewhere', () => {
 //   all text and attribute values escaped with & < > " '): see renderFacts() below. Dates are long en-GB ("1 January 2026").
 // legal.css: .table-scroll {overflow-x:auto} (tables scroll inside it, not the page), .key-facts {overflow-wrap:anywhere}.
 const FACTS_FILE = path.join(ROOT, 'data/facts.json');
-const FACT_COUNTRIES = { uk: 'GBP', germany: 'EUR', france: 'EUR', netherlands: 'EUR', spain: 'EUR', italy: 'EUR', poland: 'PLN', belgium: 'EUR', sweden: 'SEK', ireland: 'EUR', austria: 'EUR', czechia: 'CZK', romania: 'RON', portugal: 'EUR', denmark: 'DKK', norway: 'NOK', finland: 'EUR', hungary: 'HUF', greece: 'EUR', switzerland: 'CHF' }; // batches 1 to 4; update when the next batch lands
+const MW_EXEMPT = ['iceland'];
+const FACT_COUNTRIES = { uk: 'GBP', germany: 'EUR', france: 'EUR', netherlands: 'EUR', spain: 'EUR', italy: 'EUR', poland: 'PLN', belgium: 'EUR', sweden: 'SEK', ireland: 'EUR', austria: 'EUR', czechia: 'CZK', romania: 'RON', portugal: 'EUR', denmark: 'DKK', norway: 'NOK', finland: 'EUR', hungary: 'HUF', greece: 'EUR', switzerland: 'CHF', iceland: 'ISK', serbia: 'RSD' }; // batches 1 to 4; update when the next batch lands
 const longDay = iso => new Date(iso + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
 const squash = h => h.replace(/>\s+</g, '><');
 const renderFacts = c => {
@@ -1123,7 +1148,7 @@ test('p2_8.check_links_and_readme', () => {
   for (const re of [/Unknown fields are rejected/, /UTC today plus one day/, /365 days/, /No limit/, /id="key-facts"|#key-facts/, /Check the source before use/]) assert.match(sec, re);
 });
 
-// ----- P2-8 real data: data/facts.json (batches 1 to 4: 20 European countries) -----
+// ----- P2-8 real data: data/facts.json (batches 1 to 4: 20 European countries, then Serbia and Iceland) -----
 const loadFacts = () => { assert.ok(fs.existsSync(FACTS_FILE), 'data/facts.json missing'); return JSON.parse(fs.readFileSync(FACTS_FILE, 'utf8')); };
 const pageSlug = new Map(CHANGES.map(e => [e.country, P2.slugify(e.name)]));
 test('p2_8.data.covers_exactly_the_fact_countries_with_sources', () => {
@@ -1151,7 +1176,7 @@ test('p2_8.data.covers_exactly_the_fact_countries_with_sources', () => {
 test('p2_8.pages.key_facts_only_for_fact_countries', () => {
   loadFacts();
   const want = new Set(Object.keys(FACT_COUNTRIES).map(code => `${pageSlug.get(code)}.html`));
-  assert.equal(want.size, 20);
+  assert.equal(want.size, 22);
   for (const f of countryFiles.filter(f => f.endsWith('.html'))) {
     const h = read(`countries/${f}`);
     if (want.has(f)) {
@@ -1487,7 +1512,7 @@ const expectedTitle = (name, hasFacts, year = YEAR) => {
   const full = `${base} | Intelligent Payroll`;
   return full.length <= TITLE_MAX ? full : base;
 };
-const expectedDesc = (entriesOfCountry, hasFacts, verifiedIso = VER22) => {
+const expectedDesc = (entriesOfCountry, hasFacts, verifiedIso = VER22, factsData = JSON.parse(read('data/facts.json'))) => {
   const ordered = [...entriesOfCountry.filter(e => !e.upcoming), ...entriesOfCountry.filter(e => e.upcoming)];
   const n = entriesOfCountry.length;
   const lead = `${n} tracked payroll ${n === 1 ? 'change' : 'changes'} in ${entriesOfCountry[0].name}`;
@@ -1502,7 +1527,9 @@ const expectedDesc = (entriesOfCountry, hasFacts, verifiedIso = VER22) => {
     t = trimTail(w.join(' '));
     if (t.length < 12 || t.length < 0.6 * title.length) t = '';
   }
-  const f = hasFacts ? (/minimum wage/i.test(t) ? SHORT : FULL) : '';
+  // A country whose facts have no minimumWage fact (Iceland) must not advertise one.
+  const hasMw = hasFacts && factsData.find(x => x.code === entriesOfCountry[0].country).facts.some(x => x.key === 'minimumWage');
+  const f = hasFacts ? (/minimum wage/i.test(t) || !hasMw ? SHORT : FULL) : '';
   const d = t ? `${lead}: ${t}${f}${end}` : `${lead}${f}${end}`;
   return d.length < DESC_MIN ? `${lead}${f}. Payroll law changes, updated every two weeks. Sources linked, checked ${fmtLong(verifiedIso)}.` : d;
 };
@@ -1531,7 +1558,7 @@ const inTemp = (s, file, fn) => { const p = path.join(s.dir, file); fs.writeFile
 
 test('p4_1.country_titles_and_descriptions_follow_the_formulas', () => {
   const withFacts = factCodes();
-  assert.ok(withFacts.size === 20, 'precondition: 20 fact countries');
+  assert.ok(withFacts.size === 22, 'precondition: 22 fact countries');
   let seenFull = 0;
   for (const f of countryFiles.filter(f => f.endsWith('.html'))) {
     const code = slugToCode.get(f.replace(/\.html$/, '')); assert.ok(code, `${f}: country`);
@@ -1560,7 +1587,7 @@ test('p4_1.country_description_clipping_rules_hold_for_long_titles', () => {
 });
 // Independent of the generator rule: the finished sentence must read cleanly on every real country page.
 test('p4_1.country_descriptions_read_cleanly_on_all_pages', () => {
-  const files = countryFiles.filter(f => f.endsWith('.html')); assert.equal(files.length, 78);
+  const files = countryFiles.filter(f => f.endsWith('.html')); assert.equal(files.length, 81);
   for (const f of files) {
     const d = seoOf(read(`countries/${f}`), f).desc;
     assert.match(d, /^\d+ tracked payroll changes? in .+\. Sources linked, checked \d{1,2} \w+ \d{4}\.$/, `${f}: shape: ${d}`);
@@ -1649,16 +1676,17 @@ test('p4_1.titles_and_descriptions_are_generated_from_data_in_a_fixture', () => 
   const setYear = js => js.replace(/(new Date\(')\d{4}-\d{2}-\d{2}(T)/, (_, a, b) => `${a}2027-02-03${b}`);
   const s = factsSite(undefined, { appEdit: setYear });
   try {
-    let r = s.build(richFixture()); assert.ok(r.ok, r.out.slice(0, 400));
+    const fxFacts = richFixture(); let r = s.build(fxFacts); assert.ok(r.ok, r.out.slice(0, 400));
     const has = new Set(['france', 'spain']);
     for (const f of s.pages()) {
       const code = slugToCode.get(f.replace(/\.html$/, '')), es = countryEntries(code);
       const x = seoOf(fs.readFileSync(path.join(s.dir, 'countries', f), 'utf8'), f);
       assert.equal(x.title, expectedTitle(es[0].name, has.has(code), '2027'), `${f}: title uses the last-verified year 2027 and the facts of THIS data set`);
-      assert.equal(x.desc, expectedDesc(es, has.has(code), '2027-02-03'), `${f}: description`);
+      assert.equal(x.desc, expectedDesc(es, has.has(code), '2027-02-03', fxFacts), `${f}: description`);
     }
     assert.ok(seoOf(s.page('poland'), 'poland').title.includes('payroll law changes 2027'), 'poland has no facts in the fixture');
-    assert.ok(seoOf(s.page('spain'), 'spain').desc.includes('minimum wage, contributions and tax bands'));
+    // Spain has no minimumWage fact in this fixture, so its description must not advertise one.
+    assert.ok(seoOf(s.page('spain'), 'spain').desc.includes(', plus contributions and tax bands') && !/plus minimum wage/.test(seoOf(s.page('spain'), 'spain').desc));
     r = s.run('build-pages.mjs'); assert.ok(r.ok);
     const a = Object.fromEntries(s.pages().map(f => [f, fs.readFileSync(path.join(s.dir, 'countries', f), 'utf8')]));
     s.run('build-pages.mjs'); for (const f of s.pages()) assert.equal(fs.readFileSync(path.join(s.dir, 'countries', f), 'utf8'), a[f], `${f}: deterministic`);
@@ -2126,10 +2154,12 @@ test('p4_2.page_intro_states_figures_are_not_converted', () => {
 });
 
 test('p4_2.data.every_country_has_a_minimum_wage_headline_matching_its_value', () => {
-  const facts = loadFacts(); assert.equal(facts.length, 20);
+  const facts = loadFacts(); assert.equal(facts.length, 22);
   let amounts = 0, none = 0;
   for (const c of facts) {
     const f = c.facts.find(x => x.key === 'minimumWage'), at = c.code;
+    // Iceland: no official page states a statutory minimum wage (collective agreements), so no minimumWage fact is recorded.
+    if (!f && MW_EXEMPT.includes(c.code)) continue;
     assert.ok(f, `${at}: has a minimumWage fact`);
     assert.ok(f.headline && typeof f.headline === 'object', `${at}: minimumWage fact needs a headline (amount or statutory:false)`);
     const h = f.headline;
@@ -2144,7 +2174,7 @@ test('p4_2.data.every_country_has_a_minimum_wage_headline_matching_its_value', (
       assert.ok(typeof h.scope === 'string' && h.scope.trim() === h.scope && h.scope.length > 0 && h.scope.length <= 60 && !/[<>]/.test(h.scope), `${at}: scope`);
     }
   }
-  assert.equal(amounts + none, 20); assert.ok(amounts >= 8, `most of the 20 countries have a statutory amount: ${amounts} amounts, ${none} statutory:false`);
+  assert.equal(amounts + none, 22 - MW_EXEMPT.length); assert.ok(amounts >= 8, `most of the 22 countries have a statutory amount: ${amounts} amounts, ${none} statutory:false`);
 });
 test('p4_2.data.page_matches_data_exactly', () => {
   const facts = loadFacts();
@@ -2153,7 +2183,7 @@ test('p4_2.data.page_matches_data_exactly', () => {
   assert.equal(got.table.label, 'Minimum wage by country table');
   assert.ok(got.table.caption.includes(YEAR) && /Statutory minimum wage/.test(got.table.caption), 'caption names the year');
   const want = renderMinWage(facts);
-  assert.equal(want.rows.length + want.none.length, 20, 'every one of the 20 countries appears exactly once');
+  assert.equal(want.rows.length + want.none.length, 22 - MW_EXEMPT.length, 'every one of the 22 countries with a minimum wage fact appears exactly once');
   assert.ok(got.q.indexOf('</table>') < got.q.indexOf('id="no-statutory-minimum"'), 'no-statutory section follows the table');
   const names = want.rows.map(r => r.match(/#key-facts">[^ ]+ ([^<]*)<\/a>/)[1]);
   assert.deepEqual(names, [...names].sort((a, b) => a.localeCompare(b)), 'rows sorted by name');
@@ -2288,7 +2318,7 @@ test('p4_3.real_keyfacts_page_is_dated_by_its_own_facts', () => {
 });
 test('p4_3.real_country_and_other_pages_keep_last_verified_text_but_sitemap_follows_data', () => {
   const x = read('sitemap.xml'), facts = loadFacts(), files = countryFiles.filter(f => f.endsWith('.html'));
-  assert.equal(files.length, 78);
+  assert.equal(files.length, 81);
   for (const f of files) {
     const code = slugToCode.get(f.replace(/\.html$/, '')), h = read('countries/' + f);
     assert.equal(sitemapMod(x, 'countries/' + f), countryModOf(facts, code, VER22), f + ': lastmod = max(LAST_VERIFIED, newest checked of its facts)');
@@ -3614,7 +3644,7 @@ test('p5_1.validate_headline_only_on_its_four_keys_with_per_key_field_sets', () 
 test('p5_1.page_exists_with_seo_head_jsonld_and_sitemap', () => {
   assert.ok(fs.existsSync(path.join(ROOT, RT_FILE)), `${RT_FILE} not generated by build-pages.mjs`);
   const h = read(RT_FILE), s = seoOf(h, RT_FILE), url = SITE_URL + RT_FILE, facts = loadFacts(), D = rtDateOf(facts, VER22), rows = rtItems(facts).length;
-  assert.equal(rows, 20, 'one row for each of the 20 fact countries');
+  assert.equal(rows, 22, 'one row for each of the 22 fact countries');
   assert.equal(s.title, expectedRtTitle(), 'title'); assert.ok(s.title.startsWith(RT_H1(YEAR)) && s.title.length <= TITLE_MAX, 'title uses the last-verified YEAR and is <= 70');
   assert.ok(s.desc.length >= DESC_MIN && s.desc.length <= DESC_MAX && /\.$/.test(s.desc) && !/[<>]/.test(s.desc), `description 70..158, plain, ends with a period (${s.desc.length})`);
   assert.ok(new RegExp(`(^|\\D)${rows}(\\D|$)`).test(s.desc.replace(/checked.*$/i, '')), `description names the number of countries in the table (${rows}): ${s.desc}`);
@@ -3648,7 +3678,7 @@ test('p5_1.page_links_footers_and_main_links', () => {
   const m = rtParts(read(RT_FILE));
   assert.ok(m.main.includes('href="keyfacts.html"') && m.main.includes('href="minimum-wage-europe.html"'), 'page main links to keyfacts.html and the minimum wage page');
   const rowLinks = m.rows.map(r => r.th.match(/href="([^"]+)"/)[1]);
-  assert.equal(rowLinks.length, 20); assert.equal(new Set(rowLinks).size, 20, 'each country is linked once in the table');
+  assert.equal(rowLinks.length, 22); assert.equal(new Set(rowLinks).size, 22, 'each country is linked once in the table');
   for (const l of rowLinks) { assert.match(l, /^countries\/[a-z0-9-]+\.html#key-facts$/); assert.ok(resolves(l), `${l} resolves`); }
   for (const x of m.main.matchAll(/href="(countries\/[^"]+)"/g)) assert.ok(resolves(x[1]), `${x[1]} resolves`);
 });
@@ -3656,8 +3686,8 @@ test('p5_1.page_structure_notes_and_caveats', () => {
   const h = read(RT_FILE), m = rtParts(h), D = rtDateOf(loadFacts(), VER22);
   assert.ok(m.table, 'one scroll container with table.rates, caption, thead, tbody'); assert.equal((h.match(/<table\b/g) || []).length, 1, 'exactly one <table>');
   assert.match(m.table.label, /by country table$/); assert.ok(m.table.caption.includes(YEAR) && /social security/i.test(m.table.caption) && /income tax/i.test(m.table.caption), 'caption names the year and both topics: ' + m.table.caption);
-  assert.equal(m.table.thead, RT_THEAD, 'five column headers with scope=col'); assert.equal(m.rows.length, 20);
-  assert.equal((m.main.match(/<th\b/g) || []).length, 5 + 20, 'only header cells: 5 columns + 20 row headers'); assert.equal((m.main.match(/<th scope="(col|row)">/g) || []).length, 25, 'every th carries scope=col or scope=row');
+  assert.equal(m.table.thead, RT_THEAD, 'five column headers with scope=col'); assert.equal(m.rows.length, 22);
+  assert.equal((m.main.match(/<th\b/g) || []).length, 5 + 22, 'only header cells: 5 columns + 22 row headers'); assert.equal((m.main.match(/<th scope="(col|row)">/g) || []).length, 27, 'every th carries scope=col or scope=row');
   assert.ok(!/<h[3-6]\b/.test(m.main) && (m.q.match(/<h1[\s>]/g) || []).length === 1, 'heading levels: h1 then h2 only');
   const note = normWs(m.after);
   for (const re of [/local/i, /not legal or tax advice/i, new RegExp('as of ' + fmtLong(D))]) assert.match(note, re, `method note / caveats below the table match ${re}: ${note.slice(0, 400)}`);
@@ -3669,13 +3699,13 @@ test('p5_1.page_structure_notes_and_caveats', () => {
 // ===== real data =====
 const RT_NC_BOTH = ['czechia', 'poland', 'switzerland', 'italy', 'france', 'netherlands'];
 test('p5_1.data.every_country_has_three_valid_headlines_matching_its_value', () => {
-  const facts = loadFacts(); assert.equal(facts.length, 20);
+  const facts = loadFacts(); assert.equal(facts.length, 22);
   let ncSs = 0, rateSs = 0, ncTax = 0, rateTax = 0;
   const plain = (at, label, v, min, max) => assert.ok(typeof v === 'string' && v.trim() === v && v.length >= min && v.length <= max && !/[<>\u0000-\u001F]/.test(v), `${at}: ${label} plain text ${min}..${max}: ${JSON.stringify(v)}`);
   for (const c of facts) {
     for (const key of RT_KEYS) {
       const f = c.facts.find(x => x.key === key), at = `${c.code}/${key}`;
-      if (!f) { assert.ok((key === 'taxBands' && c.code === 'switzerland') || (key !== 'taxBands' && c.code === 'italy'), `${at}: the fact must exist (only Switzerland's taxBands and Italy's social-security facts are missing today: no verified source, so those cells are an em dash)`); continue; }
+      if (!f) { assert.ok((key === 'taxBands' && c.code === 'switzerland') || (key !== 'taxBands' && c.code === 'italy') || (key === 'ssEmployee' && c.code === 'iceland'), `${at}: the fact must exist (only Switzerland's taxBands and Italy's social-security facts are missing today: no verified source, so those cells are an em dash)`); continue; }
       assert.ok(f.headline && typeof f.headline === 'object' && !Array.isArray(f.headline), `${at}: needs a headline (rate or notComparable)`);
       const h = f.headline, keys = Object.keys(h).sort().join(',');
       if (h.notComparable !== undefined) {
@@ -3704,15 +3734,15 @@ test('p5_1.data.every_country_has_three_valid_headlines_matching_its_value', () 
 test('p5_1.data.page_matches_data_exactly', () => {
   const facts = loadFacts(); assert.ok(fs.existsSync(path.join(ROOT, RT_FILE)), `${RT_FILE} missing`);
   const got = assertRtMatches(read(RT_FILE), facts, 'real data');
-  assert.equal(got.rows.length, 20, 'exactly 20 rows'); const names = got.rows.map(r => normWs(r.th).replace(/^\S+ /, ''));
-  assert.equal(new Set(names).size, 20, 'every country exactly once'); assert.deepEqual(names, [...names].sort((a, b) => a.localeCompare(b)), 'rows sorted by name (like the minimum wage page)');
+  assert.equal(got.rows.length, 22, 'exactly 22 rows'); const names = got.rows.map(r => normWs(r.th).replace(/^\S+ /, ''));
+  assert.equal(new Set(names).size, 22, 'every country exactly once'); assert.deepEqual(names, [...names].sort((a, b) => a.localeCompare(b)), 'rows sorted by name (like the minimum wage page)');
   assert.deepEqual([...names].sort(), facts.map(c => mwInfo.get(c.code).name).sort(), 'the rows are exactly the facts.json countries');
   const mwNames = [...squash(read(MW_FILE)).matchAll(/<th scope="row"><a href="countries\/[^"]+">[^ ]+ ([^<(]*?)(?: \([^<]*\))?<\/a><\/th>/g)].map(x => decode(x[1]));
   assert.ok(mwNames.length > 0 && mwNames.every(n => names.includes(n)), 'every country on the minimum wage page is on this page too, in the same relative order');
   assert.deepEqual(names.filter(n => mwNames.includes(n)), mwNames, 'same order as the minimum wage page');
 });
 test('p5_1.data.pinned_spot_checks_in_the_rendered_html', () => {
-  const m = rtParts(read(RT_FILE)); assert.equal(m.rows.length, 20, 'table rendered');
+  const m = rtParts(read(RT_FILE)); assert.equal(m.rows.length, 22, 'table rendered');
   const row = code => { const nm = mwInfo.get(code).name, r = m.rows.find(x => normWs(x.th).endsWith(' ' + nm)); assert.ok(r, `row for ${nm}`); return { er: rtCell(r.tds[0]), ee: rtCell(r.tds[1]), tx: rtCell(r.tds[2]), st: rtCell(r.tds[3]) }; };
   assert.equal(row('uk').er.lead, '15%', 'UK employer 15%');
   assert.equal(row('germany').er.lead, '21.045%', 'Germany employer 21.045%'); assert.equal(row('germany').ee.lead, '21.045%', 'Germany employee 21.045%');
@@ -3726,7 +3756,7 @@ test('p5_1.data.pinned_spot_checks_in_the_rendered_html', () => {
   assert.ok(row('uk').er.smalls.length >= 1 && row('uk').er.smalls[0].length >= 5, 'a comparable cell shows its scope beneath the rate');
 });
 test('p5_1.data.no_foreign_percentages_and_links_are_the_facts_source_urls', () => {
-  const facts = loadFacts(), m = rtParts(read(RT_FILE)); assert.equal(m.rows.length, 20);
+  const facts = loadFacts(), m = rtParts(read(RT_FILE)); assert.equal(m.rows.length, 22);
   const allRates = new Set(); const urls = new Set();
   for (const c of facts) for (const f of c.facts) { urls.add(f.sourceUrl); if (RT_KEYS.includes(f.key) && f.headline && f.headline.rate !== undefined) allRates.add(rtFmt(f.headline.rate)); }
   assert.ok(allRates.size >= 15, 'a spread of distinct rates: ' + allRates.size);

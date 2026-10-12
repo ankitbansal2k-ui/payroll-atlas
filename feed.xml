@@ -5,9 +5,109 @@
   <link href="https://www.intelligentpayroll.eu/" rel="alternate" type="text/html"/>
   <link href="https://www.intelligentpayroll.eu/feed.xml" rel="self" type="application/atom+xml"/>
   <id>https://www.intelligentpayroll.eu/feed.xml</id>
-  <updated>2026-10-06T00:00:00Z</updated>
+  <updated>2026-10-12T00:00:00Z</updated>
   <author><name>Intelligent Payroll</name><uri>https://www.intelligentpayroll.eu/</uri></author>
   <rights>All rights reserved. For information only, not legal or tax advice.</rights>
+  <entry>
+    <title>Iceland: Children&apos;s tax-free allowance raised to 300,000 kr. in 2026</title>
+    <link href="https://www.intelligentpayroll.eu/countries/iceland.html#is-children-withholding-2026" rel="alternate" type="text/html"/>
+    <id>tag:intelligentpayroll.eu,2026:iceland/is-children-withholding-2026</id>
+    <published>2026-10-12T00:00:00Z</published>
+    <updated>2026-10-12T00:00:00Z</updated>
+    <category term="europe" label="Europe"/>
+    <summary>In 2026 children, meaning those born in 2011 or later, are taxed at 6% (4% income tax and 2% municipal tax) on income above a children&apos;s allowance of 300,000 kr. In 2025 (children born 2010 or later) the allowance was 180,000 kr.</summary>
+    <content type="html">&lt;p&gt;&lt;strong&gt;In force, 1 Jan 2026&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;In 2026 children, meaning those born in 2011 or later, are taxed at 6% (4% income tax and 2% municipal tax) on income above a children&apos;s allowance of 300,000 kr. In 2025 (children born 2010 or later) the allowance was 180,000 kr.&lt;/p&gt;&lt;p&gt;For the employer:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Check with Skatturinn how the 300,000 kr. allowance is applied in withholding (the page does not say per month or per year) before configuring payroll.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;a href=&quot;https://www.skatturinn.is/einstaklingar/stadgreidsla/stadgreidsla/2026/stadgreidsla-2026&quot;&gt;Source: Skatturinn - Staðgreiðsla 2026&lt;/a&gt;&lt;/p&gt;&lt;p&gt;For information only, not legal or tax advice.&lt;/p&gt;</content>
+  </entry>
+  <entry>
+    <title>Iceland: Personal tax credit rises to 72,492 kr. a month in 2026</title>
+    <link href="https://www.intelligentpayroll.eu/countries/iceland.html#is-personal-tax-credit-2026" rel="alternate" type="text/html"/>
+    <id>tag:intelligentpayroll.eu,2026:iceland/is-personal-tax-credit-2026</id>
+    <published>2026-10-12T00:00:00Z</published>
+    <updated>2026-10-12T00:00:00Z</updated>
+    <category term="europe" label="Europe"/>
+    <summary>The personal tax credit (persónuafsláttur) is 869,898 kr. a year, or 72,492 kr. a month, in 2026, up from 824,288 kr. a year (68,691 kr. a month) in 2025. It is deducted from the calculated withholding. Unused credit builds up during the year but does not carry over to the next…</summary>
+    <content type="html">&lt;p&gt;&lt;strong&gt;In force, 1 Jan 2026&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;The personal tax credit (persónuafsláttur) is 869,898 kr. a year, or 72,492 kr. a month, in 2026, up from 824,288 kr. a year (68,691 kr. a month) in 2025. It is deducted from the calculated withholding. Unused credit builds up during the year but does not carry over to the next year.&lt;/p&gt;&lt;p&gt;For the employer:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Update the monthly credit to 72,492 kr. (half month 36,246 kr., fourteen days 33,366 kr., one week 16,683 kr.); for other pay periods use 869,898 / 365 x days in the period.&lt;/li&gt;&lt;li&gt;Apply the credit only as the employee instructs: whether to use it, from which month, any accumulated credit and which band.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;a href=&quot;https://www.skatturinn.is/einstaklingar/stadgreidsla/stadgreidsla/2026/stadgreidsla-2026&quot;&gt;Source: Skatturinn - Staðgreiðsla 2026&lt;/a&gt;&lt;/p&gt;&lt;p&gt;For information only, not legal or tax advice.&lt;/p&gt;</content>
+  </entry>
+  <entry>
+    <title>Iceland: Employer social security levy (tryggingagjald) stays at 6.35% for 2026</title>
+    <link href="https://www.intelligentpayroll.eu/countries/iceland.html#is-social-security-levy-2026" rel="alternate" type="text/html"/>
+    <id>tag:intelligentpayroll.eu,2026:iceland/is-social-security-levy-2026</id>
+    <published>2026-10-12T00:00:00Z</published>
+    <updated>2026-10-12T00:00:00Z</updated>
+    <category term="europe" label="Europe"/>
+    <summary>For 2026 the employer levy tryggingagjald is 6.35% of total pay, the same as in 2022 to 2025. It consists of the general levy 4.90%, the employment levy 1.35%, the Wage Guarantee Fund charge 0.05% and the market charge 0.05%. A further 0.65% applies to the pay of seamen on…</summary>
+    <content type="html">&lt;p&gt;&lt;strong&gt;In force, 1 Jan 2026&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;For 2026 the employer levy tryggingagjald is 6.35% of total pay, the same as in 2022 to 2025. It consists of the general levy 4.90%, the employment levy 1.35%, the Wage Guarantee Fund charge 0.05% and the market charge 0.05%. A further 0.65% applies to the pay of seamen on fishing vessels.&lt;/p&gt;&lt;p&gt;For the employer:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Keep the 6.35% rate for 2026 (4.90% + 1.35% + 0.05% + 0.05%) and add 0.65% for seamen on fishing vessels (7.00% in total).&lt;/li&gt;&lt;li&gt;Report and pay the levy monthly together with the withholding; the due date is the 1st of the month after the pay month.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;a href=&quot;https://www.skatturinn.is/atvinnurekstur/skattar-og-gjold/tryggingagjald/&quot;&gt;Source: Skatturinn - Tryggingagjald&lt;/a&gt;&lt;/p&gt;&lt;p&gt;For information only, not legal or tax advice.&lt;/p&gt;</content>
+  </entry>
+  <entry>
+    <title>Iceland: Withholding tax bands raised for 2026</title>
+    <link href="https://www.intelligentpayroll.eu/countries/iceland.html#is-withholding-bands-2026" rel="alternate" type="text/html"/>
+    <id>tag:intelligentpayroll.eu,2026:iceland/is-withholding-bands-2026</id>
+    <published>2026-10-12T00:00:00Z</published>
+    <updated>2026-10-12T00:00:00Z</updated>
+    <category term="europe" label="Europe"/>
+    <summary>For 2026, the pay-as-you-earn withholding (staðgreiðsla) rates published by Skatturinn (the Icelandic tax authority) are 31.49% on monthly income up to 498,122 kr., 37.99% from 498,123 to 1,398,450 kr. and 46.29% above that. In 2025 the first two limits were 472,005 kr. and…</summary>
+    <content type="html">&lt;p&gt;&lt;strong&gt;In force, 1 Jan 2026&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;For 2026, the pay-as-you-earn withholding (staðgreiðsla) rates published by Skatturinn (the Icelandic tax authority) are 31.49% on monthly income up to 498,122 kr., 37.99% from 498,123 to 1,398,450 kr. and 46.29% above that. In 2025 the first two limits were 472,005 kr. and 1,325,127 kr.; the rates are unchanged. Each rate is the income tax rate for the band plus the average municipal tax (útsvar) of 14.94%.&lt;/p&gt;&lt;p&gt;For the employer:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Load the 2026 band limits (498,122 kr. and 1,398,450 kr. a month) into payroll and calculate withholding on each month&apos;s pay separately.&lt;/li&gt;&lt;li&gt;Employees with pay from more than one employer must tell each employer which band to use; the tax credit is then deducted from the calculated withholding.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;a href=&quot;https://www.skatturinn.is/einstaklingar/stadgreidsla/skattthrep/2026/skattthrep-i-stadgreidslu-2026&quot;&gt;Source: Skatturinn - Skattþrep í staðgreiðslu 2026&lt;/a&gt;&lt;/p&gt;&lt;p&gt;For information only, not legal or tax advice.&lt;/p&gt;</content>
+  </entry>
+  <entry>
+    <title>Jordan: Social security: payment within 15 days of the following month; worker data reporting dates</title>
+    <link href="https://www.intelligentpayroll.eu/countries/jordan.html#jo-ssc-deadlines" rel="alternate" type="text/html"/>
+    <id>tag:intelligentpayroll.eu,2026:jo/jo-ssc-deadlines</id>
+    <published>2026-10-12T00:00:00Z</published>
+    <updated>2026-10-12T00:00:00Z</updated>
+    <category term="menat" label="MENAT"/>
+    <summary>The Social Security Law requires a firm to pay the Social Security Corporation the contributions it deducts from its insured workers and the contributions it pays for them during the first 15 days of the month after they fall due. Default interest of 1% per month applies to any…</summary>
+    <content type="html">&lt;p&gt;&lt;strong&gt;Ongoing&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;The Social Security Law requires a firm to pay the Social Security Corporation the contributions it deducts from its insured workers and the contributions it pays for them during the first 15 days of the month after they fall due. Default interest of 1% per month applies to any overdue contribution. The firm must also give the Corporation detailed data (names and wages) on workers: those employed in January by the end of March each year; new starters by the end of the month after they start; leavers by the end of the month after service ends. A fine of 1% of the due contributions applies for every month the data is not provided.&lt;/p&gt;&lt;p&gt;For the employer:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Pay each month&apos;s contributions in the first 15 days of the following month.&lt;/li&gt;&lt;li&gt;Send the January worker list (names and wages) by the end of March each year.&lt;/li&gt;&lt;li&gt;Report new starters and leavers by the end of the month after the start or termination.&lt;/li&gt;&lt;li&gt;Late payment: default interest of 1% per month on the overdue amount. Missing data: a fine of 1% of the due contributions per month.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;a href=&quot;https://www.ssc.gov.jo/wp-content/uploads/2025/02/law-26.1.2025-compressed.pdf&quot;&gt;Source: Social Security Corporation - Social Security Law No. 1 of 2014 and its amendments (to 16 April 2023)&lt;/a&gt;&lt;/p&gt;&lt;p&gt;For information only, not legal or tax advice.&lt;/p&gt;</content>
+  </entry>
+  <entry>
+    <title>Jordan: Social security contribution rates: employer 14.25%, employee 7.5%</title>
+    <link href="https://www.intelligentpayroll.eu/countries/jordan.html#jo-ssc-rates" rel="alternate" type="text/html"/>
+    <id>tag:intelligentpayroll.eu,2026:jo/jo-ssc-rates</id>
+    <published>2026-10-12T00:00:00Z</published>
+    <updated>2026-10-12T00:00:00Z</updated>
+    <category term="menat" label="MENAT"/>
+    <summary>Under the Social Security Law No. 1 of 2014, firms pay and deduct monthly contributions to the Social Security Corporation. The law sets: old-age, disability and death insurance 11% paid by the firm and 6.5% deducted from the insured; work injury insurance 2% paid by the firm;…</summary>
+    <content type="html">&lt;p&gt;&lt;strong&gt;Ongoing&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;Under the Social Security Law No. 1 of 2014, firms pay and deduct monthly contributions to the Social Security Corporation. The law sets: old-age, disability and death insurance 11% paid by the firm and 6.5% deducted from the insured; work injury insurance 2% paid by the firm; maternity insurance 0.75% paid by the firm; unemployment insurance 0.5% paid by the firm and 1% deducted from the insured. Added together these are 14.25% for the employer and 7.5% for the employee. The maximum wage on which contributions are calculated is JOD 3,000, adjusted to inflation each January.&lt;/p&gt;&lt;p&gt;For the employer:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Pay 14.25% of the insured wage (11% + 2% + 0.75% + 0.5%) to the Social Security Corporation each month, and also pay the insured&apos;s share that you deduct.&lt;/li&gt;&lt;li&gt;Deduct 7.5% from the insured wage (6.5% + 1%).&lt;/li&gt;&lt;li&gt;Contributions run month by month from the first day of employment until it ends; a part month counts as a full month.&lt;/li&gt;&lt;li&gt;Cap the contribution base at the maximum wage (JOD 3,000, adjusted each January); check the current figure with the Corporation.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;a href=&quot;https://www.ssc.gov.jo/wp-content/uploads/2025/02/law-26.1.2025-compressed.pdf&quot;&gt;Source: Social Security Corporation - Social Security Law No. 1 of 2014 and its amendments (to 16 April 2023)&lt;/a&gt;&lt;/p&gt;&lt;p&gt;For information only, not legal or tax advice.&lt;/p&gt;</content>
+  </entry>
+  <entry>
+    <title>Serbia: Contribution base limits for 2026: minimum RSD 51,297, maximum RSD 732,820</title>
+    <link href="https://www.intelligentpayroll.eu/countries/serbia.html#rs-contribution-base-2026" rel="alternate" type="text/html"/>
+    <id>tag:intelligentpayroll.eu,2026:serbia/rs-contribution-base-2026</id>
+    <published>2026-10-12T00:00:00Z</published>
+    <updated>2026-10-12T00:00:00Z</updated>
+    <category term="europe" label="Europe"/>
+    <summary>The Republic Fund for Pension and Disability Insurance (PIO) states that, under data published in Official Gazette 112/25, the lowest monthly contribution base is RSD 51,297 and the highest monthly base is RSD 732,820 from 1 January to 31 December 2026. The highest annual base…</summary>
+    <content type="html">&lt;p&gt;&lt;strong&gt;In force, 1 Jan 2026&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;The Republic Fund for Pension and Disability Insurance (PIO) states that, under data published in Official Gazette 112/25, the lowest monthly contribution base is RSD 51,297 and the highest monthly base is RSD 732,820 from 1 January to 31 December 2026. The highest annual base is RSD 8,793,840.&lt;/p&gt;&lt;p&gt;For the employer:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;If the wage paid is lower than the lowest monthly base, contributions are paid on that lowest base valid on the day of payment.&lt;/li&gt;&lt;li&gt;If the wage paid is higher than the highest monthly base, contributions are paid on that highest base.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;a href=&quot;https://www.pio.rs/sr/osnovice-za-uplatu-doprinosa&quot;&gt;Source: Republic Fund for Pension and Disability Insurance (PIO) - Osnovice za uplatu doprinosa&lt;/a&gt;&lt;/p&gt;&lt;p&gt;For information only, not legal or tax advice.&lt;/p&gt;</content>
+  </entry>
+  <entry>
+    <title>Serbia: Minimum wage set at RSD 405 an hour for 2027</title>
+    <link href="https://www.intelligentpayroll.eu/countries/serbia.html#rs-minimum-wage-2027" rel="alternate" type="text/html"/>
+    <id>tag:intelligentpayroll.eu,2026:serbia/rs-minimum-wage-2027</id>
+    <published>2026-10-12T00:00:00Z</published>
+    <updated>2026-10-12T00:00:00Z</updated>
+    <category term="europe" label="Europe"/>
+    <summary>The Government adopted a decision setting the minimum price of labour for January-December 2027 at RSD 405 per working hour, excluding tax and social insurance contributions, an increase of 9.2 percent. The monthly minimum wage will be RSD 70,470.</summary>
+    <content type="html">&lt;p&gt;&lt;strong&gt;Upcoming, 1 Jan 2027&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;The Government adopted a decision setting the minimum price of labour for January-December 2027 at RSD 405 per working hour, excluding tax and social insurance contributions, an increase of 9.2 percent. The monthly minimum wage will be RSD 70,470.&lt;/p&gt;&lt;p&gt;For the employer:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Pay at least RSD 405 per working hour (before tax and contributions) from January 2027.&lt;/li&gt;&lt;li&gt;Update pay rates for staff on the minimum wage before the January 2027 payroll.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;a href=&quot;https://www.srbija.gov.rs/vest/994489/vlada-usvojila-predlog-zakona-o-rebalansu-budzeta-za-2026-godinu.php&quot;&gt;Source: Government of the Republic of Serbia - Vlada usvojila predlog zakona o rebalansu budzeta za 2026. godinu&lt;/a&gt;&lt;/p&gt;&lt;p&gt;For information only, not legal or tax advice.&lt;/p&gt;</content>
+  </entry>
+  <entry>
+    <title>Serbia: New-hire contribution refund extended to 2028; new conditions from 2028 (unofficial Ministry text)</title>
+    <link href="https://www.intelligentpayroll.eu/countries/serbia.html#rs-new-hire-refund-2028" rel="alternate" type="text/html"/>
+    <id>tag:intelligentpayroll.eu,2026:serbia/rs-new-hire-refund-2028</id>
+    <published>2026-10-12T00:00:00Z</published>
+    <updated>2026-10-12T00:00:00Z</updated>
+    <category term="europe" label="Europe"/>
+    <summary>The Law amending the Law on Mandatory Social Insurance Contributions (Official Gazette 80/2026, in force from 8 September 2026) extends the refund of contributions for new hires in Article 45 to wages paid up to 31 December 2028, from 1 January 2027, according to the Ministry…</summary>
+    <content type="html">&lt;p&gt;&lt;strong&gt;Upcoming, 1 Jan 2027&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;The Law amending the Law on Mandatory Social Insurance Contributions (Official Gazette 80/2026, in force from 8 September 2026) extends the refund of contributions for new hires in Article 45 to wages paid up to 31 December 2028, from 1 January 2027, according to the Ministry of Finance&apos;s unofficial consolidated text. The refund covers part of the contributions paid (employee and employer share) on the wage of a newly hired person. The same text applies the new conditions in Article 1 paragraphs 2 to 12 only from 1 January 2028.&lt;/p&gt;&lt;p&gt;For the employer:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Refund rate: 65% of contributions for 1 to 9 new hires, 70% for 10 to 99 and 75% for 100 or more.&lt;/li&gt;&lt;li&gt;A new hire must have been registered as unemployed with the National Employment Service without interruption for at least six months before the job started.&lt;/li&gt;&lt;li&gt;From 1 January 2028, according to the Ministry text: unemployed people under 24 registered in the Youth Guarantee programme are exempt from the six-month rule; the relief runs for at most 12 months from the hire and only if the hire raises the employer&apos;s net number of employees against the average of the previous 12 months, under state aid rules.&lt;/li&gt;&lt;li&gt;From 1 January 2028, according to the Ministry text: combined with the corresponding income tax relief, the relief may not exceed 50% of the wage costs of the people hired or EUR 5.5 million per employer a year.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;a href=&quot;https://www.mfin.gov.rs/upload/media/c59gCf_6aa14bd2e2c04.docx&quot;&gt;Source: Ministry of Finance of the Republic of Serbia - Zakon o doprinosima za obavezno socijalno osiguranje (nezvanicno preciscen tekst, SG 80/2026)&lt;/a&gt;&lt;/p&gt;&lt;p&gt;For information only, not legal or tax advice.&lt;/p&gt;</content>
+  </entry>
+  <entry>
+    <title>Serbia: Non-taxable part of salary rises to RSD 37,369 from 2027</title>
+    <link href="https://www.intelligentpayroll.eu/countries/serbia.html#rs-non-taxable-amount-2027" rel="alternate" type="text/html"/>
+    <id>tag:intelligentpayroll.eu,2026:serbia/rs-non-taxable-amount-2027</id>
+    <published>2026-10-12T00:00:00Z</published>
+    <updated>2026-10-12T00:00:00Z</updated>
+    <category term="europe" label="Europe"/>
+    <summary>The Law amending the Personal Income Tax Law (Official Gazette 80/2026, in force from 8 September 2026) sets the monthly reduction of the salary tax base for a full-time employee at RSD 37,369. The amending law applies from 1 January 2027. Salary tax stays at 10 percent.</summary>
+    <content type="html">&lt;p&gt;&lt;strong&gt;Upcoming, 1 Jan 2027&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;The Law amending the Personal Income Tax Law (Official Gazette 80/2026, in force from 8 September 2026) sets the monthly reduction of the salary tax base for a full-time employee at RSD 37,369. The amending law applies from 1 January 2027. Salary tax stays at 10 percent.&lt;/p&gt;&lt;p&gt;For the employer:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;From January 2027 reduce the salary tax base by RSD 37,369 a month for an employee working full time, and proportionally for part-time work.&lt;/li&gt;&lt;li&gt;Where a person works full time for two or more employers, each employer applies the reduction in proportion to the working time, with the total reduction at RSD 37,369 a month.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;a href=&quot;https://www.mfin.gov.rs/upload/media/MOq4eO_6aa14ac8c7a47.docx&quot;&gt;Source: Ministry of Finance of the Republic of Serbia - Zakon o porezu na dohodak gradjana (nezvanicno preciscen tekst, SG 80/2026)&lt;/a&gt;&lt;/p&gt;&lt;p&gt;For information only, not legal or tax advice.&lt;/p&gt;</content>
+  </entry>
   <entry>
     <title>Bangladesh: Withholding tax return filed quarterly instead of monthly</title>
     <link href="https://www.intelligentpayroll.eu/countries/bangladesh.html#bd-withholding-return-quarterly" rel="alternate" type="text/html"/>
@@ -407,105 +507,5 @@
     <category term="apac" label="APAC"/>
     <summary>Government Regulation No. 49 of 2025 replaced the previous wage-setting framework after a Constitutional Court decision. The alpha coefficient used in the formula now ranges between 0.5 and 0.9, compared with the previous cap of 0.3, and sectoral minimum wages have been…</summary>
     <content type="html">&lt;p&gt;&lt;strong&gt;In force, 2026&lt;/strong&gt; &amp;middot; Applies to 2026 wages&lt;/p&gt;&lt;p&gt;Government Regulation No. 49 of 2025 replaced the previous wage-setting framework after a Constitutional Court decision. The alpha coefficient used in the formula now ranges between 0.5 and 0.9, compared with the previous cap of 0.3, and sectoral minimum wages have been reintroduced in some regions.&lt;/p&gt;&lt;p&gt;For the employer:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Check the 2026 provincial (UMP) and regency/city (UMK) minimum wage decrees for each work location.&lt;/li&gt;&lt;li&gt;Check whether a sectoral minimum wage applies to your industry (for example construction, energy, high-tech manufacturing); it can exceed the standard UMP or UMK.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;a href=&quot;https://www.rsm.global/indonesia/en/node/415&quot;&gt;Source: RSM Indonesia - PP 49/2025 minimum wage regulation&lt;/a&gt;&lt;/p&gt;&lt;p&gt;For information only, not legal or tax advice.&lt;/p&gt;</content>
-  </entry>
-  <entry>
-    <title>Kenya: Finance Act 2026: gratuity exemption limited to 31% of emoluments</title>
-    <link href="https://www.intelligentpayroll.eu/countries/kenya.html#ke-fa2026-gratuity" rel="alternate" type="text/html"/>
-    <id>tag:intelligentpayroll.eu,2026:ke/ke-fa2026-gratuity</id>
-    <published>2026-10-01T00:00:00Z</published>
-    <updated>2026-10-01T00:00:00Z</updated>
-    <category term="africa" label="Africa"/>
-    <summary>From 1 July 2026, gratuity qualifies for tax exemption only if the contract of service is for at least three continuous years (or an extension of a three-year contract) and the gratuity does not exceed 31% of emoluments earned in that period.</summary>
-    <content type="html">&lt;p&gt;&lt;strong&gt;In force, 1 Jul 2026&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;From 1 July 2026, gratuity qualifies for tax exemption only if the contract of service is for at least three continuous years (or an extension of a three-year contract) and the gratuity does not exceed 31% of emoluments earned in that period.&lt;/p&gt;&lt;p&gt;For the employer:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Confirm the contract runs at least three continuous years before treating gratuity as exempt in PAYE.&lt;/li&gt;&lt;li&gt;Tax any gratuity above 31% of emoluments for the contract period through PAYE.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;a href=&quot;https://www.kra.go.ke/finance-act-2026-what-it-means-for-you&quot;&gt;Source: Kenya Revenue Authority - Finance Act 2026: what it means for you&lt;/a&gt;&lt;/p&gt;&lt;p&gt;For information only, not legal or tax advice.&lt;/p&gt;</content>
-  </entry>
-  <entry>
-    <title>Kenya: Individual income tax returns due by end of fourth month</title>
-    <link href="https://www.intelligentpayroll.eu/countries/kenya.html#ke-fa2026-return-deadline" rel="alternate" type="text/html"/>
-    <id>tag:intelligentpayroll.eu,2026:ke/ke-fa2026-return-deadline</id>
-    <published>2026-10-01T00:00:00Z</published>
-    <updated>2026-10-01T00:00:00Z</updated>
-    <category term="africa" label="Africa"/>
-    <summary>From 1 January 2027, individual taxpayers will be required to file income tax returns by the last day of the fourth month after the end of the year of income.</summary>
-    <content type="html">&lt;p&gt;&lt;strong&gt;Upcoming, 1 Jan 2027&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;From 1 January 2027, individual taxpayers will be required to file income tax returns by the last day of the fourth month after the end of the year of income.&lt;/p&gt;&lt;p&gt;For the employer:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Expect staff on calendar-year income to file by 30 April from 1 January 2027.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;a href=&quot;https://www.kra.go.ke/finance-act-2026-what-it-means-for-you&quot;&gt;Source: Kenya Revenue Authority - Finance Act 2026: what it means for you&lt;/a&gt;&lt;/p&gt;&lt;p&gt;For information only, not legal or tax advice.&lt;/p&gt;</content>
-  </entry>
-  <entry>
-    <title>Kenya: NSSF maximum monthly contribution set at KES 6,480</title>
-    <link href="https://www.intelligentpayroll.eu/countries/kenya.html#ke-nssf-2026" rel="alternate" type="text/html"/>
-    <id>tag:intelligentpayroll.eu,2026:ke/ke-nssf-2026</id>
-    <published>2026-10-01T00:00:00Z</published>
-    <updated>2026-10-01T00:00:00Z</updated>
-    <category term="africa" label="Africa"/>
-    <summary>From 1 February 2026 employers deduct a maximum monthly NSSF contribution of KES 6,480 from employees and match the same amount.</summary>
-    <content type="html">&lt;p&gt;&lt;strong&gt;In force, 1 Feb 2026&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;From 1 February 2026 employers deduct a maximum monthly NSSF contribution of KES 6,480 from employees and match the same amount.&lt;/p&gt;&lt;p&gt;For the employer:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Match employee NSSF deduction up to KES 6,480 per month.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;a href=&quot;https://taxsummaries.pwc.com/kenya/individual/other-taxes&quot;&gt;Source: PwC Worldwide Tax Summaries - Kenya, Individual, Other taxes&lt;/a&gt;&lt;/p&gt;&lt;p&gt;For information only, not legal or tax advice.&lt;/p&gt;</content>
-  </entry>
-  <entry>
-    <title>Nigeria: Edo State: employer annual tax returns due 31 January under NTAA 2025</title>
-    <link href="https://www.intelligentpayroll.eu/countries/nigeria.html#ng-ntaa-annual-returns" rel="alternate" type="text/html"/>
-    <id>tag:intelligentpayroll.eu,2026:ng/ng-ntaa-annual-returns</id>
-    <published>2026-10-01T00:00:00Z</published>
-    <updated>2026-10-01T00:00:00Z</updated>
-    <category term="africa" label="Africa"/>
-    <summary>Citing the Nigeria Tax Administration Act (NTAA) 2025, the Edo State Internal Revenue Service required employers to file 2026 annual tax returns not later than 31 January 2026.</summary>
-    <content type="html">&lt;p&gt;&lt;strong&gt;In force, 31 Jan 2026&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;Citing the Nigeria Tax Administration Act (NTAA) 2025, the Edo State Internal Revenue Service required employers to file 2026 annual tax returns not later than 31 January 2026.&lt;/p&gt;&lt;p&gt;For the employer:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Edo State employers file annual returns (Tax Forms H1 and H3) by 31 January 2026.&lt;/li&gt;&lt;li&gt;Non-compliance attracts an administrative penalty of N1,000,000 or imprisonment for a term not exceeding three years.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;a href=&quot;https://eirs.gov.ng/notice-of-demand-for-employers-employees-to-file-annual-paye-individual-tax-returns/&quot;&gt;Source: Edo State Internal Revenue Service - Notice of demand for employers and employees to file annual PAYE and individual tax returns&lt;/a&gt;&lt;/p&gt;&lt;p&gt;For information only, not legal or tax advice.&lt;/p&gt;</content>
-  </entry>
-  <entry>
-    <title>Nigeria: Nigeria Tax Act: new PAYE bands and rent relief</title>
-    <link href="https://www.intelligentpayroll.eu/countries/nigeria.html#ng-paye-nta" rel="alternate" type="text/html"/>
-    <id>tag:intelligentpayroll.eu,2026:ng/ng-paye-nta</id>
-    <published>2026-10-01T00:00:00Z</published>
-    <updated>2026-10-01T00:00:00Z</updated>
-    <category term="africa" label="Africa"/>
-    <summary>The Nigeria Tax Act takes effect on 1 January 2026 with six bands: first N800,000 at 0%, then 15%, 18%, 21%, 23% and 25% above N50,000,000.</summary>
-    <content type="html">&lt;p&gt;&lt;strong&gt;In force, 1 Jan 2026&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;The Nigeria Tax Act takes effect on 1 January 2026 with six bands: first N800,000 at 0%, then 15%, 18%, 21%, 23% and 25% above N50,000,000.&lt;/p&gt;&lt;p&gt;For the employer:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Recompute PAYE: next N2,200,000 at 15%, next N9,000,000 at 18%, next N13,000,000 at 21%, next N25,000,000 at 23%, above N50,000,000 at 25%.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;a href=&quot;https://taxsummaries.pwc.com/nigeria/individual/significant-developments&quot;&gt;Source: PwC Worldwide Tax Summaries - Nigeria, Individual, Significant developments&lt;/a&gt;&lt;/p&gt;&lt;p&gt;For information only, not legal or tax advice.&lt;/p&gt;</content>
-  </entry>
-  <entry>
-    <title>Pakistan: Federal civil-servant Basic Pay Scales 2026 and 7% ad-hoc relief allowance</title>
-    <link href="https://www.intelligentpayroll.eu/countries/pakistan.html#pk-bps-2026" rel="alternate" type="text/html"/>
-    <id>tag:intelligentpayroll.eu,2026:pk/pk-bps-2026</id>
-    <published>2026-10-01T00:00:00Z</published>
-    <updated>2026-10-01T00:00:00Z</updated>
-    <category term="menat" label="MENAT"/>
-    <summary>This applies to federal government civil servants only and is not a private-sector payroll rule. By Office Memorandum dated 21 July 2026, the Ministry of Finance approved revised Basic Pay Scales and allowances effective 1 July 2026 for federal civil employees paid from civil…</summary>
-    <content type="html">&lt;p&gt;&lt;strong&gt;In force, 1 Jul 2026&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;This applies to federal government civil servants only and is not a private-sector payroll rule. By Office Memorandum dated 21 July 2026, the Ministry of Finance approved revised Basic Pay Scales and allowances effective 1 July 2026 for federal civil employees paid from civil and defence estimates. BPS-2026 replaces BPS-2022 and merges the earlier ad-hoc relief allowances; a new Ad-hoc Relief Allowance-2026 of 7% of running basic pay applies from 1 July 2026 until further orders.&lt;/p&gt;&lt;p&gt;For the employer:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Federal payroll units: fix pay in BPS-2026 point to point from the stage held on 30 June 2026.&lt;/li&gt;&lt;li&gt;Stop the Ad-hoc Relief Allowances of 2022 (15%) and 2025 (10%), which cease on 1 July 2026, and pay the 7% allowance instead.&lt;/li&gt;&lt;li&gt;Annual increment remains admissible on 1 December each year.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;a href=&quot;https://www.finance.gov.pk/circulars/REVISION_OF_BASIC_PAY_SCALES_2026.pdf&quot;&gt;Source: Government of Pakistan Ministry of Finance - Office Memorandum, Revision of Basic Pay Scales and Allowances of Civil Servants 2026&lt;/a&gt;&lt;/p&gt;&lt;p&gt;For information only, not legal or tax advice.&lt;/p&gt;</content>
-  </entry>
-  <entry>
-    <title>Pakistan: New salaried-individual tax slabs with 35% top rate from Rs 7 million</title>
-    <link href="https://www.intelligentpayroll.eu/countries/pakistan.html#pk-salary-slabs-2026" rel="alternate" type="text/html"/>
-    <id>tag:intelligentpayroll.eu,2026:pk/pk-salary-slabs-2026</id>
-    <published>2026-10-01T00:00:00Z</published>
-    <updated>2026-10-01T00:00:00Z</updated>
-    <category term="menat" label="MENAT"/>
-    <summary>The Finance Act 2026, enacted on 27 June 2026, reduced tax rates for salaried individuals in the First Schedule with effect from 1 July 2026. Income up to Rs 600,000 is untaxed, and the 35% rate now applies only to taxable income above Rs 7,000,000 (previously it applied from…</summary>
-    <content type="html">&lt;p&gt;&lt;strong&gt;In force, 1 Jul 2026&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;The Finance Act 2026, enacted on 27 June 2026, reduced tax rates for salaried individuals in the First Schedule with effect from 1 July 2026. Income up to Rs 600,000 is untaxed, and the 35% rate now applies only to taxable income above Rs 7,000,000 (previously it applied from Rs 4,100,000).&lt;/p&gt;&lt;p&gt;For the employer:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Update salary withholding (section 149) to the new slabs: 1% over Rs 600,000; Rs 6,000 + 11% over Rs 1,200,000; Rs 116,000 + 20% over Rs 2,200,000; Rs 316,000 + 25% over Rs 3,200,000; Rs 541,000 + 29% over Rs 4,100,000; Rs 976,000 + 32% over Rs 5,600,000; Rs 1,424,000 + 35% over Rs 7,000,000.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;a href=&quot;https://assets.kpmg.com/content/dam/kpmgsites/pk/pdf/2026/07/A%20Brief%20of%20Finance%20Act%202026.pdf.coredownload.inline.pdf&quot;&gt;Source: KPMG Taseer Hadi &amp;amp; Co. - A Brief of Finance Act, 2026 (July 2026)&lt;/a&gt;&lt;/p&gt;&lt;p&gt;For information only, not legal or tax advice.&lt;/p&gt;</content>
-  </entry>
-  <entry>
-    <title>South Africa: National Minimum Wage rises to R30.23 per hour</title>
-    <link href="https://www.intelligentpayroll.eu/countries/south-africa.html#za-nmw-2026" rel="alternate" type="text/html"/>
-    <id>tag:intelligentpayroll.eu,2026:za/za-nmw-2026</id>
-    <published>2026-10-01T00:00:00Z</published>
-    <updated>2026-10-01T00:00:00Z</updated>
-    <category term="africa" label="Africa"/>
-    <summary>Employment and Labour Minister Nomakhosazana Meth raised the National Minimum Wage from R28.79 to R30.23 for each ordinary hour worked, binding from 1 March 2026.</summary>
-    <content type="html">&lt;p&gt;&lt;strong&gt;In force, 1 Mar 2026&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;Employment and Labour Minister Nomakhosazana Meth raised the National Minimum Wage from R28.79 to R30.23 for each ordinary hour worked, binding from 1 March 2026.&lt;/p&gt;&lt;p&gt;For the employer:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Pay at least R30.23 per ordinary hour from 1 March 2026.&lt;/li&gt;&lt;li&gt;EPWP workers: minimum rises from R15.16 to R16.62 per hour.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;a href=&quot;https://www.sanews.gov.za/node/79404&quot;&gt;Source: SAnews (GCIS) - National Minimum Wage to rise to R30.23 per hour from March&lt;/a&gt;&lt;/p&gt;&lt;p&gt;For information only, not legal or tax advice.&lt;/p&gt;</content>
-  </entry>
-  <entry>
-    <title>South Africa: PAYE brackets and rebates adjusted for 2027 tax year</title>
-    <link href="https://www.intelligentpayroll.eu/countries/south-africa.html#za-paye-2027" rel="alternate" type="text/html"/>
-    <id>tag:intelligentpayroll.eu,2026:za/za-paye-2027</id>
-    <published>2026-10-01T00:00:00Z</published>
-    <updated>2026-10-01T00:00:00Z</updated>
-    <category term="africa" label="Africa"/>
-    <summary>SARS rates for the 2027 tax year (1 March 2026 - 28 February 2027) start at 18% on taxable income up to R245 100 and reach 45% above R1 878 600.</summary>
-    <content type="html">&lt;p&gt;&lt;strong&gt;In force, 1 Mar 2026&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;SARS rates for the 2027 tax year (1 March 2026 - 28 February 2027) start at 18% on taxable income up to R245 100 and reach 45% above R1 878 600.&lt;/p&gt;&lt;p&gt;For the employer:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Apply updated withholding tables from 1 March 2026.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;a href=&quot;https://www.sars.gov.za/tax-rates/income-tax/rates-of-tax-for-individuals/&quot;&gt;Source: SARS - Rates of Tax for Individuals&lt;/a&gt;&lt;/p&gt;&lt;p&gt;For information only, not legal or tax advice.&lt;/p&gt;</content>
-  </entry>
-  <entry>
-    <title>Switzerland: First 13th AHV old-age pension paid in December 2026</title>
-    <link href="https://www.intelligentpayroll.eu/countries/switzerland.html#ch-13th-ahv" rel="alternate" type="text/html"/>
-    <id>tag:intelligentpayroll.eu,2026:switzerland/ch-13th-ahv</id>
-    <published>2026-10-01T00:00:00Z</published>
-    <updated>2026-10-01T00:00:00Z</updated>
-    <category term="europe" label="Europe"/>
-    <summary>The 13th AHV pension is paid for the first time in December 2026 to around 2.6 million pensioners, equal to one-twelfth of the old-age pensions paid during the year.</summary>
-    <content type="html">&lt;p&gt;&lt;strong&gt;Upcoming, Dec 2026&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;The 13th AHV pension is paid for the first time in December 2026 to around 2.6 million pensioners, equal to one-twelfth of the old-age pensions paid during the year.&lt;/p&gt;&lt;p&gt;For the employer:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;No change to AHV wage contribution rates is set out for its financing; Parliament approved a 0.4 percentage-point VAT increase from 2028, subject to a popular vote on 29 November 2026 (not yet enacted).&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;a href=&quot;https://www.bsv.admin.ch/de/umsetzung-13-ahv-rente&quot;&gt;Source: Federal Social Insurance Office (BSV) - Umsetzung 13. AHV-Rente&lt;/a&gt;&lt;/p&gt;&lt;p&gt;For information only, not legal or tax advice.&lt;/p&gt;</content>
   </entry>
 </feed>

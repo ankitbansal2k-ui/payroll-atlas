@@ -1,0 +1,46 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Intelligent Payroll//Payroll deadlines//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Intelligent Payroll: Iceland payroll deadlines
+BEGIN:VEVENT
+UID:is-tryggingagjald-monthly@intelligentpayroll.eu
+DTSTAMP:20261012T000000Z
+DTSTART;VALUE=DATE:20261001
+DTEND;VALUE=DATE:20261002
+RRULE:FREQ=MONTHLY;BYMONTHDAY=1
+SUMMARY:Iceland: Monthly levy (tryggingagjald) payment\, due date
+DESCRIPTION:The payment period is the calendar month. The due date (gjaldda
+ gi) is the 1st of each month for the previous month's pay\; the final date
+  (eindagi) is 14 days later.\nApplies to: Employers paying tryggingagjald\
+ nNon-working-day rule: check the source.\n\nSource: https://www.skatturinn
+ .is/atvinnurekstur/skattar-og-gjold/tryggingagjald/\nDetails: https://www.
+ intelligentpayroll.eu/deadlines.html#iceland\n\nFor information only\, not
+  legal or tax advice. Dates follow the recurring rule stated by the source
+ \; weekends and holidays are not applied. Sources last checked 12 October 
+ 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#iceland
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:is-tryggingagjald-benefits-july@intelligentpayroll.eu
+DTSTAMP:20261012T000000Z
+DTSTART;VALUE=DATE:20270701
+DTEND;VALUE=DATE:20270702
+RRULE:FREQ=YEARLY;BYMONTH=7;BYMONTHDAY=1
+SUMMARY:Iceland: Annual levy on pay and benefits outside withholding\, due 
+ date
+DESCRIPTION:The due date for levy on pay\, payments and benefits outside wi
+ thholding is 1 July each year and the final date is one month later\; bene
+ fits of the previous year are paid in one sum.\nApplies to: Payers of pay 
+ or benefits outside withholding\nNon-working-day rule: check the source.\n
+ \nSource: https://www.skatturinn.is/atvinnurekstur/skattar-og-gjold/tryggi
+ ngagjald/\nDetails: https://www.intelligentpayroll.eu/deadlines.html#icela
+ nd\n\nFor information only\, not legal or tax advice. Dates follow the rec
+ urring rule stated by the source\; weekends and holidays are not applied. 
+ Sources last checked 12 October 2026.
+URL:https://www.intelligentpayroll.eu/deadlines.html#iceland
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR

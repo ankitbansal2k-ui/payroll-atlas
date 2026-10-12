@@ -352,5 +352,60 @@
     "sourceUrl": "https://www.oesterreich.gv.at/de/lexicon/H/Seite.991498",
     "sourceLabel": "Source: oesterreich.gv.at - Höchstbeitragsgrundlage",
     "checked": "2026-10-04"
+  },
+  {
+    "term": "tryggingagjald",
+    "countries": [
+      "iceland"
+    ],
+    "expansion": "Social security levy (employer payroll charge)",
+    "definition": "A special charge employers pay on their employees' total pay. It is generally collected through withholding and made up of the general levy and the employment levy.",
+    "sourceUrl": "https://www.skatturinn.is/atvinnurekstur/skattar-og-gjold/tryggingagjald/",
+    "sourceLabel": "Source: Skatturinn - Tryggingagjald",
+    "checked": "2026-10-12"
+  },
+  {
+    "term": "staðgreiðsla",
+    "countries": [
+      "iceland"
+    ],
+    "expansion": "Pay-as-you-earn withholding",
+    "definition": "Withholding of income tax and municipal tax that employers deduct from pay and pay to the state. It is a prepayment toward the final assessment.",
+    "sourceUrl": "https://www.skatturinn.is/einstaklingar/stadgreidsla/stadgreidsla/2026/stadgreidsla-2026",
+    "sourceLabel": "Source: Skatturinn - Staðgreiðsla 2026",
+    "checked": "2026-10-12"
+  },
+  {
+    "term": "persónuafsláttur",
+    "countries": [
+      "iceland"
+    ],
+    "expansion": "Personal tax credit",
+    "definition": "A deduction that can be used to reduce income tax on wages and pensions. Those resident in Iceland and aged 16 or over are entitled to it.",
+    "sourceUrl": "https://www.skatturinn.is/einstaklingar/stadgreidsla/personuafslattur/",
+    "sourceLabel": "Source: Skatturinn - Persónuafsláttur",
+    "checked": "2026-10-12"
+  },
+  {
+    "term": "útsvar",
+    "countries": [
+      "iceland"
+    ],
+    "expansion": "Municipal income tax",
+    "definition": "Municipal tax that forms part of withholding. The rate differs between municipalities, while the withholding rate is the same nationwide.",
+    "sourceUrl": "https://www.skatturinn.is/einstaklingar/stadgreidsla/stadgreidsla/2026/stadgreidsla-2026",
+    "sourceLabel": "Source: Skatturinn - Staðgreiðsla 2026",
+    "checked": "2026-10-12"
+  },
+  {
+    "term": "PIO",
+    "countries": [
+      "serbia"
+    ],
+    "expansion": "Republic Fund for Pension and Disability Insurance",
+    "definition": "Serbian fund that administers pension and disability insurance. Its website republishes the lowest and highest monthly contribution bases, which are published in the Official Gazette each year.",
+    "sourceUrl": "https://www.pio.rs/sr/osnovice-za-uplatu-doprinosa",
+    "sourceLabel": "Source: Republic Fund for Pension and Disability Insurance (PIO) - Osnovice za uplatu doprinosa",
+    "checked": "2026-10-12"
   }
 ]

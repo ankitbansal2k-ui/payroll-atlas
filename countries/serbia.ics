@@ -1,0 +1,66 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Intelligent Payroll//Upcoming payroll changes//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Intelligent Payroll: Serbia
+BEGIN:VEVENT
+UID:serbia-rs-minimum-wage-2027@intelligentpayroll.eu
+DTSTAMP:20261001T000000Z
+DTSTART;VALUE=DATE:20270101
+DTEND;VALUE=DATE:20270102
+SUMMARY:Serbia: Minimum wage set at RSD 405 an hour for 2027
+DESCRIPTION:Upcoming\, 1 Jan 2027. The Government adopted a decision settin
+ g the minimum price of labour for January-December 2027 at RSD 405 per wor
+ king hour\, excluding tax and social insurance contributions\, an increase
+  of 9.2 percent. The monthly minimum wage will be RSD 70\,470.\n\nSource: 
+ https://www.srbija.gov.rs/vest/994489/vlada-usvojila-predlog-zakona-o-reba
+ lansu-budzeta-za-2026-godinu.php\nDetails: https://www.intelligentpayroll.
+ eu/countries/serbia.html#rs-minimum-wage-2027\n\nFor information only\, no
+ t legal or tax advice. Sources last checked 1 October 2026.
+URL:https://www.intelligentpayroll.eu/countries/serbia.html#rs-minimum-wage
+ -2027
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:serbia-rs-non-taxable-amount-2027@intelligentpayroll.eu
+DTSTAMP:20261001T000000Z
+DTSTART;VALUE=DATE:20270101
+DTEND;VALUE=DATE:20270102
+SUMMARY:Serbia: Non-taxable part of salary rises to RSD 37\,369 from 2027
+DESCRIPTION:Upcoming\, 1 Jan 2027. The Law amending the Personal Income Tax
+  Law (Official Gazette 80/2026\, in force from 8 September 2026) sets the 
+ monthly reduction of the salary tax base for a full-time employee at RSD 3
+ 7\,369. The amending law applies from 1 January 2027. Salary tax stays at 
+ 10 percent.\n\nSource: https://www.mfin.gov.rs/upload/media/MOq4eO_6aa14ac
+ 8c7a47.docx\nDetails: https://www.intelligentpayroll.eu/countries/serbia.h
+ tml#rs-non-taxable-amount-2027\n\nFor information only\, not legal or tax 
+ advice. Sources last checked 1 October 2026.
+URL:https://www.intelligentpayroll.eu/countries/serbia.html#rs-non-taxable-
+ amount-2027
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:serbia-rs-new-hire-refund-2028@intelligentpayroll.eu
+DTSTAMP:20261001T000000Z
+DTSTART;VALUE=DATE:20270101
+DTEND;VALUE=DATE:20270102
+SUMMARY:Serbia: New-hire contribution refund extended to 2028\; new conditi
+ ons from 2028 (unofficial Ministry text)
+DESCRIPTION:Upcoming\, 1 Jan 2027. The Law amending the Law on Mandatory So
+ cial Insurance Contributions (Official Gazette 80/2026\, in force from 8 S
+ eptember 2026) extends the refund of contributions for new hires in Articl
+ e 45 to wages paid up to 31 December 2028\, from 1 January 2027\, accordin
+ g to the Ministry of Finance's unofficial consolidated text. The refund co
+ vers part of the contributions paid (employee and employer share) on the w
+ age of a newly hired person. The same text applies the new conditions in A
+ rticle 1 paragraphs 2 to 12 only from 1 January 2028.\n\nSource: https://w
+ ww.mfin.gov.rs/upload/media/c59gCf_6aa14bd2e2c04.docx\nDetails: https://ww
+ w.intelligentpayroll.eu/countries/serbia.html#rs-new-hire-refund-2028\n\nF
+ or information only\, not legal or tax advice. Sources last checked 1 Octo
+ ber 2026.
+URL:https://www.intelligentpayroll.eu/countries/serbia.html#rs-new-hire-ref
+ und-2028
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR
